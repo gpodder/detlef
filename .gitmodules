@@ -1,0 +1,3 @@
+[submodule "mygpoclient-java"]
+	path = mygpoclient-java
+	url = git://github.com/Dragontek/mygpoclient-java.git
