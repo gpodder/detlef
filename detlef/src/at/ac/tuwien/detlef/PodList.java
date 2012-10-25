@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.podlist.PodListAdapter;
 
@@ -59,5 +61,12 @@ public class PodList extends ListFragment {
     public boolean onContextItemSelected(MenuItem item) {
         // TODO Auto-generated method stub
         return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.pod_fragment_layout, container, false);
     }
 }
