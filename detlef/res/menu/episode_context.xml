@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/contextDownload"
+        android:orderInCategory="1"
+        android:title="Download"/>
+    <item
+        android:id="@+id/contextAddToPlaylist"
+        android:orderInCategory="2"
+        android:title="Add to playlist"/>
+    <item
+        android:id="@+id/contextMarkRead"
+        android:orderInCategory="3"
+        android:title="Mark as read"/>
+    <item
+        android:id="@+id/contextShowInfo"
+        android:orderInCategory="4"
+        android:title="Show episode info"/>
+
+</menu>
