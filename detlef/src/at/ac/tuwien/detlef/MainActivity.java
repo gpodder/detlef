@@ -106,6 +106,7 @@ public class MainActivity extends FragmentActivity implements
 
         private EpisodeList episodeList = new EpisodeList();
         private PodList podList = new PodList();
+        private Player player = new Player();
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -118,11 +119,7 @@ public class MainActivity extends FragmentActivity implements
             } else if (i == 1) {
                 return episodeList;
             } else {
-                Fragment fragment = new DummySectionFragment();
-                Bundle args = new Bundle();
-                args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, i + 1);
-                fragment.setArguments(args);
-                return fragment;
+                return player;
             }
         }
 

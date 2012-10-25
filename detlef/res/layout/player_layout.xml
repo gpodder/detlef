@@ -1,44 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-    <TableRow
-        android:id="@+id/tableRow1"
+    <RelativeLayout
+        android:id="@+id/infoLayout"
         android:layout_width="fill_parent"
-        android:layout_height="50%" >
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_weight="8" >
 
-        <RelativeLayout
+        <ImageView
+            android:id="@+id/imageView1"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:src="@drawable/ic_launcher" />
 
-            <ImageView
-                android:id="@+id/imageView1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_launcher" />
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView1"
+            android:gravity="center"
+            android:scrollbars="vertical"
+            android:text="Episode Description" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_weight="2" >
+
+        <TextView
+            android:id="@+id/nowPlayingString"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:text="Now playing: " />
+
+        <LinearLayout
+            android:id="@+id/nowPlayingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nowPlayingString"
+            android:gravity="center" >
 
             <TextView
-                android:id="@+id/textView1"
+                android:id="@+id/playerPodcastName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/imageView1"
-                android:maxLines="8"
-                android:scrollbars="vertical"
-                android:text="Episode Description" />
-        </RelativeLayout>
-    </TableRow>
+                android:text="My Podcast 1: "
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TableRow
-        android:id="@+id/tableRow1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+            <TextView
+                android:id="@+id/playerEpisodeName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="My Episode 15"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#0099CC" />
+        </LinearLayout>
 
-        <RelativeLayout
+        <SeekBar
+            android:id="@+id/SeekBar01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nowPlayingLayout"
+            android:layout_toLeftOf="@+id/ButtonFF"
+            android:layout_toRightOf="@+id/ButtonPlayStop"
+            android:layout_margin="5pt" />
+
+        <Button
+            android:id="@+id/ButtonPlayStop"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-        </RelativeLayout>
-    </TableRow>
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nowPlayingLayout"
+            android:layout_alignLeft="@+id/nowPlayingLayout"
+            android:text="PL" />
 
-</TableLayout>
+        <Button
+            android:id="@+id/ButtonFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nowPlayingLayout"
+            android:layout_alignRight="@+id/nowPlayingLayout"
+            android:text="FF" />
+    </RelativeLayout>
+
+</LinearLayout>
