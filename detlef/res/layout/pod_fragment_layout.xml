@@ -26,7 +26,7 @@
 
             <Button
                 android:layout_height="40sp"
-                android:text="Refresh"
+                android:text="@string/refresh"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"
@@ -36,7 +36,7 @@
             <Button
                 android:layout_height="40sp"
                 android:onClick="startPlaylistActivity"
-                android:text="Playlist"
+                android:text="@string/playlist"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"
@@ -45,7 +45,7 @@
             <Button
                 android:layout_height="40sp"
                 android:onClick="startSearchActivity"
-                android:text="Search"
+                android:text="@string/search" 
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"

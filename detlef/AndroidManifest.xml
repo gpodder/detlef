@@ -23,14 +23,10 @@
         </activity>
         <activity
             android:name=".PlaylistActivity"
-            android:label="@string/title_activity_playlist" >
-            <intent-filter />
-        </activity>
+            android:label="@string/title_activity_playlist" />
         <activity
             android:name=".SearchActivity"
-            android:label="@string/title_activity_search" >
-            <intent-filter />
-        </activity>
+            android:label="@string/title_activity_search" />
     </application>
 
 </manifest>

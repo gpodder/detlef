@@ -26,7 +26,7 @@
 
             <Button
                 android:layout_height="40sp"
-                android:text="Filter"
+                android:text="@string/filter"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"
@@ -35,7 +35,7 @@
 
             <Button
                 android:layout_height="40sp"
-                android:text="Sort"
+                android:text="@string/sort"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"
@@ -44,7 +44,7 @@
             <Button
                 android:layout_height="40sp"
                 android:onClick="startPlaylistActivity"
-                android:text="Playlist"
+                android:text="@string/playlist"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"

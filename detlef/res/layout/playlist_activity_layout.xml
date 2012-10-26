@@ -33,13 +33,13 @@
         android:background="#000000"
         android:stretchColumns="*" >
 
-        <TableRow
+        <TableRow 
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" >
 
             <Button
                 android:layout_height="40sp"
-                android:text="Download all"
+                android:text="@string/download_all"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"
@@ -48,7 +48,7 @@
 
             <Button
                 android:layout_height="40sp"
-                android:text="Clear Playlist"
+                android:text="@string/clear_playlist"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"

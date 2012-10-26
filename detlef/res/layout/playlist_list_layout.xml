@@ -26,21 +26,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="6dp"
                 android:drawableTop="@drawable/ic_launcher"
-                android:text="15.6MB"
+                android:text="@string/sample_download_size"
                 android:textSize="12dp" />
         </LinearLayout>
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="horizontal"
-                android:gravity="center_vertical" >
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
 
             <TextView
                 android:id="@+id/playListPodcast"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="My Podcast"
+                android:text="@string/sample_podcast_name"
                 android:textStyle="bold" />
 
             <TextView
@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/playListPodcast"
-                android:text="My Episode 1"
+                android:text="@string/sample_episode_name_2"
                 android:textColor="#0099CC"
                 android:textStyle="bold" />
 
@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:focusable="false"
-                android:text="-P/L" />
+                android:text="@string/remove_from_playlist_abbreviation" />
         </RelativeLayout>
     </LinearLayout>
 
