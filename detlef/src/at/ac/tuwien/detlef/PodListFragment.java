@@ -53,7 +53,7 @@ public class PodListFragment extends ListFragment {
             ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.episode_context, menu);
+        inflater.inflate(R.menu.podcast_context, menu);
     }
 
     @Override

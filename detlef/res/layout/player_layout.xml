@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/playerEpisode"
             android:gravity="center"
-            android:maxLines="10"
+            android:maxLines="8"
             android:scrollbars="vertical"
             android:singleLine="false"
             android:text="@string/sample_episode_description" /> 

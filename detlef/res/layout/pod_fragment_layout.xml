@@ -12,45 +12,4 @@
         tools:listitem="@layout/episode_list_layout" >
     </ListView>
 
-    <TableLayout
-        android:id="@+id/fakeActionBar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="#000000"
-        android:stretchColumns="*" >
-
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
-
-            <Button
-                android:layout_height="40sp"
-                android:text="@string/refresh"
-                android:textAllCaps="true"
-                android:textColor="#ffffff"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-            <!-- TODO better shapes -->
-
-            <Button
-                android:layout_height="40sp"
-                android:onClick="startPlaylistActivity"
-                android:text="@string/playlist"
-                android:textAllCaps="true"
-                android:textColor="#ffffff"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:layout_height="40sp"
-                android:onClick="startSearchActivity"
-                android:text="@string/search" 
-                android:textAllCaps="true"
-                android:textColor="#ffffff"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </TableRow>
-    </TableLayout>
-
 </RelativeLayout>

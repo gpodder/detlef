@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="6dp"
                 android:drawableTop="@drawable/ic_launcher"
-                android:text="15.6MB"
+                android:text="@string/sample_download_size"
                 android:textSize="12dp" />
         </LinearLayout>
 
@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="marquee"
                     android:gravity="center"
-                    android:text="Podcast"
+                    android:text="@string/podcast"
                     android:textStyle="bold" />
 
                 <TextView
@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:ellipsize="marquee"
-                    android:text="Episode"
+                    android:text="@string/episode"
                     android:textColor="#0099CC"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -74,15 +74,18 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="2"
-                    android:text="News from all over the world. Listen to news from the U.S.A., Great Britain, Italy, Dang, I&apos;m out of countries"
+                    android:text="@string/sample_episode_description"
                     android:textStyle="italic" />
             </LinearLayout>
 
             <TableLayout
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:stretchColumns="*" >
 
-                <TableRow>
+                <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" >
 
                     <Button
                         android:id="@+id/episodeListDownload"
@@ -90,7 +93,7 @@
                         android:layout_height="wrap_content"
                         android:focusable="false"
                         android:gravity="center_vertical|center_horizontal"
-                        android:text="D/L" />
+                        android:text="@string/download_abbreviation" />
 
                     <Button
                         android:id="@+id/episodeListDelete"
@@ -98,7 +101,7 @@
                         android:layout_height="wrap_content"
                         android:focusable="false"
                         android:gravity="center_vertical|center_horizontal"
-                        android:text="Del" />
+                        android:text="@string/delete_abbreviation" />
 
                     <Button
                         android:id="@+id/episodeListAddToPlaylist"
@@ -106,15 +109,15 @@
                         android:layout_height="wrap_content"
                         android:focusable="false"
                         android:gravity="center_vertical|center_horizontal"
-                        android:text="+P/L" />
+                        android:text="@string/add_to_playlist_abbreviation" />
 
-                    <Button
+                    <CheckBox
                         android:id="@+id/episodeListMarkRead"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:focusable="false"
                         android:gravity="center_vertical|center_horizontal"
-                        android:text="Read" />
+                        android:text="@string/mark_read_short" />
                 </TableRow>
             </TableLayout>
         </LinearLayout>

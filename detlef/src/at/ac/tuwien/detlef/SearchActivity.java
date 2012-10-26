@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.View;
 import at.ac.tuwien.detlef.adapters.SearchListAdapter;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -32,5 +35,14 @@ public class SearchActivity extends ListActivity {
         adapter = new SearchListAdapter(this, R.layout.search_list_layout,
                 listItems);
         setListAdapter(adapter);
+        registerForContextMenu(getListView());
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.search_context, menu);
     }
 }

@@ -3,10 +3,11 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-    android:targetPackage="at.ac.tuwien.detlef"
-    android:label="Detlef UI Tests" />
-    
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:label="Detlef UI Tests"
+        android:targetPackage="at.ac.tuwien.detlef" />
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="15" />
@@ -25,15 +26,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".PlaylistActivity"
-            android:label="@string/title_activity_playlist" />
+            android:label="@string/title_activity_playlist"
+            android:uiOptions="splitActionBarWhenNarrow" />
         <activity
             android:name=".SearchActivity"
-            android:label="@string/title_activity_search" />
-        
-	<uses-library android:name="android.test.runner" />
+            android:label="@string/title_activity_search"
+            android:uiOptions="splitActionBarWhenNarrow" />
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
+
+        <uses-library android:name="android.test.runner" />
     </application>
 
 </manifest>

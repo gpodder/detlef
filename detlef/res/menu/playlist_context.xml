@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/removeFromPlaylist"
+        android:orderInCategory="1"
+        android:title="Remove from playlist"
+        android:titleCondensed="Remove from P/L"/>
+
+</menu>

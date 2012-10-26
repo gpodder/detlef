@@ -4,6 +4,10 @@ import java.util.ArrayList;
 
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
 import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -64,6 +68,7 @@ public class PlaylistActivity extends ListActivity {
         adapter = new PlaylistListAdapter(this, R.layout.playlist_list_layout,
                 listItems);
         setListAdapter(adapter);
+        registerForContextMenu(getListView());
     }
 
     private DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
@@ -80,4 +85,19 @@ public class PlaylistActivity extends ListActivity {
             adapter.remove(adapter.getItem(which));
         }
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.playlist_menu, menu);
+        return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.playlist_context, menu);
+    }
 }

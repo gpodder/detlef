@@ -10,16 +10,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity implements
         ActionBar.TabListener {
+
+    private Menu menu;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -81,8 +78,27 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        // TODO Auto-generated method stub
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.episode_context, menu);
+        this.menu = menu;
+        switch (mViewPager.getCurrentItem()) {
+        case 0:
+            getMenuInflater().inflate(R.menu.podcast_menu, menu);
+            break;
+        case 1:
+            getMenuInflater().inflate(R.menu.episode_menu, menu);
+            break;
+        case 2:
+            // getMenuInflater().inflate(R.menu.player_menu, menu);
+            break;
+        default:
+            return false;
+        }
         return true;
     }
 
@@ -93,6 +109,20 @@ public class MainActivity extends FragmentActivity implements
     public void onTabSelected(Tab tab, FragmentTransaction fragmentTransaction) {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
+        if (menu != null) {
+            menu.clear();
+            switch (tab.getPosition()) {
+            case 0:
+                getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                break;
+            case 1:
+                getMenuInflater().inflate(R.menu.episode_menu, menu);
+                break;
+            case 2:
+                getMenuInflater().inflate(R.menu.player_menu, menu);
+                break;
+            }
+        }
         mViewPager.setCurrentItem(tab.getPosition());
     }
 
@@ -133,57 +163,35 @@ public class MainActivity extends FragmentActivity implements
         public CharSequence getPageTitle(int position) {
             switch (position) {
             case 0:
-                return getString(R.string.title_section1).toUpperCase();
+                return getString(R.string.podcasts).toUpperCase();
             case 1:
-                return getString(R.string.title_section2).toUpperCase();
+                return getString(R.string.episodes).toUpperCase();
             case 2:
-                return getString(R.string.title_section3).toUpperCase();
+                return getString(R.string.player).toUpperCase();
             }
             return null;
         }
     }
 
-    /**
-     * A dummy fragment representing a section of the app, but that simply
-     * displays dummy text.
-     */
-    public static class DummySectionFragment extends Fragment {
-        public DummySectionFragment() {
-        }
-
-        public static final String ARG_SECTION_NUMBER = "section_number";
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            TextView textView = new TextView(getActivity());
-            textView.setGravity(Gravity.CENTER);
-            Bundle args = getArguments();
-            textView.setText(Integer.toString(args.getInt(ARG_SECTION_NUMBER)));
-            return textView;
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
-        case R.id.menu_settings:
-            // Intent intent = new Intent(this, PreferencesActivity.class);
-            // startActivity(intent);
+        case R.id.settings:
+            intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.playlist:
+            intent = new Intent(this, PlaylistActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.search:
+            intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
             break;
         default:
             break;
         }
         return true;
-    }
-
-    public void startPlaylistActivity(View view) {
-        Intent intent = new Intent(this, PlaylistActivity.class);
-        startActivity(intent);
-    }
-
-    public void startSearchActivity(View view) {
-        Intent intent = new Intent(this, SearchActivity.class);
-        startActivity(intent);
     }
 }

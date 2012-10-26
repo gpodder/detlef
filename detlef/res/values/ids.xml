@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item type="id" name="drag_handle" />
+    <item type="id" name="settings" />
+    <item type="id" name="playlist" />
 </resources>
