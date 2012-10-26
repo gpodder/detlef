@@ -3,6 +3,7 @@ package at.ac.tuwien.detlef;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -104,9 +105,9 @@ public class MainActivity extends FragmentActivity implements
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private EpisodeList episodeList = new EpisodeList();
-        private PodList podList = new PodList();
-        private Player player = new Player();
+        private EpisodeListFragment episodeList = new EpisodeListFragment();
+        private PodListFragment podList = new PodListFragment();
+        private PlayerFragment player = new PlayerFragment();
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -174,5 +175,10 @@ public class MainActivity extends FragmentActivity implements
             break;
         }
         return true;
+    }
+
+    public void startPlaylistActivity(View view) {
+        Intent intent = new Intent(this, PlaylistActivity.class);
+        startActivity(intent);
     }
 }

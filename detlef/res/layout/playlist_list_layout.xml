@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="15"
+        android:gravity="left|top"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|left"
+            android:gravity="right|center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@id/drag_handle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="6dp"
+                android:drawableTop="@drawable/ic_launcher"
+                android:text="15.6MB"
+                android:textSize="12dp" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+                android:gravity="center_vertical" >
+
+            <TextView
+                android:id="@+id/playListPodcast"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Podcast"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/playListEpisode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/playListPodcast"
+                android:text="My Episode 1"
+                android:textColor="#0099CC"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/playListRemoveFromPlaylist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:focusable="false"
+                android:text="-P/L" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -10,11 +10,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.podlist.EpisodeListAdapter;
 
-public class EpisodeList extends ListFragment {
+public class EpisodeListFragment extends ListFragment {
 
     private ArrayList<Episode> listItems = new ArrayList<Episode>();
     private EpisodeListAdapter adapter;

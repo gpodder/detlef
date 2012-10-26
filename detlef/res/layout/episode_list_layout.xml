@@ -21,7 +21,7 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/dlSize"
+                android:id="@+id/episodeListDlSize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="6dp"
@@ -43,7 +43,7 @@
                 android:orientation="horizontal" >
 
                 <TextView
-                    android:id="@+id/podcast"
+                    android:id="@+id/episodeListPodcast"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="marquee"
@@ -52,7 +52,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/episode"
+                    android:id="@+id/episodeListEpisode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
@@ -69,7 +69,7 @@
                 android:orientation="horizontal" >
 
                 <TextView
-                    android:id="@+id/description"
+                    android:id="@+id/episodeListDescription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -85,7 +85,7 @@
                 <TableRow>
 
                     <Button
-                        android:id="@+id/download"
+                        android:id="@+id/episodeListDownload"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:focusable="false"
@@ -93,7 +93,7 @@
                         android:text="D/L" />
 
                     <Button
-                        android:id="@+id/download"
+                        android:id="@+id/episodeListDelete"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:focusable="false"
@@ -101,7 +101,7 @@
                         android:text="Del" />
 
                     <Button
-                        android:id="@+id/addToPlaylist"
+                        android:id="@+id/episodeListAddToPlaylist"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:focusable="false"
@@ -109,7 +109,7 @@
                         android:text="+P/L" />
 
                     <Button
-                        android:id="@+id/markRead"
+                        android:id="@+id/episodeListMarkRead"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:focusable="false"

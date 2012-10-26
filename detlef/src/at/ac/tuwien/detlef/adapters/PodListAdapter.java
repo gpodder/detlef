@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef.podlist;
+package at.ac.tuwien.detlef.adapters;
 
 import java.util.ArrayList;
 

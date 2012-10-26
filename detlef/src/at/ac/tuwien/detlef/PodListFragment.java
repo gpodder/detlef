@@ -10,10 +10,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.podlist.PodListAdapter;
 
-public class PodList extends ListFragment {
+public class PodListFragment extends ListFragment {
 
     private ArrayList<Podcast> listItems = new ArrayList<Podcast>();
     private PodListAdapter adapter;

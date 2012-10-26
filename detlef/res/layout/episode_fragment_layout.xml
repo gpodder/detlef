@@ -7,7 +7,7 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/fakeActionBar"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         tools:listitem="@layout/pod_list_layout" >
     </ListView>

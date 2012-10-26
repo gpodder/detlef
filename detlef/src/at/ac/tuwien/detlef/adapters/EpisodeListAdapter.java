@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef.podlist;
+package at.ac.tuwien.detlef.adapters;
 
 import java.util.ArrayList;
 
@@ -32,8 +32,10 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
         Episode episode = episodes.get(position);
         if (episode != null) {
-            TextView podcastname = (TextView) v.findViewById(R.id.podcast);
-            TextView episodeView = (TextView) v.findViewById(R.id.episode);
+            TextView podcastname = (TextView) v
+                    .findViewById(R.id.episodeListPodcast);
+            TextView episodeView = (TextView) v
+                    .findViewById(R.id.episodeListEpisode);
             if (podcastname != null) {
                 podcastname.setText("Podcast Name");
             }

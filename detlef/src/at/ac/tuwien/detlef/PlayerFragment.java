@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
-public class Player extends Fragment {
+public class PlayerFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
