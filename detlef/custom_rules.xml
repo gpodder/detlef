@@ -40,7 +40,7 @@
     <javac srcdir="${src}" destdir="${build}"/>
   </target>
   
-  <target name="build" depends="checkstyle">
+  <target name="build" depends="checkstyle,debug,test">
     
   </target>
 
@@ -74,7 +74,7 @@
 
   <target name="checkstyle" description="runs checkstyle on the source files" depends="install.checkstyle">
     <taskdef resource="checkstyletask.properties" classpath="${build.checkstyle.jar}"/>
-    <checkstyle config="${build.checkstyle.config}" maxErrors="0" maxWarnings="10">
+    <checkstyle config="${build.checkstyle.config}" maxErrors="0">
       <fileset dir="${src}">
         <include name="**/*.java"/>
       </fileset>
@@ -82,9 +82,7 @@
       <formatter type="xml" toFile="${build.checkstyle}/checkstyle-result.xml"/>
     </checkstyle>
   </target>
-  <target name="junit">
-    
-  </target>
+
   <target name="javadoc">
     <delete dir="${build.javadoc}" />
     <mkdir dir="${build.javadoc}" />
