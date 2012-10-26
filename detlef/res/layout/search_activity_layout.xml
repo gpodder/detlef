@@ -3,20 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="fill_parent" >
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        tools:listitem="@layout/episode_list_layout" >
-    </ListView>
-
     <TableLayout
         android:id="@+id/fakeActionBar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
         android:background="#000000"
         android:stretchColumns="*" >
 
@@ -24,9 +15,24 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" >
 
+            <AutoCompleteTextView
+                android:id="@+id/searchBar"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="2"
+                android:background="#ffffff" >
+
+                <requestFocus />
+            </AutoCompleteTextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
             <Button
                 android:layout_height="40sp"
-                android:text="Refresh"
+                android:text="Search"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"
@@ -35,22 +41,21 @@
 
             <Button
                 android:layout_height="40sp"
-                android:onClick="startPlaylistActivity"
-                android:text="Playlist"
-                android:textAllCaps="true"
-                android:textColor="#ffffff"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:layout_height="40sp"
-                android:onClick="startSearchActivity"
-                android:text="Search"
+                android:text="Take URL"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"
                 android:textStyle="bold" />
         </TableRow>
     </TableLayout>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fakeActionBar"
+        android:layout_centerHorizontal="true"
+        tools:listitem="@layout/search_list_layout" >
+    </ListView>
 
 </RelativeLayout>

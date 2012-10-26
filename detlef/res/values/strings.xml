@@ -8,5 +8,6 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_pod_list">Podcasts</string>
     <string name="title_activity_playlist">Playlist</string>
+    <string name="title_activity_search">Search</string>
 
 </resources>

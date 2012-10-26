@@ -22,7 +22,6 @@ public class PodListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setContentView(R.layout.episode_list_layout);
         Podcast all = new Podcast();
         Podcast p1 = new Podcast();
         Podcast p2 = new Podcast();
@@ -38,8 +37,8 @@ public class PodListFragment extends ListFragment {
         listItems.add(p2);
         listItems.add(p3);
         listItems.add(p4);
-        adapter = new PodListAdapter(getActivity(),
-                android.R.layout.simple_list_item_1, listItems);
+        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout,
+                listItems);
         setListAdapter(adapter);
     }
 

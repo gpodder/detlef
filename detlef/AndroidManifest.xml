@@ -24,11 +24,12 @@
         <activity
             android:name=".PlaylistActivity"
             android:label="@string/title_activity_playlist" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <intent-filter />
+        </activity>
+        <activity
+            android:name=".SearchActivity"
+            android:label="@string/title_activity_search" >
+            <intent-filter />
         </activity>
     </application>
 
