@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef.ui;
+package at.ac.tuwien.detlef;
 
 import java.util.ArrayList;
 
@@ -7,9 +7,8 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.View;
-import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.adapters.SearchListAdapter;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.ui.adapters.SearchListAdapter;
 
 public class SearchActivity extends ListActivity {
 

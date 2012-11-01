@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef.ui.adapters;
+package at.ac.tuwien.detlef.adapters;
 
 import java.util.ArrayList;
 
@@ -11,11 +11,11 @@ import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
 
-public class PlaylistListAdapter extends ArrayAdapter<Episode> {
+public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
     private ArrayList<Episode> episodes;
 
-    public PlaylistListAdapter(Context context, int textViewResourceId,
+    public EpisodeListAdapter(Context context, int textViewResourceId,
             ArrayList<Episode> episodes) {
         super(context, textViewResourceId, episodes);
         this.episodes = episodes;
@@ -27,15 +27,15 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(R.layout.playlist_list_layout, null);
+            v = vi.inflate(R.layout.episode_list_layout, null);
         }
 
         Episode episode = episodes.get(position);
         if (episode != null) {
             TextView podcastname = (TextView) v
-                    .findViewById(R.id.playListPodcast);
+                    .findViewById(R.id.episodeListPodcast);
             TextView episodeView = (TextView) v
-                    .findViewById(R.id.playListEpisode);
+                    .findViewById(R.id.episodeListEpisode);
             if (podcastname != null) {
                 podcastname.setText("Podcast Name");
             }
@@ -46,6 +46,6 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
         }
 
         return v;
-    }
 
+    }
 }
