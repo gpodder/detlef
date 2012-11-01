@@ -37,11 +37,13 @@
     <string name="settings">Settings</string>
     <string name="delete_feed">Delete Feed</string>
     <string name="placeholder">Placeholder</string>
-    <string name="settings_category_gpodder.net">gpodder.net Account Settings</string>
-    <string name="settings_category_gpodder.net_summary">Connection settings for gpodder.net</string>
-    <string name="settings_category_gpodder.net_username">Username</string>
-    <string name="settings_category_gpodder.net_password">Password</string>
-    <string name="settings_category_gpodder.net_device_name">Device name</string>
-    <string name="settings_category_gpodder.net_testconnection">Test connection</string>
-    <string name="settings_category_gpodder.net_testconnection_summary">Tap here to test the connection to gpodder.net</string>
+    <string name="settings_fragment_gpodder.net">gpodder.net Account Settings</string>
+    <string name="settings_fragment_gpodder.net_summary">Connection settings for gpodder.net</string>
+    <string name="settings_fragment_gpodder.net_username">Username</string>
+    <string name="settings_fragment_gpodder.net_password">Password</string>
+    <string name="settings_fragment_gpodder.net_device_name">Device name</string>
+    <string name="settings_fragment_gpodder.net_testconnection">Test connection</string>
+    <string name="settings_fragment_gpodder.net_testconnection_summary">Tap here to test the connection to gpodder.net</string>
+    <string name="settings_fragment_gpodder.net_testconnection_progress_title">Checking account settings&#8230;</string>
+    <string name="settings_fragment_gpodder.net_testconnection_progress_message">Please hold on while your account settings are checked on gpodder.net</string>
 </resources>
