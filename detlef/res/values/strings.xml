@@ -46,4 +46,7 @@
     <string name="settings_fragment_gpodder.net_testconnection_summary">Tap here to test the connection to gpodder.net</string>
     <string name="settings_fragment_gpodder.net_testconnection_progress_title">Checking account settings&#8230;</string>
     <string name="settings_fragment_gpodder.net_testconnection_progress_message">Please hold on while your account settings are checked on gpodder.net</string>
+    <string name="settings_fragment_gpodder.net_testconnection_successful">Great! You account settings are valid.</string>
+    <string name="settings_fragment_gpodder.net_testconnection_unsuccessful">Your username and/or password is not correct. Check your settings and try again.</string>
+    <string name="settings_fragment_gpodder.net_testconnection_connectionerror">Whoopsie - Could not connect to gpodder.net. Check your internet settings, relax a bit and try again.</string>
 </resources>

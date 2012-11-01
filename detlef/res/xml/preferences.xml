@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <preference-headers
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <header android:fragment="at.ac.tuwien.detlef.SettingsActivity$GpodderNetPrefFragment"
+    <header android:fragment="at.ac.tuwien.detlef.SettingsGpodderNetFragment"
            android:title="@string/settings_fragment_gpodder.net"
            android:summary="@string/settings_fragment_gpodder.net_summary" />
 </preference-headers>

@@ -1,3 +1,5 @@
-/** Backend for the settings screen. */
+/**
+ * This package contains settings related functionality.
+ * @author moe
+ */
 package at.ac.tuwien.detlef.settings;
-
