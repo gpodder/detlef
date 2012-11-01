@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/settings_category_gpodder.net" android:summary="@string/settings_category_gpodder.net_summary">
+        <EditTextPreference android:title="@string/settings_category_gpodder.net_username"/>
+        <EditTextPreference android:title="@string/settings_category_gpodder.net_password" android:inputType="textPassword" />
+        <EditTextPreference android:title="@string/settings_category_gpodder.net_device_name" />
 
-    <PreferenceCategory android:title="PreferenceCategory A" >
-        <CheckBoxPreference
-            android:key="checkbox_preference"
-            android:summary="summary_checkbox_preference"
-            android:title="title_checkbox_preference" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="PreferenceCategory B" >
-        <EditTextPreference
-            android:dialogTitle="dialog_title_edittext_preference"
-            android:key="edittext_preference"
-            android:summary="summary_edittext_preference"
-            android:title="title_edittext_preference" />
+
+        <Preference
+			android:title="@string/settings_category_gpodder.net_testconnection"
+			android:key="button"
+			android:summary="@string/settings_category_gpodder.net_testconnection_summary"
+		/>
     </PreferenceCategory>
 
 </PreferenceScreen>
