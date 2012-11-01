@@ -1,9 +1,13 @@
 package at.ac.tuwien.detlef;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.BroadcastReceiver.PendingResult;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
 import at.ac.tuwien.detlef.settings.Gpodder;
@@ -53,11 +57,37 @@ public class SettingsGpodderNetFragment extends PreferenceFragment {
 		return new Gpodder() {
 
 			public String getUsername() {
-				return "moe";
+				return PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("username", "");
 			}
 
 			public String getPassword() {
-				return "mesosecure";
+				return PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("password", "");
+			}
+
+			public String getDevicename() {
+				return PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("devicename", "");
+			}
+		};
+	}
+
+	public OnPreferenceChangeListener getSummaryUpdateListener() {
+		return new Preference.OnPreferenceChangeListener() {
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				((Preference) findPreference("username")).setSummary(getSettings().getUsername());
+				((Preference) findPreference("password")).setSummary(
+					new String(new char[10]).replace(
+						"\0",
+						getText(R.string.settings_fragment_gpodder_net_password_mask_char)
+					)
+				);
+
+				PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putString("devicename", "lol").commit();
+
+				((Preference) findPreference("devicename")).setSummary(getSettings().getDevicename());
+
+
+
+				return true;
 			}
 		};
 	}
@@ -68,9 +98,20 @@ public class SettingsGpodderNetFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
 
         toast = Toast.makeText(getActivity(), "", 0);
-
         addPreferencesFromResource(R.xml.preferences_gpoddernet);
 
+
+
+        setUpTestConnectionButton();
+        findPreference("username").setOnPreferenceChangeListener(getSummaryUpdateListener());
+        findPreference("devicename").setOnPreferenceChangeListener(getSummaryUpdateListener());
+
+        getSummaryUpdateListener().onPreferenceChange(null, null);
+
+
+    }
+
+	private void setUpTestConnectionButton() {
         Preference button = (Preference)findPreference("button");
         button.setOnPreferenceClickListener(
 		new Preference.OnPreferenceClickListener() {
@@ -106,7 +147,9 @@ public class SettingsGpodderNetFragment extends PreferenceFragment {
 
 						getActivity().runOnUiThread(new Runnable() {
 							  public void run() {
-								  toast = Toast.makeText(getActivity(), getString(toastStatus), Toast.LENGTH_LONG);
+								  toast = Toast.makeText(
+								      getActivity(),
+                                          String.format(getString(toastStatus), getSettings().getUsername()), Toast.LENGTH_LONG);
 								  toast.show();
 							  }
 						});
@@ -119,6 +162,6 @@ public class SettingsGpodderNetFragment extends PreferenceFragment {
 			}
 		}
         );
-    }
+	}
 
 }

@@ -6,7 +6,7 @@ package at.ac.tuwien.detlef.settings;
 public interface Gpodder {
 
 	/**
-	 * @return The username
+	 * @return The user name
 	 */
 	String getUsername();
 
@@ -14,5 +14,10 @@ public interface Gpodder {
 	 * @return The password
 	 */
 	String getPassword();
+
+	/**
+	 * @return The name that is used to identify this device in gpodder.net
+	 */
+	String getDevicename();
 
 }
