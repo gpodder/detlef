@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/settings_category_gpodder.net" android:summary="@string/settings_category_gpodder.net_summary">
+        <EditTextPreference android:title="@string/settings_category_gpodder.net_username"/>
+        <EditTextPreference android:title="@string/settings_category_gpodder.net_password" android:inputType="textPassword" />
+        <EditTextPreference android:title="@string/settings_category_gpodder.net_device_name" />
+
+
+        <Preference
+			android:title="@string/settings_category_gpodder.net_testconnection"
+			android:key="button"
+			android:summary="@string/settings_category_gpodder.net_testconnection_summary"
+		/>
+    </PreferenceCategory>
+
+</PreferenceScreen>
