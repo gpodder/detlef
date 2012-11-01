@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef;
+package at.ac.tuwien.detlef.ui;
 
 import java.util.ArrayList;
 
@@ -10,8 +10,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import at.ac.tuwien.detlef.adapters.PodListAdapter;
+import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.ui.adapters.PodListAdapter;
 
 public class PodListFragment extends ListFragment {
 

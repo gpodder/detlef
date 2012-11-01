@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef.adapters;
+package at.ac.tuwien.detlef.ui.adapters;
 
 import java.util.ArrayList;
 

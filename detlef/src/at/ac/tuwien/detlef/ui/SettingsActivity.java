@@ -1,7 +1,8 @@
-package at.ac.tuwien.detlef;
+package at.ac.tuwien.detlef.ui;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import at.ac.tuwien.detlef.R;
 
 public class SettingsActivity extends PreferenceActivity {
     @SuppressWarnings("deprecation")

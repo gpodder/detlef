@@ -1,36 +1,37 @@
 package at.ac.tuwien.detlef;
 
+import android.test.ActivityInstrumentationTestCase2;
+import at.ac.tuwien.detlef.ui.MainActivity;
+
 import com.jayway.android.robotium.solo.Solo;
 
-import android.test.ActivityInstrumentationTestCase2;
-
 public class MainActivityTest extends
-	ActivityInstrumentationTestCase2<MainActivity> {
+        ActivityInstrumentationTestCase2<MainActivity> {
 
-	private Solo solo;
-	
-	public void setUp() throws Exception {
-		solo = new Solo(getInstrumentation(), getActivity());
-	}
+    private Solo solo;
 
-	public MainActivityTest() {
-		super(MainActivity.class);
-	}
+    @Override
+    public void setUp() throws Exception {
+        solo = new Solo(getInstrumentation(), getActivity());
+    }
 
-	/**
-	 * Makes sure that a menu item called "All Podcasts" appears
-	 * on the first page.
-	 * @throws Exception
-	 */
-	public void testAllPodcatsOnFirstPage() throws Exception {
+    public MainActivityTest() {
+        super(MainActivity.class);
+    }
+
+    /**
+     * Makes sure that a menu item called "All Podcasts" appears on the first
+     * page.
+     * 
+     * @throws Exception
+     */
+    public void testAllPodcatsOnFirstPage() throws Exception {
         assertTrue(solo.searchText("All Podcasts"));
-	}
+    }
 
-	
-   @Override
-   public void tearDown() throws Exception {
-	   solo.finishOpenedActivities();
-   }
-
+    @Override
+    public void tearDown() throws Exception {
+        solo.finishOpenedActivities();
+    }
 
 }

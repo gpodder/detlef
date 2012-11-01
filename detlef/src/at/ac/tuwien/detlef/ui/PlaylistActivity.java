@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef;
+package at.ac.tuwien.detlef.ui;
 
 import java.util.ArrayList;
 
@@ -8,9 +8,10 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
+import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.ui.adapters.PlaylistListAdapter;
 
 import com.mobeta.android.dslv.DragSortListView;
 

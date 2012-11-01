@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef;
+package at.ac.tuwien.detlef.ui;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import at.ac.tuwien.detlef.R;
 
 public class MainActivity extends FragmentActivity implements
         ActionBar.TabListener {
