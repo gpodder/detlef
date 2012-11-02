@@ -5,12 +5,14 @@ import java.util.ArrayList;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
@@ -19,18 +21,35 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.models.PodListModel;
 
 public class PodListFragment extends ListFragment {
 
-    private ArrayList<Podcast> listItems = new ArrayList<Podcast>();
+    private static final String TAG = PodListFragment.class.getName();
 
     private PodListAdapter adapter;
+    private PodListModel<Podcast> model;
 
     int clickCounter = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ArrayList<Podcast> podlist = new ArrayList<Podcast>();
+        fillWithDummyContents(podlist);
+        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
+        setListAdapter(adapter);
+
+        model = new PodListModel<Podcast>(podlist);
+        model.addPodListChangeListener(new PodListModel.PodListChangeListener() {
+            public void onPodListChange() {
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void fillWithDummyContents(ArrayList<Podcast> podlist) {
         Podcast all = new Podcast();
         Podcast p1 = new Podcast();
         Podcast p2 = new Podcast();
@@ -68,6 +87,8 @@ public class PodListFragment extends ListFragment {
         p4.setLogoUrl("logoUrl");
         p4.setUrl("url");
         p4.setId(dao.insertPodcast(p4));
+
+
         Episode e1 = new Episode();
         e1.setAuthor("author");
         e1.setDescription("description");
@@ -96,13 +117,17 @@ public class PodListFragment extends ListFragment {
 
         dao.deletePodcast(((ArrayList<Podcast>)dao.getAllPodcasts()).get(0));
         listItems = (ArrayList<Podcast>)dao.getAllPodcasts();
+        podlist.add(all);
+        podlist.add(p1);
+        podlist.add(p2);
+        podlist.add(p3);
+        podlist.add(p4);
         // listItems.add(all);
         // listItems.add(p1);
         // listItems.add(p2);
         // listItems.add(p3);
         // listItems.add(p4);
         adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, listItems);
-        setListAdapter(adapter);
     }
 
     @Override
@@ -120,13 +145,24 @@ public class PodListFragment extends ListFragment {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        // TODO Auto-generated method stub
-        return super.onContextItemSelected(item);
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.delete_feed:
+                onDeleteFeedClicked(info.position);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.pod_fragment_layout, container, false);
+    }
+
+    private void onDeleteFeedClicked(int pos) {
+        Log.v(TAG, String.format("onDeleteFeedClicked %d", pos));
+        model.removePodcast(model.get(pos));
     }
 }

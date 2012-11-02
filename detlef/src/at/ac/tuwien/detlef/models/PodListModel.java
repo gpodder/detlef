@@ -12,12 +12,20 @@ import com.dragontek.mygpoclient.simple.IPodcast;
  * This interface will probably need to change once it becomes clearer
  * how backend classes work.
  */
-public class PodListModel {
+public class PodListModel<T extends IPodcast> {
 
-    private final List<IPodcast> podlist = new ArrayList<IPodcast>();
+    private final List<T> podlist;
     private final List<PodListChangeListener> listeners = new ArrayList<PodListChangeListener>();
 
-    public void addPodcast(IPodcast podcast) {
+    public PodListModel(List<T> podlist) {
+        this.podlist = podlist;
+    }
+
+    public T get(int position) {
+        return podlist.get(position);
+    }
+
+    public void addPodcast(T podcast) {
         podlist.add(podcast);
         notifyListeners();
     }

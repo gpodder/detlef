@@ -35,5 +35,6 @@
     <string name="episode">Episode</string>
     <string name="podcast">Podcast</string>
     <string name="settings">Settings</string>
+    <string name="delete_feed">Delete Feed</string>
 
 </resources>
