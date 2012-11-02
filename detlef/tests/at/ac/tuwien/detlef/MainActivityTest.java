@@ -1,6 +1,7 @@
 package at.ac.tuwien.detlef;
 
 import android.test.ActivityInstrumentationTestCase2;
+import at.ac.tuwien.detlef.activities.MainActivity;
 
 import com.jayway.android.robotium.solo.Solo;
 

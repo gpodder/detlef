@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef;
+package at.ac.tuwien.detlef.fragments;
 
 import java.util.ArrayList;
 
@@ -10,46 +10,38 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
-import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.R.layout;
+import at.ac.tuwien.detlef.R.menu;
+import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.domain.Podcast;
 
-public class EpisodeListFragment extends ListFragment {
+public class PodListFragment extends ListFragment {
 
-    private ArrayList<Episode> listItems = new ArrayList<Episode>();
-    private EpisodeListAdapter adapter;
+    private ArrayList<Podcast> listItems = new ArrayList<Podcast>();
+    private PodListAdapter adapter;
     int clickCounter = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setContentView(R.layout.episode_list_layout);
+        Podcast all = new Podcast();
         Podcast p1 = new Podcast();
         Podcast p2 = new Podcast();
+        Podcast p3 = new Podcast();
+        Podcast p4 = new Podcast();
+        all.setTitle("All Podcasts");
         p1.setTitle("My Podcast 1");
         p2.setTitle("My Podcast 2");
-        Episode e1 = new Episode();
-        Episode e2 = new Episode();
-        Episode e3 = new Episode();
-        Episode e4 = new Episode();
-        Episode e5 = new Episode();
-        e1.setPodcast(p1);
-        e2.setPodcast(p1);
-        e3.setPodcast(p2);
-        e4.setPodcast(p1);
-        e5.setPodcast(p2);
-        e1.setTitle("Episode 1");
-        e2.setTitle("Episode 2");
-        e3.setTitle("Episode 24");
-        e4.setTitle("Episode 25");
-        e5.setTitle("Episode 26");
-        listItems.add(e1);
-        listItems.add(e2);
-        listItems.add(e3);
-        listItems.add(e4);
-        listItems.add(e5);
-        adapter = new EpisodeListAdapter(getActivity(),
-                android.R.layout.simple_list_item_1, listItems);
+        p3.setTitle("My Podcast 3");
+        p4.setTitle("My Podcast 4");
+        listItems.add(all);
+        listItems.add(p1);
+        listItems.add(p2);
+        listItems.add(p3);
+        listItems.add(p4);
+        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout,
+                listItems);
         setListAdapter(adapter);
     }
 
@@ -64,7 +56,7 @@ public class EpisodeListFragment extends ListFragment {
             ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.episode_context, menu);
+        inflater.inflate(R.menu.podcast_context, menu);
     }
 
     @Override
@@ -77,7 +69,6 @@ public class EpisodeListFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.episode_fragment_layout, container,
-                false);
+        return inflater.inflate(R.layout.pod_fragment_layout, container, false);
     }
 }

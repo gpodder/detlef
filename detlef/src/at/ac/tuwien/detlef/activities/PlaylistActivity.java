@@ -1,4 +1,4 @@
-package at.ac.tuwien.detlef;
+package at.ac.tuwien.detlef.activities;
 
 import java.util.ArrayList;
 
@@ -8,6 +8,9 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.R.layout;
+import at.ac.tuwien.detlef.R.menu;
 import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
