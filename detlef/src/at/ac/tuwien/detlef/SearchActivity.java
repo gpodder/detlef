@@ -24,10 +24,10 @@ public class SearchActivity extends ListActivity {
         Podcast p2 = new Podcast();
         Podcast p3 = new Podcast();
         Podcast p4 = new Podcast();
-        p1.setName("Search Result 1");
-        p2.setName("Search Result 2");
-        p3.setName("Search Result 3");
-        p4.setName("Search Result 4");
+        p1.setTitle("Search Result 1");
+        p2.setTitle("Search Result 2");
+        p3.setTitle("Search Result 3");
+        p4.setTitle("Search Result 4");
         listItems.add(p1);
         listItems.add(p2);
         listItems.add(p3);

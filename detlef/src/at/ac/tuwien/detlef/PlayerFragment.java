@@ -16,10 +16,10 @@ public class PlayerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Podcast p1 = new Podcast();
-        p1.setName("My Podcast 1");
+        p1.setTitle("My Podcast 1");
         Episode e1 = new Episode();
         e1.setPodcast(p1);
-        e1.setName("Episode 1");
+        e1.setTitle("Episode 1");
     }
 
     @Override

@@ -11,8 +11,8 @@ public class EpisodeTest extends TestCase {
     public void testNameSetterAndgetter() {
         String name = "Episode 1";
         Episode episode = new Episode();
-        episode.setName(name);
-        assertEquals(name, episode.getName());
+        episode.setTitle(name);
+        assertEquals(name, episode.getTitle());
     }
 
 }

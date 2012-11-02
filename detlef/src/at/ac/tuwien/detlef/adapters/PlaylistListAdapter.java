@@ -41,7 +41,7 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
             }
 
             if (episode != null) {
-                episodeView.setText(episode.getName());
+                episodeView.setText(episode.getTitle());
             }
         }
 

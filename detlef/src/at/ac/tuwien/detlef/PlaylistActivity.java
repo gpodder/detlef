@@ -31,8 +31,8 @@ public class PlaylistActivity extends ListActivity {
 
         Podcast p1 = new Podcast();
         Podcast p2 = new Podcast();
-        p1.setName("My Podcast 1");
-        p2.setName("My Podcast 2");
+        p1.setTitle("My Podcast 1");
+        p2.setTitle("My Podcast 2");
         Episode e1 = new Episode();
         Episode e2 = new Episode();
         Episode e3 = new Episode();
@@ -49,14 +49,14 @@ public class PlaylistActivity extends ListActivity {
         e6.setPodcast(p1);
         e7.setPodcast(p2);
         e8.setPodcast(p1);
-        e1.setName("Episode 1");
-        e2.setName("Episode 2");
-        e3.setName("Episode 24");
-        e4.setName("Episode 25");
-        e5.setName("Episode 569326");
-        e6.setName("Episode 26");
-        e7.setName("Episode 259");
-        e8.setName("Episode 26234");
+        e1.setTitle("Episode 1");
+        e2.setTitle("Episode 2");
+        e3.setTitle("Episode 24");
+        e4.setTitle("Episode 25");
+        e5.setTitle("Episode 569326");
+        e6.setTitle("Episode 26");
+        e7.setTitle("Episode 259");
+        e8.setTitle("Episode 26234");
         listItems.add(e1);
         listItems.add(e2);
         listItems.add(e3);

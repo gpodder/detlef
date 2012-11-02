@@ -41,7 +41,7 @@ public class SearchListAdapter extends ArrayAdapter<Podcast> {
             }
 
             if (podcast != null) {
-                podcastName.setText(podcast.getName());
+                podcastName.setText(podcast.getTitle());
             }
         }
 

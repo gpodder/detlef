@@ -27,11 +27,11 @@ public class PodListFragment extends ListFragment {
         Podcast p2 = new Podcast();
         Podcast p3 = new Podcast();
         Podcast p4 = new Podcast();
-        all.setName("All Podcasts");
-        p1.setName("My Podcast 1");
-        p2.setName("My Podcast 2");
-        p3.setName("My Podcast 3");
-        p4.setName("My Podcast 4");
+        all.setTitle("All Podcasts");
+        p1.setTitle("My Podcast 1");
+        p2.setTitle("My Podcast 2");
+        p3.setTitle("My Podcast 3");
+        p4.setTitle("My Podcast 4");
         listItems.add(all);
         listItems.add(p1);
         listItems.add(p2);
