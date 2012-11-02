@@ -27,7 +27,7 @@
         android:id="@+id/podListPodcastName"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="My Podcast"
+        android:text="@string/placeholder"
         android:textStyle="bold"
         android:textSize="20dp" />
 
