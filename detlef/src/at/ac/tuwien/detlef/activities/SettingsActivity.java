@@ -3,7 +3,6 @@ package at.ac.tuwien.detlef.activities;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.R.xml;
 
 public class SettingsActivity extends PreferenceActivity {
     @SuppressWarnings("deprecation")

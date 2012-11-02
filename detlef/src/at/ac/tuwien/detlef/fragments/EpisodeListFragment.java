@@ -11,8 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.R.layout;
-import at.ac.tuwien.detlef.R.menu;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;

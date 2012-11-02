@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.R.id;
-import at.ac.tuwien.detlef.R.layout;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
