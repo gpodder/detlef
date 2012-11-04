@@ -31,7 +31,7 @@
     <string name="download_abbreviation">D/L</string>
     <string name="delete_abbreviation">Del</string>
     <string name="add_to_playlist_abbreviation">+P/L</string>
-    <string name="mark_read_short">Rd.</string>
+    <string name="mark_read">Read</string>
     <string name="episode">Episode</string>
     <string name="podcast">Podcast</string>
     <string name="settings">Settings</string>

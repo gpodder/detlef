@@ -13,22 +13,14 @@
         android:paddingLeft="5dp"
         android:paddingTop="5dp" >
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/episodeListDlSize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center|left"
-            android:gravity="right|center"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/episodeListDlSize"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="6dp"
-                android:drawableTop="@drawable/ic_launcher"
-                android:text="@string/sample_download_size"
-                android:textSize="12dp" />
-        </LinearLayout>
+            android:layout_marginRight="6dp"
+            android:drawableTop="@drawable/ic_launcher"
+            android:text="@string/sample_download_size"
+            android:textSize="12dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -87,29 +79,26 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content" >
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/episodeListDownload"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:text="@string/download_abbreviation" />
+                        android:background="@null"
+                        android:src="@android:drawable/ic_menu_upload" />
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/episodeListDelete"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:text="@string/delete_abbreviation" />
+                        android:background="@null"
+                        android:src="@android:drawable/ic_menu_delete" />
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/episodeListAddToPlaylist"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:text="@string/add_to_playlist_abbreviation" />
+                        android:background="@null"
+                        android:src="@android:drawable/ic_menu_add" />
 
                     <CheckBox
                         android:id="@+id/episodeListMarkRead"
@@ -117,10 +106,11 @@
                         android:layout_height="wrap_content"
                         android:focusable="false"
                         android:gravity="center_vertical|center_horizontal"
-                        android:text="@string/mark_read_short" />
+                        android:text="@string/mark_read" />
                 </TableRow>
             </TableLayout>
         </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>
