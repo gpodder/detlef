@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
 /**
  * GPodder download service; performs gpodder.net requests and HTTP downloads in the background.
@@ -28,6 +29,7 @@ import android.os.RemoteException;
  * @author ondra
  */
 public class PodderService extends Service {
+    private static final String TAG = "PodderService";
 
     /** Lists the allowed URI schemes. */
     private static final String[] ALLOWED_SCHEMES = { "http", "https" };
@@ -40,6 +42,7 @@ public class PodderService extends Service {
 
     /** Constructs a PodderService. */
     public PodderService() {
+        Log.d(TAG, "PodderService()");
         theHand = new Messenger(new IncomingHandler(this));
     }
 
@@ -49,6 +52,7 @@ public class PodderService extends Service {
      * @return Whether the given scheme is allowed.
      */
     private static boolean validScheme(String sch) {
+        Log.d(TAG, "validScheme()");
         if (sch == null) {
             return false;
         } else {
@@ -68,6 +72,7 @@ public class PodderService extends Service {
      * @return A new message targeted at the sender of the given message.
      */
     private Message newFailedMessage(int code, String errMsg) {
+        Log.d(TAG, "newFailedMessage()");
         Message ret = Message.obtain();
         ret.what = code;
         ret.replyTo = this.theHand;
@@ -85,6 +90,7 @@ public class PodderService extends Service {
      * @param msg The message to send to the recipient.
      */
     private void fireAndForget(Messenger recipient, Message msg) {
+        Log.d(TAG, "fireAndForget()");
         try {
             recipient.send(msg);
         } catch (RemoteException e) {
@@ -97,6 +103,7 @@ public class PodderService extends Service {
      * @param msg The message that was sent.
      */
     private void handleHttpDownloadMessage(Message msg) {
+        Log.d(TAG, "handleHttpDownloadMessage()");
         // fetch URL
         Bundle msgData = msg.getData();
         Uri uri = Uri.parse(msgData.getString("URL"));
@@ -155,6 +162,7 @@ public class PodderService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind()");
         return theHand.getBinder();
     }
 
@@ -189,6 +197,8 @@ public class PodderService extends Service {
 
     /** Handles incoming messages. */
     protected static class IncomingHandler extends Handler {
+        private static final String TAG = "PodderService.IncomingHandler";
+
         /**
          * Weak reference to the Podder Service manipulated by this object. This reference is weak
          * to prevent a cycle between {@link PodderService} and {@link IncomingHandler}.
@@ -200,20 +210,24 @@ public class PodderService extends Service {
          * @param ps The {@link PodderService} to which this handler belongs.
          */
         public IncomingHandler(PodderService ps) {
+            Log.d(TAG, "IncomingHandler()");
             srv = new WeakReference<PodderService>(ps);
         }
 
         @Override
         public void handleMessage(Message msg) {
+            Log.d(TAG, "handleMessage()");
+
             PodderService ps = srv.get();
             if (ps == null) {
                 // they're all gone. we've been abandoned.
+                Log.e(TAG, "PodderService reference was nulled");
                 return;
             }
 
             if (msg.replyTo == null) {
                 // well screw you then
-                // FIXME: log or throw exception
+                Log.e(TAG, "message has no replyTo attribute");
                 return;
             }
 
@@ -223,6 +237,7 @@ public class PodderService extends Service {
                     break;
                 default:
                     // I do not know this message
+                    Log.e(TAG, "unknown message " + msg.what);
                     super.handleMessage(msg);
                     break;
             }
