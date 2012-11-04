@@ -37,6 +37,14 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             Log.d("IncomingHandler", "handleMessage()");
             wrpst.get().msgWhat = msg.what;
 
+            switch (msg.what) {
+                case PodderService.MessageType.HEARTBEAT_DONE:
+                    break;
+                default:
+                    fail("unexpected message: " + msg.what);
+                    break;
+            }
+
             try {
                 wrpst.get().lock.lock();
                 wrpst.get().waiter.signal();
