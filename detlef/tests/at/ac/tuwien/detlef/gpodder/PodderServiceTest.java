@@ -72,14 +72,23 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     }
 
     /**
+     * Performs a bind to the service, launching it if necessary.
+     * @return A messenger to send a message to the service.
+     */
+    private Messenger performBind() {
+        Intent bindIntent = new Intent();
+        bindIntent.setClass(getContext(), PodderService.class);
+        IBinder bdr = bindService(bindIntent);
+        assertNotNull(bdr);
+        return new Messenger(bdr);
+    }
+
+    /**
      * Test whether the service can be bound to.
      */
     @MediumTest
     public void testBind() {
-        Intent startIntent = new Intent();
-        startIntent.setClass(getContext(), PodderService.class);
-        IBinder bdr = bindService(startIntent);
-        assertNotNull(bdr);
+        performBind();
     }
 
     /**
@@ -89,15 +98,13 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     public void testHeartbeat() throws RemoteException, InterruptedException {
         try {
             lock.lock();
-            Intent startIntent = new Intent();
-            startIntent.setClass(getContext(), PodderService.class);
-            IBinder bdr = bindService(startIntent);
 
-            Messenger msr = new Messenger(bdr);
+            Messenger msr = performBind();
             Message msg = Message.obtain();
             msg.what = PodderService.MessageType.DO_HEARTBEAT;
             msg.replyTo = mess;
             msr.send(msg);
+
             waiter.await();
         } finally {
             lock.unlock();
