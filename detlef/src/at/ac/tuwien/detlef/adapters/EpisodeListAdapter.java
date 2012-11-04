@@ -13,7 +13,7 @@ import at.ac.tuwien.detlef.domain.Episode;
 
 public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
-    private ArrayList<Episode> episodes;
+    private final ArrayList<Episode> episodes;
 
     public EpisodeListAdapter(Context context, int textViewResourceId,
             ArrayList<Episode> episodes) {
@@ -24,25 +24,33 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
+        Episode episode = episodes.get(position);
+
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.episode_list_layout, null);
+            v.setTag(episode);
         }
 
-        Episode episode = episodes.get(position);
-        if (episode != null) {
-            TextView podcastname = (TextView) v
-                    .findViewById(R.id.episodeListPodcast);
-            TextView episodeView = (TextView) v
-                    .findViewById(R.id.episodeListEpisode);
-            if (podcastname != null) {
-                podcastname.setText("Podcast Name");
-            }
+        TextView podcastTitle = (TextView)v.findViewById(R.id.episodeListPodcast);
+        if (podcastTitle != null) {
+            podcastTitle.setText(episode.getPodcast().getTitle());
+        }
 
-            if (episode != null) {
-                episodeView.setText(episode.getTitle());
-            }
+        TextView title = (TextView)v.findViewById(R.id.episodeListEpisode);
+        if (title != null) {
+            title.setText(episode.getTitle());
+        }
+
+        TextView description = (TextView)v.findViewById(R.id.episodeListDescription);
+        if (description != null) {
+            description.setText(episode.getDescription());
+        }
+
+        TextView size = (TextView)v.findViewById(R.id.episodeListDlSize);
+        if (size != null) {
+            size.setText(episode.getFileSize());
         }
 
         return v;
