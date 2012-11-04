@@ -140,8 +140,13 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private final EpisodeListFragment episodeList = new EpisodeListFragment();
+        public static final int POSITION_PODCASTS = 0;
+        public static final int POSITION_EPISODES = 1;
+        public static final int POSITION_PLAYER = 2;
+        public static final int TABCOUNT = POSITION_PLAYER + 1;
+
         private final PodListFragment podList = new PodListFragment();
+        private final EpisodeListFragment episodeList = new EpisodeListFragment();
         private final PlayerFragment player = new PlayerFragment();
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -150,9 +155,9 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
 
         @Override
         public Fragment getItem(int i) {
-            if (i == 0) {
+            if (i == POSITION_PODCASTS) {
                 return podList;
-            } else if (i == 1) {
+            } else if (i == POSITION_EPISODES) {
                 return episodeList;
             } else {
                 return player;
@@ -161,20 +166,32 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
 
         @Override
         public int getCount() {
-            return 3;
+            return TABCOUNT;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-                case 0:
+                case POSITION_PODCASTS:
                     return getString(R.string.podcasts).toUpperCase();
-                case 1:
+                case POSITION_EPISODES:
                     return getString(R.string.episodes).toUpperCase();
-                case 2:
+                case POSITION_PLAYER:
                     return getString(R.string.player).toUpperCase();
             }
             return null;
+        }
+
+        public PodListFragment getPodList() {
+            return podList;
+        }
+
+        public EpisodeListFragment getEpisodeList() {
+            return episodeList;
+        }
+
+        public PlayerFragment getPlayer() {
+            return player;
         }
     }
 
