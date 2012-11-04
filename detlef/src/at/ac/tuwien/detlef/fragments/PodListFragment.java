@@ -3,6 +3,7 @@ package at.ac.tuwien.detlef.fragments;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ListView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
@@ -29,7 +31,27 @@ public class PodListFragment extends ListFragment {
 
     private PodListAdapter adapter;
     private PodListModel<Podcast> model;
+    private OnPodcastSelectedListener listener;
 
+    /**
+     * The parent activity must implement this interface in
+     * order to interact with this fragment. The listener
+     * is called whenever a podcast is clicked.
+     */
+    public interface OnPodcastSelectedListener {
+        void onPodcastSelected(Podcast podcast);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            listener = (OnPodcastSelectedListener)activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(String.format("%s must implement %s",
+                    activity.toString(), OnPodcastSelectedListener.class.getName()));
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -155,6 +177,12 @@ public class PodListFragment extends ListFragment {
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Podcast podcast = (Podcast)v.getTag();
+        listener.onPodcastSelected(podcast);
     }
 
     @Override

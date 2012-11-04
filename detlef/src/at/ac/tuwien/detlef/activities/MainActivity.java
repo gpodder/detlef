@@ -10,15 +10,19 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
 
-public class MainActivity extends FragmentActivity implements
-        ActionBar.TabListener {
+public class MainActivity extends FragmentActivity
+implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
+
+    private static String TAG = MainActivity.class.getName();
 
     private Menu menu;
 
@@ -55,18 +59,15 @@ public class MainActivity extends FragmentActivity implements
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        // When swiping between different sections, select the corresponding
-        // tab.
+        // When swiping between different sections, select the corresponding tab.
         // We can also use ActionBar.Tab#select() to do this if we have a
-        // reference to the
-        // Tab.
-        mViewPager
-                .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        actionBar.setSelectedNavigationItem(position);
-                    }
-                });
+        // reference to the Tab.
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+        });
 
         // For each of the sections in the app, add a tab to the action bar.
         for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -91,17 +92,17 @@ public class MainActivity extends FragmentActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         switch (mViewPager.getCurrentItem()) {
-        case 0:
-            getMenuInflater().inflate(R.menu.podcast_menu, menu);
-            break;
-        case 1:
-            getMenuInflater().inflate(R.menu.episode_menu, menu);
-            break;
-        case 2:
-            // getMenuInflater().inflate(R.menu.player_menu, menu);
-            break;
-        default:
-            return false;
+            case 0:
+                getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                break;
+            case 1:
+                getMenuInflater().inflate(R.menu.episode_menu, menu);
+                break;
+            case 2:
+                // getMenuInflater().inflate(R.menu.player_menu, menu);
+                break;
+            default:
+                return false;
         }
         return true;
     }
@@ -116,15 +117,15 @@ public class MainActivity extends FragmentActivity implements
         if (menu != null) {
             menu.clear();
             switch (tab.getPosition()) {
-            case 0:
-                getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                break;
-            case 1:
-                getMenuInflater().inflate(R.menu.episode_menu, menu);
-                break;
-            case 2:
-                getMenuInflater().inflate(R.menu.player_menu, menu);
-                break;
+                case 0:
+                    getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                    break;
+                case 1:
+                    getMenuInflater().inflate(R.menu.episode_menu, menu);
+                    break;
+                case 2:
+                    getMenuInflater().inflate(R.menu.player_menu, menu);
+                    break;
             }
         }
         mViewPager.setCurrentItem(tab.getPosition());
@@ -139,9 +140,9 @@ public class MainActivity extends FragmentActivity implements
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private EpisodeListFragment episodeList = new EpisodeListFragment();
-        private PodListFragment podList = new PodListFragment();
-        private PlayerFragment player = new PlayerFragment();
+        private final EpisodeListFragment episodeList = new EpisodeListFragment();
+        private final PodListFragment podList = new PodListFragment();
+        private final PlayerFragment player = new PlayerFragment();
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -166,12 +167,12 @@ public class MainActivity extends FragmentActivity implements
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-            case 0:
-                return getString(R.string.podcasts).toUpperCase();
-            case 1:
-                return getString(R.string.episodes).toUpperCase();
-            case 2:
-                return getString(R.string.player).toUpperCase();
+                case 0:
+                    return getString(R.string.podcasts).toUpperCase();
+                case 1:
+                    return getString(R.string.episodes).toUpperCase();
+                case 2:
+                    return getString(R.string.player).toUpperCase();
             }
             return null;
         }
@@ -181,21 +182,25 @@ public class MainActivity extends FragmentActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-        case R.id.settings:
-            intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.playlist:
-            intent = new Intent(this, PlaylistActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.search:
-            intent = new Intent(this, SearchActivity.class);
-            startActivity(intent);
-            break;
-        default:
-            break;
+            case R.id.settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.playlist:
+                intent = new Intent(this, PlaylistActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.search:
+                intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
         }
         return true;
+    }
+
+    public void onPodcastSelected(Podcast podcast) {
+        Log.v(TAG, String.format("Podcast '%s' clicked", podcast.getTitle()));
     }
 }

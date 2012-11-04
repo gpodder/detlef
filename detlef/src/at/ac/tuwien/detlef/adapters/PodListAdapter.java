@@ -24,25 +24,23 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
+        Podcast podcast = podcasts.get(position);
+
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.pod_list_layout, null);
+            v.setTag(podcast);
         }
 
-        Podcast podcast = podcasts.get(position);
-        if (podcast != null) {
-            TextView lastUpdate = (TextView) v
-                    .findViewById(R.id.podListLastUpdate);
-            TextView podcastName = (TextView) v
-                    .findViewById(R.id.podListPodcastName);
-            if (lastUpdate != null) {
-                lastUpdate.setText("22.06.2012");
-            }
+        TextView lastUpdate = (TextView)v.findViewById(R.id.podListLastUpdate);
+        if (lastUpdate != null) {
+            lastUpdate.setText("22.06.2012");
+        }
 
-            if (podcast != null) {
-                podcastName.setText(podcast.getTitle());
-            }
+        TextView podcastName = (TextView)v.findViewById(R.id.podListPodcastName);
+        if (podcast != null) {
+            podcastName.setText(podcast.getTitle());
         }
 
         return v;
