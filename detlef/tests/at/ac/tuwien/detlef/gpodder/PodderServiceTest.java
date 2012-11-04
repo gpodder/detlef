@@ -53,6 +53,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
     public PodderServiceTest() {
         super(PodderService.class);
+        Log.d("PodderServiceTest@" + this.hashCode(), "c'tor");
         lock = new ReentrantLock();
         waiter = lock.newCondition();
         mess = new Messenger(new IncomingHandler(this));
@@ -65,6 +66,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      */
     @SmallTest
     public void testStart() {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testStart()");
         Intent startIntent = new Intent();
         startIntent.setClass(getContext(), PodderService.class);
         startService(startIntent);
@@ -76,6 +78,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      * @return A messenger to send a message to the service.
      */
     private Messenger performBind() {
+        Log.d("PodderServiceTest@" + this.hashCode(), "performBind()");
         Intent bindIntent = new Intent();
         bindIntent.setClass(getContext(), PodderService.class);
         IBinder bdr = bindService(bindIntent);
@@ -88,6 +91,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      */
     @MediumTest
     public void testBind() {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testBind()");
         performBind();
     }
 
@@ -96,6 +100,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      */
     @MediumTest
     public void testHeartbeat() throws RemoteException, InterruptedException {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testHeartbeat()");
         try {
             lock.lock();
 
