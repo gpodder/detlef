@@ -40,6 +40,7 @@
             android:label="@string/title_activity_settings" />
 
         <uses-library android:name="android.test.runner" />
+        <service android:name=".gpodder.PodderService"></service>
     </application>
 
 </manifest>
