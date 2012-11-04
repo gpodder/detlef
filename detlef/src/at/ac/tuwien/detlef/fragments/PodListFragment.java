@@ -1,7 +1,6 @@
 
 package at.ac.tuwien.detlef.fragments;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.os.Bundle;
@@ -37,10 +36,15 @@ public class PodListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        List<Podcast> podlist = new ArrayList<Podcast>();
-        fillWithDummyContents(podlist);
-        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
-        setListAdapter(adapter);
+        /* Initialize our podcast model, creating dummy contents if needed. */
+
+        PodcastDAO dao = new PodcastDAOImpl(this.getActivity().getApplicationContext());
+
+        List<Podcast> podlist = dao.getAllPodcasts();
+        if (podlist.isEmpty()) {
+            fillDbWithDummyContents();
+            podlist = dao.getAllPodcasts();
+        }
 
         model = new PodListModel<Podcast>(podlist);
         model.addPodListChangeListener(new PodListModel.PodListChangeListener() {
@@ -48,9 +52,14 @@ public class PodListFragment extends ListFragment {
                 adapter.notifyDataSetChanged();
             }
         });
+
+        /* And set up the adapter. */
+
+        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
+        setListAdapter(adapter);
     }
 
-    private void fillWithDummyContents(List<Podcast> podlist) {
+    private void fillDbWithDummyContents() {
         PodcastDAO dao = new PodcastDAOImpl(this.getActivity().getApplicationContext());
         EpisodeDAO edao = new EpisodeDAOImpl(this.getActivity().getApplicationContext());
 
@@ -122,9 +131,6 @@ public class PodListFragment extends ListFragment {
         e2.setId(edao.insertEpisode(e2));
 
         dao.deletePodcast((dao.getAllPodcasts()).get(0));
-
-        podlist.addAll(dao.getAllPodcasts());
-        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
     }
 
     @Override
