@@ -2,6 +2,7 @@ package at.ac.tuwien.detlef.activities;
 
 import java.util.List;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import at.ac.tuwien.detlef.R;

@@ -1,8 +1,6 @@
-package at.ac.tuwien.detlef;
+package at.ac.tuwien.detlef.fragments;
 
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -10,6 +8,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
+import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
 import at.ac.tuwien.detlef.settings.Gpodder;
 import at.ac.tuwien.detlef.settings.GpodderConnectionException;
@@ -18,9 +17,11 @@ import at.ac.tuwien.detlef.settings.GpodderConnectionException;
  * This fragment contains the settings for the gpodder.net account.
  * @author moe
  */
-public class SettingsGpodderNetFragment extends PreferenceFragment {
+public class SettingsGpodderNet extends PreferenceFragment {
 
 	static Toast toast;
+	private Gpodder settings;
+	private ConnectionTester connectionTester;
 
 	/**
 	 * @return The {@link ConnectionTester} that can be used to determine
@@ -29,8 +30,11 @@ public class SettingsGpodderNetFragment extends PreferenceFragment {
 	 *     returns randomly either one of the possible states.
 	 */
 	public ConnectionTester getConnectionTester() {
-		return new ConnectionTester() {
+		if (connectionTester != null) {
+			return connectionTester;
+		}
 
+		return new ConnectionTester() {
 			public boolean testConnection(Gpodder settings)
 					throws GpodderConnectionException {
 
@@ -51,10 +55,19 @@ public class SettingsGpodderNetFragment extends PreferenceFragment {
 		};
 	}
 
+	public SettingsGpodderNet setConnectionTester(ConnectionTester connectionTester) {
+		this.connectionTester = connectionTester;
+		return this;
+	}
+
 	/**
 	 * TODO this is only a mock ... needs to be implemented correctly.
 	 */
 	public Gpodder getSettings() {
+		if (settings != null) {
+			return settings;
+		}
+
 		return new Gpodder() {
 
 			public String getUsername() {
@@ -84,6 +97,11 @@ public class SettingsGpodderNetFragment extends PreferenceFragment {
 			}
 
 		};
+	}
+
+	public SettingsGpodderNet setSettings(Gpodder settings) {
+		this.settings = settings;
+		return this;
 	}
 
     @Override
