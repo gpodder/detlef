@@ -35,9 +35,9 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         @Override
         public void handleMessage(Message msg) {
             Log.d("IncomingHandler", "handleMessage()");
-            try {
-                wrpst.get().msgWhat = msg.what;
+            wrpst.get().msgWhat = msg.what;
 
+            try {
                 wrpst.get().lock.lock();
                 wrpst.get().waiter.signal();
             } finally {
