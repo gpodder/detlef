@@ -30,7 +30,6 @@ public class PodListFragment extends ListFragment {
     private PodListAdapter adapter;
     private PodListModel<Podcast> model;
 
-    int clickCounter = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
