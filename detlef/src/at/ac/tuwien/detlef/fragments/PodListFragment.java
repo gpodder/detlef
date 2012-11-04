@@ -2,6 +2,7 @@
 package at.ac.tuwien.detlef.fragments;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -36,7 +37,7 @@ public class PodListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ArrayList<Podcast> podlist = new ArrayList<Podcast>();
+        List<Podcast> podlist = new ArrayList<Podcast>();
         fillWithDummyContents(podlist);
         adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
         setListAdapter(adapter);
@@ -49,45 +50,49 @@ public class PodListFragment extends ListFragment {
         });
     }
 
-    private void fillWithDummyContents(ArrayList<Podcast> podlist) {
-        Podcast all = new Podcast();
-        Podcast p1 = new Podcast();
-        Podcast p2 = new Podcast();
-        Podcast p3 = new Podcast();
-        Podcast p4 = new Podcast();
+    private void fillWithDummyContents(List<Podcast> podlist) {
         PodcastDAO dao = new PodcastDAOImpl(this.getActivity().getApplicationContext());
         EpisodeDAO edao = new EpisodeDAOImpl(this.getActivity().getApplicationContext());
+
+        Podcast all = new Podcast();
         all.setTitle("All Podcasts");
         all.setDescription("description all");
         all.setLastUpdate(System.currentTimeMillis());
         all.setLogoUrl("logoUrl");
         all.setUrl("url");
         all.setId(dao.insertPodcast(all));
+
+        Podcast p1 = new Podcast();
         p1.setTitle("My Podcast 1");
         p1.setDescription("description 1");
         p1.setLastUpdate(System.currentTimeMillis());
         p1.setLogoUrl("logoUrl");
         p1.setUrl("url");
         p1.setId(dao.insertPodcast(p1));
+
+        Podcast p2 = new Podcast();
         p2.setTitle("My Podcast 2");
         p2.setDescription("description 2");
         p2.setLastUpdate(System.currentTimeMillis());
         p2.setLogoUrl("logoUrl");
         p2.setUrl("url");
         p2.setId(dao.insertPodcast(p2));
+
+        Podcast p3 = new Podcast();
         p3.setTitle("My Podcast 3");
         p3.setDescription("description 3");
         p3.setLastUpdate(System.currentTimeMillis());
         p3.setLogoUrl("logoUrl");
         p3.setUrl("url");
         p3.setId(dao.insertPodcast(p3));
+
+        Podcast p4 = new Podcast();
         p4.setTitle("My Podcast 4");
         p4.setDescription("description 4");
         p4.setLastUpdate(System.currentTimeMillis());
         p4.setLogoUrl("logoUrl");
         p4.setUrl("url");
         p4.setId(dao.insertPodcast(p4));
-
 
         Episode e1 = new Episode();
         e1.setAuthor("author");
@@ -102,6 +107,7 @@ public class PodListFragment extends ListFragment {
         e1.setUrl("url");
         e1.setId(edao.insertEpisode(e1));
         edao.insertEpisode(e1);
+
         Episode e2 = new Episode();
         e2.setAuthor("author");
         e2.setDescription("description");
@@ -115,19 +121,10 @@ public class PodListFragment extends ListFragment {
         e2.setUrl("url");
         e2.setId(edao.insertEpisode(e2));
 
-        dao.deletePodcast(((ArrayList<Podcast>)dao.getAllPodcasts()).get(0));
-        listItems = (ArrayList<Podcast>)dao.getAllPodcasts();
-        podlist.add(all);
-        podlist.add(p1);
-        podlist.add(p2);
-        podlist.add(p3);
-        podlist.add(p4);
-        // listItems.add(all);
-        // listItems.add(p1);
-        // listItems.add(p2);
-        // listItems.add(p3);
-        // listItems.add(p4);
-        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, listItems);
+        dao.deletePodcast((dao.getAllPodcasts()).get(0));
+
+        podlist.addAll(dao.getAllPodcasts());
+        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
     }
 
     @Override

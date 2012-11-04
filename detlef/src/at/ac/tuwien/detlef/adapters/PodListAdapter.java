@@ -1,6 +1,6 @@
 package at.ac.tuwien.detlef.adapters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,10 +13,10 @@ import at.ac.tuwien.detlef.domain.Podcast;
 
 public class PodListAdapter extends ArrayAdapter<Podcast> {
 
-    private ArrayList<Podcast> podcasts;
+    private final List<Podcast> podcasts;
 
     public PodListAdapter(Context context, int textViewResourceId,
-            ArrayList<Podcast> podcasts) {
+            List<Podcast> podcasts) {
         super(context, textViewResourceId, podcasts);
         this.podcasts = podcasts;
     }
