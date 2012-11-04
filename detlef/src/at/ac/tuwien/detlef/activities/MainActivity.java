@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import at.ac.tuwien.detlef.R;
@@ -217,7 +216,12 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
         return true;
     }
 
+    /**
+     * The user has selected a podcast in the podcasts list.
+     * Filters the episode view and then switches to it.
+     */
     public void onPodcastSelected(Podcast podcast) {
-        Log.v(TAG, String.format("Podcast '%s' clicked", podcast.getTitle()));
+        mSectionsPagerAdapter.getEpisodeList().setPodcast(podcast);
+        getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_EPISODES);
     }
 }

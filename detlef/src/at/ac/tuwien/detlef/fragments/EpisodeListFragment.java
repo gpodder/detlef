@@ -12,43 +12,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
+import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public class EpisodeListFragment extends ListFragment {
 
-    private ArrayList<Episode> listItems = new ArrayList<Episode>();
+    private final ArrayList<Episode> listItems = new ArrayList<Episode>();
     private EpisodeListAdapter adapter;
     int clickCounter = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setContentView(R.layout.episode_list_layout);
-        Podcast p1 = new Podcast();
-        Podcast p2 = new Podcast();
-        p1.setTitle("My Podcast 1");
-        p2.setTitle("My Podcast 2");
-        Episode e1 = new Episode();
-        Episode e2 = new Episode();
-        Episode e3 = new Episode();
-        Episode e4 = new Episode();
-        Episode e5 = new Episode();
-        e1.setPodcast(p1);
-        e2.setPodcast(p1);
-        e3.setPodcast(p2);
-        e4.setPodcast(p1);
-        e5.setPodcast(p2);
-        e1.setTitle("Episode 1");
-        e2.setTitle("Episode 2");
-        e3.setTitle("Episode 24");
-        e4.setTitle("Episode 25");
-        e5.setTitle("Episode 26");
-        listItems.add(e1);
-        listItems.add(e2);
-        listItems.add(e3);
-        listItems.add(e4);
-        listItems.add(e5);
+
+        EpisodeDAO episodeDAO = new EpisodeDAOImpl(getActivity());
+        listItems.addAll(episodeDAO.getAllEpisodes());
+
         adapter = new EpisodeListAdapter(getActivity(),
                 android.R.layout.simple_list_item_1, listItems);
         setListAdapter(adapter);
@@ -80,5 +61,18 @@ public class EpisodeListFragment extends ListFragment {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.episode_fragment_layout, container,
                 false);
+    }
+
+    /**
+     * Called whenever a podcast is clicked in the PodListFragment.
+     * Filters the episode list to display only episodes belonging to
+     * the specified podcast.
+     */
+    public void setPodcast(Podcast podcast) {
+        /* TODO: Quick and dirty implementation. */
+        adapter.clear();
+
+        EpisodeDAO episodeDAO = new EpisodeDAOImpl(getActivity());
+        adapter.addAll(episodeDAO.getEpisodes(podcast));
     }
 }
