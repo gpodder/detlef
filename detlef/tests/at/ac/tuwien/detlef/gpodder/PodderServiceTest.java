@@ -5,11 +5,13 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.test.FlakyTest;
 import android.test.ServiceTestCase;
 import android.test.mock.MockApplication;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -38,6 +40,12 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst.get().msgWhat = msg.what;
 
             switch (msg.what) {
+                case PodderService.MessageType.HTTP_DOWNLOAD_DONE:
+                    wrpst.get().str = new String(msg.getData().getByteArray(PodderService.MessageContentKey.DATA));
+                    break;
+                case PodderService.MessageType.HTTP_DOWNLOAD_FAILED:
+                    fail("HTTP download failed: " + msg.getData().getString(PodderService.MessageContentKey.ERRMSG));
+                    break;
                 case PodderService.MessageType.HEARTBEAT_DONE:
                     break;
                 default:
@@ -58,14 +66,17 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private final Condition waiter;
     private final Messenger mess;
     private int msgWhat;
+    private String str;
 
     public PodderServiceTest() {
         super(PodderService.class);
         Log.d("PodderServiceTest@" + this.hashCode(), "c'tor");
+
         lock = new ReentrantLock();
         waiter = lock.newCondition();
         mess = new Messenger(new IncomingHandler(this));
         msgWhat = -1;
+        str = null;
         setApplication(new FakeApplication());
     }
 
@@ -124,5 +135,32 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         }
 
         assertEquals(msgWhat, PodderService.MessageType.HEARTBEAT_DONE);
+    }
+
+    /**
+     * Test whether the service can download an HTTP file and return it.
+     */
+    @FlakyTest
+    public void testHttpDownload() throws RemoteException, InterruptedException {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownload()");
+        try {
+            lock.lock();
+
+            Bundle data = new Bundle();
+            data.putString(PodderService.MessageContentKey.URL, "http://ondrahosek.dyndns.org/detlef.txt");
+
+            Messenger msr = performBind();
+            Message msg = Message.obtain();
+            msg.what = PodderService.MessageType.DO_HTTP_DOWNLOAD;
+            msg.setData(data);
+            msg.replyTo = mess;
+            msr.send(msg);
+
+            waiter.await();
+        } finally {
+            lock.unlock();
+        }
+
+        assertEquals("Non, Detlef, je ne regrette rien.\n", str);
     }
 }
