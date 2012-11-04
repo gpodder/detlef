@@ -160,6 +160,19 @@ public class PodderService extends Service {
         }
     }
 
+    /**
+     * Handles a heartbeat.
+     * @param msg The message that was sent.
+     */
+    private void handleHeartbeatMessage(Message msg) {
+        Log.d(TAG, "handleHeartbeatMessage()");
+        Message ret = Message.obtain();
+        ret.what = MessageType.HEARTBEAT_DONE;
+        ret.replyTo = this.theHand;
+
+        fireAndForget(msg.replyTo, ret);
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind()");
@@ -176,8 +189,14 @@ public class PodderService extends Service {
          */
         public static final int DO_HTTP_DOWNLOAD = 0x0001;
 
+        /** A request that a heartbeat be provided. */
+        public static final int DO_HEARTBEAT = 0x0002;
+
         /** A response that an HTTP download completed successfully. */
         public static final int HTTP_DOWNLOAD_DONE = 0x1001;
+
+        /** The response to the heartbeat. */
+        public static final int HEARTBEAT_DONE = 0x1002;
 
         /** A response that an HTTP download failed. */
         public static final int HTTP_DOWNLOAD_FAILED = 0x2001;
@@ -234,6 +253,9 @@ public class PodderService extends Service {
             switch (msg.what) {
                 case MessageType.DO_HTTP_DOWNLOAD:
                     ps.handleHttpDownloadMessage(msg);
+                    break;
+                case MessageType.DO_HEARTBEAT:
+                    ps.handleHeartbeatMessage(msg);
                     break;
                 default:
                     // I do not know this message
