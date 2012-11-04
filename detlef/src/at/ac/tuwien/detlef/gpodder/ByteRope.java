@@ -81,8 +81,8 @@ public class ByteRope {
      * @param length The length of the slice to copy.
      */
     public void append(byte[] barr, int offset, int length) {
-        byte[] myBytes = new byte[len];
-        System.arraycopy(barr, offset, myBytes, 0, len);
+        byte[] myBytes = new byte[length];
+        System.arraycopy(barr, offset, myBytes, 0, length);
 
         ll.add(myBytes);
         len += length;
