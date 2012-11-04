@@ -158,7 +158,7 @@ public class PodderService extends Service {
 
         // prepare reply
         Message ret = Message.obtain();
-        ret.what = MessageType.DO_HTTP_DOWNLOAD;
+        ret.what = MessageType.HTTP_DOWNLOAD_DONE;
         ret.replyTo = this.theHand;
         Bundle data = new Bundle();
         data.putByteArray(MessageContentKey.DATA, br.toByteArray());
