@@ -12,9 +12,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -38,12 +41,21 @@ public class PodderService extends Service {
     private static final int BLOCK_SIZE = 4096;
 
     /** This service's communication endpoint. "Talk to the hand." */
-    private final Messenger theHand;
+    private Messenger theHand;
 
     /** Constructs a PodderService. */
     public PodderService() {
         Log.d(TAG, "PodderService()");
-        theHand = new Messenger(new IncomingHandler(this));
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        Log.d(TAG, "onCreate()");
+        HandlerThread ht = new HandlerThread("PodderServiceHandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
+        ht.start();
+        theHand = new Messenger(new IncomingHandler(this, ht.getLooper()));
     }
 
     /**
@@ -227,8 +239,10 @@ public class PodderService extends Service {
         /**
          * Constructs a new {@link IncomingHandler} for the given {@link PodderService}.
          * @param ps The {@link PodderService} to which this handler belongs.
+         * @param looper The {@link Looper} binding this handler to a thread.
          */
-        public IncomingHandler(PodderService ps) {
+        public IncomingHandler(PodderService ps, Looper looper) {
+            super(looper);
             Log.d(TAG, "IncomingHandler()");
             srv = new WeakReference<PodderService>(ps);
         }
