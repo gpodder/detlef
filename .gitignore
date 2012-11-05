@@ -4,3 +4,4 @@ gen/
 build/
 local.properties
 detlef/hs_err_*.log
+.checkstyle

@@ -9,9 +9,8 @@
   <property name="build.lib" location="${build}/lib"/>
   <property name="build.checkstyle" location="${build}/checkstyle"/>
   <property name="build.checkstyle.src" value="http://download.sourceforge.net/project/checkstyle/checkstyle/5.5/checkstyle-5.5-bin.zip" />
-  <property name="build.checkstyle.schema" value="https://gist.github.com/gists/948425/download" />
   <property name="build.checkstyle.jar" location="${build.lib}/checkstyle-5.5/checkstyle-5.5-all.jar" />
-  <property name="build.checkstyle.config" location="${build.lib}/checkstyle.config.android.xml" />
+  <property name="build.checkstyle.config" location="${src}/../../etc/checkstyle_rules.xml" />
   <property name="build.javadoc" location="${build}/javadoc"/>
 
   <target name="init">
@@ -26,10 +25,7 @@
     <!-- check if checkstyle is installed -->
     <condition property="build.checkstyle.not.installed">
       <not>
-        <and>
            <available file="${build.checkstyle.jar}" />
-           <available file="${build.checkstyle.config}" />
-        </and>
       </not>
     </condition>
   </target>
@@ -56,20 +52,7 @@
   >
     <get src="${build.checkstyle.src}" dest="${build.lib}/checkstyle-5.5-bin.zip" />
     <unzip src="${build.lib}/checkstyle-5.5-bin.zip" dest="${build.lib}" />
-    <!-- download checkstyle schema file for android -->
-    <get src="${build.checkstyle.schema}" dest="${build.checkstyle.config}.tar.gz" />
-    <gunzip src="${build.checkstyle.config}.tar.gz" dest="${build.checkstyle.config}.tar" />
-    <untar src="${build.checkstyle.config}.tar" dest="${build.lib}" />
-    <move
-      file="${build.lib}/gist948425-0b28d372f71fce6badabd89f8befac2f56e04bf9/eclipse-checkstyle-android-best-practices"
-      tofile="${build.checkstyle.config}"
-    />
-    <!-- clean up a little bit -->
-    <delete dir="${build.lib}/gist948425-0b28d372f71fce6badabd89f8befac2f56e04bf9" />
-    <delete file="${build.checkstyle.config}.tar.gz" />
-    <delete file="${build.checkstyle.config}.tar" />
     <delete file="${build.lib}/checkstyle-5.5-bin.zip" />
-    <delete file="${build.checkstyle.config}/pax_global_header" />
   </target>
 
   <target name="checkstyle" description="runs checkstyle on the source files" depends="install.checkstyle">
