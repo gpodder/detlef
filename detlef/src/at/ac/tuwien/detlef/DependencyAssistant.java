@@ -3,7 +3,7 @@ package at.ac.tuwien.detlef;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
-import at.ac.tuwien.detlef.settings.SharedPreferencesRetriever;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class DependencyAssistant {
 
@@ -33,11 +33,29 @@ public class DependencyAssistant {
     }
 
     /**
-     * @return Gets the quasi-singleton SharedPreferencesRetriever instance for
-     *         this program.
+     * @return Gets the {@link GpodderSettings gpodder.net settings instance} that provides the
+     *     user name, password and device name settings.
+     * TODO Right now this is only a mock that returns some hard coded data. 
      */
-    public SharedPreferencesRetriever getSharedPreferencesRetriever() {
-        return null;
+    public GpodderSettings getGpodderSettings() {
+        return new GpodderSettings() {
+			
+			public String getUsername() {
+				return "";
+			}
+			
+			public String getPassword() {
+				return "";
+			}
+			
+			public String getDevicename() {
+				return String.format("%s-android", getUsername());
+			}
+			
+			public boolean isDefaultDevicename() {
+				return true;
+			}
+		};
     }
 
 }
