@@ -1,4 +1,3 @@
-
 package at.ac.tuwien.detlef.db;
 
 import java.util.List;
@@ -16,12 +15,13 @@ public interface PodcastDBAssistant {
      *
      * @param context: the application context eg.
      *            Activity.getApplicationContext());
+     *
      * @return returns a list of all podcasts
      */
-    public List<Podcast> getAllPodcasts(Context context);
+    List<Podcast> getAllPodcasts(Context context);
 
     /**
      * ??
      */
-    public void applySubscriptionChanges(Context context);
+    void applySubscriptionChanges(Context context);
 }

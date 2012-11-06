@@ -1,4 +1,3 @@
-
 package at.ac.tuwien.detlef.db;
 
 import android.content.Context;
@@ -61,22 +60,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String columnEpisodeState = "state";
 
     // create statement for the podcast table
-    static final String createPodcastTable = "CREATE TABLE " + tablePodcast + " ("
-            + columnPodcastId + " INTEGER PRIMARY KEY AUTOINCREMENT, " + columnPodcastUrl
-            + " TEXT, " + columnPodcastTitle + " TEXT, " + columnPodcastDescription + " TEXT, "
+    static final String createPodcastTable = "CREATE TABLE " + tablePodcast
+            + " (" + columnPodcastId + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + columnPodcastUrl + " TEXT, " + columnPodcastTitle + " TEXT, "
             + columnPodcastLogoUrl + " TEXT, " + columnPodcastLastUpdate + " INTEGER, "
             + columnPodcastLogoFilePath + " TEXT);";
 
     // create statement for the episode table
-    static final String createEpisodeTable = "CREATE TABLE " + tableEpisode + " ("
-            + columnEpisodeId + " INTEGER PRIMARY KEY AUTOINCREMENT, " + columnEpisodeGuid
-            + " TEXT, " + columnEpisodeTitle + " TEXT, " + columnEpisodeDescription + " TEXT, "
-            + columnEpisodeReleased + " INTEGER, " + columnEpisodeLink + " TEXT, "
+    static final String createEpisodeTable = "CREATE TABLE " + tableEpisode
+            + " (" + columnEpisodeId + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + columnEpisodeGuid + " TEXT, " + columnEpisodeTitle + " TEXT, "
+            + columnEpisodeDescription + " TEXT, " + columnEpisodeReleased
+            + " INTEGER, " + columnEpisodeLink + " TEXT, "
             + columnEpisodeAuthor + " TEXT, " + columnEpisodeUrl + " TEXT, "
-            + columnEpisodeMimetype + " TEXT, " + columnEpisodeFilesize + " TEXT, "
+            + columnEpisodeMimetype + " TEXT, " + columnEpisodeFilesize
             + columnEpisodeFilePath + " TEXT, " + columnEpisodeState + " Text, "
-            + columnEpisodePodcast + " INTEGER NOT NULL, FOREIGN KEY (" + columnEpisodePodcast
-            + ") REFERENCES " + tablePodcast + "(" + columnPodcastId + ") ON DELETE CASCADE);";
+            + " INTEGER NOT NULL, FOREIGN KEY (" + columnEpisodePodcast
+            + ") REFERENCES " + tablePodcast + "(" + columnPodcastId
+            + ") ON DELETE CASCADE);";
 
     public DatabaseHelper(Context context) {
         super(context, dbName, null, version);

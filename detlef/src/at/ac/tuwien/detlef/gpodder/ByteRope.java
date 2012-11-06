@@ -24,7 +24,9 @@ public class ByteRope {
 
     /**
      * Constructs a copy of the given byte rope.
-     * @param br Byte rope whose copy to construct.
+     *
+     * @param br
+     *            Byte rope whose copy to construct.
      */
     public ByteRope(ByteRope br) {
         this();
@@ -33,6 +35,7 @@ public class ByteRope {
 
     /**
      * Returns The current length, in bytes, of the rope.
+     *
      * @return The current length of the rope.
      */
     public int length() {
@@ -41,6 +44,7 @@ public class ByteRope {
 
     /**
      * Returns a cohesive byte array representation of the rope.
+     *
      * @return A byte array representation of the rope.
      */
     public byte[] toByteArray() {
@@ -58,17 +62,21 @@ public class ByteRope {
 
     /**
      * Append a byte to the rope.
-     * @param b The byte to append to the rope.
+     *
+     * @param b
+     *            The byte to append to the rope.
      */
     public void append(byte b) {
         // this is rather wasteful
-        byte[] barr = {b};
+        byte[] barr = { b };
         append(barr);
     }
 
     /**
      * Append (a copy of) an existing byte array to the rope.
-     * @param barr The existing byte array to append to the rope.
+     *
+     * @param barr
+     *            The existing byte array to append to the rope.
      */
     public void append(byte[] barr) {
         append(barr, 0, barr.length);
@@ -76,9 +84,13 @@ public class ByteRope {
 
     /**
      * Append (a copy of) a part of an existing byte array to the rope.
-     * @param barr The existing byte array whose part to append to the rope.
-     * @param offset The offset from which to begin copying.
-     * @param length The length of the slice to copy.
+     *
+     * @param barr
+     *            The existing byte array whose part to append to the rope.
+     * @param offset
+     *            The offset from which to begin copying.
+     * @param length
+     *            The length of the slice to copy.
      */
     public void append(byte[] barr, int offset, int length) {
         byte[] myBytes = new byte[length];

@@ -33,12 +33,13 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
             v.setTag(podcast);
         }
 
-        TextView lastUpdate = (TextView)v.findViewById(R.id.podListLastUpdate);
+        TextView lastUpdate = (TextView) v.findViewById(R.id.podListLastUpdate);
         if (lastUpdate != null) {
             lastUpdate.setText("22.06.2012");
         }
 
-        TextView podcastName = (TextView)v.findViewById(R.id.podListPodcastName);
+        TextView podcastName = (TextView) v
+                .findViewById(R.id.podListPodcastName);
         if (podcast != null) {
             podcastName.setText(podcast.getTitle());
         }

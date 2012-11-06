@@ -33,22 +33,24 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
             v.setTag(episode);
         }
 
-        TextView podcastTitle = (TextView)v.findViewById(R.id.episodeListPodcast);
+        TextView podcastTitle = (TextView) v
+                .findViewById(R.id.episodeListPodcast);
         if (podcastTitle != null) {
             podcastTitle.setText(episode.getPodcast().getTitle());
         }
 
-        TextView title = (TextView)v.findViewById(R.id.episodeListEpisode);
+        TextView title = (TextView) v.findViewById(R.id.episodeListEpisode);
         if (title != null) {
             title.setText(episode.getTitle());
         }
 
-        TextView description = (TextView)v.findViewById(R.id.episodeListDescription);
+        TextView description = (TextView) v
+                .findViewById(R.id.episodeListDescription);
         if (description != null) {
             description.setText(episode.getDescription());
         }
 
-        TextView size = (TextView)v.findViewById(R.id.episodeListDlSize);
+        TextView size = (TextView) v.findViewById(R.id.episodeListDlSize);
         if (size != null) {
             size.setText(episode.getFileSize());
         }

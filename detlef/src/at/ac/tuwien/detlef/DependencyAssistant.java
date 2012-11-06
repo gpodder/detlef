@@ -33,29 +33,30 @@ public class DependencyAssistant {
     }
 
     /**
-     * @return Gets the {@link GpodderSettings gpodder.net settings instance} that provides the
-     *     user name, password and device name settings.
-     * TODO Right now this is only a mock that returns some hard coded data. 
+     * @return Gets the {@link GpodderSettings gpodder.net settings instance}
+     *         that provides the user name, password and device name settings.
+     *         TODO Right now this is only a mock that returns some hard coded
+     *         data.
      */
     public GpodderSettings getGpodderSettings() {
         return new GpodderSettings() {
-			
-			public String getUsername() {
-				return "";
-			}
-			
-			public String getPassword() {
-				return "";
-			}
-			
-			public String getDevicename() {
-				return String.format("%s-android", getUsername());
-			}
-			
-			public boolean isDefaultDevicename() {
-				return true;
-			}
-		};
+
+            public String getUsername() {
+                return "";
+            }
+
+            public String getPassword() {
+                return "";
+            }
+
+            public String getDevicename() {
+                return String.format("%s-android", getUsername());
+            }
+
+            public boolean isDefaultDevicename() {
+                return true;
+            }
+        };
     }
 
 }

@@ -21,7 +21,7 @@ public class EpisodeListFragment extends ListFragment {
 
     private final ArrayList<Episode> listItems = new ArrayList<Episode>();
     private EpisodeListAdapter adapter;
-    int clickCounter = 0;
+    private int clickCounter = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,9 +64,8 @@ public class EpisodeListFragment extends ListFragment {
     }
 
     /**
-     * Called whenever a podcast is clicked in the PodListFragment.
-     * Filters the episode list to display only episodes belonging to
-     * the specified podcast.
+     * Called whenever a podcast is clicked in the PodListFragment. Filters the
+     * episode list to display only episodes belonging to the specified podcast.
      */
     public void setPodcast(Podcast podcast) {
         /* TODO: Quick and dirty implementation. */

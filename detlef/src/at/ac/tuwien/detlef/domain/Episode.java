@@ -1,4 +1,3 @@
-
 package at.ac.tuwien.detlef.domain;
 
 import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;

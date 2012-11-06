@@ -18,8 +18,8 @@ import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
 
-public class MainActivity extends FragmentActivity
-implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
+public class MainActivity extends FragmentActivity implements
+        ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
 
     private static String TAG = MainActivity.class.getName();
 
@@ -33,12 +33,12 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
      * intensive, it may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter mSectionsPagerAdapter;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    private ViewPager mViewPager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,15 +58,17 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        // When swiping between different sections, select the corresponding tab.
+        // When swiping between different sections, select the corresponding
+        // tab.
         // We can also use ActionBar.Tab#select() to do this if we have a
         // reference to the Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
+        mViewPager
+                .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        actionBar.setSelectedNavigationItem(position);
+                    }
+                });
 
         // For each of the sections in the app, add a tab to the action bar.
         for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -91,17 +93,17 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         switch (mViewPager.getCurrentItem()) {
-            case 0:
-                getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                break;
-            case 1:
-                getMenuInflater().inflate(R.menu.episode_menu, menu);
-                break;
-            case 2:
-                // getMenuInflater().inflate(R.menu.player_menu, menu);
-                break;
-            default:
-                return false;
+        case 0:
+            getMenuInflater().inflate(R.menu.podcast_menu, menu);
+            break;
+        case 1:
+            getMenuInflater().inflate(R.menu.episode_menu, menu);
+            break;
+        case 2:
+            // getMenuInflater().inflate(R.menu.player_menu, menu);
+            break;
+        default:
+            return false;
         }
         return true;
     }
@@ -116,15 +118,17 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
         if (menu != null) {
             menu.clear();
             switch (tab.getPosition()) {
-                case 0:
-                    getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                    break;
-                case 1:
-                    getMenuInflater().inflate(R.menu.episode_menu, menu);
-                    break;
-                case 2:
-                    getMenuInflater().inflate(R.menu.player_menu, menu);
-                    break;
+            case 0:
+                getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                break;
+            case 1:
+                getMenuInflater().inflate(R.menu.episode_menu, menu);
+                break;
+            case 2:
+                getMenuInflater().inflate(R.menu.player_menu, menu);
+                break;
+            default:
+                System.out.println("Non-existent tab selected! Please fix");
             }
         }
         mViewPager.setCurrentItem(tab.getPosition());
@@ -171,14 +175,15 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-                case POSITION_PODCASTS:
-                    return getString(R.string.podcasts).toUpperCase();
-                case POSITION_EPISODES:
-                    return getString(R.string.episodes).toUpperCase();
-                case POSITION_PLAYER:
-                    return getString(R.string.player).toUpperCase();
+            case POSITION_PODCASTS:
+                return getString(R.string.podcasts).toUpperCase();
+            case POSITION_EPISODES:
+                return getString(R.string.episodes).toUpperCase();
+            case POSITION_PLAYER:
+                return getString(R.string.player).toUpperCase();
+            default:
+                return null;
             }
-            return null;
         }
 
         public PodListFragment getPodList() {
@@ -198,30 +203,31 @@ implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-            case R.id.settings:
-                intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.playlist:
-                intent = new Intent(this, PlaylistActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.search:
-                intent = new Intent(this, SearchActivity.class);
-                startActivity(intent);
-                break;
-            default:
-                break;
+        case R.id.settings:
+            intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.playlist:
+            intent = new Intent(this, PlaylistActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.search:
+            intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
+            break;
+        default:
+            break;
         }
         return true;
     }
 
     /**
-     * The user has selected a podcast in the podcasts list.
-     * Filters the episode view and then switches to it.
+     * The user has selected a podcast in the podcasts list. Filters the episode
+     * view and then switches to it.
      */
     public void onPodcastSelected(Podcast podcast) {
         mSectionsPagerAdapter.getEpisodeList().setPodcast(podcast);
-        getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_EPISODES);
+        getActionBar().setSelectedNavigationItem(
+                SectionsPagerAdapter.POSITION_EPISODES);
     }
 }

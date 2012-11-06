@@ -1,4 +1,3 @@
-
 package at.ac.tuwien.detlef.fragments;
 
 import java.util.List;
@@ -34,9 +33,8 @@ public class PodListFragment extends ListFragment {
     private OnPodcastSelectedListener listener;
 
     /**
-     * The parent activity must implement this interface in
-     * order to interact with this fragment. The listener
-     * is called whenever a podcast is clicked.
+     * The parent activity must implement this interface in order to interact
+     * with this fragment. The listener is called whenever a podcast is clicked.
      */
     public interface OnPodcastSelectedListener {
         void onPodcastSelected(Podcast podcast);
@@ -46,10 +44,11 @@ public class PodListFragment extends ListFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            listener = (OnPodcastSelectedListener)activity;
+            listener = (OnPodcastSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(String.format("%s must implement %s",
-                    activity.toString(), OnPodcastSelectedListener.class.getName()));
+                    activity.toString(),
+                    OnPodcastSelectedListener.class.getName()));
         }
     }
 
@@ -59,7 +58,8 @@ public class PodListFragment extends ListFragment {
 
         /* Initialize our podcast model, creating dummy contents if needed. */
 
-        PodcastDAO dao = new PodcastDAOImpl(this.getActivity().getApplicationContext());
+        PodcastDAO dao = new PodcastDAOImpl(this.getActivity()
+                .getApplicationContext());
 
         List<Podcast> podlist = dao.getAllPodcasts();
         if (podlist.isEmpty()) {
@@ -76,13 +76,16 @@ public class PodListFragment extends ListFragment {
 
         /* And set up the adapter. */
 
-        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
+        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout,
+                podlist);
         setListAdapter(adapter);
     }
 
     private void fillDbWithDummyContents() {
-        PodcastDAO dao = new PodcastDAOImpl(this.getActivity().getApplicationContext());
-        EpisodeDAO edao = new EpisodeDAOImpl(this.getActivity().getApplicationContext());
+        PodcastDAO dao = new PodcastDAOImpl(this.getActivity()
+                .getApplicationContext());
+        EpisodeDAO edao = new EpisodeDAOImpl(this.getActivity()
+                .getApplicationContext());
 
         Podcast all = new Podcast();
         all.setTitle("All Podcasts");
@@ -161,7 +164,8 @@ public class PodListFragment extends ListFragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.podcast_context, menu);
@@ -169,24 +173,26 @@ public class PodListFragment extends ListFragment {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
+                .getMenuInfo();
         switch (item.getItemId()) {
-            case R.id.delete_feed:
-                onDeleteFeedClicked(info.position);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+        case R.id.delete_feed:
+            onDeleteFeedClicked(info.position);
+            return true;
+        default:
+            return super.onContextItemSelected(item);
         }
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Podcast podcast = (Podcast)v.getTag();
+        Podcast podcast = (Podcast) v.getTag();
         listener.onPodcastSelected(podcast);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.pod_fragment_layout, container, false);
     }

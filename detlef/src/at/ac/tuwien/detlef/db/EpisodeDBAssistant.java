@@ -1,4 +1,3 @@
-
 package at.ac.tuwien.detlef.db;
 
 import java.util.List;
@@ -19,28 +18,31 @@ public interface EpisodeDBAssistant {
      *
      * @param context: The application context eg.
      *            Activity.getApplicationContext());
+     *
      * @param podcast: The podcast which contains the episodes
+     *
      * @return returns all episodes of the given podcast
      */
-    public List<Episode> getEpisodes(Context context, Podcast podcast);
+    List<Episode> getEpisodes(Context context, Podcast podcast);
 
     /**
      * Delivers all episodes
      *
      * @param context: The application context eg.
      *            Activity.getApplicationContext());
+     *
      * @return returns all episodes which are stored in the database
      */
-    public List<Episode> getAllEpisodes(Context context);
+    List<Episode> getAllEpisodes(Context context);
 
     /**
      * ??
      */
-    public void applyActionChanges(Context context, Podcast podcast);
+    void applyActionChanges(Context context, Podcast podcast);
 
     /**
      * ??
      */
-    public void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed);
+    void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed);
 
 }

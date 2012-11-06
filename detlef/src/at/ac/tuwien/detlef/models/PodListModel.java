@@ -6,11 +6,11 @@ import java.util.List;
 import com.dragontek.mygpoclient.simple.IPodcast;
 
 /**
- * PodListModel consists of a list of podcasts and subscribed
- * listeners which are notified on every change to the podcast list.
+ * PodListModel consists of a list of podcasts and subscribed listeners which
+ * are notified on every change to the podcast list.
  *
- * This interface will probably need to change once it becomes clearer
- * how backend classes work.
+ * This interface will probably need to change once it becomes clearer how
+ * backend classes work.
  */
 public class PodListModel<T extends IPodcast> {
 

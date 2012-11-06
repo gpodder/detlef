@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests the {@link ByteRope}.
+ *
  * @author ondra
  */
 public class ByteRopeTest extends TestCase {
@@ -17,19 +18,19 @@ public class ByteRopeTest extends TestCase {
 
     public void testSingleElementRope() {
         ByteRope br = new ByteRope();
-        br.append((byte)42);
+        br.append((byte) 42);
 
         byte[] bs = br.toByteArray();
 
         assertEquals(1, br.length());
         assertEquals(1, bs.length);
 
-        assertEquals((byte)42, bs[0]);
+        assertEquals((byte) 42, bs[0]);
     }
 
     public void testSingleBlockRope() {
         ByteRope br = new ByteRope();
-        byte[] src = {1, 2, 3, 4, 5, 6};
+        byte[] src = { 1, 2, 3, 4, 5, 6 };
 
         br.append(src);
         byte[] bs = br.toByteArray();
@@ -49,8 +50,8 @@ public class ByteRopeTest extends TestCase {
 
     public void testTwoBlockRope() {
         ByteRope br = new ByteRope();
-        byte[] srcA = {1, 2, 3};
-        byte[] srcB = {4, 5, 6};
+        byte[] srcA = { 1, 2, 3 };
+        byte[] srcB = { 4, 5, 6 };
 
         br.append(srcA);
         br.append(srcB);
@@ -65,7 +66,7 @@ public class ByteRopeTest extends TestCase {
             assertEquals(srcA[i], bs[i]);
         }
         for (i = 0; i < srcB.length; ++i) {
-            assertEquals(srcB[i], bs[srcA.length+i]);
+            assertEquals(srcB[i], bs[srcA.length + i]);
         }
     }
 }
