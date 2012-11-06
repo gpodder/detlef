@@ -216,14 +216,15 @@ public class PodderService extends Service {
 
     /** Contains the message content keys relevant to the {@link PodderService}. */
     public static class MessageContentKey {
-        /** This key stores a URL string. */
-        public static final String URL = "URL";
+        /** This key stores a data byte array. */
+        public static final String DATA = "DATA";
+
 
         /** This key stores an error message string. */
         public static final String ERRMSG = "ERRMSG";
 
-        /** This key stores a data byte array. */
-        public static final String DATA = "DATA";
+        /** This key stores a URL string. */
+        public static final String URL = "URL";
     }
 
     /** Handles incoming messages. */
