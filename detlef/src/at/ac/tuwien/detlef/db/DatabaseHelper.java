@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/*
+/**
  * DatabaseHelper class which creates the database
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -28,6 +28,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String columnPodcastLogoUrl = "logoUrl";
 
     public static final String columnPodcastLastUpdate = "lastUpdate";
+
+    public static final String columnPodcastLogoFilePath = "logoFilePath";
 
     // episode table
     public static final String tableEpisode = "Episode";
@@ -54,11 +56,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String columnEpisodePodcast = "podcast";
 
+    public static final String columnEpisodeFilePath = "filePath";
+
+    public static final String columnEpisodeState = "state";
+
     // create statement for the podcast table
     static final String createPodcastTable = "CREATE TABLE " + tablePodcast + " ("
             + columnPodcastId + " INTEGER PRIMARY KEY AUTOINCREMENT, " + columnPodcastUrl
             + " TEXT, " + columnPodcastTitle + " TEXT, " + columnPodcastDescription + " TEXT, "
-            + columnPodcastLogoUrl + " TEXT, " + columnPodcastLastUpdate + " INTEGER);";
+            + columnPodcastLogoUrl + " TEXT, " + columnPodcastLastUpdate + " INTEGER, "
+            + columnPodcastLogoFilePath + " TEXT);";
 
     // create statement for the episode table
     static final String createEpisodeTable = "CREATE TABLE " + tableEpisode + " ("
@@ -67,6 +74,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + columnEpisodeReleased + " INTEGER, " + columnEpisodeLink + " TEXT, "
             + columnEpisodeAuthor + " TEXT, " + columnEpisodeUrl + " TEXT, "
             + columnEpisodeMimetype + " TEXT, " + columnEpisodeFilesize + " TEXT, "
+            + columnEpisodeFilePath + " TEXT, " + columnEpisodeState + " Text, "
             + columnEpisodePodcast + " INTEGER NOT NULL, FOREIGN KEY (" + columnEpisodePodcast
             + ") REFERENCES " + tablePodcast + "(" + columnPodcastId + ") ON DELETE CASCADE);";
 

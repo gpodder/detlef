@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.State;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public class EpisodeDAOImpl implements EpisodeDAO {
@@ -36,6 +37,8 @@ public class EpisodeDAOImpl implements EpisodeDAO {
             values.put(DatabaseHelper.columnEpisodeReleased, episode.getReleased());
             values.put(DatabaseHelper.columnEpisodeTitle, episode.getTitle());
             values.put(DatabaseHelper.columnEpisodeUrl, episode.getUrl());
+            values.put(DatabaseHelper.columnEpisodeFilePath, episode.getFilePath());
+            values.put(DatabaseHelper.columnEpisodeState, episode.getState().toString());
 
             long id = db.insert(DatabaseHelper.tableEpisode, null, values);
             db.close();
@@ -80,7 +83,8 @@ public class EpisodeDAOImpl implements EpisodeDAO {
                 DatabaseHelper.columnEpisodeId, DatabaseHelper.columnEpisodeLink,
                 DatabaseHelper.columnEpisodeMimetype, DatabaseHelper.columnEpisodePodcast,
                 DatabaseHelper.columnEpisodeReleased, DatabaseHelper.columnEpisodeTitle,
-                DatabaseHelper.columnEpisodeUrl
+                DatabaseHelper.columnEpisodeUrl, DatabaseHelper.columnEpisodeFilePath,
+                DatabaseHelper.columnEpisodeState
         };
 
         Cursor c = db.query(DatabaseHelper.tableEpisode, projection, selection, // columns
@@ -108,12 +112,39 @@ public class EpisodeDAOImpl implements EpisodeDAO {
                 e.setReleased(c.getLong(8));
                 e.setTitle(c.getString(9));
                 e.setUrl(c.getString(10));
+                e.setFilePath(c.getString(11));
+                e.setState(State.valueOf(c.getString(12)));
                 allEpisodes.add(e);
             } while (c.moveToNext());
         }
         c.close();
         db.close();
         return allEpisodes;
+    }
+
+    public int updateFilePath(Episode episode) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.columnEpisodeFilePath, episode.getFilePath());
+        return updateFieldUsingEpisodeId(episode, values);
+    }
+
+    public int updateState(Episode episode) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.columnEpisodeState, episode.getState().toString());
+        return updateFieldUsingEpisodeId(episode, values);
+    }
+
+    private int updateFieldUsingEpisodeId(Episode episode, ContentValues values) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String selection = DatabaseHelper.columnEpisodeId + " = ?";
+        String[] selectionArgs = {
+                String.valueOf(episode.getId())
+        };
+
+        int ret = db.update(DatabaseHelper.tableEpisode, values, selection, selectionArgs);
+        db.close();
+        return ret;
     }
 
 }

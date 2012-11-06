@@ -37,6 +37,8 @@ public class Episode implements IEpisode {
 
     private String url;
 
+    private String filePath;
+
     public String getTitle() {
         return title;
     }
@@ -45,76 +47,86 @@ public class Episode implements IEpisode {
         return state;
     }
 
-    public void setState(Episode.State state) {
+    public Episode setState(Episode.State state) {
         this.state = state;
+        return this;
     }
 
-    public void setTitle(String title) {
+    public Episode setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     public Podcast getPodcast() {
         return podcast;
     }
 
-    public void setPodcast(Podcast podcast) {
+    public Episode setPodcast(Podcast podcast) {
         this.podcast = podcast;
+        return this;
     }
 
     public String getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(String fileSize) {
+    public Episode setFileSize(String fileSize) {
         this.fileSize = fileSize;
+        return this;
     }
 
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public Episode setAuthor(String author) {
         this.author = author;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public Episode setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public String getGuid() {
         return guid;
     }
 
-    public void setGuid(String guid) {
+    public Episode setGuid(String guid) {
         this.guid = guid;
+        return this;
     }
 
     public String getLink() {
         return link;
     }
 
-    public void setLink(String link) {
+    public Episode setLink(String link) {
         this.link = link;
+        return this;
     }
 
     public long getReleased() {
         return released;
     }
 
-    public void setReleased(long released) {
+    public Episode setReleased(long released) {
         this.released = released;
+        return this;
     }
 
     public String getMimetype() {
         return mimetype;
     }
 
-    public void setMimetype(String mimetype) {
+    public Episode setMimetype(String mimetype) {
         this.mimetype = mimetype;
+        return this;
     }
 
     public IEnclosure getEnclosure() {
@@ -126,15 +138,26 @@ public class Episode implements IEpisode {
         return url;
     }
 
-    public void setUrl(String url) {
+    public Episode setUrl(String url) {
         this.url = url;
+        return this;
     }
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public Episode setId(long id) {
         this.id = id;
+        return this;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public Episode setFilePath(String filePath) {
+        this.filePath = filePath;
+        return this;
     }
 }

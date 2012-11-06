@@ -17,6 +17,8 @@ public class Podcast implements IPodcast {
 
     private String logoUrl = "www.dummyurl.com";
 
+    private String logoFilePath;
+
     private String url = "www.dummyurl.com";
 
     private long lastUpdate;
@@ -37,8 +39,9 @@ public class Podcast implements IPodcast {
         return url;
     }
 
-    public void setUrl(String url) {
+    public Podcast setUrl(String url) {
         this.url = url;
+        return this;
     }
 
     public void setTitle(String title) {
@@ -58,16 +61,27 @@ public class Podcast implements IPodcast {
         return id;
     }
 
-    public void setId(long id) {
+    public Podcast setId(long id) {
         this.id = id;
+        return this;
     }
 
     public long getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(long lastUpdate) {
+    public Podcast setLastUpdate(long lastUpdate) {
         this.lastUpdate = lastUpdate;
+        return this;
+    }
+
+    public String getLogoFilePath() {
+        return logoFilePath;
+    }
+
+    public Podcast setLogoFilePath(String logoFilePath) {
+        this.logoFilePath = logoFilePath;
+        return this;
     }
 
 }
