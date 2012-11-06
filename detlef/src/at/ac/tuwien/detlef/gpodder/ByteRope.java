@@ -35,7 +35,7 @@ public class ByteRope {
      * Returns The current length, in bytes, of the rope.
      * @return The current length of the rope.
      */
-    public long length() {
+    public int length() {
         return len;
     }
 
