@@ -48,6 +48,9 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
                     break;
                 case PodderService.MessageType.HEARTBEAT_DONE:
                     break;
+                case PodderService.MessageType.HTTP_DOWNLOAD_PROGRESS_STATUS:
+                    // ignore this message
+                    return;
                 default:
                     fail("unexpected message: " + msg.what);
                     break;

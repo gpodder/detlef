@@ -149,6 +149,18 @@ public class PodderService extends Service {
             return;
         }
 
+        // fetch length
+        int len = conn.getContentLength();
+
+        // prepare status update message
+        Message statusMsg = Message.obtain();
+        statusMsg.what = MessageType.HTTP_DOWNLOAD_PROGRESS_STATUS;
+        statusMsg.replyTo = this.theHand;
+        Bundle statusData = new Bundle();
+        if (len != -1) {
+            statusData.putInt(MessageContentKey.TOTALBYTES, len);
+        }
+
         // read
         ByteRope br = new ByteRope();
         byte[] holder = new byte[BLOCK_SIZE];
@@ -159,6 +171,9 @@ public class PodderService extends Service {
             while ((read = strm.read(holder)) > 0)
             {
                 br.append(holder, 0, read);
+                statusData.putInt(MessageContentKey.HAVEBYTES, br.length());
+                statusMsg.setData(statusData);
+                fireAndForget(msg.replyTo, statusMsg);
             }
         } catch (IOException ioe) {
             fireAndForget(msg.replyTo, newFailedMessage(
@@ -232,6 +247,15 @@ public class PodderService extends Service {
         /** The response to the heartbeat. */
         public static final int HEARTBEAT_DONE = 0x1002;
 
+        /**
+         * A response informing about the progress of an HTTP download.
+         *
+         * Contains an integer keyed {@link MessageContentKey#HAVEBYTES} storing the number of
+         * bytes that have been downloaded, as well as&mdash;if it is known&mdash;an integer keyed
+         * {@link MessageContentKey#TOTALBYTES} storing the total number of bytes.
+         */
+        public static final int HTTP_DOWNLOAD_PROGRESS_STATUS = 0x1003;
+
         /** A response that an HTTP download failed. */
         public static final int HTTP_DOWNLOAD_FAILED = 0x2001;
     }
@@ -246,6 +270,12 @@ public class PodderService extends Service {
 
         /** This key stores an error message string. */
         public static final String ERRMSG = "ERRMSG";
+
+        /** This key stores an integer with the number of bytes already downloaded. */
+        public static final String HAVEBYTES = "HAVEBYTES";
+
+        /** This key stores an integer with the total number of bytes. */
+        public static final String TOTALBYTES = "TOTALBYTES";
 
         /** This key stores a URL string. */
         public static final String URL = "URL";
