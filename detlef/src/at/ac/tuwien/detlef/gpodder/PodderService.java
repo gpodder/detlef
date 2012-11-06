@@ -79,17 +79,19 @@ public class PodderService extends Service {
 
     /**
      * Creates a new "action failed" message.
-     * @param code The message code of this message.
+     * @param msgCode The message code of this message.
+     * @param errCode The error code documenting what went wrong.
      * @param errMsg The error description. For debugging purposes only.
      * @return A new message targeted at the sender of the given message.
      */
-    private Message newFailedMessage(int code, String errMsg) {
+    private Message newFailedMessage(int msgCode, int errCode, String errMsg) {
         Log.d(TAG, "newFailedMessage()");
         Message ret = Message.obtain();
-        ret.what = code;
+        ret.what = msgCode;
         ret.replyTo = this.theHand;
 
         Bundle data = new Bundle();
+        data.putInt(MessageContentKey.ERRCODE, errCode);
         data.putString(MessageContentKey.ERRMSG, errMsg);
         ret.setData(data);
 
@@ -121,7 +123,10 @@ public class PodderService extends Service {
         Uri uri = Uri.parse(msgData.getString("URL"));
 
         if (!validScheme(uri.getScheme())) {
-            fireAndForget(msg.replyTo, newFailedMessage(MessageType.HTTP_DOWNLOAD_FAILED, "invalid URL scheme: " + uri.getScheme()));
+            fireAndForget(msg.replyTo, newFailedMessage(
+                    MessageType.HTTP_DOWNLOAD_FAILED,
+                    MessageErrorCode.INVALID_URL_SCHEME,
+                    "invalid URL scheme: " + uri.getScheme()));
             return;
         }
 
@@ -131,10 +136,16 @@ public class PodderService extends Service {
         try {
             conn = (HttpURLConnection)new URL(uri.toString()).openConnection();
         } catch (MalformedURLException mue) {
-            fireAndForget(msg.replyTo, newFailedMessage(MessageType.HTTP_DOWNLOAD_FAILED, "malformed URL"));
+            fireAndForget(msg.replyTo, newFailedMessage(
+                    MessageType.HTTP_DOWNLOAD_FAILED,
+                    MessageErrorCode.MALFORMED_URL,
+                    "malformed URL"));
             return;
         } catch (IOException ioe) {
-            fireAndForget(msg.replyTo, newFailedMessage(MessageType.HTTP_DOWNLOAD_FAILED, "I/O problem: " + ioe.getMessage()));
+            fireAndForget(msg.replyTo, newFailedMessage(
+                    MessageType.HTTP_DOWNLOAD_FAILED,
+                    MessageErrorCode.IO_PROBLEM,
+                    "I/O problem: " + ioe.getMessage()));
             return;
         }
 
@@ -150,7 +161,10 @@ public class PodderService extends Service {
                 br.append(holder, 0, read);
             }
         } catch (IOException ioe) {
-            fireAndForget(msg.replyTo, newFailedMessage(MessageType.HTTP_DOWNLOAD_FAILED, "I/O problem: " + ioe.getMessage()));
+            fireAndForget(msg.replyTo, newFailedMessage(
+                    MessageType.HTTP_DOWNLOAD_FAILED,
+                    MessageErrorCode.IO_PROBLEM,
+                    "I/O problem: " + ioe.getMessage()));
             return;
         } finally {
             conn.disconnect();
@@ -168,7 +182,10 @@ public class PodderService extends Service {
         try {
             msg.replyTo.send(ret);
         } catch (RemoteException re) {
-            fireAndForget(msg.replyTo, newFailedMessage(MessageType.HTTP_DOWNLOAD_FAILED, "problem sending result: " + re.getMessage()));
+            fireAndForget(msg.replyTo, newFailedMessage(
+                    MessageType.HTTP_DOWNLOAD_FAILED,
+                    MessageErrorCode.SENDING_RESULT_FAILED,
+                    "problem sending result: " + re.getMessage()));
         }
     }
 
@@ -224,12 +241,29 @@ public class PodderService extends Service {
         /** This key stores a data byte array. */
         public static final String DATA = "DATA";
 
+        /** This key stores an error code. */
+        public static final String ERRCODE = "ERRCODE";
 
         /** This key stores an error message string. */
         public static final String ERRMSG = "ERRMSG";
 
         /** This key stores a URL string. */
         public static final String URL = "URL";
+    }
+
+    /** Contains the error codes for failures reported by the {@link PodderService}. */
+    public static class MessageErrorCode {
+        /** Error code raised if the URL scheme is not allowed. */
+        public static final int INVALID_URL_SCHEME = 1;
+
+        /** Error code raised if there has been a problem with input/output. */
+        public static final int IO_PROBLEM = 3;
+
+        /** Error code raised if the URL is formatted incorrectly. */
+        public static final int MALFORMED_URL = 2;
+
+        /** Error code raised if sending the result failed. */
+        public static final int SENDING_RESULT_FAILED = 4;
     }
 
     /** Handles incoming messages. */
