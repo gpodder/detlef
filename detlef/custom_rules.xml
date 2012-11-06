@@ -10,6 +10,7 @@
   <property name="build.checkstyle" location="${build}/checkstyle"/>
   <property name="build.checkstyle.src" value="http://download.sourceforge.net/project/checkstyle/checkstyle/5.5/checkstyle-5.5-bin.zip" />
   <property name="build.checkstyle.jar" location="${build.lib}/checkstyle-5.5/checkstyle-5.5-all.jar" />
+  <property name="samedir" location="${src}/../../etc"/>
   <property name="build.checkstyle.config" location="${src}/../../etc/checkstyle_rules.xml" />
   <property name="build.javadoc" location="${build}/javadoc"/>
 

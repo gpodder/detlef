@@ -10,6 +10,9 @@
 -->
 <module name="Checker">
   <property name="severity" value="warning"/>
+  <module name="SuppressionFilter">
+	<property name="file" value="${samedir}/suppressions.xml"/>
+  </module>
   <module name="TreeWalker">
     <property name="tabWidth" value="4"/>
     <module name="JavadocMethod">
@@ -75,10 +78,12 @@
     <module name="NeedBraces"/>
     <module name="RightCurly"/>
     <module name="AvoidInlineConditionals"/>
-    <module name="DoubleCheckedLocking"/>
     <module name="EmptyStatement"/>
     <module name="EqualsHashCode"/>
-    <module name="HiddenField"/>
+    <module name="HiddenField">
+	    <property name="ignoreSetter" value="true"/>
+	    <property name="ignoreConstructorParameter" value="true"/>
+	</module>
     <module name="IllegalInstantiation"/>
     <module name="InnerAssignment"/>
     <module name="MagicNumber"/>
