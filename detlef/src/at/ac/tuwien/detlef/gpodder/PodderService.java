@@ -204,7 +204,12 @@ public class PodderService extends Service {
         /** A request that a heartbeat be provided. */
         public static final int DO_HEARTBEAT = 0x0002;
 
-        /** A response that an HTTP download completed successfully. */
+        /**
+         * A response that an HTTP download completed successfully.
+         *
+         * Contains a byte array keyed {@link MessageContentKey#DATA} which contains the data
+         * downloaded.
+         */
         public static final int HTTP_DOWNLOAD_DONE = 0x1001;
 
         /** The response to the heartbeat. */
