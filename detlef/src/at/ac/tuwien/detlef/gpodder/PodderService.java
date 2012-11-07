@@ -7,6 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.dragontek.mygpoclient.simple.SimpleClient;
+
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
@@ -231,6 +233,58 @@ public class PodderService extends Service {
     }
 
     /**
+     * Handles an auth check message.
+     * @param msg The message that was sent.
+     */
+    private void handleAuthcheckMessage(Message msg) {
+        Log.d(TAG, "handleAuthcheckMessage()");
+        // fetch request code
+        Bundle msgData = msg.getData();
+        int reqCode = fetchRequestCode(msgData);
+
+        // fetch username and password
+        String username = msgData.getString(MessageContentKey.USERNAME);
+        String password = msgData.getString(MessageContentKey.PASSWORD);
+        String hostname = msgData.getString(MessageContentKey.HOSTNAME, "gpodder.net");
+
+        // try authenticating
+        SimpleClient sc = new SimpleClient(username, password, hostname);
+        boolean ok;
+        try {
+            ok = sc.authenticate(username, password);
+        } catch (IOException ioe) {
+            fireAndForget(msg.replyTo, newFailedMessage(
+                    MessageType.AUTHCHECK_FAILED,
+                    reqCode,
+                    MessageErrorCode.IO_PROBLEM,
+                    ioe.getMessage()));
+            return;
+        }
+
+        Message ret = Message.obtain();
+        ret.what = ok ? MessageType.AUTHCHECK_DONE : MessageType.AUTHCHECK_FAILED;
+        ret.replyTo = this.theHand;
+        Bundle data = new Bundle();
+        data.putInt(MessageContentKey.REQCODE, reqCode);
+        if (!ok) {
+            data.putInt(MessageContentKey.ERRCODE, MessageErrorCode.AUTHENTICATION_FAILED);
+            data.putString(MessageContentKey.ERRMSG, "authentication failed");
+        }
+        ret.setData(data);
+
+        try {
+            msg.replyTo.send(ret);
+        } catch (RemoteException rex) {
+            fireAndForget(msg.replyTo, newFailedMessage(
+                    MessageType.AUTHCHECK_FAILED,
+                    reqCode,
+                    MessageErrorCode.SENDING_RESULT_FAILED,
+                    rex.getMessage()));
+            return;
+        }
+    }
+
+    /**
      * Handles a heartbeat.
      * @param msg The message that was sent.
      */
@@ -268,6 +322,14 @@ public class PodderService extends Service {
         public static final int DO_HEARTBEAT = 0x0002;
 
         /**
+         * A request that authentication data be checked with gpodder.net.
+         *
+         * The message data must contain string values for the username ({@link
+         * MessageContentKey#USERNAME}) and password ({@link MessageContentKey#PASSWORD}).
+         */
+        public static final int DO_AUTHCHECK = 0x0003;
+
+        /**
          * A response that an HTTP download completed successfully.
          *
          * Contains a byte array keyed {@link MessageContentKey#DATA} which contains the data
@@ -287,8 +349,14 @@ public class PodderService extends Service {
          */
         public static final int HTTP_DOWNLOAD_PROGRESS_STATUS = 0x1003;
 
+        /** A response that the authentication check succeeded. */
+        public static final int AUTHCHECK_DONE = 0x1004;
+
         /** A response that an HTTP download failed. */
         public static final int HTTP_DOWNLOAD_FAILED = 0x2001;
+
+        /** A response that the authentication check failed. */
+        public static final int AUTHCHECK_FAILED = 0x2003;
     }
 
     /** Contains the message content keys relevant to the {@link PodderService}. */
@@ -305,6 +373,12 @@ public class PodderService extends Service {
         /** This key stores an integer with the number of bytes already downloaded. */
         public static final String HAVEBYTES = "HAVEBYTES";
 
+        /** This key stores a hostname string. */
+        public static final String HOSTNAME = "HOSTNAME";
+
+        /** This key stores a password string. */
+        public static final String PASSWORD = "PASSWORD";
+
         /**
          * This key stores a request code integer that is chosen by the requester and returned in
          * responses. The magical value -1 is used in replies when a request code was not specified
@@ -317,10 +391,16 @@ public class PodderService extends Service {
 
         /** This key stores a URL string. */
         public static final String URL = "URL";
+
+        /** This key stores a username string. */
+        public static final String USERNAME = "USERNAME";
     }
 
     /** Contains the error codes for failures reported by the {@link PodderService}. */
     public static class MessageErrorCode {
+        /** Error code raised if authentication fails. */
+        public static final int AUTHENTICATION_FAILED = 6;
+
         /** Error code raised if the URL scheme is not allowed. */
         public static final int INVALID_URL_SCHEME = 1;
 
@@ -385,6 +465,9 @@ public class PodderService extends Service {
                     break;
                 case MessageType.DO_HEARTBEAT:
                     ps.handleHeartbeatMessage(msg);
+                    break;
+                case MessageType.DO_AUTHCHECK:
+                    ps.handleAuthcheckMessage(msg);
                     break;
                 default:
                     // I do not know this message
