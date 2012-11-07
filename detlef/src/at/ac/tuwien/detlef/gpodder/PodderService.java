@@ -81,17 +81,19 @@ public class PodderService extends Service {
     /**
      * Creates a new "action failed" message.
      * @param msgCode The message code of this message.
+     * @param reqCode The request code of the failed request.
      * @param errCode The error code documenting what went wrong.
      * @param errMsg The error description. For debugging purposes only.
      * @return A new message targeted at the sender of the given message.
      */
-    private Message newFailedMessage(int msgCode, int errCode, String errMsg) {
+    private Message newFailedMessage(int msgCode, int reqCode, int errCode, String errMsg) {
         Log.d(TAG, "newFailedMessage()");
         Message ret = Message.obtain();
         ret.what = msgCode;
         ret.replyTo = this.theHand;
 
         Bundle data = new Bundle();
+        data.putInt(MessageContentKey.REQCODE, reqCode);
         data.putInt(MessageContentKey.ERRCODE, errCode);
         data.putString(MessageContentKey.ERRMSG, errMsg);
         ret.setData(data);
@@ -114,18 +116,35 @@ public class PodderService extends Service {
     }
 
     /**
+     * Fetches the request code ({@link MessageContentKey#REQCODE}) from the message.
+     * @param msgData
+     * @return
+     */
+    private int fetchRequestCode(Bundle msgData) {
+        if (msgData == null || !msgData.containsKey(MessageContentKey.REQCODE)) {
+            return -1;
+        } else {
+            return msgData.getInt(MessageContentKey.REQCODE);
+        }
+    }
+
+    /**
      * Handles an HTTP download message.
      * @param msg The message that was sent.
      */
     private void handleHttpDownloadMessage(Message msg) {
         Log.d(TAG, "handleHttpDownloadMessage()");
-        // fetch URL
+        // fetch request code
         Bundle msgData = msg.getData();
+        int reqCode = fetchRequestCode(msgData);
+
+        // fetch URL
         Uri uri = Uri.parse(msgData.getString("URL"));
 
         if (!validScheme(uri.getScheme())) {
             fireAndForget(msg.replyTo, newFailedMessage(
                     MessageType.HTTP_DOWNLOAD_FAILED,
+                    reqCode,
                     MessageErrorCode.INVALID_URL_SCHEME,
                     "invalid URL scheme: " + uri.getScheme()));
             return;
@@ -139,12 +158,14 @@ public class PodderService extends Service {
         } catch (MalformedURLException mue) {
             fireAndForget(msg.replyTo, newFailedMessage(
                     MessageType.HTTP_DOWNLOAD_FAILED,
+                    reqCode,
                     MessageErrorCode.MALFORMED_URL,
                     "malformed URL"));
             return;
         } catch (IOException ioe) {
             fireAndForget(msg.replyTo, newFailedMessage(
                     MessageType.HTTP_DOWNLOAD_FAILED,
+                    reqCode,
                     MessageErrorCode.IO_PROBLEM,
                     "I/O problem: " + ioe.getMessage()));
             return;
@@ -158,6 +179,7 @@ public class PodderService extends Service {
         statusMsg.what = MessageType.HTTP_DOWNLOAD_PROGRESS_STATUS;
         statusMsg.replyTo = this.theHand;
         Bundle statusData = new Bundle();
+        statusData.putInt(MessageContentKey.REQCODE, reqCode);
         if (len != -1) {
             statusData.putInt(MessageContentKey.TOTALBYTES, len);
         }
@@ -178,6 +200,7 @@ public class PodderService extends Service {
         } catch (IOException ioe) {
             fireAndForget(msg.replyTo, newFailedMessage(
                     MessageType.HTTP_DOWNLOAD_FAILED,
+                    reqCode,
                     MessageErrorCode.IO_PROBLEM,
                     "I/O problem: " + ioe.getMessage()));
             return;
@@ -191,6 +214,7 @@ public class PodderService extends Service {
         ret.replyTo = this.theHand;
         Bundle data = new Bundle();
         data.putByteArray(MessageContentKey.DATA, br.toByteArray());
+        data.putInt(MessageContentKey.REQCODE, reqCode);
         ret.setData(data);
 
         // send reply
@@ -199,6 +223,7 @@ public class PodderService extends Service {
         } catch (RemoteException re) {
             fireAndForget(msg.replyTo, newFailedMessage(
                     MessageType.HTTP_DOWNLOAD_FAILED,
+                    reqCode,
                     MessageErrorCode.SENDING_RESULT_FAILED,
                     "problem sending result: " + re.getMessage()));
         }
@@ -210,9 +235,14 @@ public class PodderService extends Service {
      */
     private void handleHeartbeatMessage(Message msg) {
         Log.d(TAG, "handleHeartbeatMessage()");
+
+        int reqCode = fetchRequestCode(msg.getData());
         Message ret = Message.obtain();
         ret.what = MessageType.HEARTBEAT_DONE;
         ret.replyTo = this.theHand;
+        Bundle data = new Bundle();
+        data.putInt(MessageContentKey.REQCODE, reqCode);
+        msg.setData(data);
 
         fireAndForget(msg.replyTo, ret);
     }
@@ -270,6 +300,13 @@ public class PodderService extends Service {
 
         /** This key stores an error message string. */
         public static final String ERRMSG = "ERRMSG";
+
+        /**
+         * This key stores a request code integer that is chosen by the requester and returned in
+         * responses. The magical value -1 is used in replies when a request code was not specified
+         * by the caller.
+         */
+        public static final String REQCODE = "REQCODE";
 
         /** This key stores an integer with the number of bytes already downloaded. */
         public static final String HAVEBYTES = "HAVEBYTES";

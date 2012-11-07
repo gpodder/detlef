@@ -39,6 +39,11 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             Log.d("IncomingHandler", "handleMessage()");
             wrpst.get().msgWhat = msg.what;
 
+            Bundle d = msg.getData();
+            if (!d.containsKey(PodderService.MessageContentKey.REQCODE)) {
+                fail("Message from service did not contain any request code.");
+            }
+
             switch (msg.what) {
                 case PodderService.MessageType.HTTP_DOWNLOAD_DONE:
                     wrpst.get().str = new String(msg.getData().getByteArray(
