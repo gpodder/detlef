@@ -41,10 +41,12 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
             switch (msg.what) {
                 case PodderService.MessageType.HTTP_DOWNLOAD_DONE:
-                    wrpst.get().str = new String(msg.getData().getByteArray(PodderService.MessageContentKey.DATA));
+                    wrpst.get().str = new String(msg.getData().getByteArray(
+                            PodderService.MessageContentKey.DATA));
                     break;
                 case PodderService.MessageType.HTTP_DOWNLOAD_FAILED:
-                    fail("HTTP download failed: " + msg.getData().getString(PodderService.MessageContentKey.ERRMSG));
+                    fail("HTTP download failed: " + msg.getData().getString(
+                            PodderService.MessageContentKey.ERRMSG));
                     break;
                 case PodderService.MessageType.HEARTBEAT_DONE:
                     break;
@@ -150,7 +152,9 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             lock.lock();
 
             Bundle data = new Bundle();
-            data.putString(PodderService.MessageContentKey.URL, "http://ondrahosek.dyndns.org/detlef.txt");
+            data.putString(
+                    PodderService.MessageContentKey.URL,
+                    "http://ondrahosek.dyndns.org/detlef.txt");
 
             Messenger msr = performBind();
             Message msg = Message.obtain();
