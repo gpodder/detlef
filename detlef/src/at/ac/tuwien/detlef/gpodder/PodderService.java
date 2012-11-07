@@ -226,6 +226,7 @@ public class PodderService extends Service {
                     reqCode,
                     MessageErrorCode.SENDING_RESULT_FAILED,
                     "problem sending result: " + re.getMessage()));
+            return;
         }
     }
 
