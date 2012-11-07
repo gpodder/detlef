@@ -302,15 +302,15 @@ public class PodderService extends Service {
         /** This key stores an error message string. */
         public static final String ERRMSG = "ERRMSG";
 
+        /** This key stores an integer with the number of bytes already downloaded. */
+        public static final String HAVEBYTES = "HAVEBYTES";
+
         /**
          * This key stores a request code integer that is chosen by the requester and returned in
          * responses. The magical value -1 is used in replies when a request code was not specified
          * by the caller.
          */
         public static final String REQCODE = "REQCODE";
-
-        /** This key stores an integer with the number of bytes already downloaded. */
-        public static final String HAVEBYTES = "HAVEBYTES";
 
         /** This key stores an integer with the total number of bytes. */
         public static final String TOTALBYTES = "TOTALBYTES";
