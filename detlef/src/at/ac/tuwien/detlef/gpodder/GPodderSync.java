@@ -288,13 +288,13 @@ public class GPodderSync {
                 }
                 case PodderService.MessageType.HTTP_DOWNLOAD_FAILED:
                 {
-                    final HttpDownloadResultHandler hdrh = (HttpDownloadResultHandler) mhp.h;
+                    final ResultHandler rh = mhp.h;
                     final int errCode = data.getInt(PodderService.MessageContentKey.ERRCODE);
                     final String errMsg = data.getString(PodderService.MessageContentKey.ERRMSG);
 
                     activity.runOnUiThread(new Runnable() {
                         public void run() {
-                            hdrh.handleFailure(errCode, errMsg);
+                            rh.handleFailure(errCode, errMsg);
                         }
                     });
                     break;
