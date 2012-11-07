@@ -1,8 +1,8 @@
 package at.ac.tuwien.detlef.gpodder;
 
 /**
- * This is the callback interface for {@link GPodderSync#addHttpDownloadJob(String, Runnable,
- * HttpDownloadResultHandler)}.
+ * This is the callback interface for {@link GPodderSync#addHttpDownloadJob(String,
+ * HttpDownloadResultHandler))}.
  * @author ondra
  */
 public interface HttpDownloadResultHandler extends ResultHandler {
