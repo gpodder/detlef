@@ -265,7 +265,7 @@ public class PodderService extends Service {
         /** This key stores a data byte array. */
         public static final String DATA = "DATA";
 
-        /** This key stores an error code. */
+        /** This key stores an error code integer. */
         public static final String ERRCODE = "ERRCODE";
 
         /** This key stores an error message string. */
