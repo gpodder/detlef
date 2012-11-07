@@ -24,18 +24,25 @@ import android.util.Log;
  */
 public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
+    /** Fake application for these test cases. */
     private static class FakeApplication extends MockApplication {
     }
 
+    /** Handles responses from the service. */
     private static class IncomingHandler extends Handler {
+        /** Reference to the test instance. */
         private WeakReference<PodderServiceTest> wrpst;
 
-        public IncomingHandler(PodderServiceTest pst) {
+        /**
+         * Construct a handler.
+         * @param pst The test instance for whom to handle responses.
+         */
+        public IncomingHandler(final PodderServiceTest pst) {
             wrpst = new WeakReference<PodderServiceTest>(pst);
         }
 
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(final Message msg) {
             Log.d("IncomingHandler", "handleMessage()");
             wrpst.get().msgWhat = msg.what;
 
@@ -72,12 +79,22 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         }
     }
 
+    /** Lock required to use {@link #waiter}. */
     private final ReentrantLock lock;
+
+    /** Quasi-semaphore to pause test execution while waiting for an answer. */
     private final Condition waiter;
+
+    /** Messenger which receives responses from the service. */
     private final Messenger mess;
+
+    /** Stores the message type of the latest response. */
     private int msgWhat;
+
+    /** Stores the contents of the downloaded HTTP file. */
     private String str;
 
+    /** Constructs a new PodderServiceTest. */
     public PodderServiceTest() {
         super(PodderService.class);
         Log.d("PodderServiceTest@" + this.hashCode(), "c'tor");
@@ -94,7 +111,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      * Test whether the service can be started.
      */
     @SmallTest
-    public void testStart() {
+    public final void testStart() {
         Log.d("PodderServiceTest@" + this.hashCode(), "testStart()");
         Intent startIntent = new Intent();
         startIntent.setClass(getContext(), PodderService.class);
@@ -119,16 +136,18 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      * Test whether the service can be bound to.
      */
     @MediumTest
-    public void testBind() {
+    public final void testBind() {
         Log.d("PodderServiceTest@" + this.hashCode(), "testBind()");
         performBind();
     }
 
     /**
      * Test whether the service can reply to a heartbeat.
+     * @throws RemoteException Something went wrong communicating with the service.
+     * @throws InterruptedException Waiting for the quasi-semaphore was interrupted.
      */
     @MediumTest
-    public void testHeartbeat() throws RemoteException, InterruptedException {
+    public final void testHeartbeat() throws RemoteException, InterruptedException {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHeartbeat()");
         try {
             lock.lock();
@@ -149,9 +168,11 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
     /**
      * Test whether the service can download an HTTP file and return it.
+     * @throws RemoteException Something went wrong communicating with the service.
+     * @throws InterruptedException Waiting for the quasi-semaphore was interrupted.
      */
     @FlakyTest
-    public void testHttpDownload() throws RemoteException, InterruptedException {
+    public final void testHttpDownload() throws RemoteException, InterruptedException {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownload()");
         try {
             lock.lock();
