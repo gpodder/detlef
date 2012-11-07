@@ -53,7 +53,8 @@ public class PodderService extends Service {
         super.onCreate();
 
         Log.d(TAG, "onCreate()");
-        HandlerThread ht = new HandlerThread("PodderServiceHandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
+        HandlerThread ht = new HandlerThread(
+                "PodderServiceHandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
         ht.start();
         theHand = new Messenger(new IncomingHandler(this, ht.getLooper()));
     }
@@ -134,7 +135,7 @@ public class PodderService extends Service {
         HttpURLConnection conn;
         InputStream strm;
         try {
-            conn = (HttpURLConnection)new URL(uri.toString()).openConnection();
+            conn = (HttpURLConnection) new URL(uri.toString()).openConnection();
         } catch (MalformedURLException mue) {
             fireAndForget(msg.replyTo, newFailedMessage(
                     MessageType.HTTP_DOWNLOAD_FAILED,
@@ -168,8 +169,7 @@ public class PodderService extends Service {
             strm = conn.getInputStream();
             int read;
 
-            while ((read = strm.read(holder)) > 0)
-            {
+            while ((read = strm.read(holder)) > 0) {
                 br.append(holder, 0, read);
                 statusData.putInt(MessageContentKey.HAVEBYTES, br.length());
                 statusMsg.setData(statusData);
