@@ -292,6 +292,13 @@ public class PodderService extends Service {
         /** Error code raised if the URL is formatted incorrectly. */
         public static final int MALFORMED_URL = 2;
 
+        /**
+         * Error code raised if sending the request failed. This code is not sent by the service,
+         * but may be sent by the plumbing layer (e.g. {@link GPodderSync}) if the message to the
+         * service cannot be sent.
+         */
+        public static final int SENDING_REQUEST_FAILED = 5;
+
         /** Error code raised if sending the result failed. */
         public static final int SENDING_RESULT_FAILED = 4;
     }
