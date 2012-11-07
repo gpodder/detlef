@@ -85,6 +85,36 @@ public class GPodderSync {
     }
 
     /**
+     * Requests that the service perform an authentication check job.
+     * @param username User name to use for authentication check.
+     * @param password Password to use for authentication check.
+     * @param hostname Hostname of gpodder.net-compatible web service.
+     * @param handler
+     */
+    public void addAuthCheckJob(String username, String password, String hostname, AuthCheckResultHandler handler) {
+        // bind to the service
+        if (!isBound()) {
+            performBind();
+        }
+
+        int reqCode;
+        synchronized (this) {
+            reqCode = nextReqCode++;
+        }
+        Message msg = Message.obtain();
+        msg.replyTo = inMess;
+        msg.what = PodderService.MessageType.DO_AUTHCHECK;
+        Bundle data = new Bundle();
+        data.putString(PodderService.MessageContentKey.USERNAME, username);
+        data.putString(PodderService.MessageContentKey.PASSWORD, password);
+        data.putString(PodderService.MessageContentKey.HOSTNAME, hostname);
+        data.putInt(PodderService.MessageContentKey.REQCODE, reqCode);
+        msg.setData(data);
+
+        registerAndSendMessage(msg, handler);
+    }
+
+    /**
      * Returns whether the service is currently bound.
      * @return Whether the service is currently bound.
      */
@@ -287,6 +317,7 @@ public class GPodderSync {
                     break;
                 }
                 case PodderService.MessageType.HTTP_DOWNLOAD_FAILED:
+                case PodderService.MessageType.AUTHCHECK_FAILED:
                 {
                     final ResultHandler rh = mhp.h;
                     final int errCode = data.getInt(PodderService.MessageContentKey.ERRCODE);
@@ -308,6 +339,16 @@ public class GPodderSync {
                     activity.runOnUiThread(new Runnable() {
                         public void run() {
                             hdrh.handleProgress(haveBytes, totalBytes);
+                        }
+                    });
+                    break;
+                }
+                case PodderService.MessageType.AUTHCHECK_DONE:
+                {
+                    final AuthCheckResultHandler acrh = (AuthCheckResultHandler) mhp.h;
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            acrh.handleSuccess();
                         }
                     });
                     break;
