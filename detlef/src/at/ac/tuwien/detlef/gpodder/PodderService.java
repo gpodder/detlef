@@ -297,7 +297,7 @@ public class PodderService extends Service {
         ret.replyTo = this.theHand;
         Bundle data = new Bundle();
         data.putInt(MessageContentKey.REQCODE, reqCode);
-        msg.setData(data);
+        ret.setData(data);
 
         fireAndForget(msg.replyTo, ret);
     }
