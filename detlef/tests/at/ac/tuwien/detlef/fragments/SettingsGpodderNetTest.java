@@ -7,11 +7,7 @@ import com.jayway.android.robotium.solo.Solo;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
-import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
-import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.Gpodder;
-import at.ac.tuwien.detlef.settings.GpodderConnectionException;
 
 public class SettingsGpodderNetTest extends
 ActivityInstrumentationTestCase2<SettingsActivity> {
@@ -29,7 +25,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 
     private void delay() {
     	try {
-    		Thread.sleep(300);
+    		Thread.sleep(250);
     	} catch (InterruptedException e) {
     	}
 	}
@@ -91,8 +87,10 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 	String newUsername =  UUID.randomUUID().toString();
 	
 	enterDevicename(newDeviceName);
+	delay();
 	enterUsername(newUsername);
 	// previously entered device name should still appear on settings page
+	delay();
 	assertTrue(solo.searchText(newDeviceName));
     }
 
