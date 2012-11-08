@@ -25,7 +25,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 
     private void delay() {
     	try {
-    		Thread.sleep(250);
+    		Thread.sleep(300);
     	} catch (InterruptedException e) {
     	}
 	}
@@ -75,7 +75,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 	// user name should appear as summary
 	assertTrue(solo.searchText(String.format("%s-android", newUsername)));
     }
-
+    
     /**
      * If a new user name is entered then the device name should NOT be
      * updated if a custom device name has been entered before.
