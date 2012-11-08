@@ -20,12 +20,21 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 
     @Override
     public void setUp() throws Exception {
-	resetSettings();
+    	resetSettings();
         solo = new Solo(getInstrumentation(), getActivity());
+        delay();
         clickOnGpodderNetListEntry();
+        delay();
     }
 
-    /**
+    private void delay() {
+    	try {
+    		Thread.sleep(300);
+    	} catch (InterruptedException e) {
+    	}
+	}
+
+	/**
      * Makes sure that the settings of the AVD are reset
      * to guarantee repeatable results.
      */
@@ -35,8 +44,9 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 		editor.commit();
 	}
 
-	private void clickOnGpodderNetListEntry() {
+	private void clickOnGpodderNetListEntry() throws Exception {
 		solo.clickInList(1);
+		delay();
 	}
 
 	public SettingsGpodderNetTest() {
@@ -50,10 +60,10 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
      */
     public void testChangeUsernameUpdatesSummary() throws Exception {
 
-	String newUsername =  UUID.randomUUID().toString();
-	enterUsername(newUsername);
+    	String newUsername =  UUID.randomUUID().toString();
+    	enterUsername(newUsername);
 
-	assertTrue(solo.searchText(newUsername));
+    	assertTrue(solo.searchText(newUsername));
     }
 
     /**
@@ -79,24 +89,29 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 
 	String newDeviceName =  UUID.randomUUID().toString();
 	String newUsername =  UUID.randomUUID().toString();
-
+	
 	enterDevicename(newDeviceName);
 	enterUsername(newUsername);
-
 	// previously entered device name should still appear on settings page
 	assertTrue(solo.searchText(newDeviceName));
     }
 
-    private void enterUsername(String username) {
-	solo.clickInList(1);
-	solo.enterText(0, username);
-	solo.clickOnButton("OK");
+    private void enterUsername(String username) throws InterruptedException {
+		solo.clickInList(1);
+		delay();
+		solo.enterText(0, username);
+		delay();
+		solo.clickOnButton("OK");
+		delay();
     }
 
-    private void enterDevicename(String devicename) {
-	solo.clickInList(3);
-	solo.enterText(0, devicename);
-	solo.clickOnButton("OK");
+    private void enterDevicename(String devicename) throws InterruptedException {
+		solo.clickInList(3);
+		delay();
+		solo.enterText(0, devicename);
+		delay();
+		solo.clickOnButton("OK");
+		delay();
     }
 
 
