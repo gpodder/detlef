@@ -190,7 +190,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      * @throws InterruptedException Waiting for the quasi-semaphore was interrupted.
      */
     @FlakyTest
-    public final void testHttpDownloadToFile() throws RemoteException,InterruptedException,
+    public final void testHttpDownloadToFile() throws RemoteException, InterruptedException,
     IOException {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownloadToFile()");
 
