@@ -1,5 +1,7 @@
 package at.ac.tuwien.detlef.gpodder;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -155,6 +157,9 @@ public class PodderService extends Service {
         /** Error code raised if authentication fails. */
         public static final int AUTHENTICATION_FAILED = 6;
 
+        /** Error code raised if a file was not found. */
+        public static final int FILE_NOT_FOUND = 7;
+
         /** Error code raised if the URL scheme is not allowed. */
         public static final int INVALID_URL_SCHEME = 1;
 
@@ -252,7 +257,53 @@ public class PodderService extends Service {
                 ParcelableByteArray pba = new ParcelableByteArray(rope.toByteArray());
                 cb.httpDownloadSucceeded(reqId, pba);
             }
+        }
 
+        public void httpDownloadToFile(final PodderServiceCallback cb, final int reqId, String url,
+                String localfn) throws RemoteException {
+            Log.d(TAG, "httpDownloadToFile()");
+
+            // open fire
+            final FileOutputStream fos;
+            try {
+                fos = new FileOutputStream(localfn);
+            } catch (FileNotFoundException fnfe) {
+                cb.httpDownloadFailed(reqId, ErrorCode.FILE_NOT_FOUND, "file not found");
+                return;
+            }
+
+            boolean ok = performHttpDownload(cb, reqId, url, new HttpDownloadHandler() {
+
+                public void lengthKnown(int len) {
+                    // do nothing of interest
+                }
+
+                public boolean byteChunkDownloaded(byte[] chunk, int len) throws RemoteException {
+                    try {
+                        fos.write(chunk, 0, len);
+                    } catch (IOException e) {
+                        cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
+                        return false;
+                    }
+                    return true;
+                }
+            });
+
+            // cease fire
+            try {
+                fos.close();
+            } catch (IOException ioe) {
+                if (ok) {
+                    cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM, ioe.getMessage());
+                    return;
+                }
+                // if !ok, we have other problems to worry about already
+            }
+
+            if (ok) {
+                // phew.
+                cb.httpDownloadToFileSucceeded(reqId);
+            }
         }
     }
 }

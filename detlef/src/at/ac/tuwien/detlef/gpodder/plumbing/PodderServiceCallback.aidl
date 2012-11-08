@@ -15,7 +15,13 @@ oneway interface PodderServiceCallback
 	void httpDownloadSucceeded(int reqId, in ParcelableByteArray data);
 
 	/**
-	 * The HTTP download failed.
+	 * The HTTP download to a file succeeded.
+	 * @param reqId The request ID you passed.
+	 */
+	void httpDownloadToFileSucceeded(int reqId);
+
+	/**
+	 * The HTTP download failed. (Also used for HTTP downloads-to-files.)
 	 * @param reqId The request ID you passed.
 	 * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
 	 * error that occurred..
@@ -24,7 +30,7 @@ oneway interface PodderServiceCallback
 	void httpDownloadFailed(int reqId, int errCode, String errStr);
 
 	/**
-	 * HTTP download progress update.
+	 * HTTP download progress update. (Also used for HTTP downloads-to-files.)
 	 * @param reqId The request ID you passed.
 	 * @param haveBytes Number of bytes downloaded successfully.
 	 * @param totalBytes Total file size in bytes, or -1 if unknown.

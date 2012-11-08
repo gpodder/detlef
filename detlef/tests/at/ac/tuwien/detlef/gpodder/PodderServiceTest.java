@@ -1,5 +1,8 @@
 package at.ac.tuwien.detlef.gpodder;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Semaphore;
 
@@ -29,6 +32,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private static final int RESPONDED_AUTHCHECK = 0;
     private static final int RESPONDED_HEARTBEAT = 1;
     private static final int RESPONDED_HTTP_DOWNLOAD = 2;
+    private static final int RESPONDED_HTTP_DOWNLOAD_TO_FILE = 3;
 
     /** Handles responses from the service. */
     private static class IncomingHandler extends PodderServiceCallback.Stub {
@@ -73,6 +77,11 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
                 throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_HTTP_DOWNLOAD;
             wrpst.get().str = new String(data.getArray());
+            wrpst.get().stoplight.release();
+        }
+
+        public void httpDownloadToFileSucceeded(int reqId) throws RemoteException {
+            wrpst.get().msgWhat = RESPONDED_HTTP_DOWNLOAD_TO_FILE;
             wrpst.get().stoplight.release();
         }
 
@@ -173,6 +182,48 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         assertEquals(RESPONDED_HTTP_DOWNLOAD, msgWhat);
         assertEquals("Non, Detlef, je ne regrette rien.\n", str);
+    }
+
+    /**
+     * Test whether the service can download an HTTP file into a local file.
+     * @throws RemoteException Something went wrong communicating with the service.
+     * @throws InterruptedException Waiting for the quasi-semaphore was interrupted.
+     */
+    @FlakyTest
+    public final void testHttpDownloadToFile() throws RemoteException,InterruptedException,
+    IOException {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownloadToFile()");
+
+        PodderServiceInterface psi = performBind();
+        ByteRope br = new ByteRope();
+
+        File f = File.createTempFile("httpdown", ".tmp", null);
+        try {
+            psi.httpDownloadToFile(handler, -1, "http://ondrahosek.dyndns.org/detlef.txt",
+                    f.getAbsolutePath());
+
+            stoplight.acquireUninterruptibly();
+
+            assertEquals(RESPONDED_HTTP_DOWNLOAD_TO_FILE, msgWhat);
+
+            // read the file again
+            FileInputStream fis = new FileInputStream(f);
+            try {
+                byte[] holder = new byte[1024];
+                int read;
+                while ((read = fis.read(holder, 0, holder.length)) >= 0) {
+                    br.append(holder, 0, read);
+                }
+            } finally {
+                fis.close();
+            }
+        } finally {
+            f.delete();
+        }
+
+        String quoi = new String(br.toByteArray());
+
+        assertEquals("Non, Detlef, je ne regrette rien.\n", quoi);
     }
 
     @FlakyTest

@@ -75,6 +75,10 @@ public class GPodderSync {
      *
      * The service will perform an HTTP GET request on the given URL.
      *
+     * This type of HTTP download passes the downloaded data as a byte array to the callback. For
+     * moderately huge files, you should use {@link #addHttpDownloadToFileJob(String, String,
+     * NoDataResultHandler)}.
+     *
      * @param url The URL of the file to download.
      * @param handler A handler for callbacks.
      */
@@ -87,6 +91,36 @@ public class GPodderSync {
         int reqCode = nextReqCode();
         try {
             iface.httpDownload(responseHandler, reqCode, url);
+        } catch (RemoteException rex) {
+            handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
+            iface = null;
+            return;
+        }
+        reqs.append(reqCode, handler);
+    }
+
+    /**
+     * Requests that the service perform an HTTP download-to-file job.
+     *
+     * The service will perform an HTTP GET request on the given URL and store the result into the
+     * file at the given path. The file will be created if it doesn't exist and overwritten if it
+     * does.
+     *
+     * To download small files without storing them in the file system first, you should use {@link
+     * #addHttpDownloadJob(String, HttpDownloadResultHandler)}.
+     *
+     * @param url The URL of the file to download.
+     * @param localfn The local file name into which to store the downloaded file.
+     * @param handler A handler for callbacks.
+     */
+    public void addHttpDownloadToFileJob(String url, String localfn, NoDataResultHandler handler) {
+        Log.d(TAG, "addHttpDownloadToFileJob");
+
+        assureBind();
+
+        int reqCode = nextReqCode();
+        try {
+            iface.httpDownloadToFile(responseHandler, reqCode, url, localfn);
         } catch (RemoteException rex) {
             handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
             iface = null;
@@ -242,6 +276,16 @@ public class GPodderSync {
             gps.get().activity.runOnUiThread(new Runnable() {
                 public void run() {
                     hdrh.handleSuccess(data.getArray());
+                }
+            });
+        }
+
+        public void httpDownloadToFileSucceeded(int reqId) throws RemoteException {
+            final NoDataResultHandler ndrh = (NoDataResultHandler) gps.get().reqs.get(reqId);
+
+            gps.get().activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    ndrh.handleSuccess();
                 }
             });
         }
