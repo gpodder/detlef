@@ -135,6 +135,7 @@ public class PodderService extends Service {
             while ((read = strm.read(holder)) > 0) {
                 //br.append(holder, 0, read);
                 gotBytes += read;
+                hdh.byteChunkDownloaded(holder, read);
                 cb.httpDownloadProgress(reqId, gotBytes, len);
             }
         } catch (IOException ioe) {
