@@ -1,8 +1,7 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -77,20 +76,12 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
                     break;
             }
 
-            try {
-                wrpst.get().lock.lock();
-                wrpst.get().waiter.signal();
-            } finally {
-                wrpst.get().lock.unlock();
-            }
+            wrpst.get().stoplight.release();
         }
     }
 
-    /** Lock required to use {@link #waiter}. */
-    private final ReentrantLock lock;
-
-    /** Quasi-semaphore to pause test execution while waiting for an answer. */
-    private final Condition waiter;
+    /** Semaphore to pause test execution while waiting for an answer. */
+    private final Semaphore stoplight;
 
     /** Messenger which receives responses from the service. */
     private final Messenger mess;
@@ -106,8 +97,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         super(PodderService.class);
         Log.d("PodderServiceTest@" + this.hashCode(), "c'tor");
 
-        lock = new ReentrantLock();
-        waiter = lock.newCondition();
+        stoplight = new Semaphore(0);
         mess = new Messenger(new IncomingHandler(this));
         msgWhat = -1;
         str = null;
@@ -156,19 +146,14 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     @MediumTest
     public final void testHeartbeat() throws RemoteException, InterruptedException {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHeartbeat()");
-        try {
-            lock.lock();
 
-            Messenger msr = performBind();
-            Message msg = Message.obtain();
-            msg.what = PodderService.MessageType.DO_HEARTBEAT;
-            msg.replyTo = mess;
-            msr.send(msg);
+        Messenger msr = performBind();
+        Message msg = Message.obtain();
+        msg.what = PodderService.MessageType.DO_HEARTBEAT;
+        msg.replyTo = mess;
+        msr.send(msg);
 
-            waiter.await();
-        } finally {
-            lock.unlock();
-        }
+        stoplight.acquireUninterruptibly();
 
         assertEquals(msgWhat, PodderService.MessageType.HEARTBEAT_DONE);
     }
@@ -181,25 +166,20 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     @FlakyTest
     public final void testHttpDownload() throws RemoteException, InterruptedException {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownload()");
-        try {
-            lock.lock();
 
-            Bundle data = new Bundle();
-            data.putString(
-                    PodderService.MessageContentKey.URL,
-                    "http://ondrahosek.dyndns.org/detlef.txt");
+        Bundle data = new Bundle();
+        data.putString(
+                PodderService.MessageContentKey.URL,
+                "http://ondrahosek.dyndns.org/detlef.txt");
 
-            Messenger msr = performBind();
-            Message msg = Message.obtain();
-            msg.what = PodderService.MessageType.DO_HTTP_DOWNLOAD;
-            msg.setData(data);
-            msg.replyTo = mess;
-            msr.send(msg);
+        Messenger msr = performBind();
+        Message msg = Message.obtain();
+        msg.what = PodderService.MessageType.DO_HTTP_DOWNLOAD;
+        msg.setData(data);
+        msg.replyTo = mess;
+        msr.send(msg);
 
-            waiter.await();
-        } finally {
-            lock.unlock();
-        }
+        stoplight.acquireUninterruptibly();
 
         assertEquals("Non, Detlef, je ne regrette rien.\n", str);
     }
@@ -209,25 +189,20 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         // FIXME: re-enable once our virtual GPodder instance is up and running
         if (false) {
             Log.d("PodderServiceTest@" + this.hashCode(), "testGpodderAuth()");
-            try {
-                lock.lock();
 
-                Bundle data = new Bundle();
-                data.putString(PodderService.MessageContentKey.USERNAME, "UnitTest");
-                data.putString(PodderService.MessageContentKey.PASSWORD, "FahrenheitSucksCelsiusRules");
-                data.putString(PodderService.MessageContentKey.HOSTNAME, "example.org");
+            Bundle data = new Bundle();
+            data.putString(PodderService.MessageContentKey.USERNAME, "UnitTest");
+            data.putString(PodderService.MessageContentKey.PASSWORD, "FahrenheitSucksCelsiusRules");
+            data.putString(PodderService.MessageContentKey.HOSTNAME, "example.org");
 
-                Messenger msr = performBind();
-                Message msg = Message.obtain();
-                msg.what = PodderService.MessageType.DO_AUTHCHECK;
-                msg.setData(data);
-                msg.replyTo = mess;
-                msr.send(msg);
+            Messenger msr = performBind();
+            Message msg = Message.obtain();
+            msg.what = PodderService.MessageType.DO_AUTHCHECK;
+            msg.setData(data);
+            msg.replyTo = mess;
+            msr.send(msg);
 
-                waiter.await();
-            } finally {
-                lock.unlock();
-            }
+            stoplight.acquireUninterruptibly();
         }
     }
 }
