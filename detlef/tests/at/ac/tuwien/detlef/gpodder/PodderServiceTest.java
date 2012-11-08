@@ -4,11 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.Semaphore;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
 import android.os.RemoteException;
 import android.test.FlakyTest;
 import android.test.ServiceTestCase;
@@ -16,6 +12,9 @@ import android.test.mock.MockApplication;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
+import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
+import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
 
 /**
  * Tests the {@link PodderService}.
@@ -27,8 +26,12 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private static class FakeApplication extends MockApplication {
     }
 
+    private static final int RESPONDED_AUTHCHECK = 0;
+    private static final int RESPONDED_HEARTBEAT = 1;
+    private static final int RESPONDED_HTTP_DOWNLOAD = 2;
+
     /** Handles responses from the service. */
-    private static class IncomingHandler extends Handler {
+    private static class IncomingHandler extends PodderServiceCallback.Stub {
         /** Reference to the test instance. */
         private WeakReference<PodderServiceTest> wrpst;
 
@@ -40,51 +43,46 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst = new WeakReference<PodderServiceTest>(pst);
         }
 
-        @Override
-        public void handleMessage(final Message msg) {
-            Log.d("IncomingHandler", "handleMessage()");
-            wrpst.get().msgWhat = msg.what;
-
-            Bundle d = msg.getData();
-            if (!d.containsKey(PodderService.MessageContentKey.REQCODE)) {
-                Log.i("NOREQCODE", "message type is " + msg.what);
-                fail("Message from service did not contain any request code.");
-            }
-
-            switch (msg.what) {
-                case PodderService.MessageType.HTTP_DOWNLOAD_DONE:
-                    wrpst.get().str = new String(msg.getData().getByteArray(
-                            PodderService.MessageContentKey.DATA));
-                    break;
-                case PodderService.MessageType.HTTP_DOWNLOAD_FAILED:
-                    fail("HTTP download failed: " + msg.getData().getString(
-                            PodderService.MessageContentKey.ERRMSG));
-                    break;
-                case PodderService.MessageType.HEARTBEAT_DONE:
-                    break;
-                case PodderService.MessageType.AUTHCHECK_DONE:
-                    break;
-                case PodderService.MessageType.AUTHCHECK_FAILED:
-                    fail("Auth check failed: " + msg.getData().getString(
-                            PodderService.MessageContentKey.ERRMSG));
-                    break;
-                case PodderService.MessageType.HTTP_DOWNLOAD_PROGRESS_STATUS:
-                    // ignore this message
-                    return;
-                default:
-                    fail("unexpected message: " + msg.what);
-                    break;
-            }
-
+        public void authCheckFailed(int reqId, int errCode, String errStr) throws RemoteException {
+            fail("Auth check failed: " + errStr);
             wrpst.get().stoplight.release();
         }
+
+        public void authCheckSucceeded(int reqId) throws RemoteException {
+            wrpst.get().msgWhat = RESPONDED_AUTHCHECK;
+            wrpst.get().stoplight.release();
+        }
+
+        public void heartbeatSucceeded(int reqId) throws RemoteException {
+            wrpst.get().msgWhat = RESPONDED_HEARTBEAT;
+            wrpst.get().stoplight.release();
+        }
+
+        public void httpDownloadFailed(int reqId, int errCode, String errStr)
+                throws RemoteException {
+            fail("HTTP download failed: " + errStr);
+            wrpst.get().stoplight.release();
+        }
+
+        public void httpDownloadProgress(int reqId, int haveBytes, int totalBytes)
+                throws RemoteException {
+            // ignore this message
+        }
+
+        public void httpDownloadSucceeded(int reqId, ParcelableByteArray data)
+                throws RemoteException {
+            wrpst.get().msgWhat = RESPONDED_HTTP_DOWNLOAD;
+            wrpst.get().str = new String(data.getArray());
+            wrpst.get().stoplight.release();
+        }
+
     }
 
     /** Semaphore to pause test execution while waiting for an answer. */
     private final Semaphore stoplight;
 
-    /** Messenger which receives responses from the service. */
-    private final Messenger mess;
+    /** Handles responses from the service. */
+    private IncomingHandler handler;
 
     /** Stores the message type of the latest response. */
     private int msgWhat;
@@ -98,7 +96,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         Log.d("PodderServiceTest@" + this.hashCode(), "c'tor");
 
         stoplight = new Semaphore(0);
-        mess = new Messenger(new IncomingHandler(this));
+        handler = new IncomingHandler(this);
         msgWhat = -1;
         str = null;
         setApplication(new FakeApplication());
@@ -110,6 +108,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     @SmallTest
     public final void testStart() {
         Log.d("PodderServiceTest@" + this.hashCode(), "testStart()");
+
         Intent startIntent = new Intent();
         startIntent.setClass(getContext(), PodderService.class);
         startService(startIntent);
@@ -120,13 +119,14 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      * Performs a bind to the service, launching it if necessary.
      * @return A messenger to send a message to the service.
      */
-    private Messenger performBind() {
+    private PodderServiceInterface performBind() {
         Log.d("PodderServiceTest@" + this.hashCode(), "performBind()");
+
         Intent bindIntent = new Intent();
         bindIntent.setClass(getContext(), PodderService.class);
         IBinder bdr = bindService(bindIntent);
         assertNotNull(bdr);
-        return new Messenger(bdr);
+        return PodderServiceInterface.Stub.asInterface(bdr);
     }
 
     /**
@@ -147,15 +147,13 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     public final void testHeartbeat() throws RemoteException, InterruptedException {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHeartbeat()");
 
-        Messenger msr = performBind();
-        Message msg = Message.obtain();
-        msg.what = PodderService.MessageType.DO_HEARTBEAT;
-        msg.replyTo = mess;
-        msr.send(msg);
+        PodderServiceInterface psi = performBind();
+
+        psi.heartbeat(handler, -1);
 
         stoplight.acquireUninterruptibly();
 
-        assertEquals(msgWhat, PodderService.MessageType.HEARTBEAT_DONE);
+        assertEquals(RESPONDED_HEARTBEAT, msgWhat);
     }
 
     /**
@@ -167,20 +165,13 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     public final void testHttpDownload() throws RemoteException, InterruptedException {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownload()");
 
-        Bundle data = new Bundle();
-        data.putString(
-                PodderService.MessageContentKey.URL,
-                "http://ondrahosek.dyndns.org/detlef.txt");
+        PodderServiceInterface psi = performBind();
 
-        Messenger msr = performBind();
-        Message msg = Message.obtain();
-        msg.what = PodderService.MessageType.DO_HTTP_DOWNLOAD;
-        msg.setData(data);
-        msg.replyTo = mess;
-        msr.send(msg);
+        psi.httpDownload(handler, -1, "http://ondrahosek.dyndns.org/detlef.txt");
 
         stoplight.acquireUninterruptibly();
 
+        assertEquals(RESPONDED_HTTP_DOWNLOAD, msgWhat);
         assertEquals("Non, Detlef, je ne regrette rien.\n", str);
     }
 
@@ -190,19 +181,13 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         if (false) {
             Log.d("PodderServiceTest@" + this.hashCode(), "testGpodderAuth()");
 
-            Bundle data = new Bundle();
-            data.putString(PodderService.MessageContentKey.USERNAME, "UnitTest");
-            data.putString(PodderService.MessageContentKey.PASSWORD, "FahrenheitSucksCelsiusRules");
-            data.putString(PodderService.MessageContentKey.HOSTNAME, "example.org");
+            PodderServiceInterface psi = performBind();
 
-            Messenger msr = performBind();
-            Message msg = Message.obtain();
-            msg.what = PodderService.MessageType.DO_AUTHCHECK;
-            msg.setData(data);
-            msg.replyTo = mess;
-            msr.send(msg);
+            psi.authCheck(handler, -1, "UnitTest", "FahrenheitSucksCelsiusRules", "example.org");
 
             stoplight.acquireUninterruptibly();
+
+            assertEquals(RESPONDED_AUTHCHECK, msgWhat);
         }
     }
 }

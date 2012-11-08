@@ -1,21 +1,19 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.Semaphore;
 
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
+import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
+import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
+import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
 
 /**
  * This class facilitates background HTTP and gpodder.net transactions.
@@ -31,20 +29,20 @@ public class GPodderSync {
     /** Manages the connection to the service. */
     private ConMan conMan;
 
-    /** The messenger which handles incoming messages, mostly responses from the service. */
-    private Messenger inMess;
+    /** The interface to the service. */
+    private volatile PodderServiceInterface iface;
 
-    /** The messenger which handles outgoing messages to the service. */
-    private volatile Messenger outMess;
+    /** Handles responses from the service. */
+    private IpcHandler responseHandler;
 
     /** Stores the next unused request code. */
     private int nextReqCode;
 
-    /** Maps request codes to handler pairs. */
-    private SparseArray<MessageHandlerPair> reqs;
+    /** Maps request codes to handlers. */
+    private SparseArray<ResultHandler> reqs;
 
-    /** The queue containing messages that must be processed once the bind has succeeded. */
-    private Queue<Integer> msgQ;
+    /** Pauses while the service is being bound. */
+    private Semaphore stoplight;
 
     /**
      * Constructs a GPodderSync instance.
@@ -52,13 +50,24 @@ public class GPodderSync {
      * called on this activity's UI thread.
      */
     public GPodderSync(Activity act) {
+        Log.d(TAG, "GPodderSync");
         activity = act;
-        inMess = new Messenger(new IncomingHandler(this));
         conMan = new ConMan(this);
-        outMess = null;
+        iface = null;
+        responseHandler = new IpcHandler(this);
         nextReqCode = 0;
-        reqs = new SparseArray<MessageHandlerPair>();
-        msgQ = new LinkedList<Integer>();
+        reqs = new SparseArray<ResultHandler>();
+        stoplight = new Semaphore(1);
+    }
+
+    /**
+     * Returns the next request code in sequence.
+     * @return The next request code in sequence.
+     */
+    private int nextReqCode() {
+        synchronized (this) {
+            return nextReqCode++;
+        }
     }
 
     /**
@@ -67,25 +76,20 @@ public class GPodderSync {
      * @param handler Handler for callbacks.
      */
     public void addHttpDownloadJob(String url, HttpDownloadResultHandler handler) {
+        Log.d(TAG, "addHttpDownloadJob");
+
         // bind to the service
-        if (!isBound()) {
-            performBind();
-        }
+        assureBind();
 
-        // prepare message
-        int reqCode;
-        synchronized (this) {
-            reqCode = nextReqCode++;
+        int reqCode = nextReqCode();
+        try {
+            iface.httpDownload(responseHandler, reqCode, url);
+        } catch (RemoteException rex) {
+            handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
+            iface = null;
+            return;
         }
-        Message msg = Message.obtain();
-        msg.replyTo = inMess;
-        msg.what = PodderService.MessageType.DO_HTTP_DOWNLOAD;
-        Bundle data = new Bundle();
-        data.putString(PodderService.MessageContentKey.URL, url);
-        data.putInt(PodderService.MessageContentKey.REQCODE, reqCode);
-        msg.setData(data);
-
-        registerAndSendMessage(msg, handler);
+        reqs.append(reqCode, handler);
     }
 
     /**
@@ -93,195 +97,47 @@ public class GPodderSync {
      * @param username User name to use for authentication check.
      * @param password Password to use for authentication check.
      * @param hostname Hostname of gpodder.net-compatible web service.
-     * @param handler
+     * @param handler Handler for callbacks.
      */
     public void addAuthCheckJob(String username, String password, String hostname,
             AuthCheckResultHandler handler) {
-        // bind to the service
-        if (!isBound()) {
-            performBind();
-        }
+        Log.d(TAG, "addAuthCheckJob");
 
-        int reqCode;
-        synchronized (this) {
-            reqCode = nextReqCode++;
-        }
-        Message msg = Message.obtain();
-        msg.replyTo = inMess;
-        msg.what = PodderService.MessageType.DO_AUTHCHECK;
-        Bundle data = new Bundle();
-        data.putString(PodderService.MessageContentKey.USERNAME, username);
-        data.putString(PodderService.MessageContentKey.PASSWORD, password);
-        data.putString(PodderService.MessageContentKey.HOSTNAME, hostname);
-        data.putInt(PodderService.MessageContentKey.REQCODE, reqCode);
-        msg.setData(data);
+        assureBind();
 
-        registerAndSendMessage(msg, handler);
+        int reqCode = nextReqCode();
+        try {
+            iface.authCheck(responseHandler, reqCode, username, password, hostname);
+        } catch (RemoteException rex) {
+            handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
+            iface = null;
+            return;
+        }
+        reqs.append(reqCode, handler);
     }
 
     /**
-     * Returns whether the service is currently bound.
-     * @return Whether the service is currently bound.
+     * Assures that the service is bound.
      */
-    private boolean isBound() {
-        return (outMess != null);
-    }
+    private void assureBind() {
+        Log.d(TAG, "assureBind");
 
-    /**
-     * Registers the message for later handling and sends it to the service.
-     * @param message Message to send.
-     * @param handler Handler to use to respond to problems or responses.
-     */
-    private void registerAndSendMessage(Message message, final ResultHandler handler) {
-        MessageHandlerPair mhp = new MessageHandlerPair(message, handler);
-        int reqCode = message.getData().getInt(PodderService.MessageContentKey.REQCODE);
-        reqs.append(reqCode, mhp);
+        // take a ticket
+        stoplight.acquireUninterruptibly();
 
-        if (isBound()) {
-            try {
-                outMess.send(message);
-            } catch (final RemoteException rex) {
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        handler.handleFailure(
-                                PodderService.MessageErrorCode.SENDING_REQUEST_FAILED,
-                                rex.getMessage());
-                    }
-                });
-                reqs.delete(reqCode);
-            }
-        } else {
-            synchronized (this) {
-                msgQ.add(reqCode);
-            }
+        if (iface == null) {
+            // we must bind
+            Intent intent = new Intent();
+            intent.setClass(activity, PodderService.class);
+            activity.startService(intent);
+            activity.bindService(intent, conMan, 0);
+
+            // wait for another ticket
+            stoplight.acquireUninterruptibly();
         }
 
-    }
-
-    /**
-     * Processes the queue. Call once the service is bound.
-     */
-    private void processQueue() {
-        for (;;) {
-            int key;
-            final MessageHandlerPair mhp;
-
-            synchronized (this) {
-                if (msgQ.isEmpty()) {
-                    return;
-                }
-
-                key = msgQ.remove();
-            }
-
-            mhp = reqs.get(key);
-
-            try {
-                outMess.send(mhp.msg);
-            } catch (final RemoteException rex) {
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        mhp.getH().handleFailure(
-                                PodderService.MessageErrorCode.SENDING_REQUEST_FAILED,
-                                rex.getMessage());
-                    }
-                });
-                reqs.delete(key);
-            }
-        }
-    }
-
-    /**
-     * Performs a bind to the service.
-     */
-    private void performBind() {
-        Intent intent = new Intent();
-        intent.setClass(activity, PodderService.class);
-        activity.startService(intent);
-        activity.bindService(intent, conMan, 0);
-    }
-
-    /**
-     * Contains a message and a handler.
-     * @author ondra
-     */
-    protected static class MessageHandlerPair {
-        /** The message. */
-        private Message msg;
-
-        /** The result handler. */
-        private ResultHandler h;
-
-        public ResultHandler getH() {
-            return h;
-        }
-
-        public void setH(ResultHandler h) {
-            this.h = h;
-        }
-
-        public Message getMsg() {
-            return msg;
-        }
-
-        public void setMsg(Message msg) {
-            this.msg = msg;
-        }
-
-        /**
-         * Constructs a message-handler pair.
-         * @param message The message.
-         * @param rhandler The handler.
-         */
-        public MessageHandlerPair(Message message, ResultHandler rhandler) {
-            msg = message;
-            h = rhandler;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result *= prime;
-            if (h != null) {
-                result += h.hashCode();
-            }
-            result *= prime;
-            if (msg != null) {
-                result += msg.hashCode();
-            }
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            MessageHandlerPair other = (MessageHandlerPair) obj;
-            if (h == null) {
-                if (other.h != null) {
-                    return false;
-                }
-            } else if (!h.equals(other.h)) {
-                return false;
-            }
-            if (msg == null) {
-                if (other.msg != null) {
-                    return false;
-                }
-            } else if (!msg.equals(other.msg)) {
-                return false;
-            }
-            return true;
-        }
-
+        // return the ticket
+        stoplight.release();
     }
 
     /**
@@ -302,94 +158,84 @@ public class GPodderSync {
 
         public void onServiceConnected(ComponentName name, IBinder service) {
             // freakin' finally
-            gps.get().outMess = new Messenger(service);
-            gps.get().processQueue();
+            gps.get().iface = PodderServiceInterface.Stub.asInterface(service);
+            gps.get().stoplight.release();
         }
 
         public void onServiceDisconnected(ComponentName name) {
             // hmm, this is not good
-            gps.get().outMess = null;
+            gps.get().iface = null;
         }
     }
 
-    /**
-     * Handles incoming messages, mostly responses from the service.
-     * @author ondra
-     */
-    protected static class IncomingHandler extends Handler {
-        /** The GPodderSync to whom this connection manager belongs. */
+    /** Handles incoming messages, mostly responses from the service. */
+    protected static class IpcHandler extends PodderServiceCallback.Stub {
+        /** The GPodderSync to whom this IPC handler belongs. */
         private WeakReference<GPodderSync> gps;
 
-        /**
-         * Constructs an instance of IncomingHandler.
-         * @param gposync {@link GPodderSync} to whom this handler belongs.
-         */
-        public IncomingHandler(GPodderSync gposync) {
+        public IpcHandler(GPodderSync gposync) {
             gps = new WeakReference<GPodderSync>(gposync);
         }
 
-        @Override
-        public void handleMessage(Message msg) {
-            Bundle data = msg.getData();
-            int reqCode = data.getInt(PodderService.MessageContentKey.REQCODE);
-            MessageHandlerPair mhp = gps.get().reqs.get(reqCode);
-            Activity activity = gps.get().activity;
+        public void authCheckFailed(int reqId, final int errCode, final String errStr)
+                throws RemoteException {
+            final ResultHandler rh = gps.get().reqs.get(reqId);
 
-            switch (msg.what) {
-                case PodderService.MessageType.HTTP_DOWNLOAD_DONE:
-                {
-                    final HttpDownloadResultHandler hdrh = (HttpDownloadResultHandler) mhp.h;
-                    final byte[] bs = data.getByteArray(PodderService.MessageContentKey.DATA);
-
-                    activity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            hdrh.handleSuccess(bs);
-                        }
-                    });
-
-                    gps.get().reqs.delete(reqCode);
-                    break;
+            gps.get().activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    rh.handleFailure(errCode, errStr);
                 }
-                case PodderService.MessageType.HTTP_DOWNLOAD_FAILED:
-                case PodderService.MessageType.AUTHCHECK_FAILED:
-                {
-                    final ResultHandler rh = mhp.h;
-                    final int errCode = data.getInt(PodderService.MessageContentKey.ERRCODE);
-                    final String errMsg = data.getString(PodderService.MessageContentKey.ERRMSG);
+            });
+        }
 
-                    activity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            rh.handleFailure(errCode, errMsg);
-                        }
-                    });
-                    break;
-                }
-                case PodderService.MessageType.HTTP_DOWNLOAD_PROGRESS_STATUS:
-                {
-                    final HttpDownloadResultHandler hdrh = (HttpDownloadResultHandler) mhp.h;
-                    final int haveBytes = data.getInt(PodderService.MessageContentKey.HAVEBYTES);
-                    final int totalBytes = data.getInt(PodderService.MessageContentKey.TOTALBYTES);
+        public void authCheckSucceeded(int reqId) throws RemoteException {
+            final AuthCheckResultHandler acrh = (AuthCheckResultHandler) gps.get().reqs.get(reqId);
 
-                    activity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            hdrh.handleProgress(haveBytes, totalBytes);
-                        }
-                    });
-                    break;
+            gps.get().activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    acrh.handleSuccess();
                 }
-                case PodderService.MessageType.AUTHCHECK_DONE:
-                {
-                    final AuthCheckResultHandler acrh = (AuthCheckResultHandler) mhp.h;
-                    activity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            acrh.handleSuccess();
-                        }
-                    });
-                    break;
+            });
+        }
+
+        public void heartbeatSucceeded(int reqId) throws RemoteException {
+            // FIXME: currently no external callback
+        }
+
+        public void httpDownloadFailed(int reqId, final int errCode, final String errStr)
+                throws RemoteException {
+            final HttpDownloadResultHandler hdrh =
+                    (HttpDownloadResultHandler) gps.get().reqs.get(reqId);
+
+            gps.get().activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    hdrh.handleFailure(errCode, errStr);
                 }
-                default:
-                    Log.e(TAG, "Unknown message type: " + msg.what);
-            }
+            });
+        }
+
+        public void httpDownloadProgress(int reqId, final int haveBytes, final int totalBytes)
+                throws RemoteException {
+            final HttpDownloadResultHandler hdrh =
+                    (HttpDownloadResultHandler) gps.get().reqs.get(reqId);
+
+            gps.get().activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    hdrh.handleProgress(haveBytes, totalBytes);
+                }
+            });
+        }
+
+        public void httpDownloadSucceeded(int reqId, final ParcelableByteArray data)
+                throws RemoteException {
+            final HttpDownloadResultHandler hdrh =
+                    (HttpDownloadResultHandler) gps.get().reqs.get(reqId);
+
+            gps.get().activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    hdrh.handleSuccess(data.getArray());
+                }
+            });
         }
     }
 }
