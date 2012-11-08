@@ -262,7 +262,10 @@ public class PodderService extends Service {
         }
 
         Message ret = Message.obtain();
-        ret.what = ok ? MessageType.AUTHCHECK_DONE : MessageType.AUTHCHECK_FAILED;
+        ret.what = MessageType.AUTHCHECK_FAILED;
+        if (ok) {
+            ret.what = MessageType.AUTHCHECK_DONE;
+        }
         ret.replyTo = this.theHand;
         Bundle data = new Bundle();
         data.putInt(MessageContentKey.REQCODE, reqCode);

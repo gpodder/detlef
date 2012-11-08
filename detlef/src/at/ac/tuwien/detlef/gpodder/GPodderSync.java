@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 import android.util.SparseArray;
 
 /**
@@ -21,6 +22,9 @@ import android.util.SparseArray;
  * @author ondra
  */
 public class GPodderSync {
+    /** Logging tag. */
+    private static final String TAG = "PodderService";
+
     /** Activity on whose UI thread to perform callbacks. */
     private Activity activity;
 
@@ -91,7 +95,8 @@ public class GPodderSync {
      * @param hostname Hostname of gpodder.net-compatible web service.
      * @param handler
      */
-    public void addAuthCheckJob(String username, String password, String hostname, AuthCheckResultHandler handler) {
+    public void addAuthCheckJob(String username, String password, String hostname,
+            AuthCheckResultHandler handler) {
         // bind to the service
         if (!isBound()) {
             performBind();
@@ -176,7 +181,7 @@ public class GPodderSync {
             } catch (final RemoteException rex) {
                 activity.runOnUiThread(new Runnable() {
                     public void run() {
-                        mhp.h.handleFailure(
+                        mhp.getH().handleFailure(
                                 PodderService.MessageErrorCode.SENDING_REQUEST_FAILED,
                                 rex.getMessage());
                     }
@@ -202,10 +207,26 @@ public class GPodderSync {
      */
     protected static class MessageHandlerPair {
         /** The message. */
-        public Message msg;
+        private Message msg;
 
         /** The result handler. */
-        public ResultHandler h;
+        private ResultHandler h;
+
+        public ResultHandler getH() {
+            return h;
+        }
+
+        public void setH(ResultHandler h) {
+            this.h = h;
+        }
+
+        public Message getMsg() {
+            return msg;
+        }
+
+        public void setMsg(Message msg) {
+            this.msg = msg;
+        }
 
         /**
          * Constructs a message-handler pair.
@@ -221,30 +242,43 @@ public class GPodderSync {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((h == null) ? 0 : h.hashCode());
-            result = prime * result + ((msg == null) ? 0 : msg.hashCode());
+            result *= prime;
+            if (h != null) {
+                result += h.hashCode();
+            }
+            result *= prime;
+            if (msg != null) {
+                result += msg.hashCode();
+            }
             return result;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
-            MessageHandlerPair other = (MessageHandlerPair)obj;
+            }
+            MessageHandlerPair other = (MessageHandlerPair) obj;
             if (h == null) {
-                if (other.h != null)
+                if (other.h != null) {
                     return false;
-            } else if (!h.equals(other.h))
+                }
+            } else if (!h.equals(other.h)) {
                 return false;
+            }
             if (msg == null) {
-                if (other.msg != null)
+                if (other.msg != null) {
                     return false;
-            } else if (!msg.equals(other.msg))
+                }
+            } else if (!msg.equals(other.msg)) {
                 return false;
+            }
             return true;
         }
 
@@ -353,6 +387,8 @@ public class GPodderSync {
                     });
                     break;
                 }
+                default:
+                    Log.e(TAG, "Unknown message type: " + msg.what);
             }
         }
     }
