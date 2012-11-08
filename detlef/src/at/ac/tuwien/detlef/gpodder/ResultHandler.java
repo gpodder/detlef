@@ -11,5 +11,5 @@ public interface ResultHandler {
      * @param errCode The error code; see {@link PodderService.MessageErrorCode}.
      * @param errStr A string describing the error.
      */
-    public void handleFailure(int errCode, String errStr);
+    void handleFailure(int errCode, String errStr);
 }

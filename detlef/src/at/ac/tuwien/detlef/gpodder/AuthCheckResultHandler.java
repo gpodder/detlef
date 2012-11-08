@@ -9,5 +9,5 @@ public interface AuthCheckResultHandler extends ResultHandler {
     /**
      * Called to handle a successful authentication.
      */
-    public void handleSuccess();
+    void handleSuccess();
 }
