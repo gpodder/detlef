@@ -23,7 +23,7 @@ import android.util.SparseArray;
  */
 public class GPodderSync {
     /** Logging tag. */
-    private static final String TAG = "PodderService";
+    private static final String TAG = "GPodderSync";
 
     /** Activity on whose UI thread to perform callbacks. */
     private Activity activity;
