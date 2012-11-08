@@ -125,7 +125,6 @@ public class PodderService extends Service {
         hdh.lengthKnown(len);
 
         // read
-        //ByteRope br = new ByteRope();
         int gotBytes = 0;
         byte[] holder = new byte[BLOCK_SIZE];
         try {
@@ -133,9 +132,11 @@ public class PodderService extends Service {
             int read;
 
             while ((read = strm.read(holder)) > 0) {
-                //br.append(holder, 0, read);
                 gotBytes += read;
-                hdh.byteChunkDownloaded(holder, read);
+                if (!hdh.byteChunkDownloaded(holder, read)) {
+                    // assume the handler has taken care of the right callback
+                    return false;
+                }
                 cb.httpDownloadProgress(reqId, gotBytes, len);
             }
         } catch (IOException ioe) {
@@ -183,15 +184,20 @@ public class PodderService extends Service {
          * Called either when the length of the file becomes known, or when it can only be
          * determined by the end of the stream.
          * @param len The length of the stream if known, or -1 if unknowable.
+         * @throws RemoteException May be thrown if/when a callback fails.
          */
-        void lengthKnown(int len);
+        void lengthKnown(int len) throws RemoteException;
 
         /**
          * Called when a chunk of bytes has been downloaded successfully.
          * @param chunk Chunk of bytes downloaded.
          * @param len Number of bytes downloaded (chunk might be larger for efficiency reasons).
+         * @return Whether to continue downloading. If you return false, no further callback will
+         * be sent and {@link PodderService#performHttpDownload(PodderServiceCallback, int, String,
+         * HttpDownloadHandler)} will return false.
+         * @throws RemoteException May be thrown if/when a callback fails.
          */
-        void byteChunkDownloaded(byte[] chunk, int len);
+        boolean byteChunkDownloaded(byte[] chunk, int len) throws RemoteException;
     }
 
     /** Handles incoming messages, mostly requests from {@link GPodderSync}. */
@@ -235,8 +241,9 @@ public class PodderService extends Service {
                     // do nothing of interest
                 }
 
-                public void byteChunkDownloaded(byte[] chunk, int len) {
+                public boolean byteChunkDownloaded(byte[] chunk, int len) {
                     rope.append(chunk, 0, len);
+                    return true;
                 }
             });
 
