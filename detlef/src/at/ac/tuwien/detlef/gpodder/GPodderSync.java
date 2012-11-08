@@ -72,8 +72,11 @@ public class GPodderSync {
 
     /**
      * Requests that the service perform an HTTP download job.
-     * @param url URL of file to download.
-     * @param handler Handler for callbacks.
+     *
+     * The service will perform an HTTP GET request on the given URL.
+     *
+     * @param url The URL of the file to download.
+     * @param handler A handler for callbacks.
      */
     public void addHttpDownloadJob(String url, HttpDownloadResultHandler handler) {
         Log.d(TAG, "addHttpDownloadJob");
@@ -94,10 +97,15 @@ public class GPodderSync {
 
     /**
      * Requests that the service perform an authentication check job.
+     *
+     * The service will attempt to log into the given gpodder.net-compatible web service using the
+     * given username and password and calls back whether this was successful or not.
+     *
      * @param username User name to use for authentication check.
      * @param password Password to use for authentication check.
-     * @param hostname Hostname of gpodder.net-compatible web service.
-     * @param handler Handler for callbacks.
+     * @param hostname Hostname of gpodder.net-compatible web service at which to attempt
+     * authentication.
+     * @param handler A handler for callbacks.
      */
     public void addAuthCheckJob(String username, String password, String hostname,
             NoDataResultHandler handler) {
