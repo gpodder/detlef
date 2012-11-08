@@ -48,6 +48,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
             Bundle d = msg.getData();
             if (!d.containsKey(PodderService.MessageContentKey.REQCODE)) {
+                Log.i("NOREQCODE", "message type is " + msg.what);
                 fail("Message from service did not contain any request code.");
             }
 
@@ -61,6 +62,12 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
                             PodderService.MessageContentKey.ERRMSG));
                     break;
                 case PodderService.MessageType.HEARTBEAT_DONE:
+                    break;
+                case PodderService.MessageType.AUTHCHECK_DONE:
+                    break;
+                case PodderService.MessageType.AUTHCHECK_FAILED:
+                    fail("Auth check failed: " + msg.getData().getString(
+                            PodderService.MessageContentKey.ERRMSG));
                     break;
                 case PodderService.MessageType.HTTP_DOWNLOAD_PROGRESS_STATUS:
                     // ignore this message
@@ -195,5 +202,32 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         }
 
         assertEquals("Non, Detlef, je ne regrette rien.\n", str);
+    }
+
+    @FlakyTest
+    public final void testGpodderAuth() throws RemoteException, InterruptedException {
+        // FIXME: re-enable once our virtual GPodder instance is up and running
+        if (false) {
+            Log.d("PodderServiceTest@" + this.hashCode(), "testGpodderAuth()");
+            try {
+                lock.lock();
+
+                Bundle data = new Bundle();
+                data.putString(PodderService.MessageContentKey.USERNAME, "UnitTest");
+                data.putString(PodderService.MessageContentKey.PASSWORD, "FahrenheitSucksCelsiusRules");
+                data.putString(PodderService.MessageContentKey.HOSTNAME, "example.org");
+
+                Messenger msr = performBind();
+                Message msg = Message.obtain();
+                msg.what = PodderService.MessageType.DO_AUTHCHECK;
+                msg.setData(data);
+                msg.replyTo = mess;
+                msr.send(msg);
+
+                waiter.await();
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 }
