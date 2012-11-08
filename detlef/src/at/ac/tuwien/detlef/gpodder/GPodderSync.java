@@ -100,7 +100,7 @@ public class GPodderSync {
      * @param handler Handler for callbacks.
      */
     public void addAuthCheckJob(String username, String password, String hostname,
-            AuthCheckResultHandler handler) {
+            NoDataResultHandler handler) {
         Log.d(TAG, "addAuthCheckJob");
 
         assureBind();
@@ -189,11 +189,11 @@ public class GPodderSync {
         }
 
         public void authCheckSucceeded(int reqId) throws RemoteException {
-            final AuthCheckResultHandler acrh = (AuthCheckResultHandler) gps.get().reqs.get(reqId);
+            final NoDataResultHandler ndrh = (NoDataResultHandler) gps.get().reqs.get(reqId);
 
             gps.get().activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    acrh.handleSuccess();
+                    ndrh.handleSuccess();
                 }
             });
         }
