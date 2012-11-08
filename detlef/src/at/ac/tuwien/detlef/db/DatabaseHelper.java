@@ -9,78 +9,76 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int version = 1;
+    static final int VERSION = 2;
 
-    public static final String dbName = "detlefDB";
+    public static final String DB_NAME = "detlefDB";
 
-    // podcast table
-    public static final String tablePodcast = "Podcast";
+    /* Podcast table. */
+    public static final String TABLE_PODCAST = "Podcast";
+    public static final String COLUMN_PODCAST_ID = "_ID";
+    public static final String COLUMN_PODCAST_URL = "url";
+    public static final String COLUMN_PODCAST_TITLE = "title";
+    public static final String COLUMN_PODCAST_DESCRIPTION = "description";
+    public static final String COLUMN_PODCAST_LOGO_URL = "logoUrl";
+    public static final String COLUMN_PODCAST_LAST_UPDATE = "lastUpdate";
+    public static final String COLUMN_PODCAST_LOGO_FILE_PATH = "logoFilePath";
 
-    public static final String columnPodcastId = "_ID";
+    /* Episode table. */
+    public static final String TABLE_EPISODE = "Episode";
+    public static final String COLUMN_EPISODE_ID = "_ID";
+    public static final String COLUMN_EPISODE_GUID = "guid";
+    public static final String COLUMN_EPISODE_TITLE = "title";
+    public static final String COLUMN_EPISODE_DESCRIPTION = "description";
+    public static final String COLUMN_EPISODE_RELEASED = "released";
+    public static final String COLUMN_EPISODE_LINK = "link";
+    public static final String COLUMN_EPISODE_AUTHOR = "author";
+    public static final String COLUMN_EPISODE_URL = "url";
+    public static final String COLUMN_EPISODE_MIMETYPE = "mimetype";
+    public static final String COLUMN_EPISODE_FILESIZE = "filesize";
+    public static final String COLUMN_EPISODE_PODCAST = "podcast";
+    public static final String COLUMN_EPISODE_FILEPATH = "filePath";
+    public static final String COLUMN_EPISODE_STATE = "state";
 
-    public static final String columnPodcastUrl = "url";
+    /* Create statement for the podcast table. */
+    static final String createPodcastTable =
+            String.format("create table %s (" +
+                    "%s integer primary key autoincrement, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s integer, " +
+                    "%s text);",
+                    TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,
+                    COLUMN_PODCAST_DESCRIPTION, COLUMN_PODCAST_LOGO_URL,
+                    COLUMN_PODCAST_LAST_UPDATE, COLUMN_PODCAST_LOGO_FILE_PATH);
 
-    public static final String columnPodcastTitle = "title";
-
-    public static final String columnPodcastDescription = "description";
-
-    public static final String columnPodcastLogoUrl = "logoUrl";
-
-    public static final String columnPodcastLastUpdate = "lastUpdate";
-
-    public static final String columnPodcastLogoFilePath = "logoFilePath";
-
-    // episode table
-    public static final String tableEpisode = "Episode";
-
-    public static final String columnEpisodeId = "_ID";
-
-    public static final String columnEpisodeGuid = "guid";
-
-    public static final String columnEpisodeTitle = "title";
-
-    public static final String columnEpisodeDescription = "description";
-
-    public static final String columnEpisodeReleased = "released";
-
-    public static final String columnEpisodeLink = "link";
-
-    public static final String columnEpisodeAuthor = "author";
-
-    public static final String columnEpisodeUrl = "url";
-
-    public static final String columnEpisodeMimetype = "mimetype";
-
-    public static final String columnEpisodeFilesize = "filesize";
-
-    public static final String columnEpisodePodcast = "podcast";
-
-    public static final String columnEpisodeFilePath = "filePath";
-
-    public static final String columnEpisodeState = "state";
-
-    // create statement for the podcast table
-    static final String createPodcastTable = "CREATE TABLE " + tablePodcast
-            + " (" + columnPodcastId + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + columnPodcastUrl + " TEXT, " + columnPodcastTitle + " TEXT, "
-            + columnPodcastLogoUrl + " TEXT, " + columnPodcastLastUpdate + " INTEGER, "
-            + columnPodcastLogoFilePath + " TEXT);";
-
-    // create statement for the episode table
-    static final String createEpisodeTable = "CREATE TABLE " + tableEpisode
-            + " (" + columnEpisodeId + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + columnEpisodeGuid + " TEXT, " + columnEpisodeTitle + " TEXT, "
-            + columnEpisodeDescription + " TEXT, " + columnEpisodeReleased
-            + " INTEGER, " + columnEpisodeLink + " TEXT, "
-            + columnEpisodeAuthor + " TEXT, " + columnEpisodeUrl + " TEXT, "
-            + columnEpisodeMimetype + " TEXT, " + columnEpisodeFilesize
-            + columnEpisodeFilePath + " TEXT, " + columnEpisodeState + " Text, "
-            + " INTEGER NOT NULL, FOREIGN KEY (" + columnEpisodePodcast
-            + ") REFERENCES " + tablePodcast + "(" + columnPodcastId
-            + ") ON DELETE CASCADE);";
+    /* Create statement for the episode table. */
+    static final String createEpisodeTable =
+            String.format("create table %s (" +
+                    "%s integer primary key autoincrement, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s integer, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s text, " +
+                    "%s integer not null, " +
+                    "foreign key (%s) references %s (%s) on delete cascade);",
+                    TABLE_EPISODE, COLUMN_EPISODE_ID, COLUMN_EPISODE_GUID, COLUMN_EPISODE_TITLE,
+                    COLUMN_EPISODE_DESCRIPTION, COLUMN_EPISODE_RELEASED, COLUMN_EPISODE_LINK,
+                    COLUMN_EPISODE_AUTHOR, COLUMN_EPISODE_URL, COLUMN_EPISODE_MIMETYPE,
+                    COLUMN_EPISODE_FILESIZE, COLUMN_EPISODE_FILEPATH, COLUMN_EPISODE_STATE,
+                    COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PODCAST, TABLE_PODCAST,
+                    COLUMN_PODCAST_ID);
 
     public DatabaseHelper(Context context) {
-        super(context, dbName, null, version);
+        super(context, DB_NAME, null, VERSION);
     }
 
     @Override
