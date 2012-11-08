@@ -83,6 +83,71 @@ public class PodderService extends Service {
         return handler;
     }
 
+    /**
+     * Performs an HTTP download.
+     * @param cb HTTP callback for error cases.
+     * @param reqId Request ID as passed by the remote caller.
+     * @param url URL of the file to download.
+     * @param handler HTTP download handler.
+     * @return Whether the operation was successful.
+     */
+    protected static boolean performHttpDownload(PodderServiceCallback cb, int reqId, String url,
+            HttpDownloadHandler hdh) throws RemoteException {
+        Log.d(TAG, "performHttpDownload()");
+
+        // fetch URL
+        Uri uri = Uri.parse(url);
+        if (!validScheme(uri.getScheme())) {
+            cb.httpDownloadFailed(reqId, ErrorCode.INVALID_URL_SCHEME,
+                    "invalid URI scheme: " + uri.getScheme());
+            return false;
+        }
+
+        // connect
+        HttpURLConnection conn;
+        InputStream strm;
+        try {
+            conn = (HttpURLConnection) new URL(uri.toString()).openConnection();
+        } catch (MalformedURLException mue) {
+            cb.httpDownloadFailed(reqId, ErrorCode.MALFORMED_URL,
+                    "malformed URL: " + uri.toString());
+            return false;
+        } catch (IOException ioe) {
+            cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
+                    "I/O problem: " + ioe.getMessage());
+            return false;
+        }
+
+        // fetch length
+        int len = conn.getContentLength();
+
+        // send over
+        hdh.lengthKnown(len);
+
+        // read
+        //ByteRope br = new ByteRope();
+        int gotBytes = 0;
+        byte[] holder = new byte[BLOCK_SIZE];
+        try {
+            strm = conn.getInputStream();
+            int read;
+
+            while ((read = strm.read(holder)) > 0) {
+                //br.append(holder, 0, read);
+                gotBytes += read;
+                cb.httpDownloadProgress(reqId, gotBytes, len);
+            }
+        } catch (IOException ioe) {
+            cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
+                    "I/O problem: " + ioe.getMessage());
+            return false;
+        } finally {
+            conn.disconnect();
+        }
+
+        return true;
+    }
+
     /** Contains the error codes for failures reported by the {@link PodderService}. */
     public static class ErrorCode {
         /** Error code raised if authentication fails. */
@@ -106,6 +171,26 @@ public class PodderService extends Service {
 
         /** Error code raised if sending the result failed. */
         public static final int SENDING_RESULT_FAILED = 4;
+    }
+
+    /**
+     * Acts upon the whims of {@link PodderService#performHttpDownload(PodderServiceCallback,
+     * String, HttpDownloadHandler)}.
+     */
+    protected interface HttpDownloadHandler {
+        /**
+         * Called either when the length of the file becomes known, or when it can only be
+         * determined by the end of the stream.
+         * @param len The length of the stream if known, or -1 if unknowable.
+         */
+        void lengthKnown(int len);
+
+        /**
+         * Called when a chunk of bytes has been downloaded successfully.
+         * @param chunk Chunk of bytes downloaded.
+         * @param len Number of bytes downloaded (chunk might be larger for efficiency reasons).
+         */
+        void byteChunkDownloaded(byte[] chunk, int len);
     }
 
     /** Handles incoming messages, mostly requests from {@link GPodderSync}. */
@@ -142,54 +227,24 @@ public class PodderService extends Service {
                 throws RemoteException {
             Log.d(TAG, "httpDownload()");
 
-            // fetch URL
-            Uri uri = Uri.parse(url);
-            if (!validScheme(uri.getScheme())) {
-                cb.httpDownloadFailed(reqId, ErrorCode.INVALID_URL_SCHEME,
-                        "invalid URI scheme: " + uri.getScheme());
-                return;
-            }
+            final ByteRope rope = new ByteRope();
+            boolean ok = performHttpDownload(cb, reqId, url, new HttpDownloadHandler() {
 
-            // connect
-            HttpURLConnection conn;
-            InputStream strm;
-            try {
-                conn = (HttpURLConnection) new URL(uri.toString()).openConnection();
-            } catch (MalformedURLException mue) {
-                cb.httpDownloadFailed(reqId, ErrorCode.MALFORMED_URL,
-                        "malformed URL: " + uri.toString());
-                return;
-            } catch (IOException ioe) {
-                cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
-                        "I/O problem: " + ioe.getMessage());
-                return;
-            }
-
-            // fetch length
-            int len = conn.getContentLength();
-
-            // read
-            ByteRope br = new ByteRope();
-            byte[] holder = new byte[BLOCK_SIZE];
-            try {
-                strm = conn.getInputStream();
-                int read;
-
-                while ((read = strm.read(holder)) > 0) {
-                    br.append(holder, 0, read);
-                    cb.httpDownloadProgress(reqId, br.length(), len);
+                public void lengthKnown(int len) {
+                    // do nothing of interest
                 }
-            } catch (IOException ioe) {
-                cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
-                        "I/O problem: " + ioe.getMessage());
-                return;
-            } finally {
-                conn.disconnect();
+
+                public void byteChunkDownloaded(byte[] chunk, int len) {
+                    rope.append(chunk, 0, len);
+                }
+            });
+
+            if (ok) {
+                // good news, everyone!
+                ParcelableByteArray pba = new ParcelableByteArray(rope.toByteArray());
+                cb.httpDownloadSucceeded(reqId, pba);
             }
 
-            // send reply
-            ParcelableByteArray pba = new ParcelableByteArray(br.toByteArray());
-            cb.httpDownloadSucceeded(reqId, pba);
         }
     }
 }
