@@ -99,12 +99,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // TODO: what should we do on upgrade? i think nothing yet ... has to be
-        // considered
-        // when updating
-        // db.execSQL("DROP TABLE IF EXISTS " + tableEpisode);
-        // db.execSQL("DROP TABLE IF EXISTS " + tablePodcast);
-        // onCreate(db);
+        // TODO: What should we do on upgrade? For now, drop and recreate all tables.
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
+        onCreate(db);
 
     }
 }
