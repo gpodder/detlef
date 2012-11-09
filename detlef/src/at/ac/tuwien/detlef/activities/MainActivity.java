@@ -223,7 +223,7 @@ public class MainActivity extends FragmentActivity implements
 
     /**
      * The user has selected a podcast in the podcasts list. Filters the episode
-     * view and then switches to it.
+     * view and then switches to it. If podcast is null, all episodes are shown.
      */
     public void onPodcastSelected(Podcast podcast) {
         mSectionsPagerAdapter.getEpisodeList().setPodcast(podcast);

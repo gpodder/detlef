@@ -6,7 +6,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
+import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
@@ -32,6 +35,8 @@ public class PodListFragment extends ListFragment {
     private PodListModel<Podcast> model;
     private OnPodcastSelectedListener listener;
     private PodcastDAO dao;
+
+    private TextView allPodcasts;
 
     /**
      * The parent activity must implement this interface in order to interact
@@ -80,6 +85,18 @@ public class PodListFragment extends ListFragment {
         adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout,
                 podlist);
         setListAdapter(adapter);
+
+        /* Then create the 'All Podcasts' header. */
+
+        allPodcasts = new TextView(getActivity());
+        allPodcasts.setText("All Podcasts");
+        allPodcasts.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32); /* TODO */
+        allPodcasts.setGravity(Gravity.CENTER);
+        allPodcasts.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                listener.onPodcastSelected(null);
+            }
+        });
     }
 
     private void fillDbWithDummyContents() {
@@ -195,7 +212,15 @@ public class PodListFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.pod_fragment_layout, container, false);
+
+        View view = inflater.inflate(R.layout.pod_fragment_layout, container, false);
+
+        /* Add the 'All Podcasts' header. */
+
+        ListView listView = (ListView)view.findViewById(android.R.id.list);
+        listView.addHeaderView(allPodcasts);
+
+        return view;
     }
 
     private void onDeleteFeedClicked(int pos) {

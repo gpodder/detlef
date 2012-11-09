@@ -1,6 +1,7 @@
 package at.ac.tuwien.detlef.fragments;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -66,12 +67,21 @@ public class EpisodeListFragment extends ListFragment {
     /**
      * Called whenever a podcast is clicked in the PodListFragment. Filters the
      * episode list to display only episodes belonging to the specified podcast.
+     * If podcast is null, all episodes are shown.
      */
     public void setPodcast(Podcast podcast) {
         /* TODO: Quick and dirty implementation. */
         adapter.clear();
 
         EpisodeDAO episodeDAO = new EpisodeDAOImpl(getActivity());
-        adapter.addAll(episodeDAO.getEpisodes(podcast));
+
+        List<Episode> episodes;
+        if (podcast == null) {
+            episodes = episodeDAO.getAllEpisodes();
+        } else {
+            episodes = episodeDAO.getEpisodes(podcast);
+        }
+
+        adapter.addAll(episodes);
     }
 }
