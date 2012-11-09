@@ -31,6 +31,7 @@ public class PodListFragment extends ListFragment {
     private PodListAdapter adapter;
     private PodListModel<Podcast> model;
     private OnPodcastSelectedListener listener;
+    private PodcastDAO dao;
 
     /**
      * The parent activity must implement this interface in order to interact
@@ -58,7 +59,7 @@ public class PodListFragment extends ListFragment {
 
         /* Initialize our podcast model, creating dummy contents if needed. */
 
-        PodcastDAO dao = new PodcastDAOImpl(this.getActivity()
+        dao = new PodcastDAOImpl(this.getActivity()
                 .getApplicationContext());
 
         List<Podcast> podlist = dao.getAllPodcasts();
@@ -199,6 +200,10 @@ public class PodListFragment extends ListFragment {
 
     private void onDeleteFeedClicked(int pos) {
         Log.v(TAG, String.format("onDeleteFeedClicked %d", pos));
-        model.removePodcast(model.get(pos));
+        Podcast podcast = model.get(pos);
+        dao.deletePodcast(podcast);
+        /* TODO: Does the DAO notify listeners in some way?
+         * How all files belonging to this podcast need to me removed as well. */
+        model.removePodcast(podcast);
     }
 }
