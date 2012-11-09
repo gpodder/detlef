@@ -5,6 +5,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
@@ -19,9 +20,50 @@ import at.ac.tuwien.detlef.settings.GpodderConnectionException;
  */
 public class SettingsGpodderNet extends PreferenceFragment {
 
-	static Toast toast;
+	private static Toast toast;
 	private Gpodder settings;
 	private ConnectionTester connectionTester;
+	
+	public class TestConnectionButtonPreferenceListener implements
+			OnPreferenceClickListener {
+
+		private ProgressDialog check;
+
+		public boolean onPreferenceClick(Preference arg0) {
+
+			showProgressBar();
+			toast.cancel();
+
+			new Thread() {
+				public void run() {
+					try {
+						if (getConnectionTester().testConnection(getSettings())) {
+							showToast(R.string.connectiontest_successful);
+						} else {
+							showToast(R.string.connectiontest_unsuccessful);
+						}
+					} catch (GpodderConnectionException e) {
+						showToast(R.string.connectiontest_error);
+					}
+					check.dismiss();
+				}
+			}
+			.start();
+
+			return true;
+		}
+
+		private void showProgressBar() {
+			check = ProgressDialog.show(
+				getActivity(),
+				getString(R.string.settings_fragment_gpodder_net_testconnection_progress_title),
+				getString(R.string.settings_fragment_gpodder_net_testconnection_progress_message),
+				true,
+				true
+			);
+		}
+
+	}
 
 	/**
 	 * @return The {@link ConnectionTester} that can be used to determine
@@ -48,9 +90,11 @@ public class SettingsGpodderNet extends PreferenceFragment {
 					return true;
 				case 1:
 					return false;
+				default:
+					throw new GpodderConnectionException();					
 				}
 
-				throw new GpodderConnectionException();
+				
 			}
 		};
 	}
@@ -71,15 +115,18 @@ public class SettingsGpodderNet extends PreferenceFragment {
 		return new Gpodder() {
 
 			public String getUsername() {
-				return PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("username", "");
+				return PreferenceManager.getDefaultSharedPreferences(getActivity())
+					.getString("username", "");
 			}
 
 			public String getPassword() {
-				return PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("password", "");
+				return PreferenceManager.getDefaultSharedPreferences(getActivity())
+					.getString("password", "");
 			}
 
 			public String getDevicename() {
-				String storedName = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("devicename", "");
+				String storedName = PreferenceManager.getDefaultSharedPreferences(getActivity())
+					.getString("devicename", "");
 
 				if (storedName.isEmpty()) {
 					return getDefaultDevicename();
@@ -113,52 +160,72 @@ public class SettingsGpodderNet extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences_gpoddernet);
 
         setUpTestConnectionButton();
-
-        findPreference("username").setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				preference.setSummary((String) newValue);
-
-				if(getSettings().isDefaultDevicename()) {
-					updateDeviceName((String) newValue);
-				}
-
-				return true;
-			}
-
-			private void updateDeviceName(String username) {
-				Editor edit = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
-				if (edit.putString("devicename", String.format("%s-android", username)).commit()) {
-					findPreference("devicename").setSummary(getSettings().getDevicename());
-				}
-			}
-		}
-        );
-
-        findPreference("password").setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				preference.setSummary(maskPassword((String) newValue));
-				return true;
-			}
-		}
-        );
-
-        findPreference("devicename").setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				preference.setSummary((String) newValue);
-				return true;
-			}
-		}
-        );
+        setUpUsernameButton();
+        setUpPasswordButton();
+        setUpDeviceNameButton();
 
         loadSummaries();
     }
 
+	private void setUpDeviceNameButton() {
+        findPreference("devicename").setOnPreferenceChangeListener(
+        	new OnPreferenceChangeListener() {
+        		public boolean onPreferenceChange(Preference preference, Object newValue) {
+        			preference.setSummary((String) newValue);
+        			return true;
+        		}
+        	}
+        );
+	}
+
+	private void setUpPasswordButton() {
+        findPreference("password").setOnPreferenceChangeListener(
+        	new OnPreferenceChangeListener() {
+        		public boolean onPreferenceChange(Preference preference, Object newValue) {
+        			preference.setSummary(maskPassword((String) newValue));
+        			return true;
+        		}
+        	}
+        );
+	}
+
+	private void setUpUsernameButton() {
+        findPreference("username").setOnPreferenceChangeListener(
+        	new OnPreferenceChangeListener() {
+				public boolean onPreferenceChange(Preference preference, Object newValue) {
+					preference.setSummary((String) newValue);
+	
+					if (getSettings().isDefaultDevicename()) {
+						updateDeviceName((String) newValue);
+					}
+	
+					return true;
+				}
+	
+				private void updateDeviceName(String username) {
+					Editor edit = PreferenceManager
+							.getDefaultSharedPreferences(getActivity())
+							.edit();
+					
+					boolean writeDevicenameStatus = edit.putString(
+							"devicename",
+							String.format("%s-android", username)
+					).commit(); 
+					
+					if (writeDevicenameStatus) {
+						findPreference("devicename").setSummary(getSettings().getDevicename());
+					}
+				}
+        	}
+        );
+	}
+
 	private void loadSummaries() {
-		Preference username = (Preference)findPreference("username");
+		Preference username = (Preference) findPreference("username");
 		username.setSummary(getSettings().getUsername());
-		Preference password = (Preference)findPreference("password");
+		Preference password = (Preference) findPreference("password");
 		password.setSummary(maskPassword(getSettings().getPassword()));
-		Preference devicename = (Preference)findPreference("devicename");
+		Preference devicename = (Preference) findPreference("devicename");
 		devicename.setSummary(getSettings().getDevicename());
 	}
 
@@ -167,56 +234,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	}
 
 	private void setUpTestConnectionButton() {
-        Preference button = (Preference)findPreference("button");
-        button.setOnPreferenceClickListener(
-		new Preference.OnPreferenceClickListener() {
-
-			public boolean onPreferenceClick(Preference arg0) {
-
-				final ProgressDialog check = ProgressDialog.show(
-					getActivity(),
-					getString(R.string.settings_fragment_gpodder_net_testconnection_progress_title),
-					getString(R.string.settings_fragment_gpodder_net_testconnection_progress_message),
-					true,
-					true
-				);
-
-				toast.cancel();
-
-				new Thread() {
-					public void run() {
-
-						int status;
-
-						try {
-								if(getConnectionTester().testConnection(getSettings())) {
-									status = R.string.settings_fragment_gpodder_net_testconnection_successful;
-								} else {
-									status = R.string.settings_fragment_gpodder_net_testconnection_unsuccessful;
-								}
-							} catch (GpodderConnectionException e) {
-								status = R.string.settings_fragment_gpodder_net_testconnection_connectionerror;
-							}
-						check.dismiss();
-						final int toastStatus = status;
-
-						getActivity().runOnUiThread(new Runnable() {
-							  public void run() {
-								  toast = Toast.makeText(
-								      getActivity(),
-                                          String.format(getString(toastStatus), getSettings().getUsername()), Toast.LENGTH_LONG);
-								  toast.show();
-							  }
-						});
-
-
-					}
-				}.start();
-
-                    return true;
-			}
-		}
-        );
+        Preference button = (Preference) findPreference("button");
+        button.setOnPreferenceClickListener(new TestConnectionButtonPreferenceListener());
 	}
 
 	private String maskPassword(String password) {
@@ -224,6 +243,23 @@ public class SettingsGpodderNet extends PreferenceFragment {
 				"\0",
 				getText(R.string.settings_fragment_gpodder_net_password_mask_char)
 			);
+	}
+	
+	private void showToast(final int toastStatus) {
+		getActivity().runOnUiThread(new Runnable() {
+			  public void run() {
+				  toast = Toast.makeText(
+				      getActivity(),
+                    String.format(
+                  		  getString(toastStatus),
+                  		  getSettings().getUsername()
+                    ),
+                    Toast.LENGTH_LONG
+                );
+				  toast.show();
+			  }
+		});
+
 	}
 
 }
