@@ -18,4 +18,5 @@
     <instrumentation android:name="android.test.InstrumentationTestRunner"
                      android:targetPackage="at.ac.tuwien.detlef"
                      android:label="Tests for at.ac.tuwien.detlef"/>
+    <uses-sdk android:targetSdkVersion="15" android:minSdkVersion="14"/>
 </manifest>
