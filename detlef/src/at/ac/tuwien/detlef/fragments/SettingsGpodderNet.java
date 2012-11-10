@@ -1,13 +1,17 @@
 package at.ac.tuwien.detlef.fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
@@ -20,22 +24,30 @@ import at.ac.tuwien.detlef.settings.GpodderConnectionException;
  */
 public class SettingsGpodderNet extends PreferenceFragment {
 
+	private static final String STATEVAR_PROGRESSBAR = "ProgressbarShowing";
 	private static Toast toast;
 	private Gpodder settings;
 	private ConnectionTester connectionTester;
+	private Thread connectionTestThread;
+	private static ProgressDialog check;
+	private static Activity activity;
+	
+	private final static String logTag = "settings";
 	
 	public class TestConnectionButtonPreferenceListener implements
 			OnPreferenceClickListener {
 
-		private ProgressDialog check;
+		
 
 		public boolean onPreferenceClick(Preference arg0) {
 
 			showProgressBar();
 			toast.cancel();
-
-			new Thread() {
+			
+			connectionTestThread = new Thread(new Runnable() {
+				
 				public void run() {
+
 					try {
 						if (getConnectionTester().testConnection(getSettings())) {
 							showToast(R.string.connectiontest_successful);
@@ -45,22 +57,19 @@ public class SettingsGpodderNet extends PreferenceFragment {
 					} catch (GpodderConnectionException e) {
 						showToast(R.string.connectiontest_error);
 					}
-					check.dismiss();
+					
+					if (check != null && check.isShowing()) {
+		        		check.dismiss();
+		        	}
+					
+					
+					
 				}
-			}
-			.start();
-
+			});
+			
+			connectionTestThread.start();
+			
 			return true;
-		}
-
-		private void showProgressBar() {
-			check = ProgressDialog.show(
-				getActivity(),
-				getString(R.string.settings_fragment_gpodder_net_testconnection_progress_title),
-				getString(R.string.settings_fragment_gpodder_net_testconnection_progress_message),
-				true,
-				true
-			);
 		}
 
 	}
@@ -81,7 +90,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 					throws GpodderConnectionException {
 
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(10000);
 				} catch (InterruptedException e) {
 				}
 
@@ -155,8 +164,19 @@ public class SettingsGpodderNet extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
+        
+        Log.d(logTag, "onCreate(" + savedInstanceState + ")");
+        Log.d(logTag, "Associated Activity is: " + getActivity());
+        
+        activity = getActivity();
+        
+        restoreState(savedInstanceState);
+        
+        
         toast = Toast.makeText(getActivity(), "", 0);
+        
+        Log.d(logTag, "Toast: " + toast);
+        
         addPreferencesFromResource(R.xml.preferences_gpoddernet);
 
         setUpTestConnectionButton();
@@ -166,6 +186,18 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
         loadSummaries();
     }
+
+	private void restoreState(Bundle savedInstanceState) {
+		
+		if (savedInstanceState == null) {
+			return;
+		}
+		
+		if (savedInstanceState.getBoolean(STATEVAR_PROGRESSBAR)) {
+			showProgressBar();
+		}
+		
+	}
 
 	private void setUpDeviceNameButton() {
         findPreference("devicename").setOnPreferenceChangeListener(
@@ -229,10 +261,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
 		devicename.setSummary(getSettings().getDevicename());
 	}
 
-	private Object getDefaultDeviceName() {
-		return null;
-	}
-
 	private void setUpTestConnectionButton() {
         Preference button = (Preference) findPreference("button");
         button.setOnPreferenceClickListener(new TestConnectionButtonPreferenceListener());
@@ -246,20 +274,45 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	}
 	
 	private void showToast(final int toastStatus) {
-		getActivity().runOnUiThread(new Runnable() {
-			  public void run() {
-				  toast = Toast.makeText(
-				      getActivity(),
-                    String.format(
-                  		  getString(toastStatus),
-                  		  getSettings().getUsername()
-                    ),
-                    Toast.LENGTH_LONG
-                );
-				  toast.show();
-			  }
-		});
+		
+		Log.d(logTag, String.format("showToast(%d): %s", toastStatus, toast));
+		Log.d(logTag, String.format("Activity(%s)", activity));
+		
+		Bundle bundle = new Bundle();
+		bundle.putInt("message", toastStatus);
+		toast = Toast.makeText(activity, getText(toastStatus), Toast.LENGTH_LONG);
+		toast.show();
 
 	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+	  super.onSaveInstanceState(savedInstanceState);
+	  
+	  Log.d(logTag, "onSaveInstanceState()");
+	  savedInstanceState.putBoolean(STATEVAR_PROGRESSBAR, check != null && check.isShowing());
+	}
+	
+	private void showProgressBar() {
+		check = ProgressDialog.show(
+			getActivity(),
+			getString(R.string.settings_fragment_gpodder_net_testconnection_progress_title),
+			getString(R.string.settings_fragment_gpodder_net_testconnection_progress_message),
+			true,
+			true
+		);
+		Log.d(logTag, "Open Progressbar: " + check);
+	}
+	
+	private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d(logTag, "Oh boy, received message " + msg);
+            Log.d(logTag, "Currect Activity is:" + activity);
+        }
+    };
+	
+
+    
 
 }
