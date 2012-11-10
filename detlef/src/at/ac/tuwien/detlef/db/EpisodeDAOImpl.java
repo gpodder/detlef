@@ -8,11 +8,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.State;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public final class EpisodeDAOImpl implements EpisodeDAO {
+
+    private static final String TAG = EpisodeDAOImpl.class.getName();
 
     private static EpisodeDAOImpl instance = null;
 
@@ -61,7 +64,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
             db.close();
             return id;
         } catch (Exception ex) {
-            ex.toString();
+            Log.e(TAG, ex.getMessage());
         }
         return 0;
 
