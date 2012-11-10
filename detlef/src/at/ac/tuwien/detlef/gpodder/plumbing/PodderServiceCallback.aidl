@@ -24,7 +24,7 @@ oneway interface PodderServiceCallback
 	 * The HTTP download failed. (Also used for HTTP downloads-to-files.)
 	 * @param reqId The request ID you passed.
 	 * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
-	 * error that occurred..
+	 * error that occurred.
 	 * @param errStr Error message describing the error that occurred.
 	 */
 	void httpDownloadFailed(int reqId, int errCode, String errStr);
@@ -53,7 +53,7 @@ oneway interface PodderServiceCallback
 	 * The authentication check failed.
 	 * @param reqId The request ID you passed.
 	 * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
-	 * error that occurred..
+	 * error that occurred.
 	 * @param errStr Error message describing the error that occurred.
 	 */
 	void authCheckFailed(int reqId, int errCode, String errStr);
