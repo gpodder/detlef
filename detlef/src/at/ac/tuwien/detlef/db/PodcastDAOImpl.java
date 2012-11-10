@@ -2,7 +2,9 @@
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,6 +17,16 @@ public final class PodcastDAOImpl implements PodcastDAO {
     private static PodcastDAOImpl instance = null;
 
     private final DatabaseHelper dbHelper;
+    private final Set<OnPodcastChangeListener> listeners = new HashSet<OnPodcastChangeListener>();
+
+    /**
+     * Interface for listeners interested in podcast status changes.
+     */
+    public interface OnPodcastChangeListener {
+        void onPodcastChanged(Podcast podcast);
+        void onPodcastAdded(Podcast podcast);
+        void onPodcastDeleted(Podcast podcast);
+    }
 
     /**
      * Returns (and lazily initializes) the PodcastDAOImpl singleton instance.
@@ -52,6 +64,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
         long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
         db.close();
+
+        notifyListenersAdded(podcast);
+
         return id;
 
     }
@@ -70,6 +85,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
         int ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
         db.close();
+
+        notifyListenersDeleted(podcast);
+
         return ret;
     }
 
@@ -130,6 +148,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
         int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
         db.close();
+
+        notifyListenersChanged(podcast);
+
         return ret;
     }
 
@@ -185,6 +206,35 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
         int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
         db.close();
+
+        notifyListenersChanged(podcast);
+
         return ret;
+    }
+
+    public void addPodcastChangedListener(OnPodcastChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removePodListChangeListener(OnPodcastChangeListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListenersChanged(Podcast podcast) {
+        for (OnPodcastChangeListener listener : listeners) {
+            listener.onPodcastChanged(podcast);
+        }
+    }
+
+    private void notifyListenersAdded(Podcast podcast) {
+        for (OnPodcastChangeListener listener : listeners) {
+            listener.onPodcastAdded(podcast);
+        }
+    }
+
+    private void notifyListenersDeleted(Podcast podcast) {
+        for (OnPodcastChangeListener listener : listeners) {
+            listener.onPodcastDeleted(podcast);
+        }
     }
 }
