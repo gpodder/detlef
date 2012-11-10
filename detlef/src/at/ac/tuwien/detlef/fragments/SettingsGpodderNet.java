@@ -2,6 +2,9 @@ package at.ac.tuwien.detlef.fragments;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,20 +22,51 @@ import at.ac.tuwien.detlef.settings.Gpodder;
 import at.ac.tuwien.detlef.settings.GpodderConnectionException;
 
 /**
- * This fragment contains the settings for the gpodder.net account.
+ * This fragment contains the UI logic for the gpodder.net account settings 
+ * screen.
+ * 
+ * The user can enter these settings:
+ * 	- User name
+ *  - Password
+ *  - Device name
+ * 
+ * Additionally, there exists a button which checks the validity of the entered
+ * data.
+ * 
  * @author moe
  */
 public class SettingsGpodderNet extends PreferenceFragment {
 
 	private static final String STATEVAR_PROGRESSBAR = "ProgressbarShowing";
+	
+	/**
+	 * Holds a static reference to all {@link Toast} messages emitted by this
+	 * fragment so that the can be canceled at any time.
+	 */
 	private static Toast toast;
+	
 	private Gpodder settings;
 	private ConnectionTester connectionTester;
-	private Thread connectionTestThread;
+	
+	/**
+	 * The Thread that executes the user credential check. It is static so
+	 * it can be accessed even if the Fragment gets recreated in the mean time.
+	 */
+	private static Thread connectionTestThread;
+	
 	private static ProgressDialog check;
+	
+	/**
+	 * This holds a static reference to the activity that currently is 
+	 * associated with this fragment. The reason for this is that if a 
+	 * {@link Thread} is started and the screen is rotated while the thread is 
+	 * running, the method {@link #getActivity()} will return null. But as the
+	 * {@link Toast} needs to know the current {@link Context}, the 
+	 * activity needs to be stored somewhere.
+	 */
 	private static Activity activity;
 	
-	private final static String logTag = "settings";
+	private static final String logTag = "settings";
 	
 	public class TestConnectionButtonPreferenceListener implements
 			OnPreferenceClickListener {
@@ -47,15 +81,17 @@ public class SettingsGpodderNet extends PreferenceFragment {
 			connectionTestThread = new Thread(new Runnable() {
 				
 				public void run() {
-
+					
 					try {
 						if (getConnectionTester().testConnection(getSettings())) {
-							showToast(R.string.connectiontest_successful);
+							showToast(activity.getText(R.string.connectiontest_successful));
 						} else {
-							showToast(R.string.connectiontest_unsuccessful);
+							showToast(activity.getText(R.string.connectiontest_unsuccessful));
 						}
 					} catch (GpodderConnectionException e) {
-						showToast(R.string.connectiontest_error);
+						showToast(activity.getText(R.string.connectiontest_error));
+					} catch (InterruptedException e) {
+						return;
 					}
 					
 					if (check != null && check.isShowing()) {
@@ -86,13 +122,10 @@ public class SettingsGpodderNet extends PreferenceFragment {
 		}
 
 		return new ConnectionTester() {
-			public boolean testConnection(Gpodder settings)
-					throws GpodderConnectionException {
+			public boolean testConnection(Gpodder pSettings)
+					throws GpodderConnectionException, InterruptedException {
 
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-				}
+				Thread.sleep(10000);
 
 				switch ((int) Math.floor(Math.random() * 3)) {
 				case 0:
@@ -108,8 +141,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
 		};
 	}
 
-	public SettingsGpodderNet setConnectionTester(ConnectionTester connectionTester) {
-		this.connectionTester = connectionTester;
+	public SettingsGpodderNet setConnectionTester(ConnectionTester pConnectionTester) {
+		connectionTester = pConnectionTester;
 		return this;
 	}
 
@@ -124,17 +157,20 @@ public class SettingsGpodderNet extends PreferenceFragment {
 		return new Gpodder() {
 
 			public String getUsername() {
-				return PreferenceManager.getDefaultSharedPreferences(getActivity())
+				return PreferenceManager
+					.getDefaultSharedPreferences(getActivity())
 					.getString("username", "");
 			}
 
 			public String getPassword() {
-				return PreferenceManager.getDefaultSharedPreferences(getActivity())
+				return PreferenceManager
+					.getDefaultSharedPreferences(getActivity())
 					.getString("password", "");
 			}
 
 			public String getDevicename() {
-				String storedName = PreferenceManager.getDefaultSharedPreferences(getActivity())
+				String storedName = PreferenceManager
+					.getDefaultSharedPreferences(getActivity())
 					.getString("devicename", "");
 
 				if (storedName.isEmpty()) {
@@ -273,15 +309,43 @@ public class SettingsGpodderNet extends PreferenceFragment {
 			);
 	}
 	
-	private void showToast(final int toastStatus) {
+	/**
+	 * Takes its best effort to display a toast message within the current
+	 * {@link Activity#getApplicationContext() application context}.
+	 * 
+	 * This method also works if it is called from within a thread whose 
+	 * belonging activity already has been destroyed (e.g. if the screen has 
+	 * been rotated in the mean time). This is particularly useful for the
+	 * connection test. 
+	 * 
+	 * Note that this method does not guarantee that the message is eventually 
+	 * shown to the user. If the {@link #activity} is not accessible then
+	 * no message is shown at all.   
+	 * 
+	 * @param message
+	 */
+	private void showToast(final CharSequence message) {
 		
-		Log.d(logTag, String.format("showToast(%d): %s", toastStatus, toast));
+		Log.d(logTag, String.format("%s.showToast(%s)", toast, message));
 		Log.d(logTag, String.format("Activity(%s)", activity));
-		
-		Bundle bundle = new Bundle();
-		bundle.putInt("message", toastStatus);
-		toast = Toast.makeText(activity, getText(toastStatus), Toast.LENGTH_LONG);
-		toast.show();
+		try {
+			activity.runOnUiThread(new Runnable() {
+				public void run() {
+					activity.getApplicationContext();
+					Toast.makeText(
+						activity.getApplicationContext(),
+						message,
+						Toast.LENGTH_LONG
+					).show();
+				}
+			});
+		} catch (Exception e) {
+			// don't care - after all it's not that critical that the user
+			// receives the result under any circumstances. so better
+			// catch and log any exception instead of breaking the complete
+			// application at some other point.
+			Log.e(logTag, e.getMessage(), e);
+		}
 
 	}
 	
@@ -299,20 +363,21 @@ public class SettingsGpodderNet extends PreferenceFragment {
 			getString(R.string.settings_fragment_gpodder_net_testconnection_progress_title),
 			getString(R.string.settings_fragment_gpodder_net_testconnection_progress_message),
 			true,
-			true
+			true,
+			new OnCancelListener() {
+				public void onCancel(DialogInterface dialog) {
+					Log.d(logTag, String.format("%s.onCancel(%s)", check, dialog));
+					if (connectionTestThread != null && connectionTestThread.isAlive()) {
+						Log.d(logTag, "interrupting thread.");
+						connectionTestThread.interrupt();
+					}
+				}
+			}
 		);
+		
+		
+		
 		Log.d(logTag, "Open Progressbar: " + check);
 	}
-	
-	private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            Log.d(logTag, "Oh boy, received message " + msg);
-            Log.d(logTag, "Currect Activity is:" + activity);
-        }
-    };
-	
-
-    
 
 }
