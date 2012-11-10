@@ -16,6 +16,11 @@ public class PodcastDAOImpl implements PodcastDAO {
 
     public PodcastDAOImpl(Context context) {
         dbHelper = new DatabaseHelper(context);
+
+        /* Take care of any pending database upgrades. */
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.close();
     }
 
     /**

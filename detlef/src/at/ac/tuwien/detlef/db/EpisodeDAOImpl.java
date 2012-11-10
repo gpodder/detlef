@@ -21,6 +21,11 @@ public class EpisodeDAOImpl implements EpisodeDAO {
     public EpisodeDAOImpl(Context context) {
         dbHelper = new DatabaseHelper(context);
         this.context = context;
+
+        /* Take care of any pending database upgrades. */
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.close();
     }
 
     public long insertEpisode(Episode episode) {
