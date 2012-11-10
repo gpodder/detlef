@@ -63,15 +63,12 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* Initialize our podcast model, creating dummy contents if needed. */
+        /* Initialize our podcast model. */
 
-        PodcastDAO dao = PodcastDAOImpl.i(this.getActivity().getApplicationContext());
+        PodcastDAOImpl dao = PodcastDAOImpl.i(this.getActivity());
+        dao.addPodcastChangedListener(this);
 
         List<Podcast> podlist = dao.getAllPodcasts();
-        if (podlist.isEmpty()) {
-            fillDbWithDummyContents();
-            podlist = dao.getAllPodcasts();
-        }
 
         model = new PodListModel<Podcast>(podlist);
         model.addPodListChangeListener(new PodListModel.PodListChangeListener() {
@@ -85,6 +82,13 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout,
                 podlist);
         setListAdapter(adapter);
+
+        /* Create dummy contents if needed. */
+
+        if (podlist.isEmpty()) {
+            fillDbWithDummyContents();
+            podlist = dao.getAllPodcasts();
+        }
 
         /* Then create the 'All Podcasts' header. */
 
