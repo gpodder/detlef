@@ -23,11 +23,12 @@ import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
+import at.ac.tuwien.detlef.db.PodcastDAOImpl.OnPodcastChangeListener;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.PodListModel;
 
-public class PodListFragment extends ListFragment {
+public class PodListFragment extends ListFragment implements OnPodcastChangeListener {
 
     private static final String TAG = PodListFragment.class.getName();
 
@@ -179,7 +180,8 @@ public class PodListFragment extends ListFragment {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.delete_feed:
-                onDeleteFeedClicked(info.position);
+                /* Apparently, the header is counted as a position, so we need to subtract one. */
+                onDeleteFeedClicked(info.position - 1);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -212,8 +214,22 @@ public class PodListFragment extends ListFragment {
         Podcast podcast = model.get(pos);
         PodcastDAO dao = PodcastDAOImpl.i(getActivity());
         dao.deletePodcast(podcast);
-        /* TODO: Does the DAO notify listeners in some way?
-         * How all files belonging to this podcast need to me removed as well. */
+    }
+
+    public void onPodcastChanged(Podcast podcast) {
+        Log.v(TAG, String.format("onPodcastChanged: %s", podcast.getTitle()));
+        adapter.notifyDataSetChanged();
+    }
+
+    public void onPodcastAdded(Podcast podcast) {
+        Log.v(TAG, String.format("onPodcastAdded: %s", podcast.getTitle()));
+        model.addPodcast(podcast);
+        adapter.notifyDataSetChanged();
+    }
+
+    public void onPodcastDeleted(Podcast podcast) {
+        Log.v(TAG, String.format("onPodcastDeleted: %s", podcast.getTitle()));
         model.removePodcast(podcast);
+        adapter.notifyDataSetChanged();
     }
 }
