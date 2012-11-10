@@ -2,13 +2,10 @@ package at.ac.tuwien.detlef.fragments;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -16,10 +13,11 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.Gpodder;
 import at.ac.tuwien.detlef.settings.GpodderConnectionException;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 /**
  * This fragment contains the UI logic for the gpodder.net account settings 
@@ -45,7 +43,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	 */
 	private static Toast toast;
 	
-	private Gpodder settings;
 	private ConnectionTester connectionTester;
 	
 	/**
@@ -122,7 +119,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 		}
 
 		return new ConnectionTester() {
-			public boolean testConnection(Gpodder pSettings)
+			public boolean testConnection(GpodderSettings pSettings)
 					throws GpodderConnectionException, InterruptedException {
 
 				Thread.sleep(10000);
@@ -143,56 +140,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
 	public SettingsGpodderNet setConnectionTester(ConnectionTester pConnectionTester) {
 		connectionTester = pConnectionTester;
-		return this;
-	}
-
-	/**
-	 * TODO this is only a mock ... needs to be implemented correctly.
-	 */
-	public Gpodder getSettings() {
-		if (settings != null) {
-			return settings;
-		}
-
-		return new Gpodder() {
-
-			public String getUsername() {
-				return PreferenceManager
-					.getDefaultSharedPreferences(getActivity())
-					.getString("username", "");
-			}
-
-			public String getPassword() {
-				return PreferenceManager
-					.getDefaultSharedPreferences(getActivity())
-					.getString("password", "");
-			}
-
-			public String getDevicename() {
-				String storedName = PreferenceManager
-					.getDefaultSharedPreferences(getActivity())
-					.getString("devicename", "");
-
-				if (storedName.isEmpty()) {
-					return getDefaultDevicename();
-				}
-
-				return storedName;
-			}
-
-			private String getDefaultDevicename() {
-				return String.format("%s-android", getUsername());
-			}
-
-			public boolean isDefaultDevicename() {
-				return getDevicename().equals(getDefaultDevicename());
-			}
-
-		};
-	}
-
-	public SettingsGpodderNet setSettings(Gpodder settings) {
-		this.settings = settings;
 		return this;
 	}
 
@@ -251,6 +198,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
         	new OnPreferenceChangeListener() {
         		public boolean onPreferenceChange(Preference preference, Object newValue) {
         			preference.setSummary(maskPassword((String) newValue));
+        			updateTestConnectionButtonEnabledState(getSettings().getUsername(), (String) newValue);
         			return true;
         		}
         	}
@@ -266,6 +214,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
 					if (getSettings().isDefaultDevicename()) {
 						updateDeviceName((String) newValue);
 					}
+					
+					updateTestConnectionButtonEnabledState((String) newValue, getSettings().getPassword());
 	
 					return true;
 				}
@@ -297,9 +247,29 @@ public class SettingsGpodderNet extends PreferenceFragment {
 		devicename.setSummary(getSettings().getDevicename());
 	}
 
+	private GpodderSettings getSettings() {
+		return DependencyAssistant.DEPENDENCY_ASSISTANT.getGpodderSettings(getActivity());
+	}
+
 	private void setUpTestConnectionButton() {
         Preference button = (Preference) findPreference("button");
         button.setOnPreferenceClickListener(new TestConnectionButtonPreferenceListener());
+        updateTestConnectionButtonEnabledState(getSettings());
+	}
+	
+	private void updateTestConnectionButtonEnabledState(GpodderSettings settings) {
+		updateTestConnectionButtonEnabledState(settings.getUsername(), settings.getPassword());
+	}
+
+	/**
+	 * This updates the enabled state of the "Test Connection" button
+	 * depending on if the username and password are both non-empty.
+	 * @param username
+	 * @param password
+	 */
+	private void updateTestConnectionButtonEnabledState(String username, String password) {
+		Preference button = (Preference) findPreference("button");
+		button.setEnabled((!username.isEmpty()) && (!password.isEmpty()));
 	}
 
 	private String maskPassword(String password) {
@@ -374,9 +344,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 				}
 			}
 		);
-		
-		
-		
+
 		Log.d(logTag, "Open Progressbar: " + check);
 	}
 

@@ -15,6 +15,6 @@ public interface ConnectionTester {
 	 * @throws InterruptedException If the worker thread gets interrupted while
 	 *     executing the operation.
 	 */
-	boolean testConnection(Gpodder settings)
+	boolean testConnection(GpodderSettings settings)
 		throws InterruptedException, GpodderConnectionException;
 }

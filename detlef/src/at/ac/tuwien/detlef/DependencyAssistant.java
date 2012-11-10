@@ -1,9 +1,16 @@
 package at.ac.tuwien.detlef;
 
+import java.util.HashMap;
+
+import android.app.Activity;
+import android.content.Context;
+import android.preference.PreferenceManager;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
+import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
+import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
 
 public class DependencyAssistant {
 
@@ -33,30 +40,23 @@ public class DependencyAssistant {
     }
 
     /**
+     * @param context The {@link Context}. This is needed in order to
+     *     be able to access Android's system settings.
      * @return Gets the {@link GpodderSettings gpodder.net settings instance}
      *         that provides the user name, password and device name settings.
-     *         TODO Right now this is only a mock that returns some hard coded
-     *         data.
      */
-    public GpodderSettings getGpodderSettings() {
-        return new GpodderSettings() {
+    public GpodderSettings getGpodderSettings(Context context) {
+    	
+    	HashMap<String, Object> dependecies = new HashMap<String, Object>();
+    	dependecies.put(
+    		"sharedPreferences",
+    		PreferenceManager.getDefaultSharedPreferences(context)
+    	);
+    	
+    	GpodderSettingsDAO gpodderSettingsDAO = new GpodderSettingsDAOAndroid();
+    	gpodderSettingsDAO.setDependecies(dependecies);
+    	return gpodderSettingsDAO.getSettings();
 
-            public String getUsername() {
-                return "";
-            }
-
-            public String getPassword() {
-                return "";
-            }
-
-            public String getDevicename() {
-                return String.format("%s-android", getUsername());
-            }
-
-            public boolean isDefaultDevicename() {
-                return true;
-            }
-        };
     }
 
 }
