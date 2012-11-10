@@ -8,7 +8,7 @@ package at.ac.tuwien.detlef.gpodder;
  */
 public interface NoDataResultHandler extends ResultHandler {
     /**
-     * Called to handle a successful authentication.
+     * Called to handle a successful operation.
      */
     void handleSuccess();
 }
