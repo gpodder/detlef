@@ -10,11 +10,23 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import at.ac.tuwien.detlef.domain.Podcast;
 
-public class PodcastDAOImpl implements PodcastDAO {
+public final class PodcastDAOImpl implements PodcastDAO {
+
+    private static PodcastDAOImpl instance = null;
 
     private final DatabaseHelper dbHelper;
 
-    public PodcastDAOImpl(Context context) {
+    /**
+     * Returns (and lazily initializes) the PodcastDAOImpl singleton instance.
+     */
+    public static PodcastDAOImpl i(Context context) {
+        if (instance == null) {
+            instance = new PodcastDAOImpl(context);
+        }
+        return instance;
+    }
+
+    private PodcastDAOImpl(Context context) {
         dbHelper = new DatabaseHelper(context);
 
         /* Take care of any pending database upgrades. */

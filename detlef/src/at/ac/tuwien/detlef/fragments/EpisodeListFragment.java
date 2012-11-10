@@ -28,7 +28,7 @@ public class EpisodeListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        EpisodeDAO episodeDAO = new EpisodeDAOImpl(getActivity());
+        EpisodeDAO episodeDAO = EpisodeDAOImpl.i(getActivity());
         listItems.addAll(episodeDAO.getAllEpisodes());
 
         adapter = new EpisodeListAdapter(getActivity(),
@@ -73,7 +73,7 @@ public class EpisodeListFragment extends ListFragment {
         /* TODO: Quick and dirty implementation. */
         adapter.clear();
 
-        EpisodeDAO episodeDAO = new EpisodeDAOImpl(getActivity());
+        EpisodeDAO episodeDAO = EpisodeDAOImpl.i(getActivity());
 
         List<Episode> episodes;
         if (podcast == null) {

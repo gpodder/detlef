@@ -8,7 +8,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 public class PodcastDBAssistantImpl implements PodcastDBAssistant {
 
     public List<Podcast> getAllPodcasts(Context context) {
-        PodcastDAO dao = new PodcastDAOImpl(context);
+        PodcastDAO dao = PodcastDAOImpl.i(context);
         return dao.getAllPodcasts();
     }
 

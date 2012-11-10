@@ -11,12 +11,12 @@ import com.dragontek.mygpoclient.feeds.IFeed;
 public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
 
     public List<Episode> getEpisodes(Context context, Podcast podcast) {
-        EpisodeDAO dao = new EpisodeDAOImpl(context);
+        EpisodeDAO dao = EpisodeDAOImpl.i(context);
         return dao.getEpisodes(podcast);
     }
 
     public List<Episode> getAllEpisodes(Context context) {
-        EpisodeDAO dao = new EpisodeDAOImpl(context);
+        EpisodeDAO dao = EpisodeDAOImpl.i(context);
         return dao.getAllEpisodes();
     }
 

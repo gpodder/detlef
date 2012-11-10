@@ -34,7 +34,6 @@ public class PodListFragment extends ListFragment {
     private PodListAdapter adapter;
     private PodListModel<Podcast> model;
     private OnPodcastSelectedListener listener;
-    private PodcastDAO dao;
 
     private TextView allPodcasts;
 
@@ -64,8 +63,7 @@ public class PodListFragment extends ListFragment {
 
         /* Initialize our podcast model, creating dummy contents if needed. */
 
-        dao = new PodcastDAOImpl(this.getActivity()
-                .getApplicationContext());
+        PodcastDAO dao = PodcastDAOImpl.i(this.getActivity().getApplicationContext());
 
         List<Podcast> podlist = dao.getAllPodcasts();
         if (podlist.isEmpty()) {
@@ -100,10 +98,8 @@ public class PodListFragment extends ListFragment {
     }
 
     private void fillDbWithDummyContents() {
-        PodcastDAO dao = new PodcastDAOImpl(this.getActivity()
-                .getApplicationContext());
-        EpisodeDAO edao = new EpisodeDAOImpl(this.getActivity()
-                .getApplicationContext());
+        PodcastDAO dao = PodcastDAOImpl.i(this.getActivity().getApplicationContext());
+        EpisodeDAO edao = EpisodeDAOImpl.i(this.getActivity().getApplicationContext());
 
         Podcast p1 = new Podcast();
         p1.setTitle("My Podcast 1");
@@ -214,6 +210,7 @@ public class PodListFragment extends ListFragment {
     private void onDeleteFeedClicked(int pos) {
         Log.v(TAG, String.format("onDeleteFeedClicked %d", pos));
         Podcast podcast = model.get(pos);
+        PodcastDAO dao = PodcastDAOImpl.i(getActivity());
         dao.deletePodcast(podcast);
         /* TODO: Does the DAO notify listeners in some way?
          * How all files belonging to this podcast need to me removed as well. */

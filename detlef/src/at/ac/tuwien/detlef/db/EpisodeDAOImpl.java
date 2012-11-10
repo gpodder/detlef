@@ -12,15 +12,26 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.State;
 import at.ac.tuwien.detlef.domain.Podcast;
 
-public class EpisodeDAOImpl implements EpisodeDAO {
+public final class EpisodeDAOImpl implements EpisodeDAO {
+
+    private static EpisodeDAOImpl instance = null;
 
     private final DatabaseHelper dbHelper;
+    private final PodcastDAOImpl podcastDAO;
 
-    private final Context context;
+    /**
+     * Returns (and lazily initializes) the EpisodeDAOImpl singleton instance.
+     */
+    public static EpisodeDAOImpl i(Context context) {
+        if (instance == null) {
+            instance = new EpisodeDAOImpl(context);
+        }
+        return instance;
+    }
 
-    public EpisodeDAOImpl(Context context) {
+    private EpisodeDAOImpl(Context context) {
         dbHelper = new DatabaseHelper(context);
-        this.context = context;
+        podcastDAO = PodcastDAOImpl.i(context);
 
         /* Take care of any pending database upgrades. */
 
@@ -104,7 +115,6 @@ public class EpisodeDAOImpl implements EpisodeDAO {
                 );
 
         if (c.moveToFirst()) {
-            PodcastDAO pdao = new PodcastDAOImpl(context);
             do {
                 Episode e = new Episode();
                 e.setAuthor(c.getString(0));
@@ -114,7 +124,7 @@ public class EpisodeDAOImpl implements EpisodeDAO {
                 e.setId(c.getLong(4));
                 e.setLink(c.getString(5));
                 e.setMimetype(c.getString(6));
-                e.setPodcast(pdao.getPodcastById(c.getLong(7)));
+                e.setPodcast(podcastDAO.getPodcastById(c.getLong(7)));
                 e.setReleased(c.getLong(8));
                 e.setTitle(c.getString(9));
                 e.setUrl(c.getString(10));
