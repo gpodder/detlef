@@ -12,14 +12,13 @@ import at.ac.tuwien.detlef.domain.Podcast;
 
 public class PodcastDAOImpl implements PodcastDAO {
 
-    private DatabaseHelper dbHelper;
+    private final DatabaseHelper dbHelper;
 
     public PodcastDAOImpl(Context context) {
         dbHelper = new DatabaseHelper(context);
     }
 
     /**
-     * (non-Javadoc)
      *
      * @see at.ac.tuwien.detlef.db.PodcastDAO#insertPodcast(at.ac.tuwien.detlef.domain
      *      .Podcast)
@@ -41,8 +40,7 @@ public class PodcastDAOImpl implements PodcastDAO {
     }
 
     /**
-     * (non-Javadoc)
-     *
+     * 
      * @see at.ac.tuwien.detlef.db.PodcastDAO#deletePodcast(at.ac.tuwien.detlef.domain
      *      .Podcast)
      */
@@ -59,7 +57,6 @@ public class PodcastDAOImpl implements PodcastDAO {
     }
 
     /**
-     * (non-Javadoc)
      *
      * @see at.ac.tuwien.detlef.db.PodcastDAO#getAllPodcasts()
      */
@@ -73,18 +70,12 @@ public class PodcastDAOImpl implements PodcastDAO {
                 DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
         };
 
-        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, null, // columns
-                // for
-                // where
-                // clause
-                null, // values for where clause
-                null, // group
-                null, // filter by row group
-                null // sort order
-                );
+        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection,
+                null, null, null, null, null);
 
         if (c.moveToFirst()) {
             do {
+
 
                 Podcast p = new Podcast();
                 p.setId(c.getLong(0));
@@ -103,8 +94,7 @@ public class PodcastDAOImpl implements PodcastDAO {
     }
 
     /**
-     * (non-Javadoc)
-     *
+     * 
      * @see at.ac.tuwien.detlef.db.PodcastDAO#updateLastUpdate(at.ac.tuwien.detlef
      *      .domain.Podcast)
      */
@@ -124,8 +114,7 @@ public class PodcastDAOImpl implements PodcastDAO {
     }
 
     /**
-     * (non-Javadoc)
-     *
+     * 
      * @see at.ac.tuwien.detlef.db.PodcastDAO#getPodcastById(at.ac.tuwien.detlef
      *      .domain.Podcast)
      */
@@ -144,15 +133,11 @@ public class PodcastDAOImpl implements PodcastDAO {
                 String.valueOf(podcastId)
         };
 
-        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, // columns
-                // for
-                // where
-                // clause
-                selectionArgs, // values for where clause
-                null, // group
-                null, // filter by row group
-                null // sort order
-                );
+        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST,
+                projection,
+                selection,
+                selectionArgs,
+                null, null, null);
 
         if (c.moveToFirst()) {
             do {
@@ -171,8 +156,6 @@ public class PodcastDAOImpl implements PodcastDAO {
     }
 
     /**
-     * (non-Javadoc)
-     *
      * @see at.ac.tuwien.detlef.db.PodcastDAO#updateLogoFilePath(at.ac.tuwien.detlef
      *      .domain.Podcast)
      */

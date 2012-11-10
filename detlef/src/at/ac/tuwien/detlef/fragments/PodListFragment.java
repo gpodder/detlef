@@ -105,14 +105,6 @@ public class PodListFragment extends ListFragment {
         EpisodeDAO edao = new EpisodeDAOImpl(this.getActivity()
                 .getApplicationContext());
 
-        Podcast all = new Podcast();
-        all.setTitle("All Podcasts");
-        all.setDescription("description all");
-        all.setLastUpdate(System.currentTimeMillis());
-        all.setLogoUrl("logoUrl");
-        all.setUrl("url");
-        all.setId(dao.insertPodcast(all));
-
         Podcast p1 = new Podcast();
         p1.setTitle("My Podcast 1");
         p1.setDescription("description 1");
@@ -152,12 +144,11 @@ public class PodListFragment extends ListFragment {
         e1.setGuid("guid");
         e1.setLink("link");
         e1.setMimetype("mimetype");
-        e1.setPodcast(all);
+        e1.setPodcast(p4);
         e1.setReleased(System.currentTimeMillis());
         e1.setTitle("title");
         e1.setUrl("url");
         e1.setId(edao.insertEpisode(e1));
-        edao.insertEpisode(e1);
 
         Episode e2 = new Episode();
         e2.setAuthor("author");
@@ -166,13 +157,11 @@ public class PodListFragment extends ListFragment {
         e2.setGuid("guid");
         e2.setLink("link");
         e2.setMimetype("mimetype");
-        e2.setPodcast(p1);
+        e2.setPodcast(p4);
         e2.setReleased(System.currentTimeMillis());
         e2.setTitle("title");
         e2.setUrl("url");
         e2.setId(edao.insertEpisode(e2));
-
-        dao.deletePodcast((dao.getAllPodcasts()).get(0));
     }
 
     @Override
@@ -191,14 +180,13 @@ public class PodListFragment extends ListFragment {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
-                .getMenuInfo();
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
-        case R.id.delete_feed:
-            onDeleteFeedClicked(info.position);
-            return true;
-        default:
-            return super.onContextItemSelected(item);
+            case R.id.delete_feed:
+                onDeleteFeedClicked(info.position);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
     }
 

@@ -14,9 +14,9 @@ import at.ac.tuwien.detlef.domain.Podcast;
 
 public class EpisodeDAOImpl implements EpisodeDAO {
 
-    private DatabaseHelper dbHelper;
+    private final DatabaseHelper dbHelper;
 
-    private Context context;
+    private final Context context;
 
     public EpisodeDAOImpl(Context context) {
         dbHelper = new DatabaseHelper(context);
@@ -26,6 +26,7 @@ public class EpisodeDAOImpl implements EpisodeDAO {
     public long insertEpisode(Episode episode) {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
+
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_EPISODE_AUTHOR, episode.getAuthor());
             values.put(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION, episode.getDescription());
