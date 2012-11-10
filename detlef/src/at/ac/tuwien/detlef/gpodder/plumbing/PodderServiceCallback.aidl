@@ -27,7 +27,7 @@ oneway interface PodderServiceCallback
 	 * error that occurred.
 	 * @param errStr Error message describing the error that occurred.
 	 */
-	void httpDownloadFailed(int reqId, int errCode, String errStr);
+	void httpDownloadFailed(int reqId, int errCode, in String errStr);
 
 	/**
 	 * HTTP download progress update. (Also used for HTTP downloads-to-files.)
@@ -56,5 +56,5 @@ oneway interface PodderServiceCallback
 	 * error that occurred.
 	 * @param errStr Error message describing the error that occurred.
 	 */
-	void authCheckFailed(int reqId, int errCode, String errStr);
+	void authCheckFailed(int reqId, int errCode, in String errStr);
 }
