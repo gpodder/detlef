@@ -25,6 +25,7 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl.OnPodcastChangeListener;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.State;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.PodListModel;
 
@@ -145,6 +146,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         e1.setReleased(System.currentTimeMillis());
         e1.setTitle("title");
         e1.setUrl("url");
+        e1.setState(State.NEW);
         e1.setId(edao.insertEpisode(e1));
 
         Episode e2 = new Episode();
@@ -158,6 +160,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         e2.setReleased(System.currentTimeMillis());
         e2.setTitle("title");
         e2.setUrl("url");
+        e2.setState(State.NEW);
         e2.setId(edao.insertEpisode(e2));
     }
 
