@@ -80,22 +80,25 @@ public class PodcastDAOImpl implements PodcastDAO {
 
         if (c.moveToFirst()) {
             do {
-
-
-                Podcast p = new Podcast();
-                p.setId(c.getLong(0));
-                p.setUrl(c.getString(1));
-                p.setTitle(c.getString(2));
-                p.setDescription(c.getString(3));
-                p.setLogoUrl(c.getString(4));
-                p.setLastUpdate(c.getLong(5));
-                p.setLogoFilePath(c.getString(6));
+                Podcast p = getPodcast(c);
                 allPodcasts.add(p);
             } while (c.moveToNext());
         }
         c.close();
         db.close();
         return allPodcasts;
+    }
+
+    private Podcast getPodcast(Cursor c) {
+        Podcast p = new Podcast();
+        p.setId(c.getLong(0));
+        p.setUrl(c.getString(1));
+        p.setTitle(c.getString(2));
+        p.setDescription(c.getString(3));
+        p.setLogoUrl(c.getString(4));
+        p.setLastUpdate(c.getLong(5));
+        p.setLogoFilePath(c.getString(6));
+        return p;
     }
 
     /**
@@ -124,7 +127,6 @@ public class PodcastDAOImpl implements PodcastDAO {
      *      .domain.Podcast)
      */
     public Podcast getPodcastById(long podcastId) {
-        Podcast podcast = new Podcast();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection = {
                 DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
@@ -144,20 +146,15 @@ public class PodcastDAOImpl implements PodcastDAO {
                 selectionArgs,
                 null, null, null);
 
+        Podcast p = null;
         if (c.moveToFirst()) {
             do {
-                podcast.setId(c.getLong(0));
-                podcast.setUrl(c.getString(1));
-                podcast.setTitle(c.getString(2));
-                podcast.setDescription(c.getString(3));
-                podcast.setLogoUrl(c.getString(4));
-                podcast.setLastUpdate(c.getLong(5));
-                podcast.setLogoFilePath(c.getString(6));
+                p = getPodcast(c);
             } while (c.moveToNext());
         }
         c.close();
         db.close();
-        return podcast;
+        return p;
     }
 
     /**
