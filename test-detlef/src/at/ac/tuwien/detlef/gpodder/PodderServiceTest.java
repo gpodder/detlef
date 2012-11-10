@@ -15,6 +15,7 @@ import android.test.mock.MockApplication;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
@@ -233,8 +234,13 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             Log.d("PodderServiceTest@" + this.hashCode(), "testGpodderAuth()");
 
             PodderServiceInterface psi = performBind();
+            GpoNetClientInfo ci = new GpoNetClientInfo();
 
-            psi.authCheck(handler, -1, "UnitTest", "FahrenheitSucksCelsiusRules", "example.org");
+            ci.setUsername("UnitTest");
+            ci.setPassword("FahrenheitSucksCelsiusRules");
+            ci.setHostname("example.org");
+
+            psi.authCheck(handler, -1, ci);
 
             stoplight.acquireUninterruptibly();
 

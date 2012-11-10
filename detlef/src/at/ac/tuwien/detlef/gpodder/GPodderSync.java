@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
+import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
@@ -22,6 +23,9 @@ import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
 public class GPodderSync {
     /** Logging tag. */
     private static final String TAG = "GPodderSync";
+
+    /** Hostname of the default gpodder.net-compatible service. */
+    protected static final String DEFAULT_HOSTNAME = "gpodder.net";
 
     /** Activity on whose UI thread to perform callbacks. */
     private Activity activity;
@@ -44,6 +48,9 @@ public class GPodderSync {
     /** Pauses while the service is being bound. */
     private Semaphore stoplight;
 
+    /** Information about this client of the gpodder.net-compatible service. */
+    private GpoNetClientInfo clientInfo;
+
     /**
      * Constructs a GPodderSync instance.
      * @param act The activity that has placed this request. Required to make sure the callback is
@@ -58,6 +65,8 @@ public class GPodderSync {
         nextReqCode = 0;
         reqs = new SparseArray<ResultHandler>();
         stoplight = new Semaphore(1);
+        clientInfo = new GpoNetClientInfo();
+        clientInfo.setHostname(DEFAULT_HOSTNAME);
     }
 
     /**
@@ -68,6 +77,38 @@ public class GPodderSync {
         synchronized (this) {
             return nextReqCode++;
         }
+    }
+
+    /**
+     * Sets the username used for access to gpodder.net-compatible services.
+     * @param newUsername The new username.
+     */
+    public void setUsername(String newUsername) {
+        clientInfo.setUsername(newUsername);
+    }
+
+    /**
+     * Sets the password used for access to gpodder.net-compatible services.
+     * @param newPassword The new password.
+     */
+    public void setPassword(String newPassword) {
+        clientInfo.setPassword(newPassword);
+    }
+
+    /**
+     * Sets the hostname of the gpodder.net-compatible service to use.
+     * @param newHostname The hostname of the gpodder.net-compatible service to use.
+     */
+    public void setHostname(String newHostname) {
+        clientInfo.setHostname(newHostname);
+    }
+
+    /**
+     * Sets the device name used for access to gpodder.net-compatible services.
+     * @param newDeviceName The new device name.
+     */
+    public void setDeviceName(String newDeviceName) {
+        clientInfo.setDeviceId(newDeviceName);
     }
 
     /**
@@ -133,23 +174,28 @@ public class GPodderSync {
      * Requests that the service perform an authentication check job.
      *
      * The service will attempt to log into the given gpodder.net-compatible web service using the
-     * given username and password and calls back whether this was successful or not.
+     * specified username and password and calls back whether this was successful or not. Since this
+     * is not a day-to-day operation, the stored credentials are neither used nor modified by this
+     * method; the hostname, however, is.
      *
-     * @param username User name to use for authentication check.
-     * @param password Password to use for authentication check.
-     * @param hostname Hostname of gpodder.net-compatible web service at which to attempt
-     * authentication.
+     * @param authUsername User name to use for authentication check.
+     * @param authPassword Password to use for authentication check.
      * @param handler A handler for callbacks.
      */
-    public void addAuthCheckJob(String username, String password, String hostname,
+    public void addAuthCheckJob(String authUsername, String authPassword,
             NoDataResultHandler handler) {
         Log.d(TAG, "addAuthCheckJob");
+
+        GpoNetClientInfo tempClientInfo = new GpoNetClientInfo();
+        tempClientInfo.setHostname(clientInfo.getHostname());
+        tempClientInfo.setUsername(authUsername);
+        tempClientInfo.setPassword(authPassword);
 
         assureBind();
 
         int reqCode = nextReqCode();
         try {
-            iface.authCheck(responseHandler, reqCode, username, password, hostname);
+            iface.authCheck(responseHandler, reqCode, tempClientInfo);
         } catch (RemoteException rex) {
             handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
             iface = null;

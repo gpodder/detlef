@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
+import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
@@ -209,15 +210,17 @@ public class PodderService extends Service {
     protected static class IpcHandler extends PodderServiceInterface.Stub {
         private static final String TAG = "PodderService.IpcHandler";
 
-        public void authCheck(PodderServiceCallback cb, int reqId, String username,
-                String password, String host) throws RemoteException {
+        public void authCheck(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
+                throws RemoteException {
             Log.d(TAG, "authCheck()");
 
+
             // try authenticating
-            SimpleClient sc = new SimpleClient(username, password, host);
+            SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
+                    cinfo.getHostname());
             boolean ok;
             try {
-                ok = sc.authenticate(username, password);
+                ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
             } catch (IOException ioe) {
                 cb.authCheckFailed(reqId, ErrorCode.IO_PROBLEM, "I/O problem: " + ioe.getMessage());
                 return;
