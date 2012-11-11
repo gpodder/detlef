@@ -35,6 +35,14 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 			public boolean isDefaultDevicename() {
 				return getDevicename().equals(getDefaultDevicename());
 			}
+
+            public long getLastUpdate() {
+                return getSharedPreferences().getLong("lastUpdate", 0);
+            }
+
+            public void setLastUpdate(long timestamp) {
+                getSharedPreferences().edit().putLong("lastUpdate", timestamp).commit();
+            }
 		};
 	}
 
@@ -43,16 +51,16 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 			"The Android Settings DAO does not support write operations"
 		);
 	}
-	
+
 	/**
 	 * This implementation requires an object of type
-	 * {@link SharedPreferences} with the key sharedPreferences. 
+	 * {@link SharedPreferences} with the key sharedPreferences.
 	 */
 	public GpodderSettingsDAO setDependecies(HashMap<String, Object> pDependecies) {
 		dependecies = pDependecies;
 		return this;
 	}
-	
+
 	private SharedPreferences getSharedPreferences() {
 		return (SharedPreferences) dependecies.get("sharedPreferences");
 	}

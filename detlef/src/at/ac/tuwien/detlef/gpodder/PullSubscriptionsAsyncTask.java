@@ -55,7 +55,7 @@ public class PullSubscriptionsAsyncTask extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         /* Retrieve settings. */
-        GpodderSettings gps = DependencyAssistant.DEPENDENCY_ASSISTANT.getGpodderSettings();
+        GpodderSettings gps = DependencyAssistant.getDependencyAssistant().getGpodderSettings(this);
 
         MygPodderClient gpc = new MygPodderClient(gps.getUsername(), gps.getPassword());
 
