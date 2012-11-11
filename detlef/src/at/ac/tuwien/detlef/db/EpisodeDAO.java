@@ -7,62 +7,62 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
- * DAO for episode access
+ * DAO for episode access.
  */
 public interface EpisodeDAO {
 
     /**
-     * inserts an episode into the database
+     * inserts an episode into the database.
      *
      * @param episode: the episode which should be saved into the database
-     * @return returns the number of inserted rows (if no one is inserted <1
+     * @return returns the number of inserted rows (if no one is inserted &lt1
      *         will be returned)
      */
-    public abstract long insertEpisode(Episode episode);
+    long insertEpisode(Episode episode);
 
     /**
-     * deletes an episode from the database
+     * deletes an episode from the database.
      *
      * @param episode: the episode which should be deleted (the id will be used
      *            for this)
-     * @return returns the number of deleted episodes (if no one is deleted <1
+     * @return returns the number of deleted episodes (if no one is deleted &lt1
      *         will be returned)
      */
-    public abstract int deleteEpisode(Episode episode);
+    int deleteEpisode(Episode episode);
 
     /**
-     * delivers all episodes which are stored in the database
+     * delivers all episodes which are stored in the database.
      *
      * @return returns a list of all episodes
      */
-    public abstract List<Episode> getAllEpisodes();
+    List<Episode> getAllEpisodes();
 
     /**
-     * delivers all episodes from a given podcast
+     * delivers all episodes from a given podcast.
      *
      * @param podcast: the podcast which contains the episodes
      * @return returns a list of episodes which belongs to the given podcast
      */
-    public abstract List<Episode> getEpisodes(Podcast podcast);
+    List<Episode> getEpisodes(Podcast podcast);
 
     /**
      * updates the filePath column of the given episode (uses the filePath
-     * attribute of the episode)
+     * attribute of the episode).
      *
      * @param episode the episode which should be updated
-     * @return the number of updated rows (if no one is updated <1 will be
+     * @return the number of updated rows (if no one is updated &lt1 will be
      *         returned)
      */
-    public abstract int updateFilePath(Episode episode);
+    int updateFilePath(Episode episode);
 
     /**
      * updates the state column of the given episode (uses the state attribute
-     * of the episode)
+     * of the episode).
      *
      * @param episode the episode which should be updated
-     * @return the number of updated rows (if no one is updated <1 will be
+     * @return the number of updated rows (if no one is updated &lt1 will be
      *         returned)
      */
-    public abstract int updateState(Episode episode);
+    int updateState(Episode episode);
 
 }
