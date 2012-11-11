@@ -35,7 +35,11 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class SettingsGpodderNet extends PreferenceFragment {
 
-	private static final String STATEVAR_PROGRESSBAR = "ProgressbarShowing";
+	/**
+	 * The key for the status variable that holds the property of
+	 * the ProgressDialog's state.
+	 */
+	private static final String STATEVAR_PROGRESSDIALOG = "ProgressDialogShowing";
 	
 	/**
 	 * Holds a static reference to all {@link Toast} messages emitted by this
@@ -43,15 +47,13 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	 */
 	private static Toast toast;
 	
-	private ConnectionTester connectionTester;
-	
 	/**
 	 * The Thread that executes the user credential check. It is static so
 	 * it can be accessed even if the Fragment gets recreated in the mean time.
 	 */
 	private static Thread connectionTestThread;
 	
-	private static ProgressDialog check;
+	private static ProgressDialog checkUserCredentialsProgress;
 	
 	/**
 	 * This holds a static reference to the activity that currently is 
@@ -63,93 +65,27 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	 */
 	private static Activity activity;
 	
-	private static final String logTag = "settings";
+	/**
+	 * A tag for the LogCat so everything this class produces can be filtered
+	 */
+	private static final String LOG_TAG = "settings";
 	
-	public class TestConnectionButtonPreferenceListener implements
-			OnPreferenceClickListener {
-
-		
-
-		public boolean onPreferenceClick(Preference arg0) {
-
-			showProgressBar();
-			toast.cancel();
-			
-			connectionTestThread = new Thread(new Runnable() {
-				
-				public void run() {
-					
-					try {
-						if (getConnectionTester().testConnection(getSettings())) {
-							showToast(activity.getText(R.string.connectiontest_successful));
-						} else {
-							showToast(activity.getText(R.string.connectiontest_unsuccessful));
-						}
-					} catch (GpodderConnectionException e) {
-						showToast(activity.getText(R.string.connectiontest_error));
-					} catch (InterruptedException e) {
-						return;
-					}
-					
-					if (check != null && check.isShowing()) {
-		        		check.dismiss();
-		        	}
-					
-					
-					
-				}
-			});
-			
-			connectionTestThread.start();
-			
-			return true;
-		}
-
-	}
-
 	/**
 	 * @return The {@link ConnectionTester} that can be used to determine
-	 *     the state of the
-	 * TODO this is only a mock ... needs to be implemented correctly. This
-	 *     returns randomly either one of the possible states.
+	 *     if the user name and password are correct.
 	 */
 	public ConnectionTester getConnectionTester() {
-		if (connectionTester != null) {
-			return connectionTester;
-		}
-
-		return new ConnectionTester() {
-			public boolean testConnection(GpodderSettings pSettings)
-					throws GpodderConnectionException, InterruptedException {
-
-				Thread.sleep(10000);
-
-				switch ((int) Math.floor(Math.random() * 3)) {
-				case 0:
-					return true;
-				case 1:
-					return false;
-				default:
-					throw new GpodderConnectionException();					
-				}
-
-				
-			}
-		};
+		return DependencyAssistant.DEPENDENCY_ASSISTANT.getConnectionTester();
 	}
 
-	public SettingsGpodderNet setConnectionTester(ConnectionTester pConnectionTester) {
-		connectionTester = pConnectionTester;
-		return this;
-	}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         
-        Log.d(logTag, "onCreate(" + savedInstanceState + ")");
-        Log.d(logTag, "Associated Activity is: " + getActivity());
+        Log.d(LOG_TAG, "onCreate(" + savedInstanceState + ")");
+        Log.d(LOG_TAG, "Associated Activity is: " + getActivity());
         
         activity = getActivity();
         
@@ -158,13 +94,13 @@ public class SettingsGpodderNet extends PreferenceFragment {
         
         toast = Toast.makeText(getActivity(), "", 0);
         
-        Log.d(logTag, "Toast: " + toast);
+        Log.d(LOG_TAG, "Toast: " + toast);
         
         addPreferencesFromResource(R.xml.preferences_gpoddernet);
 
         setUpTestConnectionButton();
-        setUpUsernameButton();
-        setUpPasswordButton();
+        setUpUsernameField();
+        setUpPasswordField();
         setUpDeviceNameButton();
 
         loadSummaries();
@@ -176,8 +112,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
 			return;
 		}
 		
-		if (savedInstanceState.getBoolean(STATEVAR_PROGRESSBAR)) {
-			showProgressBar();
+		if (savedInstanceState.getBoolean(STATEVAR_PROGRESSDIALOG)) {
+			showProgressDialog();
 		}
 		
 	}
@@ -193,19 +129,26 @@ public class SettingsGpodderNet extends PreferenceFragment {
         );
 	}
 
-	private void setUpPasswordButton() {
+	private void setUpPasswordField() {
         findPreference("password").setOnPreferenceChangeListener(
         	new OnPreferenceChangeListener() {
         		public boolean onPreferenceChange(Preference preference, Object newValue) {
         			preference.setSummary(maskPassword((String) newValue));
-        			updateTestConnectionButtonEnabledState(getSettings().getUsername(), (String) newValue);
+        			updateTestConnectionButtonEnabledState(
+        				getSettings().getUsername(),
+        				(String) newValue
+        			);
         			return true;
         		}
         	}
         );
 	}
-
-	private void setUpUsernameButton() {
+	/**
+	 * Sets the behavior for the user name field.
+	 * The user name field should show the current user name as summary and should update
+	 * the device name input field and the state of the "Test Connection" button. 
+	 */
+	private void setUpUsernameField() {
         findPreference("username").setOnPreferenceChangeListener(
         	new OnPreferenceChangeListener() {
 				public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -215,7 +158,10 @@ public class SettingsGpodderNet extends PreferenceFragment {
 						updateDeviceName((String) newValue);
 					}
 					
-					updateTestConnectionButtonEnabledState((String) newValue, getSettings().getPassword());
+					updateTestConnectionButtonEnabledState(
+						(String) newValue,
+						getSettings().getPassword()
+					);
 	
 					return true;
 				}
@@ -238,6 +184,10 @@ public class SettingsGpodderNet extends PreferenceFragment {
         );
 	}
 
+	/**
+	 * Loads the summary texts. This will be the texts entered at the corresponding
+	 * field. 
+	 */
 	private void loadSummaries() {
 		Preference username = (Preference) findPreference("username");
 		username.setSummary(getSettings().getUsername());
@@ -257,13 +207,60 @@ public class SettingsGpodderNet extends PreferenceFragment {
         updateTestConnectionButtonEnabledState(getSettings());
 	}
 	
+	/**
+	 * Defines behavior of the "Test Connection" button.
+	 * 
+	 * Basically it opens a {@link ProgressDialog}, calls a connection test method
+	 * in a separate thread and prints a {@link Toast} message with the result of the
+	 * operation.
+	 *   
+	 * @author moe
+	 */
+	public class TestConnectionButtonPreferenceListener implements OnPreferenceClickListener {
+
+		public boolean onPreferenceClick(Preference arg0) {
+
+			showProgressDialog();
+			toast.cancel();
+			
+			connectionTestThread = new Thread(new Runnable() {
+				
+				public void run() {
+					
+					try {
+						if (getConnectionTester().testConnection(getSettings())) {
+							showToast(activity.getText(R.string.connectiontest_successful));
+						} else {
+							showToast(activity.getText(R.string.connectiontest_unsuccessful));
+						}
+					} catch (GpodderConnectionException e) {
+						showToast(activity.getText(R.string.connectiontest_error));
+					} catch (InterruptedException e) {
+						return;
+					}
+					
+					if ((checkUserCredentialsProgress != null)
+						&& (checkUserCredentialsProgress.isShowing())
+					) {
+						checkUserCredentialsProgress.dismiss();
+		        	}
+				}
+			});
+			
+			connectionTestThread.start();
+			
+			return true;
+		}
+
+	}
+	
 	private void updateTestConnectionButtonEnabledState(GpodderSettings settings) {
 		updateTestConnectionButtonEnabledState(settings.getUsername(), settings.getPassword());
 	}
 
 	/**
 	 * This updates the enabled state of the "Test Connection" button
-	 * depending on if the username and password are both non-empty.
+	 * depending on if the user name and password are both non-empty.
 	 * @param username
 	 * @param password
 	 */
@@ -271,7 +268,13 @@ public class SettingsGpodderNet extends PreferenceFragment {
 		Preference button = (Preference) findPreference("button");
 		button.setEnabled((!username.isEmpty()) && (!password.isEmpty()));
 	}
-
+	
+	/**
+	 * Masks a password with a masking character defined in the strings resource.
+	 * @param password The password. Does not necessary be the real password, but can be
+	 *     any String as only the length is of relevance.
+	 * @return The masked String, e.g. "12345" will return "*****" if the mask character is "*".
+	 */
 	private String maskPassword(String password) {
 		return new String(new char[password.length()]).replace(
 				"\0",
@@ -296,8 +299,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	 */
 	private void showToast(final CharSequence message) {
 		
-		Log.d(logTag, String.format("%s.showToast(%s)", toast, message));
-		Log.d(logTag, String.format("Activity(%s)", activity));
+		Log.d(LOG_TAG, String.format("%s.showToast(%s)", toast, message));
+		Log.d(LOG_TAG, String.format("Activity(%s)", activity));
 		try {
 			activity.runOnUiThread(new Runnable() {
 				public void run() {
@@ -314,21 +317,28 @@ public class SettingsGpodderNet extends PreferenceFragment {
 			// receives the result under any circumstances. so better
 			// catch and log any exception instead of breaking the complete
 			// application at some other point.
-			Log.e(logTag, e.getMessage(), e);
+			Log.e(LOG_TAG, e.getMessage(), e);
 		}
 
 	}
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
-	  super.onSaveInstanceState(savedInstanceState);
+		super.onSaveInstanceState(savedInstanceState);
 	  
-	  Log.d(logTag, "onSaveInstanceState()");
-	  savedInstanceState.putBoolean(STATEVAR_PROGRESSBAR, check != null && check.isShowing());
+		Log.d(LOG_TAG, "onSaveInstanceState()");
+		savedInstanceState.putBoolean(
+			STATEVAR_PROGRESSDIALOG,
+			(checkUserCredentialsProgress != null) && (checkUserCredentialsProgress.isShowing())
+		);
 	}
 	
-	private void showProgressBar() {
-		check = ProgressDialog.show(
+	/**
+	 * Opens up the {@link ProgressDialog} that is shown while the user name and password 
+	 * is checked against gpodder.net.
+	 */
+	private void showProgressDialog() {
+		checkUserCredentialsProgress = ProgressDialog.show(
 			getActivity(),
 			getString(R.string.settings_fragment_gpodder_net_testconnection_progress_title),
 			getString(R.string.settings_fragment_gpodder_net_testconnection_progress_message),
@@ -336,16 +346,19 @@ public class SettingsGpodderNet extends PreferenceFragment {
 			true,
 			new OnCancelListener() {
 				public void onCancel(DialogInterface dialog) {
-					Log.d(logTag, String.format("%s.onCancel(%s)", check, dialog));
+					Log.d(
+						LOG_TAG,
+						String.format("%s.onCancel(%s)", checkUserCredentialsProgress, dialog)
+					);
 					if (connectionTestThread != null && connectionTestThread.isAlive()) {
-						Log.d(logTag, "interrupting thread.");
+						Log.d(LOG_TAG, "interrupting thread.");
 						connectionTestThread.interrupt();
 					}
 				}
 			}
 		);
 
-		Log.d(logTag, "Open Progressbar: " + check);
+		Log.d(LOG_TAG, "Open Progressbar: " + checkUserCredentialsProgress);
 	}
 
 }

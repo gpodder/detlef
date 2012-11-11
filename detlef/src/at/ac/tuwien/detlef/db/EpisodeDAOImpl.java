@@ -44,7 +44,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         return instance;
     }
 
-    private EpisodeDAOImpl(Context context) {
+    public EpisodeDAOImpl(Context context) {
         dbHelper = new DatabaseHelper(context);
         podcastDAO = PodcastDAOImpl.i(context);
 

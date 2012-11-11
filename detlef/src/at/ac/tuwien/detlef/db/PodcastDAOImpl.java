@@ -38,7 +38,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
         return instance;
     }
 
-    private PodcastDAOImpl(Context context) {
+    public PodcastDAOImpl(Context context) {
         dbHelper = new DatabaseHelper(context);
 
         /* Take care of any pending database upgrades. */
