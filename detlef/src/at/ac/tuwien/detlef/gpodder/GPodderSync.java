@@ -1,21 +1,17 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
-import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
-import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
+import at.ac.tuwien.detlef.gpodder.responders.SyncResponder;
 
 /**
  * This class facilitates background HTTP and gpodder.net transactions.
@@ -28,9 +24,6 @@ public class GPodderSync {
     /** Hostname of the default gpodder.net-compatible service. */
     protected static final String DEFAULT_HOSTNAME = "gpodder.net";
 
-    /** Activity on whose UI thread to perform callbacks. */
-    private Activity activity;
-
     /** Manages the connection to the service. */
     private ConMan conMan;
 
@@ -38,7 +31,7 @@ public class GPodderSync {
     private volatile PodderServiceInterface iface;
 
     /** Handles responses from the service. */
-    private IpcHandler responseHandler;
+    private SyncResponder syncResponder;
 
     /** Stores the next unused request code. */
     private int nextReqCode;
@@ -54,15 +47,14 @@ public class GPodderSync {
 
     /**
      * Constructs a GPodderSync instance.
-     * @param act The activity that has placed this request. Required to make sure the callback is
-     * called on this activity's UI thread.
+     * @param sr The handler which will take care of any threading/synchronization concerns.
      */
-    public GPodderSync(Activity act) {
+    public GPodderSync(SyncResponder sr) {
         Log.d(TAG, "GPodderSync");
-        activity = act;
         conMan = new ConMan(this);
         iface = null;
-        responseHandler = new IpcHandler(this);
+        syncResponder = sr;
+        syncResponder.setGpoSync(this);
         nextReqCode = 0;
         reqs = new SparseArray<ResultHandler>();
         stoplight = new Semaphore(1);
@@ -113,6 +105,14 @@ public class GPodderSync {
     }
 
     /**
+     * Return the currently stored requests. Reserved for usage by {@link SyncResponder}s.
+     * @return The currently stored requests.
+     */
+    public SparseArray<ResultHandler> getReqs() {
+        return reqs;
+    }
+
+    /**
      * Requests that the service perform an HTTP download job.
      *
      * The service will perform an HTTP GET request on the given URL.
@@ -132,7 +132,7 @@ public class GPodderSync {
 
         int reqCode = nextReqCode();
         try {
-            iface.httpDownload(responseHandler, reqCode, url);
+            iface.httpDownload(syncResponder, reqCode, url);
         } catch (RemoteException rex) {
             handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
             iface = null;
@@ -162,7 +162,7 @@ public class GPodderSync {
 
         int reqCode = nextReqCode();
         try {
-            iface.httpDownloadToFile(responseHandler, reqCode, url, localfn);
+            iface.httpDownloadToFile(syncResponder, reqCode, url, localfn);
         } catch (RemoteException rex) {
             handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
             iface = null;
@@ -196,7 +196,7 @@ public class GPodderSync {
 
         int reqCode = nextReqCode();
         try {
-            iface.authCheck(responseHandler, reqCode, tempClientInfo);
+            iface.authCheck(syncResponder, reqCode, tempClientInfo);
         } catch (RemoteException rex) {
             handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
             iface = null;
@@ -220,7 +220,7 @@ public class GPodderSync {
 
         int reqCode = nextReqCode();
         try {
-            iface.downloadPodcastList(responseHandler, reqCode, clientInfo);
+            iface.downloadPodcastList(syncResponder, reqCode, clientInfo);
         } catch (RemoteException rex) {
             handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
             iface = null;
@@ -240,10 +240,7 @@ public class GPodderSync {
 
         if (iface == null) {
             // we must bind
-            Intent intent = new Intent();
-            intent.setClass(activity, PodderService.class);
-            activity.startService(intent);
-            activity.bindService(intent, conMan, 0);
+            syncResponder.startAndBindService(conMan);
 
             // wait for another ticket
             stoplight.acquireUninterruptibly();
@@ -278,110 +275,6 @@ public class GPodderSync {
         public void onServiceDisconnected(ComponentName name) {
             // hmm, this is not good
             gps.get().iface = null;
-        }
-    }
-
-    /** Handles incoming messages, mostly responses from the service. */
-    protected static class IpcHandler extends PodderServiceCallback.Stub {
-        /** The GPodderSync to whom this IPC handler belongs. */
-        private WeakReference<GPodderSync> gps;
-
-        public IpcHandler(GPodderSync gposync) {
-            gps = new WeakReference<GPodderSync>(gposync);
-        }
-
-        public void authCheckFailed(int reqId, final int errCode, final String errStr)
-                throws RemoteException {
-            final ResultHandler rh = gps.get().reqs.get(reqId);
-
-            gps.get().activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    rh.handleFailure(errCode, errStr);
-                }
-            });
-        }
-
-        public void authCheckSucceeded(int reqId) throws RemoteException {
-            final NoDataResultHandler ndrh = (NoDataResultHandler) gps.get().reqs.get(reqId);
-
-            gps.get().activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    ndrh.handleSuccess();
-                }
-            });
-        }
-
-        public void heartbeatSucceeded(int reqId) throws RemoteException {
-            // FIXME: currently no external callback
-        }
-
-        public void httpDownloadFailed(int reqId, final int errCode, final String errStr)
-                throws RemoteException {
-            final HttpDownloadResultHandler hdrh =
-                    (HttpDownloadResultHandler) gps.get().reqs.get(reqId);
-
-            gps.get().activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    hdrh.handleFailure(errCode, errStr);
-                }
-            });
-        }
-
-        public void httpDownloadProgress(int reqId, final int haveBytes, final int totalBytes)
-                throws RemoteException {
-            final HttpDownloadResultHandler hdrh =
-                    (HttpDownloadResultHandler) gps.get().reqs.get(reqId);
-
-            gps.get().activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    hdrh.handleProgress(haveBytes, totalBytes);
-                }
-            });
-        }
-
-        public void httpDownloadSucceeded(int reqId, final ParcelableByteArray data)
-                throws RemoteException {
-            final HttpDownloadResultHandler hdrh =
-                    (HttpDownloadResultHandler) gps.get().reqs.get(reqId);
-
-            gps.get().activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    hdrh.handleSuccess(data.getArray());
-                }
-            });
-        }
-
-        public void httpDownloadToFileSucceeded(int reqId) throws RemoteException {
-            final NoDataResultHandler ndrh = (NoDataResultHandler) gps.get().reqs.get(reqId);
-
-            gps.get().activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    ndrh.handleSuccess();
-                }
-            });
-        }
-
-        public void downloadPodcastListFailed(int reqId, final int errCode, final String errStr)
-                throws RemoteException {
-            final ResultHandler rh = gps.get().reqs.get(reqId);
-
-            gps.get().activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    rh.handleFailure(errCode, errStr);
-                }
-            });
-        }
-
-        public void downloadPodcastListSucceeded(int reqId, final List<String> podcasts)
-                throws RemoteException {
-            final StringListResultHandler slrh =
-                    (StringListResultHandler) gps.get().reqs.get(reqId);
-
-            gps.get().activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    slrh.handleSuccess(podcasts);
-                }
-            });
         }
     }
 }
