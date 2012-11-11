@@ -1,6 +1,6 @@
 package at.ac.tuwien.detlef.adapters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,10 +13,10 @@ import at.ac.tuwien.detlef.domain.Episode;
 
 public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
-    private final ArrayList<Episode> episodes;
+    private final List<Episode> episodes;
 
     public EpisodeListAdapter(Context context, int textViewResourceId,
-            ArrayList<Episode> episodes) {
+            List<Episode> episodes) {
         super(context, textViewResourceId, episodes);
         this.episodes = episodes;
     }
