@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import android.content.Intent;
@@ -34,6 +35,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private static final int RESPONDED_HEARTBEAT = 1;
     private static final int RESPONDED_HTTP_DOWNLOAD = 2;
     private static final int RESPONDED_HTTP_DOWNLOAD_TO_FILE = 3;
+    private static final int RESPONDED_DOWNLOAD_PODCAST_LIST = 4;
 
     /** Handles responses from the service. */
     private static class IncomingHandler extends PodderServiceCallback.Stub {
@@ -86,6 +88,17 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst.get().stoplight.release();
         }
 
+        public void downloadPodcastListFailed(int reqId, int errCode,
+                String errStr) throws RemoteException {
+            fail("podcast list download failed: " + errStr);
+            wrpst.get().stoplight.release();
+        }
+
+        public void downloadPodcastListSucceeded(int reqId, List<String> podcasts)
+                throws RemoteException {
+            wrpst.get().msgWhat = RESPONDED_DOWNLOAD_PODCAST_LIST;
+            wrpst.get().stoplight.release();
+        }
     }
 
     /** Semaphore to pause test execution while waiting for an answer. */

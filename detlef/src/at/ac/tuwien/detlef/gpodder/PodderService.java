@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import android.app.Service;
 import android.content.Intent;
@@ -179,6 +180,9 @@ public class PodderService extends Service {
 
         /** Error code raised if sending the result failed. */
         public static final int SENDING_RESULT_FAILED = 4;
+
+        /** Error code raised if the error is unknown. */
+        public static final int UNKNOWN_ERROR = 8;
     }
 
     /**
@@ -230,6 +234,27 @@ public class PodderService extends Service {
                 cb.authCheckSucceeded(reqId);
             } else {
                 cb.authCheckFailed(reqId, ErrorCode.AUTHENTICATION_FAILED, "authentication failed");
+            }
+        }
+
+        public void downloadPodcastList(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
+                throws RemoteException {
+            Log.d(TAG, "downloadPodcastList()");
+
+            SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
+                    cinfo.getHostname());
+            List<String> casts;
+            try {
+                casts = sc.getSubscriptions(cinfo.getDeviceId());
+            } catch (IOException ioe) {
+                cb.authCheckFailed(reqId, ErrorCode.IO_PROBLEM, "I/O problem: " + ioe.getMessage());
+                return;
+            }
+
+            if (casts != null) {
+                cb.downloadPodcastListSucceeded(reqId, casts);
+            } else {
+                cb.authCheckFailed(reqId, ErrorCode.UNKNOWN_ERROR, "something went wrong");
             }
         }
 

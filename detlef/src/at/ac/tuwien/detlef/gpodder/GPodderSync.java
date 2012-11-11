@@ -1,6 +1,7 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import android.app.Activity;
@@ -205,6 +206,30 @@ public class GPodderSync {
     }
 
     /**
+     * Requests that the service perform a podcast list download job.
+     *
+     * The service will log in using the credentials previously set by calls to {@link
+     * #setUsername(String)} and {@link #setPassword(String)}.
+     *
+     * @param handler A handler for callbacks.
+     */
+    public void addDownloadPodcastListJob(StringListResultHandler handler) {
+        Log.d(TAG, "addDownloadPodcastListJob");
+
+        assureBind();
+
+        int reqCode = nextReqCode();
+        try {
+            iface.downloadPodcastList(responseHandler, reqCode, clientInfo);
+        } catch (RemoteException rex) {
+            handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
+            iface = null;
+            return;
+        }
+        reqs.append(reqCode, handler);
+    }
+
+    /**
      * Assures that the service is bound.
      */
     private void assureBind() {
@@ -332,6 +357,29 @@ public class GPodderSync {
             gps.get().activity.runOnUiThread(new Runnable() {
                 public void run() {
                     ndrh.handleSuccess();
+                }
+            });
+        }
+
+        public void downloadPodcastListFailed(int reqId, final int errCode, final String errStr)
+                throws RemoteException {
+            final ResultHandler rh = gps.get().reqs.get(reqId);
+
+            gps.get().activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    rh.handleFailure(errCode, errStr);
+                }
+            });
+        }
+
+        public void downloadPodcastListSucceeded(int reqId, final List<String> podcasts)
+                throws RemoteException {
+            final StringListResultHandler slrh =
+                    (StringListResultHandler) gps.get().reqs.get(reqId);
+
+            gps.get().activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    slrh.handleSuccess(podcasts);
                 }
             });
         }

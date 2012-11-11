@@ -57,4 +57,20 @@ oneway interface PodderServiceCallback
 	 * @param errStr Error message describing the error that occurred.
 	 */
 	void authCheckFailed(int reqId, int errCode, in String errStr);
+
+	/**
+	 * The podcast list has been fetched successfully.
+	 * @param reqId The request ID you passed.
+	 * @param podcasts List of podcasts as fetched from server.
+	 */
+	void downloadPodcastListSucceeded(int reqId, in List<String> podcasts);
+
+	/**
+	 * The podcast list download failed.
+	 * @param reqId The request ID you passed.
+	 * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
+	 * error that occurred.
+	 * @param errStr Error message describing the error that occurred.
+	 */
+	void downloadPodcastListFailed(int reqId, int errCode, in String errStr);
 }
