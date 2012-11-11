@@ -9,6 +9,7 @@
 			android:title="@string/settings_fragment_gpodder.net_testconnection"
 			android:key="button"
 			android:summary="@string/settings_fragment_gpodder.net_testconnection_summary"
+			android:id="@+id/button_testconnection"
 		/>
 
 </PreferenceScreen>

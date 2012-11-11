@@ -66,7 +66,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	private static Activity activity;
 	
 	/**
-	 * A tag for the LogCat so everything this class produces can be filtered
+	 * A tag for the LogCat so everything this class produces can be filtered.
 	 */
 	private static final String LOG_TAG = "settings";
 	
@@ -75,7 +75,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	 *     if the user name and password are correct.
 	 */
 	public ConnectionTester getConnectionTester() {
-		return DependencyAssistant.DEPENDENCY_ASSISTANT.getConnectionTester();
+		return DependencyAssistant.getDependencyAssistant().getConnectionTester();
 	}
 
 
@@ -198,7 +198,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	}
 
 	private GpodderSettings getSettings() {
-		return DependencyAssistant.DEPENDENCY_ASSISTANT.getGpodderSettings(getActivity());
+		return DependencyAssistant.getDependencyAssistant().getGpodderSettings(getActivity());
 	}
 
 	private void setUpTestConnectionButton() {
@@ -229,7 +229,12 @@ public class SettingsGpodderNet extends PreferenceFragment {
 					
 					try {
 						if (getConnectionTester().testConnection(getSettings())) {
-							showToast(activity.getText(R.string.connectiontest_successful));
+							showToast(
+								String.format(
+									activity.getText(R.string.connectiontest_successful).toString(),
+									getSettings().getUsername()
+								)
+							);
 						} else {
 							showToast(activity.getText(R.string.connectiontest_unsuccessful));
 						}

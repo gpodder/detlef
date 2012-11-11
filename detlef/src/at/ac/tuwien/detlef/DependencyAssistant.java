@@ -15,8 +15,17 @@ import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
 
 public class DependencyAssistant {
 
-    public static DependencyAssistant DEPENDENCY_ASSISTANT = new DependencyAssistant();
-
+	/**
+	 * Making this a final static variable does not make sense w.r.t. testability.
+	 * It should be possible to inject modified versions of the dependency assistant.
+	 * Therefore, use the static getter {@link #getDependencyAssistant()} instead.
+	 * If you need to inject mock objects during testing, use {@link #setDependencyAssistant()}.
+	 * @deprecated
+	 */
+    public final static DependencyAssistant DEPENDENCY_ASSISTANT = new DependencyAssistant();
+    
+    private static DependencyAssistant dependencyAssistant = new DependencyAssistant();
+    
     /**
      * @return Gets the quasi-singleton GPodderSync instance for this program.
      */
@@ -84,6 +93,21 @@ public class DependencyAssistant {
 				
 			}
 		};
+	}
+
+	public static DependencyAssistant getDependencyAssistant() {
+		return dependencyAssistant;
+	}
+
+	/**
+	 * Overwrites the default {@link DependencyAssistant} with a custom one. By using
+	 * this method you can easily replace parts of the Application with Mocks which is
+	 * useful for testing. 
+	 * 
+	 * @param pDependencyAssistant
+	 */
+	public static void setDependencyAssistant(DependencyAssistant pDependencyAssistant) {
+		dependencyAssistant = pDependencyAssistant;
 	}
 
 }
