@@ -2,7 +2,9 @@
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -21,6 +23,16 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
     private final DatabaseHelper dbHelper;
     private final PodcastDAOImpl podcastDAO;
+    private final Set<OnEpisodeChangeListener> listeners = new HashSet<OnEpisodeChangeListener>();
+
+    /**
+     * Interface for listeners interested in episode status changes.
+     */
+    public interface OnEpisodeChangeListener {
+        void onEpisodeChanged(Episode episode);
+        void onEpisodeAdded(Episode episode);
+        void onEpisodeDeleted(Episode episode);
+    }
 
     /**
      * Returns (and lazily initializes) the EpisodeDAOImpl singleton instance.
@@ -65,6 +77,9 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
             long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
             db.close();
+
+            notifyListenersAdded(episode);
+
             return id;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
@@ -184,7 +199,36 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
         int ret = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
         db.close();
+
+        notifyListenersChanged(episode);
+
         return ret;
+    }
+
+    public void addEpisodeChangedListener(OnEpisodeChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removePodListChangeListener(OnEpisodeChangeListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListenersChanged(Episode episode) {
+        for (OnEpisodeChangeListener listener : listeners) {
+            listener.onEpisodeChanged(episode);
+        }
+    }
+
+    private void notifyListenersAdded(Episode episode) {
+        for (OnEpisodeChangeListener listener : listeners) {
+            listener.onEpisodeAdded(episode);
+        }
+    }
+
+    private void notifyListenersDeleted(Episode episode) {
+        for (OnEpisodeChangeListener listener : listeners) {
+            listener.onEpisodeDeleted(episode);
+        }
     }
 
 }
