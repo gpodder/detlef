@@ -42,6 +42,9 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         db.close();
     }
 
+    /**
+     * @see EpisodeDAO#insertEpisode(Episode)
+     */
     public long insertEpisode(Episode episode) {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -70,6 +73,9 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
     }
 
+    /**
+     * @see EpisodeDAO#deleteEpisode(Episode)
+     */
     public int deleteEpisode(Episode episode) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
@@ -79,13 +85,22 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
         int ret = db.delete(DatabaseHelper.TABLE_EPISODE, selection, selectionArgs);
         db.close();
+
+        notifyListenersDeleted(episode);
+
         return ret;
     }
 
+    /**
+     * @see EpisodeDAO#getAllEpisodes()
+     */
     public List<Episode> getAllEpisodes() {
         return getEpisodesWhere(null, null);
     }
 
+    /**
+     * @see EpisodeDAO#getEpisodes(Podcast)
+     */
     public List<Episode> getEpisodes(Podcast podcast) {
         String selection = DatabaseHelper.COLUMN_EPISODE_PODCAST + " = ?";
         String[] selectionArgs = {
@@ -141,12 +156,18 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         return allEpisodes;
     }
 
+    /**
+     * @see EpisodeDAO#updateFilePath(Episode)
+     */
     public int updateFilePath(Episode episode) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH, episode.getFilePath());
         return updateFieldUsingEpisodeId(episode, values);
     }
 
+    /**
+     * @see EpisodeDAO#updateState(Episode)
+     */
     public int updateState(Episode episode) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getState().toString());
