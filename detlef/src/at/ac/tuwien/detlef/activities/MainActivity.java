@@ -12,11 +12,17 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
+import at.ac.tuwien.detlef.fragments.ProgressDialogFragment;
+import at.ac.tuwien.detlef.gpodder.EnhancedSubscriptionChanges;
+import at.ac.tuwien.detlef.gpodder.GPodderException;
+import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
+import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 
 public class MainActivity extends FragmentActivity implements
         ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
@@ -81,6 +87,77 @@ public class MainActivity extends FragmentActivity implements
                     .setText(mSectionsPagerAdapter.getPageTitle(i))
                     .setTabListener(this));
         }
+
+        /* Ready the progress dialog */
+        progressDialog = ProgressDialogFragment.newInstance(getString(R.string.refreshing),
+                getString(R.string.refreshing_feed_list));
+        progressDialog.setCancelable(false);
+
+        /* Register the PodcastSyncResultHandler. */
+        psrh.register(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        /* Unregister the PodcastSyncResultHandler. */
+        psrh.unregister(this);
+
+        super.onDestroy();
+    }
+
+    /**
+     * The Toast with the Output of the refresh operation is shown this long.
+     */
+    private static final int REFRESH_MSG_DURATION_MS = 5000;
+
+    /**
+     * The progress dialog is identified by this tag. This is needed to remove it even if the
+     * actual object has been invalidated (by a screen rotation for example).
+     */
+    private static final String PROGRESS_DIALOG_TAG = "PROGRESS_DIALOG_TAG";
+
+    /**
+     * The progress dialog displayed during a refresh.
+     */
+    private ProgressDialogFragment progressDialog;
+
+    /**
+     * The Handler for receiving PullSubscriptionsAsyncTask's results.
+     */
+    private final PodcastSyncResultHandler psrh = new PodcastSyncResultHandler() {
+
+        @Override
+        public void handle(EnhancedSubscriptionChanges changes) {
+            /* Let's not do this, as getPodcastDBAssistant() currently returns null. */
+            //DependencyAssistant.DEPENDENCY_ASSISTANT.getPodcastDBAssistant()
+            //        .applySubscriptionChanges(changes);
+
+            onRefreshDone(getString(R.string.refresh_successful));
+        }
+
+        @Override
+        public void handleFailure(GPodderException e) {
+            onRefreshDone(getString(R.string.operation_failed) + ": " + e.getMessage());
+        }
+
+    };
+
+    /**
+     * Called when the refresh button is pressed. Displays a progress dialog and starts the
+     * PullSubscriptionsAsyncTask.
+     */
+    private void onRefreshPressed() {
+        startService(new Intent().setClass(this, PullSubscriptionsAsyncTask.class));
+        progressDialog.show(getSupportFragmentManager(), PROGRESS_DIALOG_TAG);
+    }
+
+    /**
+     * Called when refresh is done, dismisses the progress dialog and displays msg in a Toast.
+     * @param msg The message displayed in a Toast.
+     */
+    private void onRefreshDone(String msg) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager(), PROGRESS_DIALOG_TAG);
+        Toast.makeText(this, msg, REFRESH_MSG_DURATION_MS).show();
     }
 
     @Override
@@ -214,6 +291,9 @@ public class MainActivity extends FragmentActivity implements
         case R.id.search:
             intent = new Intent(this, SearchActivity.class);
             startActivity(intent);
+            break;
+        case R.id.refresh:
+            onRefreshPressed();
             break;
         default:
             break;
