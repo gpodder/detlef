@@ -26,7 +26,7 @@ public class SettingsGpodderNetTest
     }
 
 	private void delay() {
-    	solo.sleep(300);
+    	solo.sleep(350);
 	}
 
 	/**
@@ -120,6 +120,7 @@ public class SettingsGpodderNetTest
      * @throws InterruptedException 
      */
     public void testConnectionTestButtonEnabledIfUsernameAndPassword() throws InterruptedException {
+    	delay();
     	enterUsername("User");
     	delay();
     	enterPassword("MeSoSecret");

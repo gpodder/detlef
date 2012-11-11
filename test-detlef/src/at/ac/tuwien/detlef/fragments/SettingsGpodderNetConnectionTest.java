@@ -185,6 +185,8 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 
     @Override
     public void tearDown() throws Exception {
+    	// reset dependency assistant so that other tests are not affected
+    	DependencyAssistant.setDependencyAssistant(new DependencyAssistant());
         solo.finishOpenedActivities();
     }
     
