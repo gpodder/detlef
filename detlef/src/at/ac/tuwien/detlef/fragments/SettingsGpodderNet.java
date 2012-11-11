@@ -283,7 +283,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	private String maskPassword(String password) {
 		return new String(new char[password.length()]).replace(
 				"\0",
-				getText(R.string.settings_fragment_gpodder_net_password_mask_char)
+				getText(R.string.password_mask_char)
 			);
 	}
 	
@@ -345,8 +345,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
 	private void showProgressDialog() {
 		checkUserCredentialsProgress = ProgressDialog.show(
 			getActivity(),
-			getString(R.string.settings_fragment_gpodder_net_testconnection_progress_title),
-			getString(R.string.settings_fragment_gpodder_net_testconnection_progress_message),
+			getString(R.string.checking_your_account_settings_title),
+			getString(R.string.checking_your_account_settings_summary),
 			true,
 			true,
 			new OnCancelListener() {

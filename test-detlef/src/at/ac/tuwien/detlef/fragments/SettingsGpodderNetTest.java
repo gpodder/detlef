@@ -26,7 +26,7 @@ public class SettingsGpodderNetTest
     }
 
 	private void delay() {
-    	solo.sleep(350);
+    	solo.sleep(500);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class SettingsGpodderNetTest
     public void testConnectionTestButtonDisabledIfNoUsernameAndNoPassword() {
     	assertFalse(
     		solo.getText(
-    			getActivity().getString(R.string.settings_fragment_gpodder_net_testconnection)
+    			getActivity().getString(R.string.test_connection)
     		).isEnabled()
     	);
     }
@@ -95,7 +95,7 @@ public class SettingsGpodderNetTest
     	delay();
     	assertFalse(
     		solo.getText(
-    			getActivity().getString(R.string.settings_fragment_gpodder_net_testconnection)
+    			getActivity().getString(R.string.test_connection)
     		).isEnabled()
     	);
     }
@@ -109,7 +109,7 @@ public class SettingsGpodderNetTest
     	delay();
     	assertFalse(
     		solo.getText(
-    			getActivity().getString(R.string.settings_fragment_gpodder_net_testconnection)
+    			getActivity().getString(R.string.test_connection)
     		).isEnabled()
     	);
     }
@@ -127,7 +127,7 @@ public class SettingsGpodderNetTest
     	delay();
     	assertTrue(
     		solo.getText(
-    			getActivity().getString(R.string.settings_fragment_gpodder_net_testconnection)
+    			getActivity().getString(R.string.test_connection)
     		).isEnabled()
     	);
     }
@@ -160,7 +160,7 @@ public class SettingsGpodderNetTest
     }
 
     private void enterUsername(String username) throws InterruptedException {
-    	solo.clickOnText(getActivity().getText(R.string.settings_fragment_gpodder_net_username).toString());
+    	solo.clickOnText(getActivity().getText(R.string.username).toString());
 		delay();
 		solo.enterText(0, username);
 		delay();
@@ -169,7 +169,7 @@ public class SettingsGpodderNetTest
     }
 
     private void enterDevicename(String devicename) throws InterruptedException {
-		solo.clickOnText(getActivity().getText(R.string.settings_fragment_gpodder_net_device_name).toString());
+		solo.clickOnText(getActivity().getText(R.string.device_name).toString());
 		delay();
 		solo.enterText(0, devicename);
 		delay();

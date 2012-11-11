@@ -2,8 +2,8 @@
 <preference-headers
     xmlns:android="http://schemas.android.com/apk/res/android">
     <header android:fragment="at.ac.tuwien.detlef.fragments.SettingsGpodderNet"
-           android:title="@string/settings_fragment_gpodder.net"
-           android:summary="@string/settings_fragment_gpodder.net_summary"
+           android:title="@string/gpodder_net_account_settings"
+           android:summary="@string/connection_settings_for_gpodder_net"
            android:id="@+id/preferences_gpoddernet"
 	/>
 </preference-headers>

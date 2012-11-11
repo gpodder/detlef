@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <EditTextPreference android:title="@string/settings_fragment_gpodder.net_username" android:key="username" android:inputType="textNoSuggestions"/>
-        <EditTextPreference android:title="@string/settings_fragment_gpodder.net_password" android:key="password" android:inputType="textPassword" />
-        <EditTextPreference android:title="@string/settings_fragment_gpodder.net_device_name" android:key="devicename" android:inputType="textNoSuggestions"/>
+        <EditTextPreference android:title="@string/username" android:key="username" android:inputType="textNoSuggestions"/>
+        <EditTextPreference android:title="@string/password" android:key="password" android:inputType="textPassword" />
+        <EditTextPreference android:title="@string/device_name" android:key="devicename" android:inputType="textNoSuggestions"/>
 
         <Preference
-			android:title="@string/settings_fragment_gpodder.net_testconnection"
+			android:title="@string/test_connection"
 			android:key="button"
-			android:summary="@string/settings_fragment_gpodder.net_testconnection_summary"
+			android:summary="@string/tap_here_to_test_connection"
 			android:id="@+id/button_testconnection"
 		/>
 

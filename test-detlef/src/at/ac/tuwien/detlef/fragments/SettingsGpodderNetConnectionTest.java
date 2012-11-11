@@ -79,7 +79,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
     	depencyAssistant.connectionTestBehavior = ConnectionTestBehavior.INCORRECT;
     	
     	solo.clickOnText(
-    		(String) getActivity().getText(R.string.settings_fragment_gpodder_net_testconnection)
+    		(String) getActivity().getText(R.string.test_connection)
     	);
     	
     	Log.d(TAG, "waiting for toast...");
@@ -107,7 +107,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
     	depencyAssistant.connectionTestBehavior = ConnectionTestBehavior.CONNECTIONERROR;
     	
     	solo.clickOnText(
-    		(String) getActivity().getText(R.string.settings_fragment_gpodder_net_testconnection)
+    		(String) getActivity().getText(R.string.test_connection)
     	);
     	
     	Log.d(TAG, "waiting for toast...");
@@ -135,7 +135,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
     	depencyAssistant.connectionTestBehavior = ConnectionTestBehavior.CORRECT;
     	
     	solo.clickOnText(
-    		(String) getActivity().getText(R.string.settings_fragment_gpodder_net_testconnection)
+    		(String) getActivity().getText(R.string.test_connection)
     	);
     	
     	Log.d(TAG, "waiting for toast...");
@@ -163,7 +163,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
     	depencyAssistant.connectionTestBehavior = ConnectionTestBehavior.INCORRECT;
     	
     	solo.clickOnText(
-        	(String) getActivity().getText(R.string.settings_fragment_gpodder_net_testconnection)
+        	(String) getActivity().getText(R.string.test_connection)
     	);
     	
     	solo.sleep(500);

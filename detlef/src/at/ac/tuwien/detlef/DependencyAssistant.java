@@ -8,7 +8,7 @@ import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.GpodderConnectionException;
+import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
@@ -71,28 +71,10 @@ public class DependencyAssistant {
     }
     
     /**
-     * TODO Right now this is only a mock.
-     * @return
+     * @return The {@link ConnectionTester} that verifies a set of of {@link GpodderSettings}.
      */
 	public ConnectionTester getConnectionTester() {
-		return new ConnectionTester() {
-			public boolean testConnection(GpodderSettings pSettings)
-					throws GpodderConnectionException, InterruptedException {
-
-				Thread.sleep(10000);
-
-				switch ((int) Math.floor(Math.random() * 3)) {
-				case 0:
-					return true;
-				case 1:
-					return false;
-				default:
-					throw new GpodderConnectionException();					
-				}
-
-				
-			}
-		};
+		return new ConnectionTesterGpodderNet().setContext(Detlef.getAppContext());
 	}
 
 	public static DependencyAssistant getDependencyAssistant() {
