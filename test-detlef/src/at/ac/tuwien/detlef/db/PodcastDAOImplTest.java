@@ -34,7 +34,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * test the getAllPodcast functionality
      */
     public void testGetAllPodcasts() {
-        PodcastDAOImpl dao = new PodcastDAOImpl(this.mContext);
+        PodcastDAOImpl dao = PodcastDAOImpl.i(this.mContext);
         assertNotNull("List of podcasts shouldn't be null", dao.getAllPodcasts());
     }
 
@@ -42,7 +42,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the insertPodcast functionality
      */
     public void testInsertPodcast() {
-        PodcastDAOImpl pdao = new PodcastDAOImpl(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         int countBeforeInsert = pdao.getAllPodcasts().size();
         long newKey = pdao.insertPodcast(p1);
         int countAfterInsert = pdao.getAllPodcasts().size();
@@ -54,7 +54,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the deletePodcast functionality
      */
     public void testDeletePodcast() {
-        PodcastDAOImpl pdao = new PodcastDAOImpl(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1.setId(pdao.insertPodcast(p1));
         int countBeforeDelete = pdao.getAllPodcasts().size();
         int ret = pdao.deletePodcast(p1);
@@ -67,7 +67,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the getPodcastById functionality
      */
     public void testGetPodcastById() {
-        PodcastDAOImpl pdao = new PodcastDAOImpl(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1.setTitle("expected title");
         p1.setId(pdao.insertPodcast(p1));
         Podcast pod = pdao.getPodcastById(p1.getId());
@@ -79,7 +79,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the updateLastUpdate functionality
      */
     public void testUpdateLastUpdate() {
-        PodcastDAOImpl pdao = new PodcastDAOImpl(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1.setId(pdao.insertPodcast(p1));
         long currentMilis = System.currentTimeMillis();
         p1.setLastUpdate(currentMilis);
@@ -92,7 +92,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the updateLogoFilePath functionality
      */
     public void testUpdateLogoFilePath() {
-        PodcastDAOImpl pdao = new PodcastDAOImpl(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1.setId(pdao.insertPodcast(p1));
         String newFilePath = "new path haha";
         p1.setLogoFilePath(newFilePath);
