@@ -1,8 +1,11 @@
 package at.ac.tuwien.detlef.activities;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,14 +17,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.db.PodcastDBAssistant;
+import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
-import at.ac.tuwien.detlef.fragments.ProgressDialogFragment;
 import at.ac.tuwien.detlef.gpodder.EnhancedSubscriptionChanges;
+import at.ac.tuwien.detlef.gpodder.FeedSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.GPodderException;
 import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
+import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 
 public class MainActivity extends FragmentActivity implements
@@ -50,6 +56,12 @@ public class MainActivity extends FragmentActivity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
+
+        if (savedInstanceState != null) {
+            curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
+            numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
+        }
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections
         // of the app.
@@ -89,20 +101,47 @@ public class MainActivity extends FragmentActivity implements
         }
 
         /* Ready the progress dialog */
-        progressDialog = ProgressDialogFragment.newInstance(getString(R.string.refreshing),
-                getString(R.string.refreshing_feed_list));
-        progressDialog.setCancelable(false);
+        progressDialog = new ProgressDialog(this);
+        prepareProgressDialog();
+        if (numPodSync.get() != -1) {
+            progressDialog.show();
+        }
 
         /* Register the PodcastSyncResultHandler. */
-        psrh.register(this);
+        podcastHandler.register(this);
+        /* Register the FeedSyncResultHandler. */
+        feedHandler.register(this);
+    }
+
+    private void prepareProgressDialog() {
+        progressDialog.setTitle(R.string.refreshing);
+        progressDialog.setCancelable(false);
+        if (numPodSync.get() > 0) {
+            progressDialog.setMessage(String.format(getString(R.string.refreshing_feed_x_of_y),
+                    curPodSync.get() + 1, numPodSync.get()));
+        } else {
+            progressDialog.setMessage(getString(R.string.refreshing_feed_list));
+        }
     }
 
     @Override
     public void onDestroy() {
+        progressDialog.dismiss();
+
         /* Unregister the PodcastSyncResultHandler. */
-        psrh.unregister(this);
+        podcastHandler.unregister(this);
+        /* Unregister the FeedSyncResultHandler. */
+        feedHandler.unregister(this);
 
         super.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        savedInstanceState.putInt(KEY_NUM_POD_SYNC, numPodSync.get());
+        savedInstanceState.putInt(KEY_CUR_POD_SYNC, curPodSync.get());
     }
 
     /**
@@ -111,28 +150,43 @@ public class MainActivity extends FragmentActivity implements
     private static final int REFRESH_MSG_DURATION_MS = 5000;
 
     /**
-     * The progress dialog is identified by this tag. This is needed to remove it even if the
-     * actual object has been invalidated (by a screen rotation for example).
-     */
-    private static final String PROGRESS_DIALOG_TAG = "PROGRESS_DIALOG_TAG";
-
-    /**
      * The progress dialog displayed during a refresh.
      */
-    private ProgressDialogFragment progressDialog;
+    private ProgressDialog progressDialog;
+
+    private static final String KEY_NUM_POD_SYNC = "KEY_NUM_POD_SYNC";
+    private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
+
+    /** Number of feeds to sync, -1 if no refresh is in progress. */
+    private AtomicInteger numPodSync = new AtomicInteger(-1);
+    /** Number of feeds already synchronized. */
+    private AtomicInteger curPodSync = new AtomicInteger(0);
 
     /**
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
-    private final PodcastSyncResultHandler psrh = new PodcastSyncResultHandler() {
+    private final PodcastSyncResultHandler podcastHandler = new PodcastSyncResultHandler() {
 
         @Override
         public void handle(EnhancedSubscriptionChanges changes) {
-            /* Let's not do this, as getPodcastDBAssistant() currently returns null. */
-            //DependencyAssistant.DEPENDENCY_ASSISTANT.getPodcastDBAssistant()
-            //        .applySubscriptionChanges(changes);
+            PodcastDBAssistant pda = new PodcastDBAssistantImpl();
 
-            onRefreshDone(getString(R.string.refresh_successful));
+            pda.applySubscriptionChanges(MainActivity.this, changes);
+
+            synchronized (numPodSync) {
+                for (Podcast p : pda.getAllPodcasts(MainActivity.this)) {
+                    Intent i = new Intent().setClass(MainActivity.this, PullFeedAsyncTask.class);
+                    i.putExtra(PullFeedAsyncTask.EXTRA_PODCAST, p);
+                    startService(i);
+                    numPodSync.incrementAndGet();
+                }
+
+                if (numPodSync.get() == 0) {
+                    onRefreshDone(getString(R.string.refresh_successful));
+                }
+
+                prepareProgressDialog();
+            }
         }
 
         @Override
@@ -143,12 +197,55 @@ public class MainActivity extends FragmentActivity implements
     };
 
     /**
+     * The Handler for receiving PullFeedAsyncTask's results.
+     */
+    private final FeedSyncResultHandler feedHandler = new FeedSyncResultHandler() {
+
+        @Override
+        public void handle() {
+            synchronized (numPodSync) {
+                checkDone();
+            }
+        }
+
+        @Override
+        public void handleFailure(GPodderException e) {
+            Toast.makeText(MainActivity.this, e.getMessage(), REFRESH_MSG_DURATION_MS).show();
+
+            checkDone();
+        }
+
+        private void checkDone() {
+            synchronized (numPodSync) {
+                curPodSync.incrementAndGet();
+
+                if (curPodSync.get() == numPodSync.get()) {
+                    onRefreshDone(getString(R.string.refresh_successful));
+                }
+
+                prepareProgressDialog();
+            }
+        }
+
+    };
+
+    /**
      * Called when the refresh button is pressed. Displays a progress dialog and starts the
      * PullSubscriptionsAsyncTask.
      */
     private void onRefreshPressed() {
+        synchronized (numPodSync) {
+            if (numPodSync.get() != -1) {
+                return;
+            }
+
+            numPodSync.incrementAndGet();
+            curPodSync.set(0);
+        }
+
+        // TODO: Disable refresh button
         startService(new Intent().setClass(this, PullSubscriptionsAsyncTask.class));
-        progressDialog.show(getSupportFragmentManager(), PROGRESS_DIALOG_TAG);
+        progressDialog.show();
     }
 
     /**
@@ -156,7 +253,10 @@ public class MainActivity extends FragmentActivity implements
      * @param msg The message displayed in a Toast.
      */
     private void onRefreshDone(String msg) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager(), PROGRESS_DIALOG_TAG);
+        numPodSync.set(-1);
+
+        // TODO: Disable reenable button
+        progressDialog.dismiss();
         Toast.makeText(this, msg, REFRESH_MSG_DURATION_MS).show();
     }
 
