@@ -22,7 +22,6 @@ public class EpisodeListFragment extends ListFragment {
 
     private final ArrayList<Episode> listItems = new ArrayList<Episode>();
     private EpisodeListAdapter adapter;
-    private final int clickCounter = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
