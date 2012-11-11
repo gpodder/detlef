@@ -16,7 +16,7 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
         return dao.getAllPodcasts();
     }
 
-    public void applySubscriptionChanges(EnhancedSubscriptionChanges changes) {
+    public void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {
         // TODO Auto-generated method stub
         Log.d(TAG,"applying changes");
     }

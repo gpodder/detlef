@@ -24,5 +24,5 @@ public interface PodcastDBAssistant {
     /**
      * ??
      */
-    void applySubscriptionChanges(EnhancedSubscriptionChanges changes);
+    void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes);
 }
