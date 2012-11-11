@@ -22,7 +22,7 @@ public class DependencyAssistant {
 	 * If you need to inject mock objects during testing, use {@link #setDependencyAssistant()}.
 	 * @deprecated
 	 */
-    public final static DependencyAssistant DEPENDENCY_ASSISTANT = new DependencyAssistant();
+    public static final DependencyAssistant DEPENDENCY_ASSISTANT = new DependencyAssistant();
     
     private static DependencyAssistant dependencyAssistant = new DependencyAssistant();
     
