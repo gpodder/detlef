@@ -54,4 +54,5 @@
     <string name="refresh_successful">Refresh successful</string>
     <string name="refreshing_feed_list">Refreshing feed list...</string>
     <string name="refreshing">Refreshing</string>
+    <string name="no_podcast_specified">No podcast specified</string>
 </resources>

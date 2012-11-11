@@ -1,12 +1,14 @@
 package at.ac.tuwien.detlef.domain;
 
+import java.io.Serializable;
+
 import com.dragontek.mygpoclient.simple.IPodcast;
 
 /**
  * Dummy class to display initial test podcast content until the actual podcast
  * classes are available.
  */
-public class Podcast implements IPodcast {
+public class Podcast implements IPodcast, Serializable {
 
     private long id;
 
