@@ -8,30 +8,34 @@ import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
-import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.models.EpisodeListModel;
 
-public class EpisodeListFragment extends ListFragment {
+public class EpisodeListFragment extends ListFragment
+implements EpisodeDAOImpl.OnEpisodeChangeListener {
 
-    private final ArrayList<Episode> listItems = new ArrayList<Episode>();
+    private EpisodeListModel model;
     private EpisodeListAdapter adapter;
+    private Podcast filteredByPodcast = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        EpisodeDAO episodeDAO = EpisodeDAOImpl.i(getActivity());
-        listItems.addAll(episodeDAO.getAllEpisodes());
+        EpisodeDAOImpl dao = EpisodeDAOImpl.i(getActivity());
+        dao.addEpisodeChangedListener(this);
+
+        List<Episode> eplist = dao.getAllEpisodes();
+        model = new EpisodeListModel(eplist);
 
         adapter = new EpisodeListAdapter(getActivity(),
-                android.R.layout.simple_list_item_1, listItems);
+                android.R.layout.simple_list_item_1, new ArrayList<Episode>(eplist));
         setListAdapter(adapter);
     }
 
@@ -50,17 +54,10 @@ public class EpisodeListFragment extends ListFragment {
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        // TODO Auto-generated method stub
-        return super.onContextItemSelected(item);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.episode_fragment_layout, container,
-                false);
+        return inflater.inflate(R.layout.episode_fragment_layout, container, false);
     }
 
     /**
@@ -69,18 +66,30 @@ public class EpisodeListFragment extends ListFragment {
      * If podcast is null, all episodes are shown.
      */
     public void setPodcast(Podcast podcast) {
-        /* TODO: Quick and dirty implementation. */
+        filteredByPodcast = podcast;
+        filterByPodcast();
+    }
+
+    private void filterByPodcast() {
         adapter.clear();
-
-        EpisodeDAO episodeDAO = EpisodeDAOImpl.i(getActivity());
-
-        List<Episode> episodes;
-        if (podcast == null) {
-            episodes = episodeDAO.getAllEpisodes();
+        if (filteredByPodcast == null) {
+            adapter.addAll(model.getAll());
         } else {
-            episodes = episodeDAO.getEpisodes(podcast);
+            adapter.addAll(model.getByPodcast(filteredByPodcast));
         }
+    }
 
-        adapter.addAll(episodes);
+    public void onEpisodeChanged(Episode episode) {
+        adapter.notifyDataSetChanged();
+    }
+
+    public void onEpisodeAdded(Episode episode) {
+        model.addEpisode(episode);
+        filterByPodcast();
+    }
+
+    public void onEpisodeDeleted(Episode episode) {
+        model.removeEpisode(episode);
+        filterByPodcast();
     }
 }
