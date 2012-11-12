@@ -97,7 +97,7 @@ public class PodderService extends Service {
      */
     protected static boolean performHttpDownload(PodderServiceCallback cb, int reqId, String url,
             HttpDownloadHandler hdh) throws RemoteException {
-        Log.d(TAG, "performHttpDownload()");
+        Log.d(TAG, "performHttpDownload() on " + Thread.currentThread().getId());
 
         // fetch URL
         Uri uri = Uri.parse(url);
@@ -216,8 +216,7 @@ public class PodderService extends Service {
 
         public void authCheck(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
                 throws RemoteException {
-            Log.d(TAG, "authCheck()");
-
+            Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
 
             // try authenticating
             SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
@@ -239,7 +238,7 @@ public class PodderService extends Service {
 
         public void downloadPodcastList(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
                 throws RemoteException {
-            Log.d(TAG, "downloadPodcastList()");
+            Log.d(TAG, "downloadPodcastList() on " + Thread.currentThread().getId());
 
             SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
                     cinfo.getHostname());
@@ -259,13 +258,13 @@ public class PodderService extends Service {
         }
 
         public void heartbeat(PodderServiceCallback cb, int reqId) throws RemoteException {
-            Log.d(TAG, "heartbeat()");
+            Log.d(TAG, "heartbeat() on " + Thread.currentThread().getId());
             cb.heartbeatSucceeded(reqId);
         }
 
         public void httpDownload(PodderServiceCallback cb, int reqId, String url)
                 throws RemoteException {
-            Log.d(TAG, "httpDownload()");
+            Log.d(TAG, "httpDownload() on " + Thread.currentThread().getId());
 
             final ByteRope rope = new ByteRope();
             boolean ok = performHttpDownload(cb, reqId, url, new HttpDownloadHandler() {
@@ -289,7 +288,7 @@ public class PodderService extends Service {
 
         public void httpDownloadToFile(final PodderServiceCallback cb, final int reqId, String url,
                 String localfn) throws RemoteException {
-            Log.d(TAG, "httpDownloadToFile()");
+            Log.d(TAG, "httpDownloadToFile() on " + Thread.currentThread().getId());
 
             // open fire
             final FileOutputStream fos;
