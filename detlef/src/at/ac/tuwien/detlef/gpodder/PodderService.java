@@ -9,6 +9,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.http.client.HttpResponseException;
+
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
@@ -40,6 +42,9 @@ public class PodderService extends Service {
 
     /** Block size for the byte array when downloading data. */
     private static final int BLOCK_SIZE = 4096;
+
+    /** HTTP Forbidden error code. */
+    private static final int HTTP_STATUS_FORBIDDEN = 401;
 
     /** The inter-process communication handler. */
     private IpcHandler handler;
@@ -180,6 +185,9 @@ public class PodderService extends Service {
         /** Error code raised if sending the result failed. */
         public static final int SENDING_RESULT_FAILED = 4;
 
+        /** Error code raised if an HTTP response with an unexpected code has been received. */
+        public static final int UNEXPECTED_HTTP_RESPONSE = 9;
+
         /** Error code raised if the error is unknown. */
         public static final int UNKNOWN_ERROR = 8;
     }
@@ -223,6 +231,18 @@ public class PodderService extends Service {
             boolean ok;
             try {
                 ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
+            } catch (HttpResponseException hre) {
+                Log.d(TAG, "HttpResponseException: " + hre.getMessage());
+                if (hre.getStatusCode() == HTTP_STATUS_FORBIDDEN) {
+                    // authentication simply failed
+                    cb.authCheckFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
+                            "authentication failed");
+                } else {
+                    Log.w(TAG, "unexpected HTTP response " + hre.getStatusCode());
+                    cb.authCheckFailed(reqId, ErrorCode.UNEXPECTED_HTTP_RESPONSE,
+                            "unexpected response " + hre.getStatusCode());
+                }
+                return;
             } catch (IOException ioe) {
                 Log.w(TAG, "authenticate IOException: " + ioe.getMessage());
                 cb.authCheckFailed(reqId, ErrorCode.IO_PROBLEM, "I/O problem: " + ioe.getMessage());
