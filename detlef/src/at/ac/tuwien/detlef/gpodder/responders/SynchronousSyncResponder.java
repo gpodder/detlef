@@ -44,6 +44,14 @@ public class SynchronousSyncResponder extends SyncResponder {
         stoplight.acquireUninterruptibly();
     }
 
+    /**
+     * Blocks until the service has responded or the thread is interrupted.
+     * @throws InterruptedException The thread has been interrupted while waiting.
+     */
+    public void waitInterruptiblyForCompletion() throws InterruptedException {
+        stoplight.acquire();
+    }
+
     public void httpDownloadSucceeded(int reqId, ParcelableByteArray data) throws RemoteException {
         final HttpDownloadResultHandler hdrh =
                 (HttpDownloadResultHandler) getGps().getReqs().get(reqId);
