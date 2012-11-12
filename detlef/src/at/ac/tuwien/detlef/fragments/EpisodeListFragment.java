@@ -3,6 +3,7 @@ package at.ac.tuwien.detlef.fragments;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
@@ -17,12 +19,43 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 
-public class EpisodeListFragment extends ListFragment
-implements EpisodeDAOImpl.OnEpisodeChangeListener {
+public class EpisodeListFragment extends ListFragment implements
+        EpisodeDAOImpl.OnEpisodeChangeListener {
 
     private EpisodeListModel model;
+
     private EpisodeListAdapter adapter;
+
     private Podcast filteredByPodcast = null;
+
+    private OnEpisodeSelectedListener listener;
+
+    /**
+     * The parent activity must implement this interface in order to interact
+     * with this fragment. The listener is called whenever an episode is
+     * clicked.
+     */
+    public interface OnEpisodeSelectedListener {
+        void onEpisodeSelected(Episode episode);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            listener = (OnEpisodeSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(String.format("%s must implement %s",
+                    activity.toString(),
+                    OnEpisodeSelectedListener.class.getName()));
+        }
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Episode episode = (Episode) v.getTag();
+        listener.onEpisodeSelected(episode);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,8 +67,10 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
         List<Episode> eplist = dao.getAllEpisodes();
         model = new EpisodeListModel(eplist);
 
-        adapter = new EpisodeListAdapter(getActivity(),
-                android.R.layout.simple_list_item_1, new ArrayList<Episode>(eplist));
+        adapter =
+                new EpisodeListAdapter(getActivity(),
+                        android.R.layout.simple_list_item_1,
+                        new ArrayList<Episode>(eplist));
         setListAdapter(adapter);
     }
 
@@ -57,7 +92,8 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.episode_fragment_layout, container, false);
+        return inflater.inflate(R.layout.episode_fragment_layout, container,
+                false);
     }
 
     /**

@@ -13,6 +13,8 @@ import at.ac.tuwien.detlef.domain.Podcast;
 
 public class PlayerFragment extends Fragment {
 
+    private Episode activeEpisode;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,8 +36,37 @@ public class PlayerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        TextView textView = (TextView) getActivity().findViewById(
-                R.id.playerEpisodeDescription);
+        TextView textView =
+                (TextView) getActivity().findViewById(
+                        R.id.playerEpisodeDescription);
         textView.setMovementMethod(ScrollingMovementMethod.getInstance());
+    }
+
+    public void setEpisode(Episode episode) {
+        activeEpisode = episode;
+    }
+
+    public void startPlaying() {
+        // TODO
+    }
+
+    public void pausePlaying() {
+        // TODO
+    }
+
+    public void nextEpisode() {
+        // TODO
+    }
+
+    public void rewindEpisode() {
+        // TODO
+    }
+
+    public void stopEpisode() {
+        // TODO
+    }
+
+    public void setPlayingTime(long playingTime) {
+        // TODO
     }
 }

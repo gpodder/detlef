@@ -1,3 +1,4 @@
+
 package at.ac.tuwien.detlef.activities;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
+import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
@@ -30,8 +32,8 @@ import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 
-public class MainActivity extends FragmentActivity implements
-        ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener {
+public class MainActivity extends FragmentActivity implements ActionBar.TabListener,
+        PodListFragment.OnPodcastSelectedListener, EpisodeListFragment.OnEpisodeSelectedListener {
 
     private static String TAG = MainActivity.class.getName();
 
@@ -65,28 +67,26 @@ public class MainActivity extends FragmentActivity implements
         // Create the adapter that will return a fragment for each of the three
         // primary sections
         // of the app.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = (ViewPager)findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         // When swiping between different sections, select the corresponding
         // tab.
         // We can also use ActionBar.Tab#select() to do this if we have a
         // reference to the Tab.
-        mViewPager
-                .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        actionBar.setSelectedNavigationItem(position);
-                    }
-                });
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+        });
 
         // For each of the sections in the app, add a tab to the action bar.
         for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -95,8 +95,7 @@ public class MainActivity extends FragmentActivity implements
             // Also specify this Activity object, which implements the
             // TabListener interface, as the
             // listener for when this tab is selected.
-            actionBar.addTab(actionBar.newTab()
-                    .setText(mSectionsPagerAdapter.getPageTitle(i))
+            actionBar.addTab(actionBar.newTab().setText(mSectionsPagerAdapter.getPageTitle(i))
                     .setTabListener(this));
         }
 
@@ -155,10 +154,12 @@ public class MainActivity extends FragmentActivity implements
     private ProgressDialog progressDialog;
 
     private static final String KEY_NUM_POD_SYNC = "KEY_NUM_POD_SYNC";
+
     private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
 
     /** Number of feeds to sync, -1 if no refresh is in progress. */
     private AtomicInteger numPodSync = new AtomicInteger(-1);
+
     /** Number of feeds already synchronized. */
     private AtomicInteger curPodSync = new AtomicInteger(0);
 
@@ -230,8 +231,8 @@ public class MainActivity extends FragmentActivity implements
     };
 
     /**
-     * Called when the refresh button is pressed. Displays a progress dialog and starts the
-     * PullSubscriptionsAsyncTask.
+     * Called when the refresh button is pressed. Displays a progress dialog and
+     * starts the PullSubscriptionsAsyncTask.
      */
     private void onRefreshPressed() {
         synchronized (numPodSync) {
@@ -249,7 +250,9 @@ public class MainActivity extends FragmentActivity implements
     }
 
     /**
-     * Called when refresh is done, dismisses the progress dialog and displays msg in a Toast.
+     * Called when refresh is done, dismisses the progress dialog and displays
+     * msg in a Toast.
+     * 
      * @param msg The message displayed in a Toast.
      */
     private void onRefreshDone(String msg) {
@@ -270,23 +273,22 @@ public class MainActivity extends FragmentActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         switch (mViewPager.getCurrentItem()) {
-        case 0:
-            getMenuInflater().inflate(R.menu.podcast_menu, menu);
-            break;
-        case 1:
-            getMenuInflater().inflate(R.menu.episode_menu, menu);
-            break;
-        case 2:
-            // getMenuInflater().inflate(R.menu.player_menu, menu);
-            break;
-        default:
-            return false;
+            case 0:
+                getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                break;
+            case 1:
+                getMenuInflater().inflate(R.menu.episode_menu, menu);
+                break;
+            case 2:
+                // getMenuInflater().inflate(R.menu.player_menu, menu);
+                break;
+            default:
+                return false;
         }
         return true;
     }
 
-    public void onTabUnselected(ActionBar.Tab tab,
-            FragmentTransaction fragmentTransaction) {
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
     public void onTabSelected(Tab tab, FragmentTransaction fragmentTransaction) {
@@ -295,17 +297,17 @@ public class MainActivity extends FragmentActivity implements
         if (menu != null) {
             menu.clear();
             switch (tab.getPosition()) {
-            case 0:
-                getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                break;
-            case 1:
-                getMenuInflater().inflate(R.menu.episode_menu, menu);
-                break;
-            case 2:
-                getMenuInflater().inflate(R.menu.player_menu, menu);
-                break;
-            default:
-                System.out.println("Non-existent tab selected! Please fix");
+                case 0:
+                    getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                    break;
+                case 1:
+                    getMenuInflater().inflate(R.menu.episode_menu, menu);
+                    break;
+                case 2:
+                    getMenuInflater().inflate(R.menu.player_menu, menu);
+                    break;
+                default:
+                    System.out.println("Non-existent tab selected! Please fix");
             }
         }
         mViewPager.setCurrentItem(tab.getPosition());
@@ -321,12 +323,17 @@ public class MainActivity extends FragmentActivity implements
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public static final int POSITION_PODCASTS = 0;
+
         public static final int POSITION_EPISODES = 1;
+
         public static final int POSITION_PLAYER = 2;
+
         public static final int TABCOUNT = POSITION_PLAYER + 1;
 
         private final PodListFragment podList = new PodListFragment();
+
         private final EpisodeListFragment episodeList = new EpisodeListFragment();
+
         private final PlayerFragment player = new PlayerFragment();
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -352,14 +359,14 @@ public class MainActivity extends FragmentActivity implements
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-            case POSITION_PODCASTS:
-                return getString(R.string.podcasts).toUpperCase();
-            case POSITION_EPISODES:
-                return getString(R.string.episodes).toUpperCase();
-            case POSITION_PLAYER:
-                return getString(R.string.player).toUpperCase();
-            default:
-                return null;
+                case POSITION_PODCASTS:
+                    return getString(R.string.podcasts).toUpperCase();
+                case POSITION_EPISODES:
+                    return getString(R.string.episodes).toUpperCase();
+                case POSITION_PLAYER:
+                    return getString(R.string.player).toUpperCase();
+                default:
+                    return null;
             }
         }
 
@@ -380,23 +387,23 @@ public class MainActivity extends FragmentActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-        case R.id.settings:
-            intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.playlist:
-            intent = new Intent(this, PlaylistActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.search:
-            intent = new Intent(this, SearchActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.refresh:
-            onRefreshPressed();
-            break;
-        default:
-            break;
+            case R.id.settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.playlist:
+                intent = new Intent(this, PlaylistActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.search:
+                intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.refresh:
+                onRefreshPressed();
+                break;
+            default:
+                break;
         }
         return true;
     }
@@ -407,7 +414,11 @@ public class MainActivity extends FragmentActivity implements
      */
     public void onPodcastSelected(Podcast podcast) {
         mSectionsPagerAdapter.getEpisodeList().setPodcast(podcast);
-        getActionBar().setSelectedNavigationItem(
-                SectionsPagerAdapter.POSITION_EPISODES);
+        getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_EPISODES);
+    }
+
+    public void onEpisodeSelected(Episode episode) {
+        mSectionsPagerAdapter.getPlayer().setEpisode(episode);
+        getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_PLAYER);
     }
 }
