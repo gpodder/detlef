@@ -12,9 +12,7 @@ import java.util.List;
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
@@ -56,9 +54,6 @@ public class PodderService extends Service {
         super.onCreate();
 
         Log.d(TAG, "onCreate()");
-        HandlerThread ht = new HandlerThread(
-                "PodderServiceHandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
-        ht.start();
         handler = new IpcHandler();
     }
 
