@@ -97,6 +97,7 @@ public class PodderService extends Service {
         // fetch URL
         Uri uri = Uri.parse(url);
         if (!validScheme(uri.getScheme())) {
+            Log.w(TAG, "invalid URI scheme");
             cb.httpDownloadFailed(reqId, ErrorCode.INVALID_URL_SCHEME,
                     "invalid URI scheme: " + uri.getScheme());
             return false;
@@ -108,10 +109,12 @@ public class PodderService extends Service {
         try {
             conn = (HttpURLConnection) new URL(uri.toString()).openConnection();
         } catch (MalformedURLException mue) {
+            Log.w(TAG, "malformed URL");
             cb.httpDownloadFailed(reqId, ErrorCode.MALFORMED_URL,
                     "malformed URL: " + uri.toString());
             return false;
         } catch (IOException ioe) {
+            Log.w(TAG, "openConnection IOException: " + ioe.getMessage());
             cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
                     "I/O problem: " + ioe.getMessage());
             return false;
@@ -139,6 +142,7 @@ public class PodderService extends Service {
                 cb.httpDownloadProgress(reqId, gotBytes, len);
             }
         } catch (IOException ioe) {
+            Log.w(TAG, "read IOException: " + ioe.getMessage());
             cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
                     "I/O problem: " + ioe.getMessage());
             return false;
@@ -220,6 +224,7 @@ public class PodderService extends Service {
             try {
                 ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
             } catch (IOException ioe) {
+                Log.w(TAG, "authenticate IOException: " + ioe.getMessage());
                 cb.authCheckFailed(reqId, ErrorCode.IO_PROBLEM, "I/O problem: " + ioe.getMessage());
                 return;
             }
@@ -241,6 +246,7 @@ public class PodderService extends Service {
             try {
                 casts = sc.getSubscriptions(cinfo.getDeviceId());
             } catch (IOException ioe) {
+                Log.w(TAG, "getSubscriptions IOException: " + ioe.getMessage());
                 cb.authCheckFailed(reqId, ErrorCode.IO_PROBLEM, "I/O problem: " + ioe.getMessage());
                 return;
             }
@@ -290,6 +296,7 @@ public class PodderService extends Service {
             try {
                 fos = new FileOutputStream(localfn);
             } catch (FileNotFoundException fnfe) {
+                Log.w(TAG, "FileOutputStream c'tor FileNotFoundException: " + fnfe.getMessage());
                 cb.httpDownloadFailed(reqId, ErrorCode.FILE_NOT_FOUND, "file not found");
                 return;
             }
@@ -304,6 +311,7 @@ public class PodderService extends Service {
                     try {
                         fos.write(chunk, 0, len);
                     } catch (IOException e) {
+                        Log.w(TAG, "FileOutputStream write IOException: " + e.getMessage());
                         cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
                         return false;
                     }
