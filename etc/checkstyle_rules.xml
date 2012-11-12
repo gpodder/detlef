@@ -131,10 +131,7 @@
     <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
   </module>
   <module name="Translation"/>
-  <module name="FileTabCharacter">
-    <property name="severity" value="ignore"/>
-    <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
-  </module>
+  <module name="FileTabCharacter" />
   <module name="RegexpSingleline">
     <property name="severity" value="ignore"/>
     <property name="format" value="\s+$"/>
