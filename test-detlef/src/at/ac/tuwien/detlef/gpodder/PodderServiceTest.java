@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 import android.content.Intent;
@@ -52,22 +53,26 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         public void authCheckFailed(int reqId, int errCode, String errStr) throws RemoteException {
             fail("Auth check failed: " + errStr);
+            wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
         public void authCheckSucceeded(int reqId) throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_AUTHCHECK;
+            wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
         public void heartbeatSucceeded(int reqId) throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_HEARTBEAT;
+            wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
         public void httpDownloadFailed(int reqId, int errCode, String errStr)
                 throws RemoteException {
             fail("HTTP download failed: " + errStr);
+            wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
@@ -80,23 +85,27 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
                 throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_HTTP_DOWNLOAD;
             wrpst.get().str = new String(data.getArray());
+            wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
         public void httpDownloadToFileSucceeded(int reqId) throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_HTTP_DOWNLOAD_TO_FILE;
+            wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
         public void downloadPodcastListFailed(int reqId, int errCode,
                 String errStr) throws RemoteException {
             fail("podcast list download failed: " + errStr);
+            wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
         public void downloadPodcastListSucceeded(int reqId, List<String> podcasts)
                 throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_DOWNLOAD_PODCAST_LIST;
+            wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
     }
@@ -110,6 +119,12 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     /** Stores the message type of the latest response. */
     private int msgWhat;
 
+    /** Stores the request ID of the latest response. */
+    private int reqId;
+
+    /** Stores a random number generator. */
+    private Random rng;
+
     /** Stores the contents of the downloaded HTTP file. */
     private String str;
 
@@ -121,6 +136,8 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         stoplight = new Semaphore(0);
         handler = new IncomingHandler(this);
         msgWhat = -1;
+        reqId = -1;
+        rng = new Random();
         str = null;
         setApplication(new FakeApplication());
     }
@@ -171,12 +188,14 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHeartbeat()");
 
         PodderServiceInterface psi = performBind();
+        int rid = rng.nextInt();
 
-        psi.heartbeat(handler, -1);
+        psi.heartbeat(handler, rid);
 
         stoplight.acquireUninterruptibly();
 
         assertEquals(RESPONDED_HEARTBEAT, msgWhat);
+        assertEquals(rid, reqId);
     }
 
     /**
@@ -189,12 +208,14 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownload()");
 
         PodderServiceInterface psi = performBind();
+        int rid = rng.nextInt();
 
-        psi.httpDownload(handler, -1, "http://ondrahosek.dyndns.org/detlef.txt");
+        psi.httpDownload(handler, rid, "http://ondrahosek.dyndns.org/detlef.txt");
 
         stoplight.acquireUninterruptibly();
 
         assertEquals(RESPONDED_HTTP_DOWNLOAD, msgWhat);
+        assertEquals(rid, reqId);
         assertEquals("Non, Detlef, je ne regrette rien.\n", str);
     }
 
@@ -209,16 +230,18 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownloadToFile()");
 
         PodderServiceInterface psi = performBind();
+        int rid = rng.nextInt();
         ByteRope br = new ByteRope();
 
         File f = File.createTempFile("httpdown", ".tmp", null);
         try {
-            psi.httpDownloadToFile(handler, -1, "http://ondrahosek.dyndns.org/detlef.txt",
+            psi.httpDownloadToFile(handler, rid, "http://ondrahosek.dyndns.org/detlef.txt",
                     f.getAbsolutePath());
 
             stoplight.acquireUninterruptibly();
 
             assertEquals(RESPONDED_HTTP_DOWNLOAD_TO_FILE, msgWhat);
+            assertEquals(rid, reqId);
 
             // read the file again
             FileInputStream fis = new FileInputStream(f);
@@ -247,17 +270,19 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             Log.d("PodderServiceTest@" + this.hashCode(), "testGpodderAuth()");
 
             PodderServiceInterface psi = performBind();
+            int rid = rng.nextInt();
             GpoNetClientInfo ci = new GpoNetClientInfo();
 
             ci.setUsername("UnitTest");
             ci.setPassword("FahrenheitSucksCelsiusRules");
             ci.setHostname("example.org");
 
-            psi.authCheck(handler, -1, ci);
+            psi.authCheck(handler, rid, ci);
 
             stoplight.acquireUninterruptibly();
 
             assertEquals(RESPONDED_AUTHCHECK, msgWhat);
+            assertEquals(rid, reqId);
         }
     }
 }
