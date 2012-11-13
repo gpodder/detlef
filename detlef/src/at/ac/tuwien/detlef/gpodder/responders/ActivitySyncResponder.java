@@ -1,13 +1,11 @@
 package at.ac.tuwien.detlef.gpodder.responders;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.RemoteException;
-import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.HttpDownloadResultHandler;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderService;
