@@ -158,6 +158,47 @@ public class PodderService extends Service {
         return true;
     }
 
+    /**
+     * Performs a login to a gpodder.net-compatible service.
+     * @param cb Callback for error cases.
+     * @param reqId Request ID as passed by the remote caller.
+     * @param cinfo Information about the client of the gpodder.net-compatible service.
+     * @return The gpodder.net client, or <tt>null</tt> if the login failed.
+     */
+    protected static SimpleClient performGpoLogin(PodderServiceCallback cb, int reqId,
+            GpoNetClientInfo cinfo) throws RemoteException {
+
+        SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
+                cinfo.getHostname());
+        boolean ok;
+        try {
+            ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
+        } catch (HttpResponseException hre) {
+            Log.d(TAG, "performGpoLogin HttpResponseException: " + hre.getMessage());
+            if (hre.getStatusCode() == HTTP_STATUS_FORBIDDEN) {
+                // authentication simply failed
+                cb.gponetLoginFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
+                        "authentication failed");
+            } else {
+                Log.w(TAG, "performGpoLogin HTTP response " + hre.getStatusCode());
+                cb.gponetLoginFailed(reqId, ErrorCode.UNEXPECTED_HTTP_RESPONSE,
+                        "unexpected response " + hre.getStatusCode());
+            }
+            return null;
+        } catch (IOException ioe) {
+            Log.w(TAG, "performGpoLogin IOException: " + ioe.getMessage());
+            cb.gponetLoginFailed(reqId, ErrorCode.IO_PROBLEM,
+                    "I/O problem during authentication: " + ioe.getMessage());
+            return null;
+        }
+
+        if (!ok) {
+            cb.gponetLoginFailed(reqId, ErrorCode.AUTHENTICATION_FAILED, "authentication failed");
+        }
+
+        return sc;
+    }
+
     /** Contains the error codes for failures reported by the {@link PodderService}. */
     public static class ErrorCode {
         /** Error code raised if authentication fails. */
@@ -226,33 +267,10 @@ public class PodderService extends Service {
             Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
 
             // try authenticating
-            SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
-                    cinfo.getHostname());
-            boolean ok;
-            try {
-                ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
-            } catch (HttpResponseException hre) {
-                Log.d(TAG, "HttpResponseException: " + hre.getMessage());
-                if (hre.getStatusCode() == HTTP_STATUS_FORBIDDEN) {
-                    // authentication simply failed
-                    cb.authCheckFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
-                            "authentication failed");
-                } else {
-                    Log.w(TAG, "unexpected HTTP response " + hre.getStatusCode());
-                    cb.authCheckFailed(reqId, ErrorCode.UNEXPECTED_HTTP_RESPONSE,
-                            "unexpected response " + hre.getStatusCode());
-                }
-                return;
-            } catch (IOException ioe) {
-                Log.w(TAG, "authenticate IOException: " + ioe.getMessage());
-                cb.authCheckFailed(reqId, ErrorCode.IO_PROBLEM, "I/O problem: " + ioe.getMessage());
-                return;
-            }
+            SimpleClient sc = performGpoLogin(cb, reqId, cinfo);
 
-            if (ok) {
+            if (sc != null) {
                 cb.authCheckSucceeded(reqId);
-            } else {
-                cb.authCheckFailed(reqId, ErrorCode.AUTHENTICATION_FAILED, "authentication failed");
             }
         }
 
@@ -260,8 +278,12 @@ public class PodderService extends Service {
                 throws RemoteException {
             Log.d(TAG, "downloadPodcastList() on " + Thread.currentThread().getId());
 
-            SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
-                    cinfo.getHostname());
+            // try authenticating
+            SimpleClient sc = performGpoLogin(cb, reqId, cinfo);
+            if (sc == null) {
+                return;
+            }
+
             List<String> casts;
             try {
                 casts = sc.getSubscriptions(cinfo.getDeviceId());

@@ -64,10 +64,6 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
      */
     public abstract void stopService();
 
-    public void authCheckFailed(int reqId, int errCode, String errStr) throws RemoteException {
-        handleGenericFailure(reqId, errCode, errStr);
-    }
-
     public void downloadPodcastListFailed(int reqId, int errCode, String errStr)
             throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
@@ -83,5 +79,9 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     public void httpDownloadToFileSucceeded(int reqId) throws RemoteException {
         handleNoDataSuccess(reqId);
+    }
+
+    public void gponetLoginFailed(int reqId, int errCode, String errStr) throws RemoteException {
+        handleGenericFailure(reqId, errCode, errStr);
     }
 }

@@ -50,13 +50,17 @@ oneway interface PodderServiceCallback
 	void authCheckSucceeded(int reqId);
 
 	/**
-	 * The authentication check failed.
+	 * Authentication with a gpodder.net-compatible service failed.
+	 *
+	 * Can be called by any operation placing requests to a gpodder.net-compatible service,
+	 * including authCheck and downloadPodcastList.
+	 *
 	 * @param reqId The request ID you passed.
 	 * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
 	 * error that occurred.
 	 * @param errStr Error message describing the error that occurred.
 	 */
-	void authCheckFailed(int reqId, int errCode, in String errStr);
+	void gponetLoginFailed(int reqId, int errCode, in String errStr);
 
 	/**
 	 * The podcast list has been fetched successfully.

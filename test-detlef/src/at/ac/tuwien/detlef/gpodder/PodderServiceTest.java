@@ -51,8 +51,8 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst = new WeakReference<PodderServiceTest>(pst);
         }
 
-        public void authCheckFailed(int reqId, int errCode, String errStr) throws RemoteException {
-            fail("Auth check failed: " + errStr);
+        public void gponetLoginFailed(int reqId, int errCode, String errStr) throws RemoteException {
+            fail("Login failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
