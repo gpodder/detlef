@@ -14,10 +14,9 @@ public interface PodcastDAO {
      * Inserts a podcast into the Database.
      *
      * @param podcast The podcast object
-     * @return returns the number of inserted rows (if it fails then &lt1 will be
-     *         returned)
+     * @return the inserted Podcast, null if an error occurs
      */
-    long insertPodcast(Podcast podcast);
+    Podcast insertPodcast(Podcast podcast);
 
     /**
      * Deletes a podcast from the Database.
@@ -41,8 +40,7 @@ public interface PodcastDAO {
      * attribute of the podcast).
      *
      * @param podcast the podcast which should be updated
-     * @return the number of updated rows will be returned (if it fails then &lt1
-     *         will be returned)
+     * @return the number of updated rows
      */
     int updateLastUpdate(Podcast podcast);
 
@@ -51,7 +49,7 @@ public interface PodcastDAO {
      * logoFilePath attribute of the podcast).
      *
      * @param podcast the podcast which should be updated
-     * @return the number of updated rows will be returned
+     * @return the number of updated rows
      */
     int updateLogoFilePath(Podcast podcast);
 
@@ -59,7 +57,7 @@ public interface PodcastDAO {
      * Delivers the podcast with the given id.
      *
      * @param podcastId the id from the podcast which will be returned
-     * @return returns the podcast with the given id
+     * @return the podcast with the given id
      */
     Podcast getPodcastById(long podcastId);
 }

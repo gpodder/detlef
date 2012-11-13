@@ -7,12 +7,12 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.EnhancedSubscriptionChanges;
 
 /**
- * provides database access for podcasts
+ * provides database access for podcasts.
  */
 public interface PodcastDBAssistant {
 
     /**
-     * delivers all podcasts which are stored in the database
+     * delivers all podcasts which are stored in the database.
      *
      * @param context: the application context eg.
      *            Activity.getApplicationContext());

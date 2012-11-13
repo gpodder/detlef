@@ -113,7 +113,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         p1.setLastUpdate(System.currentTimeMillis());
         p1.setLogoUrl("logoUrl");
         p1.setUrl("url");
-        p1.setId(dao.insertPodcast(p1));
+        p1 = dao.insertPodcast(p1);
 
         Podcast p2 = new Podcast();
         p2.setTitle("My Podcast 2");
@@ -121,7 +121,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         p2.setLastUpdate(System.currentTimeMillis());
         p2.setLogoUrl("logoUrl");
         p2.setUrl("url");
-        p2.setId(dao.insertPodcast(p2));
+        p2 = dao.insertPodcast(p2);
 
         Podcast p3 = new Podcast();
         p3.setTitle("My Podcast 3");
@@ -129,7 +129,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         p3.setLastUpdate(System.currentTimeMillis());
         p3.setLogoUrl("logoUrl");
         p3.setUrl("url");
-        p3.setId(dao.insertPodcast(p3));
+        p3 = dao.insertPodcast(p3);
 
         Podcast p4 = new Podcast();
         p4.setTitle("My Podcast 4");
@@ -137,7 +137,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         p4.setLastUpdate(System.currentTimeMillis());
         p4.setLogoUrl("logoUrl");
         p4.setUrl("url");
-        p4.setId(dao.insertPodcast(p4));
+        p4 = dao.insertPodcast(p4);
 
         Episode e1 = new Episode();
         e1.setAuthor("author");
@@ -151,7 +151,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         e1.setTitle("title");
         e1.setUrl("url");
         e1.setState(State.NEW);
-        e1.setId(edao.insertEpisode(e1));
+        e1 = edao.insertEpisode(e1);
 
         Episode e2 = new Episode();
         e2.setAuthor("author");
@@ -165,7 +165,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         e2.setTitle("title");
         e2.setUrl("url");
         e2.setState(State.NEW);
-        e2.setId(edao.insertEpisode(e2));
+        e2 = edao.insertEpisode(e2);
     }
 
     @Override
@@ -210,7 +210,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
 
         /* Add the 'All Podcasts' header. */
 
-        ListView listView = (ListView)view.findViewById(android.R.id.list);
+        ListView listView = (ListView) view.findViewById(android.R.id.list);
         listView.addHeaderView(allPodcasts);
 
         return view;

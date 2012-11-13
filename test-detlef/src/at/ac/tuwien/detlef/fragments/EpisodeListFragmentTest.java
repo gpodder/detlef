@@ -48,7 +48,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         e.setTitle(uuid);
         e.setUrl("url");
         e.setState(State.NEW);
-        e.setId(dao.insertEpisode(e));
+        e = dao.insertEpisode(e);
         assertTrue(String.format("New episode %s should be displayed in list", uuid), solo.searchText(uuid));
         assertTrue(String.format("New episode %s should be in DAO", uuid), dao.getAllEpisodes().contains(e));
     }

@@ -18,7 +18,7 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
 
     public void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {
         // TODO Auto-generated method stub
-        Log.d(TAG,"applying changes");
+        Log.d(TAG, "applying changes");
     }
 
 }

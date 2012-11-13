@@ -37,8 +37,7 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
     public void testAddPodcast() {
         Podcast p = new Podcast();
         p.setTitle(uuid);
-        podcastId = dao.insertPodcast(p);
-        p.setId(podcastId);
+        p = dao.insertPodcast(p);
         assertTrue(String.format("New podcast %s should be displayed in list", uuid), solo.searchText(uuid));
         assertTrue(String.format("New podcast %s should be in DAO", uuid), dao.getPodcastById(podcastId) != null);
     }

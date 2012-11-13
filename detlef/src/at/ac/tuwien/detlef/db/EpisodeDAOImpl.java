@@ -2,6 +2,7 @@
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,15 +23,21 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     private static EpisodeDAOImpl instance = null;
 
     private final DatabaseHelper dbHelper;
+
     private final PodcastDAOImpl podcastDAO;
+
     private final Set<OnEpisodeChangeListener> listeners = new HashSet<OnEpisodeChangeListener>();
+
+    private HashMap<Long, Episode> hashMapEpisode = new HashMap<Long, Episode>();
 
     /**
      * Interface for listeners interested in episode status changes.
      */
     public interface OnEpisodeChangeListener {
         void onEpisodeChanged(Episode episode);
+
         void onEpisodeAdded(Episode episode);
+
         void onEpisodeDeleted(Episode episode);
     }
 
@@ -57,7 +64,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     /**
      * @see EpisodeDAO#insertEpisode(Episode)
      */
-    public long insertEpisode(Episode episode) {
+    public Episode insertEpisode(Episode episode) {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -77,15 +84,18 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
             long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
             db.close();
-
+            if (id == -1) {
+                // error occured
+                return null;
+            }
+            episode.setId(id);
+            hashMapEpisode.put(id, episode);
             notifyListenersAdded(episode);
-
-            return id;
+            return episode;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
+            return null;
         }
-        return 0;
-
     }
 
     /**
@@ -102,6 +112,9 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         db.close();
 
         notifyListenersDeleted(episode);
+        if (hashMapEpisode.containsKey(episode.getId())) {
+            hashMapEpisode.remove(episode.getId());
+        }
 
         return ret;
     }
@@ -149,26 +162,44 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
         if (c.moveToFirst()) {
             do {
-                Episode e = new Episode();
-                e.setAuthor(c.getString(0));
-                e.setDescription(c.getString(1));
-                e.setFileSize(c.getString(2));
-                e.setGuid(c.getString(3));
-                e.setId(c.getLong(4));
-                e.setLink(c.getString(5));
-                e.setMimetype(c.getString(6));
-                e.setPodcast(podcastDAO.getPodcastById(c.getLong(7)));
-                e.setReleased(c.getLong(8));
-                e.setTitle(c.getString(9));
-                e.setUrl(c.getString(10));
-                e.setFilePath(c.getString(11));
-                e.setState(State.valueOf(c.getString(12)));
+                Episode e = getEpisode(c);
                 allEpisodes.add(e);
             } while (c.moveToNext());
         }
         c.close();
         db.close();
         return allEpisodes;
+    }
+
+    private Episode getEpisode(Cursor c) {
+        Episode e;
+        long key = c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ID));
+        boolean containsAlready = false;
+        if (hashMapEpisode.containsKey(key)) {
+            e = hashMapEpisode.get(key);
+            containsAlready = true;
+        } else {
+            e = new Episode();
+        }
+        e.setAuthor(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_AUTHOR)));
+        e.setDescription(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION)));
+        e.setFileSize(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILESIZE)));
+        e.setGuid(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_GUID)));
+        e.setId(key);
+        e.setLink(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_LINK)));
+        e.setMimetype(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_MIMETYPE)));
+        e.setPodcast(podcastDAO.getPodcastById(c.getLong(c
+                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
+        e.setReleased(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_RELEASED)));
+        e.setTitle(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_TITLE)));
+        e.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_URL)));
+        e.setFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILEPATH)));
+        e.setState(State.valueOf(c.getString(c
+                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE))));
+        if (!containsAlready) {
+            hashMapEpisode.put(key, e);
+        }
+        return e;
     }
 
     /**
@@ -190,19 +221,24 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     }
 
     private int updateFieldUsingEpisodeId(Episode episode, ContentValues values) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
-        String[] selectionArgs = {
-                String.valueOf(episode.getId())
-        };
+            String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(episode.getId())
+            };
 
-        int ret = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
-        db.close();
+            int ret = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
+            db.close();
 
-        notifyListenersChanged(episode);
+            notifyListenersChanged(episode);
 
-        return ret;
+            return ret;
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage());
+            return 0;
+        }
     }
 
     public void addEpisodeChangedListener(OnEpisodeChangeListener listener) {

@@ -9,12 +9,12 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import com.dragontek.mygpoclient.feeds.IFeed;
 
 /**
- * provides database access for episodes
+ * provides database access for episodes.
  */
 public interface EpisodeDBAssistant {
 
     /**
-     * Delivers all episodes from one podcast
+     * Delivers all episodes from one podcast.
      *
      * @param context: The application context eg.
      *            Activity.getApplicationContext());
@@ -26,7 +26,7 @@ public interface EpisodeDBAssistant {
     List<Episode> getEpisodes(Context context, Podcast podcast);
 
     /**
-     * Delivers all episodes
+     * Delivers all episodes.
      *
      * @param context: The application context eg.
      *            Activity.getApplicationContext());

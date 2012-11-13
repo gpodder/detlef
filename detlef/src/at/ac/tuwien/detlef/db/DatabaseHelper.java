@@ -40,36 +40,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_EPISODE_STATE = "state";
 
     /* Create statement for the podcast table. */
-    static final String createPodcastTable =
-            String.format("create table %s (" +
-                    "%s integer primary key autoincrement, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s integer, " +
-                    "%s text);",
+    static final String CREATE_PODCAST_TABLE =
+            String.format("create table %s ("
+                    + "%s integer primary key autoincrement, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s integer, "
+                    + "%s text);",
                     TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,
                     COLUMN_PODCAST_DESCRIPTION, COLUMN_PODCAST_LOGO_URL,
                     COLUMN_PODCAST_LAST_UPDATE, COLUMN_PODCAST_LOGO_FILE_PATH);
 
     /* Create statement for the episode table. */
-    static final String createEpisodeTable =
-            String.format("create table %s (" +
-                    "%s integer primary key autoincrement, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s integer, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s text, " +
-                    "%s integer not null, " +
-                    "foreign key (%s) references %s (%s) on delete cascade);",
+    static final String CREATE_EPISODE_TABLE =
+            String.format("create table %s ("
+                    + "%s integer primary key autoincrement, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s integer, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s integer not null, "
+                    + "foreign key (%s) references %s (%s) on delete cascade);",
                     TABLE_EPISODE, COLUMN_EPISODE_ID, COLUMN_EPISODE_GUID, COLUMN_EPISODE_TITLE,
                     COLUMN_EPISODE_DESCRIPTION, COLUMN_EPISODE_RELEASED, COLUMN_EPISODE_LINK,
                     COLUMN_EPISODE_AUTHOR, COLUMN_EPISODE_URL, COLUMN_EPISODE_MIMETYPE,
@@ -83,8 +83,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(createPodcastTable);
-        db.execSQL(createEpisodeTable);
+        db.execSQL(CREATE_PODCAST_TABLE);
+        db.execSQL(CREATE_EPISODE_TABLE);
 
     }
 

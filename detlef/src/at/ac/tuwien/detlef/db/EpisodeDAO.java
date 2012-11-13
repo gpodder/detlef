@@ -15,10 +15,9 @@ public interface EpisodeDAO {
      * inserts an episode into the database.
      *
      * @param episode: the episode which should be saved into the database
-     * @return returns the number of inserted rows (if no one is inserted &lt1
-     *         will be returned)
+     * @return returns the refreshed Episode, null if error occurs
      */
-    long insertEpisode(Episode episode);
+    Episode insertEpisode(Episode episode);
 
     /**
      * deletes an episode from the database.
@@ -50,8 +49,7 @@ public interface EpisodeDAO {
      * attribute of the episode).
      *
      * @param episode the episode which should be updated
-     * @return the number of updated rows (if no one is updated &lt1 will be
-     *         returned)
+     * @return the number of updated rows
      */
     int updateFilePath(Episode episode);
 
@@ -60,8 +58,7 @@ public interface EpisodeDAO {
      * of the episode).
      *
      * @param episode the episode which should be updated
-     * @return the number of updated rows (if no one is updated &lt1 will be
-     *         returned)
+     * @return the number of updated rows
      */
     int updateState(Episode episode);
 

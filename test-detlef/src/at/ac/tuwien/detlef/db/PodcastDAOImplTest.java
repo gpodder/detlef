@@ -44,10 +44,10 @@ public class PodcastDAOImplTest extends AndroidTestCase {
     public void testInsertPodcast() {
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         int countBeforeInsert = pdao.getAllPodcasts().size();
-        long newKey = pdao.insertPodcast(p1);
+        p1 = pdao.insertPodcast(p1);
         int countAfterInsert = pdao.getAllPodcasts().size();
         assertEquals(countBeforeInsert + 1, countAfterInsert);
-        assertTrue(newKey > 0);
+        assertTrue(p1.getId() > 0);
     }
 
     /**
@@ -55,7 +55,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      */
     public void testDeletePodcast() {
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
-        p1.setId(pdao.insertPodcast(p1));
+        p1 = pdao.insertPodcast(p1);
         int countBeforeDelete = pdao.getAllPodcasts().size();
         int ret = pdao.deletePodcast(p1);
         int countAfterDelete = pdao.getAllPodcasts().size();
@@ -69,10 +69,11 @@ public class PodcastDAOImplTest extends AndroidTestCase {
     public void testGetPodcastById() {
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1.setTitle("expected title");
-        p1.setId(pdao.insertPodcast(p1));
+        p1 = pdao.insertPodcast(p1);
         Podcast pod = pdao.getPodcastById(p1.getId());
         assertEquals("expected title", pod.getTitle());
         assertEquals(p1.getLastUpdate(), pod.getLastUpdate());
+        assertEquals(p1.hashCode(), pod.hashCode());
     }
 
     /**
@@ -80,7 +81,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      */
     public void testUpdateLastUpdate() {
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
-        p1.setId(pdao.insertPodcast(p1));
+        p1 = pdao.insertPodcast(p1);
         long currentMilis = System.currentTimeMillis();
         p1.setLastUpdate(currentMilis);
         assertEquals(1, pdao.updateLastUpdate(p1));
@@ -93,7 +94,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      */
     public void testUpdateLogoFilePath() {
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
-        p1.setId(pdao.insertPodcast(p1));
+        p1 = pdao.insertPodcast(p1);
         String newFilePath = "new path haha";
         p1.setLogoFilePath(newFilePath);
         assertEquals(1, pdao.updateLogoFilePath(p1));

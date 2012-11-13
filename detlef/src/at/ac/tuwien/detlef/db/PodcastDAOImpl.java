@@ -2,6 +2,7 @@
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,21 +11,29 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public final class PodcastDAOImpl implements PodcastDAO {
 
+    private static final String TAG = PodcastDAOImpl.class.getName();
+
     private static PodcastDAOImpl instance = null;
 
     private final DatabaseHelper dbHelper;
+
     private final Set<OnPodcastChangeListener> listeners = new HashSet<OnPodcastChangeListener>();
+
+    private HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
 
     /**
      * Interface for listeners interested in podcast status changes.
      */
     public interface OnPodcastChangeListener {
         void onPodcastChanged(Podcast podcast);
+
         void onPodcastAdded(Podcast podcast);
+
         void onPodcastDeleted(Podcast podcast);
     }
 
@@ -48,31 +57,36 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     /**
-     *
      * @see at.ac.tuwien.detlef.db.PodcastDAO#insertPodcast(at.ac.tuwien.detlef.domain
      *      .Podcast)
      */
-    public long insertPodcast(Podcast podcast) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
-        values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
-        values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
-        values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
-        values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
-        values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
+    public Podcast insertPodcast(Podcast podcast) {
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
+            values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
+            values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
+            values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
 
-        long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
-        db.close();
-
-        notifyListenersAdded(podcast);
-
-        return id;
-
+            long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
+            db.close();
+            if (id == -1) {
+                return null;
+            }
+            podcast.setId(id);
+            hashMapPodcast.put(id, podcast);
+            notifyListenersAdded(podcast);
+            return podcast;
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage());
+            return null;
+        }
     }
 
     /**
-     * 
      * @see at.ac.tuwien.detlef.db.PodcastDAO#deletePodcast(at.ac.tuwien.detlef.domain
      *      .Podcast)
      */
@@ -87,12 +101,14 @@ public final class PodcastDAOImpl implements PodcastDAO {
         db.close();
 
         notifyListenersDeleted(podcast);
+        if (hashMapPodcast.containsKey(podcast.getId())) {
+            hashMapPodcast.remove(podcast.getId());
+        }
 
         return ret;
     }
 
     /**
-     *
      * @see at.ac.tuwien.detlef.db.PodcastDAO#getAllPodcasts()
      */
     public List<Podcast> getAllPodcasts() {
@@ -105,8 +121,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
         };
 
-        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection,
-                null, null, null, null, null);
+        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, null, null, null, null, null);
 
         if (c.moveToFirst()) {
             do {
@@ -120,19 +135,30 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     private Podcast getPodcast(Cursor c) {
-        Podcast p = new Podcast();
-        p.setId(c.getLong(0));
-        p.setUrl(c.getString(1));
-        p.setTitle(c.getString(2));
-        p.setDescription(c.getString(3));
-        p.setLogoUrl(c.getString(4));
-        p.setLastUpdate(c.getLong(5));
-        p.setLogoFilePath(c.getString(6));
+        boolean alreadyContained = false;
+        long key = c.getLong(0);
+        Podcast p;
+        if (hashMapPodcast.containsKey(key)) {
+            p = hashMapPodcast.get(key);
+            alreadyContained = true;
+        } else {
+            p = new Podcast();
+        }
+        p.setId(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_ID)));
+        p.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_URL)));
+        p.setTitle(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_TITLE)));
+        p.setDescription(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION)));
+        p.setLogoUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_URL)));
+        p.setLastUpdate(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE)));
+        p.setLogoFilePath(c.getString(c
+                .getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
+        if (!alreadyContained) {
+            hashMapPodcast.put(key, p);
+        }
         return p;
     }
 
     /**
-     * 
      * @see at.ac.tuwien.detlef.db.PodcastDAO#updateLastUpdate(at.ac.tuwien.detlef
      *      .domain.Podcast)
      */
@@ -150,12 +176,10 @@ public final class PodcastDAOImpl implements PodcastDAO {
         db.close();
 
         notifyListenersChanged(podcast);
-
         return ret;
     }
 
     /**
-     * 
      * @see at.ac.tuwien.detlef.db.PodcastDAO#getPodcastById(at.ac.tuwien.detlef
      *      .domain.Podcast)
      */
@@ -173,10 +197,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 String.valueOf(podcastId)
         };
 
-        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST,
-                projection,
-                selection,
-                selectionArgs,
+        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, selectionArgs,
                 null, null, null);
 
         Podcast p = null;
