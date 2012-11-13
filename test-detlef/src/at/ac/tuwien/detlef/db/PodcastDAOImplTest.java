@@ -102,4 +102,38 @@ public class PodcastDAOImplTest extends AndroidTestCase {
         assertEquals(newFilePath, pod.getLogoFilePath());
     }
 
+    /**
+     * tests insert podcast functionality with trying to insert
+     * null on a non nullable column
+     */
+    public void testInsertNotNullableColumnShouldFail() {
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        p1.setUrl(null);
+        Podcast pod = pdao.insertPodcast(p1);
+        assertNull(pod);
+    }
+
+    /**
+     * tests insert podcast functionality with inserting null
+     * on a nullable column
+     */
+    public void testInsertNullOnNullableColumn() {
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        p1.setLogoFilePath(null);
+        Podcast pod = pdao.insertPodcast(p1);
+        assertNotNull(pod);
+    }
+
+    /**
+     * tests the getpodcastbyurl functionality
+     */
+    public void testGetPodcastByUrl() {
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        String url = "supergeileurl";
+        p1.setUrl(url);
+        pdao.insertPodcast(p1);
+        Podcast nw = pdao.getPodcastByUrl(url);
+        assertEquals(url, nw.getUrl());
+    }
+
 }

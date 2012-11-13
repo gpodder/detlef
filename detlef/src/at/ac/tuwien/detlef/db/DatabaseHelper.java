@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 2;
+    static final int VERSION = 3;
 
     public static final String DB_NAME = "detlefDB";
 
@@ -43,10 +43,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     static final String CREATE_PODCAST_TABLE =
             String.format("create table %s ("
                     + "%s integer primary key autoincrement, "
+                    + "%s text not null, "
+                    + "%s text not null, "
                     + "%s text, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s text, "
+                    + "%s text not null, "
                     + "%s integer, "
                     + "%s text);",
                     TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,
@@ -57,18 +57,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     static final String CREATE_EPISODE_TABLE =
             String.format("create table %s ("
                     + "%s integer primary key autoincrement, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s integer, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s integer not null, "
+                    + "%s text, " //guid
+                    + "%s text not null, " //title
+                    + "%s text, " //description
+                    + "%s integer, " // released
+                    + "%s text, " // link
+                    + "%s text, " // author
+                    + "%s text not null, " // url
+                    + "%s text, " // mimetype
+                    + "%s text, " // filesize
+                    + "%s text, " //filepath
+                    + "%s text, " //state
+                    + "%s integer not null, " // podcast
                     + "foreign key (%s) references %s (%s) on delete cascade);",
                     TABLE_EPISODE, COLUMN_EPISODE_ID, COLUMN_EPISODE_GUID, COLUMN_EPISODE_TITLE,
                     COLUMN_EPISODE_DESCRIPTION, COLUMN_EPISODE_RELEASED, COLUMN_EPISODE_LINK,

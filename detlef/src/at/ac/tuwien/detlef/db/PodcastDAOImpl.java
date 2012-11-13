@@ -69,7 +69,11 @@ public final class PodcastDAOImpl implements PodcastDAO {
             values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
             values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
             values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
-            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
+            if (podcast.getLogoFilePath() == null) {
+                values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH);
+            } else {
+                values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
+            }
 
             long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
             db.close();
@@ -257,5 +261,33 @@ public final class PodcastDAOImpl implements PodcastDAO {
         for (OnPodcastChangeListener listener : listeners) {
             listener.onPodcastDeleted(podcast);
         }
+    }
+
+    public Podcast getPodcastByUrl(String url) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] projection = {
+                DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
+                DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
+                DatabaseHelper.COLUMN_PODCAST_LOGO_URL, DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
+                DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
+        };
+
+        String selection = DatabaseHelper.COLUMN_PODCAST_URL + " = ?";
+        String[] selectionArgs = {
+                String.valueOf(url)
+        };
+
+        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, selectionArgs,
+                null, null, null);
+
+        Podcast p = null;
+        if (c.moveToFirst()) {
+            do {
+                p = getPodcast(c);
+            } while (c.moveToNext());
+        }
+        c.close();
+        db.close();
+        return p;
     }
 }

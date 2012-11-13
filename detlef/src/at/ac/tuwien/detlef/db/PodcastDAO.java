@@ -19,6 +19,13 @@ public interface PodcastDAO {
     Podcast insertPodcast(Podcast podcast);
 
     /**
+     * delivers the podcast with the given url.
+     * @param url: the url from the podcast
+     * @return returns the podcast object with the given url
+     */
+    Podcast getPodcastByUrl(String url);
+
+    /**
      * Deletes a podcast from the Database.
      *
      * @param podcast The podcast which should be deleted (only the id will be

@@ -87,6 +87,16 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
     }
 
     /**
+     * tests the insertEpisode functionality with no podcast given
+     */
+    public void testInsertEpisodeWithNonExistingPodcastShouldFail() {
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
+        e1.setPodcast(null);
+        e1 = edao.insertEpisode(e1);
+        assertNull(e1);
+    }
+
+    /**
      * tests the deleteEpisode functionality
      */
     public void testDeleteEpisode() {
@@ -168,5 +178,33 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         assertEquals(1, pdao.deletePodcast(p1));
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
         assertEquals(0, eps.size());
+    }
+
+    /**
+     * tests insert episode functionality with trying to insert
+     * null on a non nullable column
+     */
+    public void testInsertNotNullableColumnShouldFail() {
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        p1 = pdao.insertPodcast(p1);
+        e1.setPodcast(p1);
+        e1.setUrl(null);
+        e1 = edao.insertEpisode(e1);
+        assertNull(e1);
+    }
+
+    /**
+     * tests insert episode functionality with inserting null
+     * on a nullable column
+     */
+    public void testInsertNullOnNullableColumn() {
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        p1 = pdao.insertPodcast(p1);
+        e1.setPodcast(p1);
+        e1.setState(null);
+        e1 = edao.insertEpisode(e1);
+        assertNotNull(e1);
     }
 }

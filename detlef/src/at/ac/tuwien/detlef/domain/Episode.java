@@ -46,13 +46,13 @@ public class Episode implements IEpisode {
         return state;
     }
 
-    public Episode setState(Episode.State state) {
-        this.state = state;
+    public Episode setState(Episode.State stateIn) {
+        this.state = stateIn;
         return this;
     }
 
-    public Episode setTitle(String title) {
-        this.title = title;
+    public Episode setTitle(String titleIn) {
+        this.title = titleIn;
         return this;
     }
 
@@ -60,8 +60,8 @@ public class Episode implements IEpisode {
         return podcast;
     }
 
-    public Episode setPodcast(Podcast podcast) {
-        this.podcast = podcast;
+    public Episode setPodcast(Podcast podcastIn) {
+        this.podcast = podcastIn;
         return this;
     }
 
@@ -69,8 +69,8 @@ public class Episode implements IEpisode {
         return fileSize;
     }
 
-    public Episode setFileSize(String fileSize) {
-        this.fileSize = fileSize;
+    public Episode setFileSize(String fileSizeIn) {
+        this.fileSize = fileSizeIn;
         return this;
     }
 
@@ -78,8 +78,8 @@ public class Episode implements IEpisode {
         return author;
     }
 
-    public Episode setAuthor(String author) {
-        this.author = author;
+    public Episode setAuthor(String authorIn) {
+        this.author = authorIn;
         return this;
     }
 
@@ -87,8 +87,8 @@ public class Episode implements IEpisode {
         return description;
     }
 
-    public Episode setDescription(String description) {
-        this.description = description;
+    public Episode setDescription(String descriptionIn) {
+        this.description = descriptionIn;
         return this;
     }
 
@@ -96,8 +96,8 @@ public class Episode implements IEpisode {
         return guid;
     }
 
-    public Episode setGuid(String guid) {
-        this.guid = guid;
+    public Episode setGuid(String guidIn) {
+        this.guid = guidIn;
         return this;
     }
 
@@ -105,8 +105,8 @@ public class Episode implements IEpisode {
         return link;
     }
 
-    public Episode setLink(String link) {
-        this.link = link;
+    public Episode setLink(String linkIn) {
+        this.link = linkIn;
         return this;
     }
 
@@ -114,8 +114,8 @@ public class Episode implements IEpisode {
         return released;
     }
 
-    public Episode setReleased(long released) {
-        this.released = released;
+    public Episode setReleased(long releasedIn) {
+        this.released = releasedIn;
         return this;
     }
 
@@ -123,8 +123,8 @@ public class Episode implements IEpisode {
         return mimetype;
     }
 
-    public Episode setMimetype(String mimetype) {
-        this.mimetype = mimetype;
+    public Episode setMimetype(String mimetypeIn) {
+        this.mimetype = mimetypeIn;
         return this;
     }
 
@@ -137,8 +137,8 @@ public class Episode implements IEpisode {
         return url;
     }
 
-    public Episode setUrl(String url) {
-        this.url = url;
+    public Episode setUrl(String urlIn) {
+        this.url = urlIn;
         return this;
     }
 
@@ -146,8 +146,8 @@ public class Episode implements IEpisode {
         return id;
     }
 
-    public Episode setId(long id) {
-        this.id = id;
+    public Episode setId(long idIn) {
+        this.id = idIn;
         return this;
     }
 
@@ -155,8 +155,8 @@ public class Episode implements IEpisode {
         return filePath;
     }
 
-    public Episode setFilePath(String filePath) {
-        this.filePath = filePath;
+    public Episode setFilePath(String filePathIn) {
+        this.filePath = filePathIn;
         return this;
     }
 }

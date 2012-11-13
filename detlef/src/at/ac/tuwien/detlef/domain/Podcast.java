@@ -10,6 +10,11 @@ import com.dragontek.mygpoclient.simple.IPodcast;
  */
 public class Podcast implements IPodcast, Serializable {
 
+    /**
+     * default serialUID added.
+     */
+    private static final long serialVersionUID = 1L;
+
     private long id;
 
     private String title = "This is a podcast title";
@@ -40,8 +45,8 @@ public class Podcast implements IPodcast, Serializable {
         return url;
     }
 
-    public Podcast setUrl(String url) {
-        this.url = url;
+    public Podcast setUrl(String urlIn) {
+        this.url = urlIn;
         return this;
     }
 
@@ -62,8 +67,8 @@ public class Podcast implements IPodcast, Serializable {
         return id;
     }
 
-    public Podcast setId(long id) {
-        this.id = id;
+    public Podcast setId(long idIn) {
+        this.id = idIn;
         return this;
     }
 
@@ -71,8 +76,8 @@ public class Podcast implements IPodcast, Serializable {
         return lastUpdate;
     }
 
-    public Podcast setLastUpdate(long lastUpdate) {
-        this.lastUpdate = lastUpdate;
+    public Podcast setLastUpdate(long lastUpdateIn) {
+        this.lastUpdate = lastUpdateIn;
         return this;
     }
 
@@ -80,8 +85,8 @@ public class Podcast implements IPodcast, Serializable {
         return logoFilePath;
     }
 
-    public Podcast setLogoFilePath(String logoFilePath) {
-        this.logoFilePath = logoFilePath;
+    public Podcast setLogoFilePath(String logoFilePathIn) {
+        this.logoFilePath = logoFilePathIn;
         return this;
     }
 

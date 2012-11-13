@@ -67,7 +67,6 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     public Episode insertEpisode(Episode episode) {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_EPISODE_AUTHOR, episode.getAuthor());
             values.put(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION, episode.getDescription());
@@ -75,17 +74,28 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
             values.put(DatabaseHelper.COLUMN_EPISODE_GUID, episode.getGuid());
             values.put(DatabaseHelper.COLUMN_EPISODE_LINK, episode.getLink());
             values.put(DatabaseHelper.COLUMN_EPISODE_MIMETYPE, episode.getMimetype());
+            if (episode.getPodcast() == null) {
+                db.close();
+                return null;
+            }
             values.put(DatabaseHelper.COLUMN_EPISODE_PODCAST, episode.getPodcast().getId());
             values.put(DatabaseHelper.COLUMN_EPISODE_RELEASED, episode.getReleased());
             values.put(DatabaseHelper.COLUMN_EPISODE_TITLE, episode.getTitle());
             values.put(DatabaseHelper.COLUMN_EPISODE_URL, episode.getUrl());
-            values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH, episode.getFilePath());
-            values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getState().toString());
-
+            if (episode.getFilePath() == null) {
+                values.putNull(DatabaseHelper.COLUMN_EPISODE_FILEPATH);
+            } else {
+                values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH, episode.getFilePath());
+            }
+            if (episode.getState() == null) {
+                values.putNull(DatabaseHelper.COLUMN_EPISODE_STATE);
+            } else {
+                values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getState().toString());
+            }
             long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
             db.close();
             if (id == -1) {
-                // error occured
+                // error occurred
                 return null;
             }
             episode.setId(id);
@@ -194,8 +204,12 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         e.setTitle(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_TITLE)));
         e.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_URL)));
         e.setFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILEPATH)));
-        e.setState(State.valueOf(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE))));
+        String state = c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE));
+        if (state == null) {
+            e.setState(State.NEW);
+        } else {
+            e.setState(State.valueOf(state));
+        }
         if (!containsAlready) {
             hashMapEpisode.put(key, e);
         }
