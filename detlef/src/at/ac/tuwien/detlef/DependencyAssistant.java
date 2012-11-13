@@ -1,4 +1,3 @@
-
 package at.ac.tuwien.detlef;
 
 import java.util.HashMap;
@@ -7,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
+import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.playlist.Playlist;
@@ -24,20 +24,13 @@ import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
  */
 public class DependencyAssistant {
 
-    /**
-     * Making this a final static variable does not make sense w.r.t.
-     * testability. It should be possible to inject modified versions of the
-     * dependency assistant. Therefore, use the static getter
-     * {@link #getDependencyAssistant()} instead. If you need to inject mock
-     * objects during testing, use {@link #setDependencyAssistant()}.
-     * 
-     * @deprecated
-     */
-    public static final DependencyAssistant DEPENDENCY_ASSISTANT = new DependencyAssistant();
-
-    private static DependencyAssistant dependencyAssistant = new DependencyAssistant();
+    private static DependencyAssistant dependencyAssistant =
+            new DependencyAssistant();
 
     private static Playlist playlist = new Playlist();
+
+    private static EpisodeDBAssistant episodeDBAssistant =
+            new EpisodeDBAssistantImpl();
 
     public static Playlist getPlaylist() {
         return playlist;
@@ -63,11 +56,12 @@ public class DependencyAssistant {
      *         program.
      */
     public EpisodeDBAssistant getEpisodeDBAssistant() {
-        return null;
+        return episodeDBAssistant;
     }
 
     /**
-     * @param context The {@link Context}. This is needed in order to be able to
+     * @param context
+     *            The {@link Context}. This is needed in order to be able to
      *            access Android's system settings. Usually this will be the
      *            current {@link Activity}.
      * @return Gets the {@link GpodderSettings gpodder.net settings instance}
@@ -76,8 +70,8 @@ public class DependencyAssistant {
     public GpodderSettings getGpodderSettings(Context context) {
 
         HashMap<String, Object> dependecies = new HashMap<String, Object>();
-        dependecies
-                .put("sharedPreferences", PreferenceManager.getDefaultSharedPreferences(context));
+        dependecies.put("sharedPreferences",
+                PreferenceManager.getDefaultSharedPreferences(context));
 
         GpodderSettingsDAO gpodderSettingsDAO = new GpodderSettingsDAOAndroid();
         gpodderSettingsDAO.setDependecies(dependecies);
@@ -90,7 +84,8 @@ public class DependencyAssistant {
      *         {@link GpodderSettings}.
      */
     public ConnectionTester getConnectionTester() {
-        return new ConnectionTesterGpodderNet().setContext(Detlef.getAppContext());
+        return new ConnectionTesterGpodderNet().setContext(Detlef
+                .getAppContext());
     }
 
     public static DependencyAssistant getDependencyAssistant() {
@@ -104,7 +99,8 @@ public class DependencyAssistant {
      * 
      * @param pDependencyAssistant
      */
-    public static void setDependencyAssistant(DependencyAssistant pDependencyAssistant) {
+    public static void setDependencyAssistant(
+            DependencyAssistant pDependencyAssistant) {
         dependencyAssistant = pDependencyAssistant;
     }
 

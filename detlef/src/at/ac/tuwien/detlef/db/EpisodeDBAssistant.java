@@ -15,22 +15,25 @@ public interface EpisodeDBAssistant {
 
     /**
      * Delivers all episodes from one podcast.
-     *
-     * @param context: The application context eg.
+     * 
+     * @param context
+     *            : The application context eg.
      *            Activity.getApplicationContext());
-     *
-     * @param podcast: The podcast which contains the episodes
-     *
+     * 
+     * @param podcast
+     *            : The podcast which contains the episodes
+     * 
      * @return returns all episodes of the given podcast
      */
     List<Episode> getEpisodes(Context context, Podcast podcast);
 
     /**
      * Delivers all episodes.
-     *
-     * @param context: The application context eg.
+     * 
+     * @param context
+     *            : The application context eg.
      *            Activity.getApplicationContext());
-     *
+     * 
      * @return returns all episodes which are stored in the database
      */
     List<Episode> getAllEpisodes(Context context);
@@ -45,4 +48,15 @@ public interface EpisodeDBAssistant {
      */
     void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed);
 
+    /**
+     * Gets an episode by database id.
+     * 
+     * @param context
+     *            : The application context eg.
+     *            Activity.getApplicationContext());
+     * @param id
+     *            The ID of the episode in the database.
+     * @return The episode with the given ID, if any. Otherwise null.
+     */
+    Episode getEpisodeById(Context context, int id);
 }

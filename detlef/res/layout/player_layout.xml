@@ -16,7 +16,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:contentDescription="@string/podcast_icon" 
+            android:contentDescription="@string/podcast_icon"
             android:gravity="center"
             android:src="@drawable/ic_launcher" />
 
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/imageView1"
             android:gravity="center"
-            android:text="@string/sample_episode_name" 
+            android:text="@string/sample_episode_name"
             android:textColor="#0099CC"
             android:textStyle="bold" />
 
@@ -39,7 +39,7 @@
             android:maxLines="8"
             android:scrollbars="vertical"
             android:singleLine="false"
-            android:text="@string/sample_episode_description" /> 
+            android:text="@string/sample_episode_description" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -48,26 +48,25 @@
         android:layout_margin="10dp"
         android:layout_weight="2" >
 
-        <TextView
+        <!--TextView
             android:id="@+id/nowPlayingString"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:maxLines="2"
-            android:text="@string/now_playing" /> 
+            android:text="@string/now_playing" / -->
 
         <LinearLayout
             android:id="@+id/nowPlayingLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/nowPlayingString"
             android:gravity="center" >
 
             <TextView
                 android:id="@+id/playerPodcastName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/sample_podcast_name" 
+                android:text="@string/sample_podcast_name"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
@@ -75,7 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
-                android:text="@string/sample_episode_name_2" 
+                android:text="@string/sample_episode_name_2"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="#0099CC" />
         </LinearLayout>
@@ -89,21 +88,33 @@
             android:layout_toLeftOf="@+id/ButtonFF"
             android:layout_toRightOf="@+id/ButtonPlayStop" />
 
-        <Button
-            android:id="@+id/ButtonPlayStop"
-            android:layout_width="wrap_content"
+        <TableLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/nowPlayingLayout"
-            android:layout_below="@+id/nowPlayingLayout"
-            android:text="@string/playlist_abbreviation" /> 
+            android:layout_below="@+id/SeekBar01"
+            android:stretchColumns="*" >
 
-        <Button
-            android:id="@+id/ButtonFF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignRight="@+id/nowPlayingLayout"
-            android:layout_below="@+id/nowPlayingLayout"
-            android:text="@string/fast_forward_abbreviation" /> 
+            <TableRow>
+
+                <ImageButton
+                    android:id="@+id/ButtonRewind"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_media_rew" />
+
+                <ImageButton
+                    android:id="@+id/ButtonPlayStop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_media_play" />
+
+                <ImageButton
+                    android:id="@+id/ButtonFF"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_media_ff" />
+            </TableRow>
+        </TableLayout>
     </RelativeLayout>
 
 </LinearLayout>
