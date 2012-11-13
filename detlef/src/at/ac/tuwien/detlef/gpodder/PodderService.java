@@ -289,14 +289,16 @@ public class PodderService extends Service {
                 casts = sc.getSubscriptions(cinfo.getDeviceId());
             } catch (IOException ioe) {
                 Log.w(TAG, "getSubscriptions IOException: " + ioe.getMessage());
-                cb.authCheckFailed(reqId, ErrorCode.IO_PROBLEM, "I/O problem: " + ioe.getMessage());
+                cb.downloadPodcastListFailed(reqId, ErrorCode.IO_PROBLEM,
+                        "I/O problem: " + ioe.getMessage());
                 return;
             }
 
             if (casts != null) {
                 cb.downloadPodcastListSucceeded(reqId, casts);
             } else {
-                cb.authCheckFailed(reqId, ErrorCode.UNKNOWN_ERROR, "something went wrong");
+                cb.downloadPodcastListFailed(reqId, ErrorCode.UNKNOWN_ERROR,
+                        "something went wrong");
             }
         }
 
