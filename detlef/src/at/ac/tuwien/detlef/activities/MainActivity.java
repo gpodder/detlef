@@ -304,10 +304,12 @@ public class MainActivity extends FragmentActivity implements
         return true;
     }
 
+    @Override
     public void onTabUnselected(ActionBar.Tab tab,
             FragmentTransaction fragmentTransaction) {
     }
 
+    @Override
     public void onTabSelected(Tab tab, FragmentTransaction fragmentTransaction) {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
@@ -330,6 +332,7 @@ public class MainActivity extends FragmentActivity implements
         mViewPager.setCurrentItem(tab.getPosition());
     }
 
+    @Override
     public void
             onTabReselected(Tab tab, FragmentTransaction fragmentTransaction) {
     }
@@ -431,16 +434,19 @@ public class MainActivity extends FragmentActivity implements
      * The user has selected a podcast in the podcasts list. Filters the episode
      * view and then switches to it. If podcast is null, all episodes are shown.
      */
+    @Override
     public void onPodcastSelected(Podcast podcast) {
         mSectionsPagerAdapter.getEpisodeList().setPodcast(podcast);
         getActionBar().setSelectedNavigationItem(
                 SectionsPagerAdapter.POSITION_EPISODES);
     }
 
+    @Override
     public void onEpisodeSelected(Episode episode) {
-        mSectionsPagerAdapter.getPlayer().setEpisode(episode);
+        // TODO
+        // mSectionsPagerAdapter.getPlayer().setEpisode(episode);
         getActionBar().setSelectedNavigationItem(
                 SectionsPagerAdapter.POSITION_PLAYER);
-        mSectionsPagerAdapter.getPlayer().startPlaying();
+        // mSectionsPagerAdapter.getPlayer().startPlaying();
     }
 }
