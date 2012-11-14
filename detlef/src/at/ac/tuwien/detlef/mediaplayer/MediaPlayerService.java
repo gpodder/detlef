@@ -11,7 +11,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.domain.Episode;
 
 /**
  * A service that provides methods for playing episodes.
@@ -42,22 +41,17 @@ public class MediaPlayerService extends Service implements
     private MediaPlayer mediaPlayer;
     private final IBinder binder = new MediaPlayerBinder();
 
-    private Episode activeEpisode;
-
     private boolean haveRunningEpisode = false;
     private boolean currentlyPlaying = false;
+    private boolean mediaPlayerPrepared = false;
 
     private static boolean running = false;
-
-    public Episode getActiveEpisode() {
-        return activeEpisode;
-    }
 
     /**
      * @return The current media player position.
      */
     public int getCurrentPosition() {
-        if (haveRunningEpisode) {
+        if (mediaPlayerPrepared) {
             return mediaPlayer.getCurrentPosition();
         }
         return 0;
@@ -67,7 +61,7 @@ public class MediaPlayerService extends Service implements
      * @return Returns the duration of the currently played piece.
      */
     public int getDuration() {
-        if (haveRunningEpisode) {
+        if (mediaPlayerPrepared) {
             return mediaPlayer.getDuration();
         }
         return -1;
@@ -105,6 +99,7 @@ public class MediaPlayerService extends Service implements
     @Override
     public void onDestroy() {
         running = false;
+        mediaPlayerPrepared = false;
         mediaPlayer.reset();
         mediaPlayer.release();
         mediaPlayer = null;
@@ -116,10 +111,10 @@ public class MediaPlayerService extends Service implements
         Log.e(getClass().getCanonicalName(),
                 "Error while playing media! What: " + what + ", extra: "
                         + extra);
+        mediaPlayerPrepared = false;
         mp.reset();
         haveRunningEpisode = false;
         currentlyPlaying = false;
-        // XXX Joshi: I don't know (yet) what to do here
         return true;
     }
 
@@ -127,6 +122,7 @@ public class MediaPlayerService extends Service implements
     public void onPrepared(MediaPlayer player) {
         haveRunningEpisode = true;
         currentlyPlaying = true;
+        mediaPlayerPrepared = true;
         mediaPlayer.start();
     }
 
@@ -136,6 +132,7 @@ public class MediaPlayerService extends Service implements
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnErrorListener(this);
+        mediaPlayer.setOnCompletionListener(this);
         return Service.START_NOT_STICKY;
     }
 
@@ -151,20 +148,25 @@ public class MediaPlayerService extends Service implements
      *            The progress to set the media player to.
      */
     public void seekTo(int progress) {
-        if (haveRunningEpisode) {
+        if (mediaPlayerPrepared) {
             mediaPlayer.seekTo(progress);
         }
     }
 
     /**
-     * Sets the active episode. Playback starts when the start() method is
-     * called.
-     * 
-     * @param e
-     *            The episode to play next.
+     * Switches next URI to the next file to be played and updates the active
+     * episode.
      */
-    public void setActiveEpisode(Episode activeEpisode) {
-        this.activeEpisode = activeEpisode;
+    private void chooseNextToPlay() {
+        // TODO hook up with playlist.
+    }
+
+    public void fastForward() {
+        mediaPlayer.stop();
+        chooseNextToPlay();
+        haveRunningEpisode = false;
+        currentlyPlaying = false;
+        startPlaying();
     }
 
     /**
@@ -182,6 +184,7 @@ public class MediaPlayerService extends Service implements
         } else {
             haveRunningEpisode = true;
             currentlyPlaying = true;
+            mediaPlayerPrepared = false;
             mediaPlayer.reset();
             try {
                 mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);

@@ -26,12 +26,16 @@ public class PlayerFragment extends Fragment {
 
     private static final int PROGRESS_BAR_UPDATE_INTERVAL = 200;
 
+    // TODO icon for service
+
     private ImageButton buttonPlayStop;
     private SeekBar seekBar;
     private boolean bound = false;
     private MediaPlayerService service;
 
     private final Handler handler = new Handler();
+
+    // TODO write tests
 
     /**
      * Handles the connection to the MediaPlayerService that plays music.
@@ -45,17 +49,6 @@ public class PlayerFragment extends Fragment {
                     (MediaPlayerService.MediaPlayerBinder) iBinder;
             service = binder.getService();
             bound = true;
-
-            if (service.hasRunningEpisode()) {
-                startPlayProgressUpdater();
-            }
-            if (service.isCurrentlyPlaying()) {
-                buttonPlayStop
-                        .setImageResource(android.R.drawable.ic_media_pause);
-            } else {
-                buttonPlayStop
-                        .setImageResource(android.R.drawable.ic_media_play);
-            }
         }
 
         @Override
@@ -63,6 +56,8 @@ public class PlayerFragment extends Fragment {
             bound = false;
         }
     };
+
+    private boolean fragmentPaused = true;
 
     /**
      * Initializes the buttons play, ff, rew and the slide etc. to perform their
@@ -79,13 +74,12 @@ public class PlayerFragment extends Fragment {
         });
 
         seekBar = (SeekBar) getActivity().findViewById(R.id.SeekBar01);
-        // TODO
-        // seekBar.setMax(mediaPlayer.getDuration());
+        // XXX this is buggy when just clicking and not dragging the slider -
+        // sorry.
         seekBar.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 int progress = seekBar.getProgress();
-                // TODO
                 service.seekTo(progress);
                 return false;
             }
@@ -131,21 +125,44 @@ public class PlayerFragment extends Fragment {
         textView.setMovementMethod(ScrollingMovementMethod.getInstance());
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        fragmentPaused = false;
+        startPlayProgressUpdater();
+    }
+
+    @Override
+    public void onPause() {
+        fragmentPaused = true;
+        super.onPause();
+    }
+
     /**
      * Handles the updates of the seek/progressbar as well as the state of the
      * play/pause button.
      */
     private void startPlayProgressUpdater() {
-        seekBar.setMax(service.getDuration());
-        seekBar.setProgress(service.getCurrentPosition());
-        if (service.hasRunningEpisode()) {
-            Runnable notification = new Runnable() {
-                @Override
-                public void run() {
-                    startPlayProgressUpdater();
-                }
-            };
-            handler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
+        if (fragmentPaused) {
+            return;
+        }
+        if (service != null) {
+            seekBar.setMax(service.getDuration());
+            seekBar.setProgress(service.getCurrentPosition());
+            if (service.isCurrentlyPlaying()) {
+                buttonPlayStop
+                        .setImageResource(android.R.drawable.ic_media_pause);
+                Runnable notification = new Runnable() {
+                    @Override
+                    public void run() {
+                        startPlayProgressUpdater();
+                    }
+                };
+                handler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
+            } else {
+                buttonPlayStop
+                        .setImageResource(android.R.drawable.ic_media_play);
+            }
         }
     }
 

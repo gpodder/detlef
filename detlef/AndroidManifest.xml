@@ -46,7 +46,9 @@
         </service>
         <service android:name=".gpodder.PullFeedAsyncTask" >
         </service>
-        <service android:name=".mediaplayer.MediaPlayerService" >
+        <service
+            android:name=".mediaplayer.MediaPlayerService"
+            android:icon="@android:drawable/ic_media_play" >
         </service>
     </application>
 
