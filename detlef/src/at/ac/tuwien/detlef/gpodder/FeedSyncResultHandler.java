@@ -1,46 +1,32 @@
 package at.ac.tuwien.detlef.gpodder;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 /**
  * A class to handle replies from the PullFeedAsyncTask.
  *
- * The Receiver has to be registered with register() before use and unregistered with unregister()
- * once the receiving Activity is destroyed. The Receiver can only receive Intents from within the
- * same Application.
+ * The Receiver has to be registered with registerReceiver() before use and unregistered with
+ * unregisterReceiver() once the Receiver is destroyed.
  *
  * In order to implement handling of the Task's results the user has to subclass
  * FeedSyncResultHandler and implement handle() and handleFailure().
  */
-public abstract class FeedSyncResultHandler extends BroadcastReceiver {
+public abstract class FeedSyncResultHandler<Receiver extends Activity> extends
+BroadcastReceiverCallback<Receiver> {
     /** Logging tag. */
-    private static final String TAG = "PodcastSyncResultHandler";
+    private static final String TAG = "FeedSyncResultHandler";
 
-    /**
-     * Register the receiver to the given context.
-     * @param context The context.
-     */
-    public final void register(Context context) {
-        IntentFilter fil = new IntentFilter(PullFeedAsyncTask.ACTION);
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, fil);
-    }
-
-    /**
-     * Unregister the receiver from the given context.
-     * @param context The context.
-     */
-    public final void unregister(Context context) {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+    protected FeedSyncResultHandler() {
+        super(PullFeedAsyncTask.ACTION);
     }
 
     @Override
-    public final void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive");
+    protected void deliverEvent(BroadcastReceiverCallback.BroadcastReceiverEvent e) {
+        Log.d(TAG, "deliverEvent");
+
+        Intent intent = e.getIntent();
 
         /* See whether the Service succeeded. */
         int status = intent.getIntExtra(PullFeedAsyncTask.EXTRA_STATE,

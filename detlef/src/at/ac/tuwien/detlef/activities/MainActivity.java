@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.callbacks.CallbackContainer;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -60,9 +61,13 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity_layout);
 
+        /* old Activity is recreated */
         if (savedInstanceState != null) {
             curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
             numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
+        } else {
+            cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
+            cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
         }
 
         // Create the adapter that will return a fragment for each of the three
@@ -106,11 +111,26 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         if (numPodSync.get() != -1) {
             progressDialog.show();
         }
+    }
 
-        /* Register the PodcastSyncResultHandler. */
-        podcastHandler.register(this);
-        /* Register the FeedSyncResultHandler. */
-        feedHandler.register(this);
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        /* Register the Podcast- & FeedHandler. */
+        cbCont.registerReceiver(this);
+    }
+
+    @Override
+    public void onPause() {
+        /* Unregister the Podcast- & FeedHandler. */
+        cbCont.unregisterReceiver();
+
+        if (isFinishing()) {
+            cbCont.clear();
+        }
+
+        super.onPause();
     }
 
     @Override
@@ -124,11 +144,6 @@ EpisodeListFragment.OnEpisodeSelectedListener {
     @Override
     public void onDestroy() {
         progressDialog.dismiss();
-
-        /* Unregister the PodcastSyncResultHandler. */
-        podcastHandler.unregister(this);
-        /* Unregister the FeedSyncResultHandler. */
-        feedHandler.unregister(this);
 
         super.onDestroy();
     }
@@ -145,6 +160,9 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         }
     }
 
+    private static final CallbackContainer<MainActivity> cbCont =
+            new CallbackContainer<MainActivity>();
+
     /**
      * The Toast with the Output of the refresh operation is shown this long.
      */
@@ -155,6 +173,8 @@ EpisodeListFragment.OnEpisodeSelectedListener {
      */
     private ProgressDialog progressDialog;
 
+    private static final String KEY_PODCAST_HANDLER = "KEY_PODCAST_HANDLER";
+    private static final String KEY_FEED_HANDLER = "KEY_FEED_HANDLER";
     private static final String KEY_NUM_POD_SYNC = "KEY_NUM_POD_SYNC";
 
     private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
@@ -168,71 +188,65 @@ EpisodeListFragment.OnEpisodeSelectedListener {
     /**
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
-    private final PodcastSyncResultHandler podcastHandler =
-            new PodcastSyncResultHandler() {
+    private static final class PodcastHandler extends PodcastSyncResultHandler<MainActivity> {
 
         @Override
         public void handle(EnhancedSubscriptionChanges changes) {
             PodcastDBAssistant pda = new PodcastDBAssistantImpl();
 
-            pda.applySubscriptionChanges(MainActivity.this, changes);
+            //pda.applySubscriptionChanges(act, changes);
 
-            synchronized (numPodSync) {
-                for (Podcast p : pda.getAllPodcasts(MainActivity.this)) {
-                    Intent i =
-                            new Intent().setClass(MainActivity.this,
-                                    PullFeedAsyncTask.class);
+            synchronized (getRcv().numPodSync) {
+                for (Podcast p : pda.getAllPodcasts(getRcv())) {
+                    Intent i = new Intent().setClass(getRcv(), PullFeedAsyncTask.class);
                     i.putExtra(PullFeedAsyncTask.EXTRA_PODCAST, p);
-                    startService(i);
-                    numPodSync.incrementAndGet();
+                    getRcv().startService(i);
+                    getRcv().numPodSync.incrementAndGet();
                 }
 
-                if (numPodSync.get() == 0) {
-                    onRefreshDone(getString(R.string.refresh_successful));
+                if (getRcv().numPodSync.get() == 0) {
+                    getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
                 }
 
-                prepareProgressDialog();
+                getRcv().prepareProgressDialog();
             }
         }
 
         @Override
         public void handleFailure(GPodderException e) {
-            onRefreshDone(getString(R.string.operation_failed) + ": "
+            getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
                     + e.getMessage());
         }
-
     };
 
     /**
      * The Handler for receiving PullFeedAsyncTask's results.
      */
-    private final FeedSyncResultHandler feedHandler =
-            new FeedSyncResultHandler() {
+    private static final class FeedHandler extends FeedSyncResultHandler<MainActivity> {
 
         @Override
         public void handle() {
-            synchronized (numPodSync) {
+            synchronized (getRcv().numPodSync) {
                 checkDone();
             }
         }
 
         @Override
         public void handleFailure(GPodderException e) {
-            Toast.makeText(MainActivity.this, e.getMessage(),
-                    REFRESH_MSG_DURATION_MS).show();
+            Toast.makeText(getRcv(), e.getMessage(), REFRESH_MSG_DURATION_MS).show();
 
             checkDone();
         }
 
         private void checkDone() {
-            synchronized (numPodSync) {
-                curPodSync.incrementAndGet();
+            synchronized (getRcv().numPodSync) {
+                getRcv().curPodSync.incrementAndGet();
 
-                if (curPodSync.get() == numPodSync.get()) {
-                    onRefreshDone(getString(R.string.refresh_successful));
+                if (getRcv().curPodSync.get() == getRcv().numPodSync.get()) {
+                    getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
                 }
 
-                prepareProgressDialog();
+                getRcv().prepareProgressDialog();
             }
         }
 
@@ -304,17 +318,17 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         if (menu != null) {
             menu.clear();
             switch (tab.getPosition()) {
-            case 0:
-                getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                break;
-            case 1:
-                getMenuInflater().inflate(R.menu.episode_menu, menu);
-                break;
-            case 2:
-                getMenuInflater().inflate(R.menu.player_menu, menu);
-                break;
-            default:
-                System.out.println("Non-existent tab selected! Please fix");
+                case 0:
+                    getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                    break;
+                case 1:
+                    getMenuInflater().inflate(R.menu.episode_menu, menu);
+                    break;
+                case 2:
+                    getMenuInflater().inflate(R.menu.player_menu, menu);
+                    break;
+                default:
+                    System.out.println("Non-existent tab selected! Please fix");
             }
         }
         mViewPager.setCurrentItem(tab.getPosition());
@@ -385,23 +399,23 @@ EpisodeListFragment.OnEpisodeSelectedListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-        case R.id.settings:
-            intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.playlist:
-            intent = new Intent(this, PlaylistActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.search:
-            intent = new Intent(this, SearchActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.refresh:
-            onRefreshPressed();
-            break;
-        default:
-            break;
+            case R.id.settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.playlist:
+                intent = new Intent(this, PlaylistActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.search:
+                intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.refresh:
+                onRefreshPressed();
+                break;
+            default:
+                break;
         }
         return true;
     }
