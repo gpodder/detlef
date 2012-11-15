@@ -19,13 +19,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PodListAdapter;
-import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl.OnPodcastChangeListener;
-import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Episode.State;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.PodListModel;
 
@@ -84,13 +80,6 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
                 podlist);
         setListAdapter(adapter);
 
-        /* Create dummy contents if needed. */
-
-        if (podlist.isEmpty()) {
-            //fillDbWithDummyContents();
-            //podlist = dao.getAllPodcasts();
-        }
-
         /* Then create the 'All Podcasts' header. */
 
         allPodcasts = new TextView(getActivity());
@@ -103,71 +92,6 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
                 listener.onPodcastSelected(null);
             }
         });
-    }
-
-    private void fillDbWithDummyContents() {
-        PodcastDAO dao = PodcastDAOImpl.i(this.getActivity().getApplicationContext());
-        EpisodeDAO edao = EpisodeDAOImpl.i(this.getActivity().getApplicationContext());
-
-        Podcast p1 = new Podcast();
-        p1.setTitle("My Podcast 1");
-        p1.setDescription("description 1");
-        p1.setLastUpdate(System.currentTimeMillis());
-        p1.setLogoUrl("logoUrl");
-        p1.setUrl("url");
-        p1 = dao.insertPodcast(p1);
-
-        Podcast p2 = new Podcast();
-        p2.setTitle("My Podcast 2");
-        p2.setDescription("description 2");
-        p2.setLastUpdate(System.currentTimeMillis());
-        p2.setLogoUrl("logoUrl");
-        p2.setUrl("url");
-        p2 = dao.insertPodcast(p2);
-
-        Podcast p3 = new Podcast();
-        p3.setTitle("My Podcast 3");
-        p3.setDescription("description 3");
-        p3.setLastUpdate(System.currentTimeMillis());
-        p3.setLogoUrl("logoUrl");
-        p3.setUrl("url");
-        p3 = dao.insertPodcast(p3);
-
-        Podcast p4 = new Podcast();
-        p4.setTitle("My Podcast 4");
-        p4.setDescription("description 4");
-        p4.setLastUpdate(System.currentTimeMillis());
-        p4.setLogoUrl("logoUrl");
-        p4.setUrl("url");
-        p4 = dao.insertPodcast(p4);
-
-        Episode e1 = new Episode();
-        e1.setAuthor("author");
-        e1.setDescription("description");
-        e1.setFileSize("filesize");
-        e1.setGuid("guid");
-        e1.setLink("link");
-        e1.setMimetype("mimetype");
-        e1.setPodcast(p4);
-        e1.setReleased(System.currentTimeMillis());
-        e1.setTitle("title");
-        e1.setUrl("url");
-        e1.setState(State.NEW);
-        e1 = edao.insertEpisode(e1);
-
-        Episode e2 = new Episode();
-        e2.setAuthor("author");
-        e2.setDescription("description");
-        e2.setFileSize("filesize");
-        e2.setGuid("guid");
-        e2.setLink("link");
-        e2.setMimetype("mimetype");
-        e2.setPodcast(p4);
-        e2.setReleased(System.currentTimeMillis());
-        e2.setTitle("title");
-        e2.setUrl("url");
-        e2.setState(State.NEW);
-        e2 = edao.insertEpisode(e2);
     }
 
     @Override
