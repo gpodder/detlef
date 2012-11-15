@@ -1,5 +1,6 @@
 package at.ac.tuwien.detlef.activities;
 
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.app.ActionBar;
@@ -363,11 +364,11 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         public CharSequence getPageTitle(int position) {
             switch (position) {
             case POSITION_PODCASTS:
-                return getString(R.string.podcasts).toUpperCase();
+                return getString(R.string.podcasts).toUpperCase(Locale.getDefault());
             case POSITION_EPISODES:
-                return getString(R.string.episodes).toUpperCase();
+                return getString(R.string.episodes).toUpperCase(Locale.getDefault());
             case POSITION_PLAYER:
-                return getString(R.string.player).toUpperCase();
+                return getString(R.string.player).toUpperCase(Locale.getDefault());
             default:
                 return null;
             }
