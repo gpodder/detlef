@@ -67,12 +67,6 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         List<Podcast> podlist = dao.getAllPodcasts();
 
         model = new PodListModel<Podcast>(podlist);
-        model.addPodListChangeListener(new PodListModel.PodListChangeListener() {
-            @Override
-            public void onPodListChange() {
-                adapter.notifyDataSetChanged();
-            }
-        });
 
         /* And set up the adapter. */
 
