@@ -329,16 +329,12 @@ EpisodeListFragment.OnEpisodeSelectedListener {
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the primary sections of the app.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public static final int POSITION_PODCASTS = 0;
         public static final int POSITION_EPISODES = 1;
         public static final int POSITION_PLAYER = 2;
         public static final int TABCOUNT = POSITION_PLAYER + 1;
-
-        private final PodListFragment podList = new PodListFragment();
-        private final EpisodeListFragment episodeList = new EpisodeListFragment();
-        private final PlayerFragment player = new PlayerFragment();
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -346,12 +342,22 @@ EpisodeListFragment.OnEpisodeSelectedListener {
 
         @Override
         public Fragment getItem(int i) {
-            if (i == POSITION_PODCASTS) {
-                return podList;
-            } else if (i == POSITION_EPISODES) {
-                return episodeList;
-            } else {
-                return player;
+
+            /* References to Fragments used within this adapter may not be kept anywhere,
+             * since they are not guaranteed to stay valid. Therefore, we need to create fragment
+             * instances within this method, and rely on other means (for example the fragment manager)
+             * to retrieve references.
+             */
+
+            switch (i) {
+            case POSITION_PODCASTS:
+                return new PodListFragment();
+            case POSITION_EPISODES:
+                return new EpisodeListFragment();
+            case POSITION_PLAYER:
+                return new PlayerFragment();
+            default:
+                throw new IndexOutOfBoundsException();
             }
         }
 
@@ -372,18 +378,6 @@ EpisodeListFragment.OnEpisodeSelectedListener {
             default:
                 return null;
             }
-        }
-
-        public PodListFragment getPodList() {
-            return podList;
-        }
-
-        public EpisodeListFragment getEpisodeList() {
-            return episodeList;
-        }
-
-        public PlayerFragment getPlayer() {
-            return player;
         }
     }
 
@@ -418,8 +412,18 @@ EpisodeListFragment.OnEpisodeSelectedListener {
      */
     @Override
     public void onPodcastSelected(Podcast podcast) {
-        mSectionsPagerAdapter.getEpisodeList().setPodcast(podcast);
+        getEpisodeListFragment().setPodcast(podcast);
         getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_EPISODES);
+    }
+
+    /**
+     * Retrieves the currently active episode list fragment.
+     */
+    private EpisodeListFragment getEpisodeListFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        String tag = String.format("android:switcher:%d:%d", R.id.pager,
+                SectionsPagerAdapter.POSITION_EPISODES);
+        return (EpisodeListFragment)manager.findFragmentByTag(tag);
     }
 
     @Override
