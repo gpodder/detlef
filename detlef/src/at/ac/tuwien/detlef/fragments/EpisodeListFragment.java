@@ -113,7 +113,7 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
 
     @Override
     public void onEpisodeChanged(Episode episode) {
-        adapter.notifyDataSetChanged();
+        updateEpisodeList();
     }
 
     @Override
@@ -126,5 +126,18 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
     public void onEpisodeDeleted(Episode episode) {
         model.removeEpisode(episode);
         filterByPodcast();
+    }
+
+    /**
+     * Updates the displayed list based on the current model contents.
+     * Ensures that UI methods are called on the UI thread.
+     */
+    private void updateEpisodeList() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 }

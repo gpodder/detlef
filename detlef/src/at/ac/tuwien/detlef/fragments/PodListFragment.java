@@ -70,8 +70,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
 
         /* And set up the adapter. */
 
-        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout,
-                podlist);
+        adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
         setListAdapter(adapter);
 
         /* Then create the 'All Podcasts' header. */
@@ -146,20 +145,33 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     @Override
     public void onPodcastChanged(Podcast podcast) {
         Log.v(TAG, String.format("onPodcastChanged: %s", podcast.getTitle()));
-        adapter.notifyDataSetChanged();
+        updatePodcastList();
     }
 
     @Override
     public void onPodcastAdded(Podcast podcast) {
         Log.v(TAG, String.format("onPodcastAdded: %s", podcast.getTitle()));
         model.addPodcast(podcast);
-        adapter.notifyDataSetChanged();
+        updatePodcastList();
     }
 
     @Override
     public void onPodcastDeleted(Podcast podcast) {
         Log.v(TAG, String.format("onPodcastDeleted: %s", podcast.getTitle()));
         model.removePodcast(podcast);
-        adapter.notifyDataSetChanged();
+        updatePodcastList();
+    }
+
+    /**
+     * Updates the displayed list based on the current model contents.
+     * Ensures that UI methods are called on the UI thread.
+     */
+    private void updatePodcastList() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 }
