@@ -10,20 +10,12 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
 
 /**
- * EpisodeListModel consists of a list of episodes and subscribed listeners which
- * are notified on every change to the episodes list.
- *
- * This interface will probably need to change once it becomes clearer how
- * backend classes work.
+ * EpisodeListModel consists of a list of episodes.
  */
 public class EpisodeListModel {
 
     /** Contains all known episodes. */
     private final List<Episode> eplist;
-
-    /** The list of all listeners. */
-    private final List<EpisodeListChangeListener> listeners =
-            new ArrayList<EpisodeListChangeListener>();
 
     public EpisodeListModel(List<Episode> eplist) {
         this.eplist = eplist;
@@ -53,29 +45,9 @@ public class EpisodeListModel {
 
     public void addEpisode(Episode episode) {
         eplist.add(episode);
-        notifyListeners();
     }
 
     public void removeEpisode(IEpisode episode) {
         eplist.remove(episode);
-        notifyListeners();
-    }
-
-    public interface EpisodeListChangeListener {
-        void onEpisodeListChange();
-    }
-
-    public void addPodListChangeListener(EpisodeListChangeListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removePodListChangeListener(EpisodeListChangeListener listener) {
-        listeners.remove(listener);
-    }
-
-    private void notifyListeners() {
-        for (EpisodeListChangeListener listener : listeners) {
-            listener.onEpisodeListChange();
-        }
     }
 }
