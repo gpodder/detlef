@@ -58,6 +58,13 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         assertTrue(String.format("New episode %s should be in DAO", uuid), dao.getAllEpisodes().contains(e));
     }
 
+    public void testRotation() {
+        solo.setActivityOrientation(Solo.LANDSCAPE);
+        while (solo.scrollDown()) ;
+
+        assertTrue(String.format("New episode %s should be displayed in list", uuid), solo.searchText(uuid));
+    }
+
     /**
      * After deleting the newly added episode, it should not be displayed in the episode list,
      * and should not be contained in the episode DAO.

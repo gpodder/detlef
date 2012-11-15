@@ -42,6 +42,13 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
         assertTrue(String.format("New podcast %s should be in DAO", uuid), dao.getPodcastById(p.getId()) != null);
     }
 
+    public void testRotation() {
+        solo.setActivityOrientation(Solo.LANDSCAPE);
+        while (solo.scrollDown()) ;
+
+        assertTrue(String.format("New podcast %s should be displayed in list", uuid), solo.searchText(uuid));
+    }
+
     /**
      * After deleting the newly added podcast, it should not be displayed in the podcast list,
      * and should not be contained in the podcast DAO.
