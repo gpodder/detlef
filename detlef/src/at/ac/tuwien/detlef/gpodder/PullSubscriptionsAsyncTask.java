@@ -70,6 +70,10 @@ public class PullSubscriptionsAsyncTask extends IntentService {
             enhanced = pdr.getPodcastDetails(changes);
 
             // TODO: We should think about updating the db here and set the update time last.
+            DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant().
+            applySubscriptionChanges(this.getApplicationContext(), enhanced);
+
+
 
             /* Update last changed timestamp. */
             gps.setLastUpdate(changes.timestamp);

@@ -97,11 +97,14 @@ public class PullFeedAsyncTask extends IntentService {
             /* Get the feed */
             feed = fsc.parseFeeds(new String[] {podcast.getUrl()}, since).get(0);
 
+            DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
+            .upsertAndDeleteEpisodes(this, podcast, feed);
             /* Get episode actions */
             changes = gpc.downloadEpisodeActions(since, podcast.getUrl(), deviceID);
 
             // TODO: We should think about updating the db here and set the update time last.
-
+            DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
+            .applyActionChanges(this, podcast, changes);
             /* Update last changed timestamp. */
             // TODO: setLastUpdate
         } catch (ClientProtocolException e) {

@@ -5,5 +5,8 @@
 	<classpathentry kind="src" path="/at.ac.tuwien.detlef.MainActivity"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="lib" path="libs/mockito-all-1.9.5.jar"/>
+	<classpathentry kind="lib" path="libs/dexmaker-mockito-1.0.jar"/>
+	<classpathentry kind="lib" path="libs/dexmaker-1.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

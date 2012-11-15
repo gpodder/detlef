@@ -174,19 +174,19 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         List<Episode> allEpisodes = new ArrayList<Episode>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection =
-                { DatabaseHelper.COLUMN_EPISODE_AUTHOR,
-                        DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
-                        DatabaseHelper.COLUMN_EPISODE_FILESIZE,
-                        DatabaseHelper.COLUMN_EPISODE_GUID,
-                        DatabaseHelper.COLUMN_EPISODE_ID,
-                        DatabaseHelper.COLUMN_EPISODE_LINK,
-                        DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
-                        DatabaseHelper.COLUMN_EPISODE_PODCAST,
-                        DatabaseHelper.COLUMN_EPISODE_RELEASED,
-                        DatabaseHelper.COLUMN_EPISODE_TITLE,
-                        DatabaseHelper.COLUMN_EPISODE_URL,
-                        DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                        DatabaseHelper.COLUMN_EPISODE_STATE };
+            { DatabaseHelper.COLUMN_EPISODE_AUTHOR,
+                DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
+                DatabaseHelper.COLUMN_EPISODE_FILESIZE,
+                DatabaseHelper.COLUMN_EPISODE_GUID,
+                DatabaseHelper.COLUMN_EPISODE_ID,
+                DatabaseHelper.COLUMN_EPISODE_LINK,
+                DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
+                DatabaseHelper.COLUMN_EPISODE_PODCAST,
+                DatabaseHelper.COLUMN_EPISODE_RELEASED,
+                DatabaseHelper.COLUMN_EPISODE_TITLE,
+                DatabaseHelper.COLUMN_EPISODE_URL,
+                DatabaseHelper.COLUMN_EPISODE_FILEPATH,
+                DatabaseHelper.COLUMN_EPISODE_STATE };
 
         Cursor c =
                 db.query(DatabaseHelper.TABLE_EPISODE, projection, selection, // columns
@@ -197,7 +197,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                         null, // group
                         null, // filter by row group
                         null // sort order
-                );
+                        );
 
         if (c.moveToFirst()) {
             do {
@@ -281,7 +281,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     }
 
     private int
-            updateFieldUsingEpisodeId(Episode episode, ContentValues values) {
+    updateFieldUsingEpisodeId(Episode episode, ContentValues values) {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -326,6 +326,19 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         for (OnEpisodeChangeListener listener : listeners) {
             listener.onEpisodeDeleted(episode);
         }
+    }
+
+    @Override
+    public Episode getEpisodeByUrlOrGuid(String url, String guid) {
+        String selection =
+                DatabaseHelper.COLUMN_EPISODE_URL + " = ? OR "
+                        + DatabaseHelper.COLUMN_EPISODE_GUID + " = ?";
+        String[] selectionArgs = { url, guid };
+        List<Episode> episodes = getEpisodesWhere(selection, selectionArgs);
+        if (episodes.size() > 0) {
+            return episodes.get(0);
+        }
+        return null;
     }
 
 }

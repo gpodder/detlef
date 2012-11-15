@@ -207,4 +207,22 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         assertNotNull(e1);
     }
+
+    public void testGetEpisodeByUrlOrGuid() {
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        p1 = pdao.insertPodcast(p1);
+        e1.setPodcast(p1);
+        String newGuid = java.util.UUID.randomUUID().toString();
+        e1.setGuid(newGuid);
+        e1 = edao.insertEpisode(e1);
+        Episode newEp = edao.getEpisodeByUrlOrGuid("", newGuid);
+        assertEquals(e1.getId(), newEp.getId());
+        assertEquals(newGuid, newEp.getGuid());
+    }
+
+    public void testGetEpisodeByUrlOrGuidWhichNotExists() {
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
+        assertNull(edao.getEpisodeByUrlOrGuid("thisurldoesntexist", "nosuchguidavailable"));
+    }
 }

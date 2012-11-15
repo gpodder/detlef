@@ -72,6 +72,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
 
         model = new PodListModel<Podcast>(podlist);
         model.addPodListChangeListener(new PodListModel.PodListChangeListener() {
+            @Override
             public void onPodListChange() {
                 adapter.notifyDataSetChanged();
             }
@@ -86,8 +87,8 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         /* Create dummy contents if needed. */
 
         if (podlist.isEmpty()) {
-            fillDbWithDummyContents();
-            podlist = dao.getAllPodcasts();
+            //fillDbWithDummyContents();
+            //podlist = dao.getAllPodcasts();
         }
 
         /* Then create the 'All Podcasts' header. */
@@ -97,6 +98,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         allPodcasts.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32); /* TODO */
         allPodcasts.setGravity(Gravity.CENTER);
         allPodcasts.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 listener.onPodcastSelected(null);
             }
@@ -186,12 +188,12 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
-            case R.id.delete_feed:
-                /* Apparently, the header is counted as a position, so we need to subtract one. */
-                onDeleteFeedClicked(info.position - 1);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+        case R.id.delete_feed:
+            /* Apparently, the header is counted as a position, so we need to subtract one. */
+            onDeleteFeedClicked(info.position - 1);
+            return true;
+        default:
+            return super.onContextItemSelected(item);
         }
     }
 
@@ -223,17 +225,20 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
         dao.deletePodcast(podcast);
     }
 
+    @Override
     public void onPodcastChanged(Podcast podcast) {
         Log.v(TAG, String.format("onPodcastChanged: %s", podcast.getTitle()));
         adapter.notifyDataSetChanged();
     }
 
+    @Override
     public void onPodcastAdded(Podcast podcast) {
         Log.v(TAG, String.format("onPodcastAdded: %s", podcast.getTitle()));
         model.addPodcast(podcast);
         adapter.notifyDataSetChanged();
     }
 
+    @Override
     public void onPodcastDeleted(Podcast podcast) {
         Log.v(TAG, String.format("onPodcastDeleted: %s", podcast.getTitle()));
         model.removePodcast(podcast);

@@ -6,6 +6,7 @@ import android.content.Context;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
+import com.dragontek.mygpoclient.api.EpisodeActionChanges;
 import com.dragontek.mygpoclient.feeds.IFeed;
 
 /**
@@ -39,9 +40,15 @@ public interface EpisodeDBAssistant {
     List<Episode> getAllEpisodes(Context context);
 
     /**
-     * ??
+     * applys all changes in the EpisodeActionChanges of the podcast to the database.
+     * 
+     * @param context: the application context
+     * 
+     * @param podcast: the podcast
+     * 
+     * @param changes: the changes made in an episode
      */
-    void applyActionChanges(Context context, Podcast podcast);
+    void applyActionChanges(Context context, Podcast podcast, EpisodeActionChanges changes);
 
     /**
      * ??

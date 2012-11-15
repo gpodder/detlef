@@ -75,4 +75,15 @@ public interface EpisodeDAO {
      */
     Episode getEpisode(int id);
 
+    /**
+     * Gets an episode by the given guid or the url (both should be unique).
+     * 
+     * @param url
+     *            the url of the episode
+     * @param guid
+     *            the guid of the episode
+     * @return the episode
+     */
+    Episode getEpisodeByUrlOrGuid(String url, String guid);
+
 }
