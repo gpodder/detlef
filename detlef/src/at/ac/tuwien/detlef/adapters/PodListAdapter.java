@@ -30,8 +30,9 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
             LayoutInflater vi = (LayoutInflater) this.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.pod_list_layout, null);
-            v.setTag(podcast);
         }
+
+        v.setTag(podcast);
 
         TextView lastUpdate = (TextView) v.findViewById(R.id.podListLastUpdate);
         if (lastUpdate != null) {

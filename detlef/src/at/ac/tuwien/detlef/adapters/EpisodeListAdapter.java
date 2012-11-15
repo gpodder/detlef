@@ -30,11 +30,11 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
             LayoutInflater vi = (LayoutInflater) this.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.episode_list_layout, null);
-            v.setTag(episode);
         }
 
-        TextView podcastTitle = (TextView) v
-                .findViewById(R.id.episodeListPodcast);
+        v.setTag(episode);
+
+        TextView podcastTitle = (TextView) v.findViewById(R.id.episodeListPodcast);
         if (podcastTitle != null) {
             podcastTitle.setText(episode.getPodcast().getTitle());
         }
