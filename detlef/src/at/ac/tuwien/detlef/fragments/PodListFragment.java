@@ -89,6 +89,21 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
+        View view = inflater.inflate(R.layout.pod_fragment_layout, container, false);
+
+        /* Add the 'All Podcasts' header. */
+
+        ListView listView = (ListView) view.findViewById(android.R.id.list);
+        listView.addHeaderView(allPodcasts);
+
+        return view;
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedState) {
         super.onActivityCreated(savedState);
         registerForContextMenu(getListView());
@@ -119,21 +134,6 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     public void onListItemClick(ListView l, View v, int position, long id) {
         Podcast podcast = (Podcast) v.getTag();
         listener.onPodcastSelected(podcast);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-
-        View view = inflater.inflate(R.layout.pod_fragment_layout, container, false);
-
-        /* Add the 'All Podcasts' header. */
-
-        ListView listView = (ListView) view.findViewById(android.R.id.list);
-        listView.addHeaderView(allPodcasts);
-
-        return view;
     }
 
     private void onDeleteFeedClicked(int pos) {

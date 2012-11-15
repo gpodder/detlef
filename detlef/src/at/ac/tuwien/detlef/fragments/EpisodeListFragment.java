@@ -19,15 +19,12 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 
-public class EpisodeListFragment extends ListFragment implements
-        EpisodeDAOImpl.OnEpisodeChangeListener {
+public class EpisodeListFragment extends ListFragment
+implements EpisodeDAOImpl.OnEpisodeChangeListener {
 
     private EpisodeListModel model;
-
     private EpisodeListAdapter adapter;
-
     private Podcast filteredByPodcast = null;
-
     private OnEpisodeSelectedListener listener;
 
     /**
@@ -52,12 +49,6 @@ public class EpisodeListFragment extends ListFragment implements
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        Episode episode = (Episode) v.getTag();
-        listener.onEpisodeSelected(episode);
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -67,11 +58,18 @@ public class EpisodeListFragment extends ListFragment implements
         List<Episode> eplist = dao.getAllEpisodes();
         model = new EpisodeListModel(eplist);
 
-        adapter =
-                new EpisodeListAdapter(getActivity(),
-                        android.R.layout.simple_list_item_1,
-                        new ArrayList<Episode>(eplist));
+        adapter = new EpisodeListAdapter(getActivity(),
+                android.R.layout.simple_list_item_1,
+                new ArrayList<Episode>(eplist));
         setListAdapter(adapter);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.episode_fragment_layout, container,
+                false);
     }
 
     @Override
@@ -81,19 +79,17 @@ public class EpisodeListFragment extends ListFragment implements
     }
 
     @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Episode episode = (Episode) v.getTag();
+        listener.onEpisodeSelected(episode);
+    }
+
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.episode_context, menu);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.episode_fragment_layout, container,
-                false);
     }
 
     /**
@@ -115,15 +111,18 @@ public class EpisodeListFragment extends ListFragment implements
         }
     }
 
+    @Override
     public void onEpisodeChanged(Episode episode) {
         adapter.notifyDataSetChanged();
     }
 
+    @Override
     public void onEpisodeAdded(Episode episode) {
         model.addEpisode(episode);
         filterByPodcast();
     }
 
+    @Override
     public void onEpisodeDeleted(Episode episode) {
         model.removeEpisode(episode);
         filterByPodcast();
