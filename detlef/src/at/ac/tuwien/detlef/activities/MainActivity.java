@@ -31,9 +31,9 @@ import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 
-public class MainActivity extends FragmentActivity implements
-        ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
-        EpisodeListFragment.OnEpisodeSelectedListener {
+public class MainActivity extends FragmentActivity
+implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
+EpisodeListFragment.OnEpisodeSelectedListener {
 
     private static String TAG = MainActivity.class.getName();
 
@@ -60,19 +60,13 @@ public class MainActivity extends FragmentActivity implements
         setContentView(R.layout.main_activity_layout);
 
         if (savedInstanceState != null) {
-            curPodSync =
-                    new AtomicInteger(savedInstanceState.getInt(
-                            KEY_CUR_POD_SYNC, 0));
-            numPodSync =
-                    new AtomicInteger(savedInstanceState.getInt(
-                            KEY_NUM_POD_SYNC, -1));
+            curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
+            numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
         }
 
         // Create the adapter that will return a fragment for each of the three
-        // primary sections
-        // of the app.
-        mSectionsPagerAdapter =
-                new SectionsPagerAdapter(getSupportFragmentManager());
+        // primary sections of the app.
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
@@ -86,13 +80,12 @@ public class MainActivity extends FragmentActivity implements
         // tab.
         // We can also use ActionBar.Tab#select() to do this if we have a
         // reference to the Tab.
-        mViewPager
-                .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        actionBar.setSelectedNavigationItem(position);
-                    }
-                });
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+        });
 
         // For each of the sections in the app, add a tab to the action bar.
         for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -119,16 +112,12 @@ public class MainActivity extends FragmentActivity implements
         feedHandler.register(this);
     }
 
-    private void prepareProgressDialog() {
-        progressDialog.setTitle(R.string.refreshing);
-        progressDialog.setCancelable(false);
-        if (numPodSync.get() > 0) {
-            progressDialog.setMessage(String.format(
-                    getString(R.string.refreshing_feed_x_of_y),
-                    curPodSync.get() + 1, numPodSync.get()));
-        } else {
-            progressDialog.setMessage(getString(R.string.refreshing_feed_list));
-        }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        savedInstanceState.putInt(KEY_NUM_POD_SYNC, numPodSync.get());
+        savedInstanceState.putInt(KEY_CUR_POD_SYNC, curPodSync.get());
     }
 
     @Override
@@ -143,12 +132,16 @@ public class MainActivity extends FragmentActivity implements
         super.onDestroy();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putInt(KEY_NUM_POD_SYNC, numPodSync.get());
-        savedInstanceState.putInt(KEY_CUR_POD_SYNC, curPodSync.get());
+    private void prepareProgressDialog() {
+        progressDialog.setTitle(R.string.refreshing);
+        progressDialog.setCancelable(false);
+        if (numPodSync.get() > 0) {
+            progressDialog.setMessage(String.format(
+                    getString(R.string.refreshing_feed_x_of_y),
+                    curPodSync.get() + 1, numPodSync.get()));
+        } else {
+            progressDialog.setMessage(getString(R.string.refreshing_feed_list));
+        }
     }
 
     /**
@@ -177,37 +170,37 @@ public class MainActivity extends FragmentActivity implements
     private final PodcastSyncResultHandler podcastHandler =
             new PodcastSyncResultHandler() {
 
-                @Override
-                public void handle(EnhancedSubscriptionChanges changes) {
-                    PodcastDBAssistant pda = new PodcastDBAssistantImpl();
+        @Override
+        public void handle(EnhancedSubscriptionChanges changes) {
+            PodcastDBAssistant pda = new PodcastDBAssistantImpl();
 
-                    pda.applySubscriptionChanges(MainActivity.this, changes);
+            pda.applySubscriptionChanges(MainActivity.this, changes);
 
-                    synchronized (numPodSync) {
-                        for (Podcast p : pda.getAllPodcasts(MainActivity.this)) {
-                            Intent i =
-                                    new Intent().setClass(MainActivity.this,
-                                            PullFeedAsyncTask.class);
-                            i.putExtra(PullFeedAsyncTask.EXTRA_PODCAST, p);
-                            startService(i);
-                            numPodSync.incrementAndGet();
-                        }
-
-                        if (numPodSync.get() == 0) {
-                            onRefreshDone(getString(R.string.refresh_successful));
-                        }
-
-                        prepareProgressDialog();
-                    }
+            synchronized (numPodSync) {
+                for (Podcast p : pda.getAllPodcasts(MainActivity.this)) {
+                    Intent i =
+                            new Intent().setClass(MainActivity.this,
+                                    PullFeedAsyncTask.class);
+                    i.putExtra(PullFeedAsyncTask.EXTRA_PODCAST, p);
+                    startService(i);
+                    numPodSync.incrementAndGet();
                 }
 
-                @Override
-                public void handleFailure(GPodderException e) {
-                    onRefreshDone(getString(R.string.operation_failed) + ": "
-                            + e.getMessage());
+                if (numPodSync.get() == 0) {
+                    onRefreshDone(getString(R.string.refresh_successful));
                 }
 
-            };
+                prepareProgressDialog();
+            }
+        }
+
+        @Override
+        public void handleFailure(GPodderException e) {
+            onRefreshDone(getString(R.string.operation_failed) + ": "
+                    + e.getMessage());
+        }
+
+    };
 
     /**
      * The Handler for receiving PullFeedAsyncTask's results.
@@ -215,34 +208,34 @@ public class MainActivity extends FragmentActivity implements
     private final FeedSyncResultHandler feedHandler =
             new FeedSyncResultHandler() {
 
-                @Override
-                public void handle() {
-                    synchronized (numPodSync) {
-                        checkDone();
-                    }
+        @Override
+        public void handle() {
+            synchronized (numPodSync) {
+                checkDone();
+            }
+        }
+
+        @Override
+        public void handleFailure(GPodderException e) {
+            Toast.makeText(MainActivity.this, e.getMessage(),
+                    REFRESH_MSG_DURATION_MS).show();
+
+            checkDone();
+        }
+
+        private void checkDone() {
+            synchronized (numPodSync) {
+                curPodSync.incrementAndGet();
+
+                if (curPodSync.get() == numPodSync.get()) {
+                    onRefreshDone(getString(R.string.refresh_successful));
                 }
 
-                @Override
-                public void handleFailure(GPodderException e) {
-                    Toast.makeText(MainActivity.this, e.getMessage(),
-                            REFRESH_MSG_DURATION_MS).show();
+                prepareProgressDialog();
+            }
+        }
 
-                    checkDone();
-                }
-
-                private void checkDone() {
-                    synchronized (numPodSync) {
-                        curPodSync.incrementAndGet();
-
-                        if (curPodSync.get() == numPodSync.get()) {
-                            onRefreshDone(getString(R.string.refresh_successful));
-                        }
-
-                        prepareProgressDialog();
-                    }
-                }
-
-            };
+    };
 
     /**
      * Called when the refresh button is pressed. Displays a progress dialog and
@@ -280,22 +273,16 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        // TODO Auto-generated method stub
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         switch (mViewPager.getCurrentItem()) {
-        case 0:
+        case SectionsPagerAdapter.POSITION_PODCASTS:
             getMenuInflater().inflate(R.menu.podcast_menu, menu);
             break;
-        case 1:
+        case SectionsPagerAdapter.POSITION_EPISODES:
             getMenuInflater().inflate(R.menu.episode_menu, menu);
             break;
-        case 2:
+        case SectionsPagerAdapter.POSITION_PLAYER:
             // getMenuInflater().inflate(R.menu.player_menu, menu);
             break;
         default:
@@ -305,8 +292,8 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onTabUnselected(ActionBar.Tab tab,
-            FragmentTransaction fragmentTransaction) {
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        /* Intentionally left blank. */
     }
 
     @Override
@@ -333,8 +320,8 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public void
-            onTabReselected(Tab tab, FragmentTransaction fragmentTransaction) {
+    public void onTabReselected(Tab tab, FragmentTransaction ft) {
+        /* Intentionally left blank. */
     }
 
     /**
@@ -344,18 +331,12 @@ public class MainActivity extends FragmentActivity implements
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public static final int POSITION_PODCASTS = 0;
-
         public static final int POSITION_EPISODES = 1;
-
         public static final int POSITION_PLAYER = 2;
-
         public static final int TABCOUNT = POSITION_PLAYER + 1;
 
         private final PodListFragment podList = new PodListFragment();
-
-        private final EpisodeListFragment episodeList =
-                new EpisodeListFragment();
-
+        private final EpisodeListFragment episodeList = new EpisodeListFragment();
         private final PlayerFragment player = new PlayerFragment();
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -437,16 +418,14 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onPodcastSelected(Podcast podcast) {
         mSectionsPagerAdapter.getEpisodeList().setPodcast(podcast);
-        getActionBar().setSelectedNavigationItem(
-                SectionsPagerAdapter.POSITION_EPISODES);
+        getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_EPISODES);
     }
 
     @Override
     public void onEpisodeSelected(Episode episode) {
         // TODO
         // mSectionsPagerAdapter.getPlayer().setEpisode(episode);
-        getActionBar().setSelectedNavigationItem(
-                SectionsPagerAdapter.POSITION_PLAYER);
+        getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_PLAYER);
         // mSectionsPagerAdapter.getPlayer().startPlaying();
     }
 }
