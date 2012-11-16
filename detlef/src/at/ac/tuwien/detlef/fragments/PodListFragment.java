@@ -6,9 +6,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.ContextMenu;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,7 +31,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     private PodListModel<Podcast> model;
     private OnPodcastSelectedListener listener;
 
-    private TextView allPodcasts;
+    private View allPodcasts;
 
     /**
      * The parent activity must implement this interface in order to interact
@@ -75,16 +73,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
 
         /* Then create the 'All Podcasts' header. */
 
-        allPodcasts = new TextView(getActivity());
-        allPodcasts.setText("All Podcasts");
-        allPodcasts.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32); /* TODO */
-        allPodcasts.setGravity(Gravity.CENTER);
-        allPodcasts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onPodcastSelected(null);
-            }
-        });
+        allPodcasts = createHeader();
     }
 
     @Override
@@ -106,6 +95,25 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     public void onActivityCreated(Bundle savedState) {
         super.onActivityCreated(savedState);
         registerForContextMenu(getListView());
+    }
+
+    private View createHeader() {
+        View v = getLayoutInflater(getArguments()).inflate(R.layout.pod_list_layout, null);
+
+        TextView tv = (TextView)v.findViewById(R.id.podListPodcastName);
+        tv.setText(R.string.all_podcasts);
+
+        tv = (TextView)v.findViewById(R.id.podListLastUpdate);
+        tv.setText("22.06.2012");
+
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onPodcastSelected(null);
+            }
+        });
+
+        return v;
     }
 
     @Override

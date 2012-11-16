@@ -56,4 +56,5 @@
     <string name="refreshing">Refreshing</string>
     <string name="no_podcast_specified">No podcast specified</string>
     <string name="refreshing_feed_x_of_y">Refreshing feed %1$d of %2$d...</string>
+    <string name="all_podcasts">All Podcasts</string>
 </resources>
