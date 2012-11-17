@@ -9,6 +9,7 @@ import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
+import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.playlist.Playlist;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
@@ -35,6 +36,9 @@ public class DependencyAssistant {
 
     private static PodcastDBAssistant podcastDBAssistant =
             new PodcastDBAssistantImpl();
+            
+    private static DetlefDownloadManager downloadManager = null;
+
 
     public static Playlist getPlaylist() {
         return playlist;
@@ -61,6 +65,16 @@ public class DependencyAssistant {
      */
     public EpisodeDBAssistant getEpisodeDBAssistant() {
         return episodeDBAssistant;
+    }
+
+    /**
+     * Returns the download manager instance.
+     */
+    public DetlefDownloadManager getDownloadManager(Context context) {
+        if (downloadManager == null) {
+            downloadManager = new DetlefDownloadManager(context);
+        }
+        return downloadManager;
     }
 
     /**
