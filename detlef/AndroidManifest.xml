@@ -47,6 +47,12 @@
             android:name=".mediaplayer.MediaPlayerService"
             android:icon="@android:drawable/ic_media_play" >
         </service>
+        <receiver android:name=".download.DownloadBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
