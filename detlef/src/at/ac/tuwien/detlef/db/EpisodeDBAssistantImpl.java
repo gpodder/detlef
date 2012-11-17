@@ -5,7 +5,6 @@ import java.util.List;
 import android.content.Context;
 import android.util.Log;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Episode.State;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 import com.dragontek.mygpoclient.api.EpisodeAction;
@@ -44,19 +43,8 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
         try {
             EpisodeDAO dao = EpisodeDAOImpl.i(context);
             for (IEpisode ep : feed.getEpisodes()) {
-                Episode newEp = new Episode();
-                newEp.setAuthor(ep.getAuthor());
-                newEp.setDescription(ep.getDescription());
-                newEp.setFileSize(String.valueOf(ep.getEnclosure()
-                        .getFilesize()));
-                newEp.setGuid(ep.getGuid());
-                newEp.setLink(ep.getLink());
-                newEp.setMimetype(ep.getEnclosure().getMimetype());
+                Episode newEp = new Episode(ep);
                 newEp.setPodcast(p);
-                newEp.setReleased(ep.getReleased());
-                newEp.setState(State.NEW); // TODO: which state?
-                newEp.setTitle(ep.getTitle());
-                newEp.setUrl(ep.getEnclosure().getUrl());
                 dao.insertEpisode(newEp);
             }
         } catch (Exception ex) {

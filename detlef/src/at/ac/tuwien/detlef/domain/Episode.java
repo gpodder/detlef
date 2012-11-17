@@ -38,6 +38,22 @@ public class Episode implements IEpisode {
 
     private String filePath;
 
+    public Episode() { }
+
+    public Episode(IEpisode e) {
+        setAuthor(e.getAuthor());
+        setDescription(e.getDescription());
+        setFileSize(String.valueOf(e.getEnclosure().getFilesize()));
+        setGuid(e.getGuid());
+        setLink(e.getLink());
+        setMimetype(e.getEnclosure().getMimetype());
+        setReleased(e.getReleased());
+        setState(State.NEW); // TODO: which state?
+        setTitle(e.getTitle());
+        setUrl(e.getEnclosure().getUrl());
+    }
+
+    @Override
     public String getTitle() {
         return title;
     }
@@ -74,6 +90,7 @@ public class Episode implements IEpisode {
         return this;
     }
 
+    @Override
     public String getAuthor() {
         return author;
     }
@@ -83,6 +100,7 @@ public class Episode implements IEpisode {
         return this;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -92,6 +110,7 @@ public class Episode implements IEpisode {
         return this;
     }
 
+    @Override
     public String getGuid() {
         return guid;
     }
@@ -101,6 +120,7 @@ public class Episode implements IEpisode {
         return this;
     }
 
+    @Override
     public String getLink() {
         return link;
     }
@@ -110,6 +130,7 @@ public class Episode implements IEpisode {
         return this;
     }
 
+    @Override
     public long getReleased() {
         return released;
     }
@@ -128,6 +149,7 @@ public class Episode implements IEpisode {
         return this;
     }
 
+    @Override
     public IEnclosure getEnclosure() {
         // TODO Auto-generated method stub
         return null;

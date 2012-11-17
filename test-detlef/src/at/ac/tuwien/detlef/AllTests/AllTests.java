@@ -14,6 +14,7 @@ public class AllTests extends TestSuite {
 
     public static Test suite() {
         return new TestSuiteBuilder(AllTests.class).includePackages("at.ac.tuwien.detlef.db")
+                .includePackages("at.ac.tuwien.detlef.domain")
                 .build();
     }
 }

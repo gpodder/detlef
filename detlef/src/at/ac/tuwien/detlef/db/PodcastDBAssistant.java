@@ -4,8 +4,8 @@ package at.ac.tuwien.detlef.db;
 import java.util.List;
 
 import android.content.Context;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.gpodder.EnhancedSubscriptionChanges;
 
 /**
  * provides database access for podcasts.

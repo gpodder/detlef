@@ -3,6 +3,7 @@ package at.ac.tuwien.detlef.gpodder;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 
 /**
  * A class to handle replies from the PullSubscriptionsAsyncTask.
@@ -33,17 +34,17 @@ BroadcastReceiverCallback<Receiver> {
                 PullSubscriptionsAsyncTask.TASK_SUCC);
 
         switch (status) {
-            case PullSubscriptionsAsyncTask.TASK_FAIL:
-                this.handleFailure((GPodderException) intent.getSerializableExtra(
-                        PullSubscriptionsAsyncTask.EXTRA_EXCEPTION));
-                break;
-            case PullSubscriptionsAsyncTask.TASK_SUCC:
-                this.handle((EnhancedSubscriptionChanges) intent.getSerializableExtra(
-                        PullSubscriptionsAsyncTask.EXTRA_CHANGES));
-                break;
-            default:
-                /* dafuq? */
-                Log.w("PodcastSyncResultHandler", "Invalid Intent received.");
+        case PullSubscriptionsAsyncTask.TASK_FAIL:
+            this.handleFailure((GPodderException) intent.getSerializableExtra(
+                    PullSubscriptionsAsyncTask.EXTRA_EXCEPTION));
+            break;
+        case PullSubscriptionsAsyncTask.TASK_SUCC:
+            this.handle((EnhancedSubscriptionChanges) intent.getSerializableExtra(
+                    PullSubscriptionsAsyncTask.EXTRA_CHANGES));
+            break;
+        default:
+            /* dafuq? */
+                    Log.w("PodcastSyncResultHandler", "Invalid Intent received.");
         }
     }
 

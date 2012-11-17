@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.test.AndroidTestCase;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.gpodder.EnhancedSubscriptionChanges;
 
 import com.dragontek.mygpoclient.simple.IPodcast;
 

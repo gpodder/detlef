@@ -29,18 +29,31 @@ public class Podcast implements IPodcast, Serializable {
 
     private long lastUpdate;
 
+    public Podcast() { }
+
+    public Podcast(IPodcast p) {
+        setUrl(p.getUrl());
+        setTitle(p.getTitle());
+        setDescription(p.getDescription());
+        setLogoUrl(p.getLogoUrl());
+    }
+
+    @Override
     public String getTitle() {
         return title;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public String getLogoUrl() {
         return logoUrl;
     }
 
+    @Override
     public String getUrl() {
         return url;
     }
@@ -50,15 +63,18 @@ public class Podcast implements IPodcast, Serializable {
         return this;
     }
 
+    @Override
     public void setTitle(String title) {
         this.title = title;
     }
 
+    @Override
     public void setDescription(String description) {
         this.description = description;
 
     }
 
+    @Override
     public void setLogoUrl(String logoUrl) {
         this.logoUrl = logoUrl;
     }
