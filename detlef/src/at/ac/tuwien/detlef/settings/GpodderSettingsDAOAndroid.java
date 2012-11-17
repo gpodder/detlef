@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 
 public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 
-	private HashMap<String, Object> dependecies;
+	private HashMap<String, Object> dependencies;
 
 	public GpodderSettings getSettings() {
 		return new GpodderSettings() {
@@ -56,13 +56,13 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 	 * This implementation requires an object of type
 	 * {@link SharedPreferences} with the key sharedPreferences.
 	 */
-	public GpodderSettingsDAO setDependecies(HashMap<String, Object> pDependecies) {
-		dependecies = pDependecies;
+	public GpodderSettingsDAO setDependencies(HashMap<String, Object> pDependencies) {
+		dependencies = pDependencies;
 		return this;
 	}
 
 	private SharedPreferences getSharedPreferences() {
-		return (SharedPreferences) dependecies.get("sharedPreferences");
+		return (SharedPreferences) dependencies.get("sharedPreferences");
 	}
 
 }

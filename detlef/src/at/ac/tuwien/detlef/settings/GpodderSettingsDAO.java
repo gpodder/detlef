@@ -11,21 +11,21 @@ import java.util.HashMap;
 public interface GpodderSettingsDAO {
 
     GpodderSettings getSettings();
-    
+
     GpodderSettingsDAO writeSettings(GpodderSettings settings);
-    
+
     /**
      * This method can be used to pass dependencies that are specific to a
      * certain implementation, e.g. A database handler for a DB based settings
      * DAO or the PreferenceManager for an android system based storage.
      * 
-     * Regardless which dependency you need: Do not forget to document 
-     * which ones your implementation expects. 
+     * Regardless which dependency you need: Do not forget to document
+     * which ones your implementation expects.
      * 
-     * @param dependecies 
+     * @param dependencies
      * @return Fluent interface.
      */
-    GpodderSettingsDAO setDependecies(HashMap<String, Object> dependecies);
+    GpodderSettingsDAO setDependencies(HashMap<String, Object> dependencies);
 
 
 }

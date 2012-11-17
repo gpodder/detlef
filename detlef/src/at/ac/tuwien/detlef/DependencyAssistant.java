@@ -73,12 +73,12 @@ public class DependencyAssistant {
      */
     public GpodderSettings getGpodderSettings(Context context) {
 
-        HashMap<String, Object> dependecies = new HashMap<String, Object>();
-        dependecies.put("sharedPreferences",
+        HashMap<String, Object> dependencies = new HashMap<String, Object>();
+        dependencies.put("sharedPreferences",
                 PreferenceManager.getDefaultSharedPreferences(context));
 
         GpodderSettingsDAO gpodderSettingsDAO = new GpodderSettingsDAOAndroid();
-        gpodderSettingsDAO.setDependecies(dependecies);
+        gpodderSettingsDAO.setDependencies(dependencies);
         return gpodderSettingsDAO.getSettings();
 
     }
