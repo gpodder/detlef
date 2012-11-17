@@ -7,10 +7,9 @@ import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
 
-import android.app.IntentService;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+import android.app.Activity;
 import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -26,42 +25,28 @@ import com.dragontek.mygpoclient.simple.IPodcast;
  * "at.ac.tuwien.detlef.custom.intent.action.PULL_SUBSCRIPTIONS". The user of the Task needs a
  * receiver for this action.
  */
-public class PullSubscriptionsAsyncTask extends IntentService {
+public class PullSubscriptionsAsyncTask implements Runnable {
     /** Logging tag. */
     private static final String TAG = "PullSubscriptionsAsyncTask";
 
-    /** The reply-Intent's action. */
-    static final String ACTION =
-            "at.ac.tuwien.detlef.custom.intent.action.PULL_SUBSCRIPTIONS";
+    private final PodcastSyncResultHandler<? extends Activity> callback;
 
-    /** Key for the state extra variable. */
-    static final String EXTRA_STATE = "EXTRA_STATE";
-
-    /** Key for the exception extra variable. */
-    static final String EXTRA_EXCEPTION = "EXTRA_EXCEPTION";
-
-    /** Key for the changes extra variable. */
-    static final String EXTRA_CHANGES = "EXTRA_CHANGES";
-
-    /** The Task was successful. */
-    static final int TASK_SUCC = 0;
-
-    /** The Task was failed. */
-    static final int TASK_FAIL = 1;
-
-    public PullSubscriptionsAsyncTask() {
-        super(TAG);
+    public PullSubscriptionsAsyncTask(PodcastSyncResultHandler<? extends Activity> callback) {
+        this.callback = callback;
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public void run() {
         /* Retrieve settings. */
-        GpodderSettings gps = DependencyAssistant.getDependencyAssistant().getGpodderSettings(this);
+        GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
+                .getGpodderSettings(Detlef.getAppContext());
 
         MygPodderClient gpc = new MygPodderClient(gps.getUsername(), gps.getPassword());
 
         EnhancedSubscriptionChanges enhanced = null;
         try {
+            // TODO: check wether the device exists and create it if not
+
             /* Login and get subscription changes */
             SubscriptionChanges changes = gpc.pullSubscriptions(gps.getDevicename(),
                     gps.getLastUpdate());
@@ -72,12 +57,10 @@ public class PullSubscriptionsAsyncTask extends IntentService {
 
             // TODO: We should think about updating the db here and set the update time last.
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant().
-            applySubscriptionChanges(this.getApplicationContext(), enhanced);
-
-
+            applySubscriptionChanges(Detlef.getAppContext(), enhanced);
 
             /* Update last changed timestamp. */
-            gps.setLastUpdate(changes.timestamp);
+            gps.setLastUpdate(enhanced.getTimestamp());
         } catch (ClientProtocolException e) {
             sendError(new GPodderException(e.getLocalizedMessage()));
         } catch (IOException e) {
@@ -89,10 +72,7 @@ public class PullSubscriptionsAsyncTask extends IntentService {
         }
 
         /* Send the result. */
-        Intent reply = new Intent(ACTION);
-        reply.putExtra(EXTRA_STATE, TASK_SUCC);
-        reply.putExtra(EXTRA_CHANGES, enhanced);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(reply);
+        callback.sendEvent(new PodcastSyncResultHandler.PodcastSyncEventSuccess(callback));
     }
 
     /**
@@ -101,10 +81,7 @@ public class PullSubscriptionsAsyncTask extends IntentService {
      * @param e An Exception describing the error.
      */
     private void sendError(GPodderException e) {
-        Intent reply = new Intent(ACTION);
-        reply.putExtra(EXTRA_STATE, TASK_FAIL);
-        reply.putExtra(EXTRA_EXCEPTION, e);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(reply);
+        callback.sendEvent(new PodcastSyncResultHandler.PodcastSyncEventError(callback, e));
     }
 
     private static class PodcastDetailsRetriever {

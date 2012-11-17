@@ -1,10 +1,13 @@
 package at.ac.tuwien.detlef.activities;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -17,11 +20,10 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.callbacks.CallbackContainer;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
-import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
-import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
@@ -163,6 +165,8 @@ EpisodeListFragment.OnEpisodeSelectedListener {
     private static final CallbackContainer<MainActivity> cbCont =
             new CallbackContainer<MainActivity>();
 
+    private static final ExecutorService refreshBg = Executors.newSingleThreadExecutor();
+
     /**
      * The Toast with the Output of the refresh operation is shown this long.
      */
@@ -191,16 +195,15 @@ EpisodeListFragment.OnEpisodeSelectedListener {
     private static final class PodcastHandler extends PodcastSyncResultHandler<MainActivity> {
 
         @Override
-        public void handle(EnhancedSubscriptionChanges changes) {
-            PodcastDBAssistant pda = new PodcastDBAssistantImpl();
-
-            //pda.applySubscriptionChanges(act, changes);
+        public void handle() {
+            PodcastDBAssistant pda = DependencyAssistant.getDependencyAssistant()
+                    .getPodcastDBAssistant();
 
             synchronized (getRcv().numPodSync) {
                 for (Podcast p : pda.getAllPodcasts(getRcv())) {
-                    Intent i = new Intent().setClass(getRcv(), PullFeedAsyncTask.class);
-                    i.putExtra(PullFeedAsyncTask.EXTRA_PODCAST, p);
-                    getRcv().startService(i);
+                    refreshBg.execute(new PullFeedAsyncTask((
+                            FeedSyncResultHandler<? extends Activity>)
+                            cbCont.get(KEY_FEED_HANDLER), p));
                     getRcv().numPodSync.incrementAndGet();
                 }
 
@@ -267,6 +270,9 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         }
 
         // TODO: Disable refresh button
+        refreshBg.execute(new PullSubscriptionsAsyncTask((
+                PodcastSyncResultHandler<? extends Activity>)
+                cbCont.get(KEY_PODCAST_HANDLER)));
         startService(new Intent().setClass(this,
                 PullSubscriptionsAsyncTask.class));
         progressDialog.show();
@@ -318,17 +324,17 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         if (menu != null) {
             menu.clear();
             switch (tab.getPosition()) {
-                case 0:
-                    getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                    break;
-                case 1:
-                    getMenuInflater().inflate(R.menu.episode_menu, menu);
-                    break;
-                case 2:
-                    getMenuInflater().inflate(R.menu.player_menu, menu);
-                    break;
-                default:
-                    System.out.println("Non-existent tab selected! Please fix");
+            case 0:
+                getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                break;
+            case 1:
+                getMenuInflater().inflate(R.menu.episode_menu, menu);
+                break;
+            case 2:
+                getMenuInflater().inflate(R.menu.player_menu, menu);
+                break;
+            default:
+                System.out.println("Non-existent tab selected! Please fix");
             }
         }
         mViewPager.setCurrentItem(tab.getPosition());
@@ -399,23 +405,23 @@ EpisodeListFragment.OnEpisodeSelectedListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-            case R.id.settings:
-                intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.playlist:
-                intent = new Intent(this, PlaylistActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.search:
-                intent = new Intent(this, SearchActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.refresh:
-                onRefreshPressed();
-                break;
-            default:
-                break;
+        case R.id.settings:
+            intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.playlist:
+            intent = new Intent(this, PlaylistActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.search:
+            intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.refresh:
+            onRefreshPressed();
+            break;
+        default:
+            break;
         }
         return true;
     }

@@ -50,7 +50,7 @@ public class CallbackContainer<Receiver> {
      * @param key The key identifying the callback to get.
      * @return The callback or null if there was none under the given key.
      */
-    public synchronized Callback<? extends Receiver> get(String key) {
+    public synchronized Callback<Receiver> get(String key) {
         return callbacks.get(key);
     }
 

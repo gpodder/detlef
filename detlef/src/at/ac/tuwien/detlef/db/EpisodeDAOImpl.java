@@ -28,7 +28,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     private final Set<OnEpisodeChangeListener> listeners =
             new HashSet<OnEpisodeChangeListener>();
 
-    private HashMap<Long, Episode> hashMapEpisode =
+    private final HashMap<Long, Episode> hashMapEpisode =
             new HashMap<Long, Episode>();
 
     /**
@@ -306,7 +306,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         listeners.add(listener);
     }
 
-    public void removePodListChangeListener(OnEpisodeChangeListener listener) {
+    public void removeEpisodeChangedListener(OnEpisodeChangeListener listener) {
         listeners.remove(listener);
     }
 

@@ -25,7 +25,7 @@ public abstract class ReliableCallback<Receiver, Event> implements Callback<Rece
      * This is simply here, so you don't have to write these three lines in the subclass.
      */
     @Override
-    public void registerReceiver(Receiver act) {
+    public void registerReceiver(Receiver rcv) {
         if (isReady()) {
             deliverPendingEvents();
         }

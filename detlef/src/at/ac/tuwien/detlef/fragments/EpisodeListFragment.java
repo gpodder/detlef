@@ -65,6 +65,14 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
     }
 
     @Override
+    public void onDestroy() {
+        EpisodeDAOImpl dao = EpisodeDAOImpl.i(this.getActivity());
+        dao.removeEpisodeChangedListener(this);
+
+        super.onDestroy();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);

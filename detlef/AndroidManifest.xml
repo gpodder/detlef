@@ -42,10 +42,6 @@
             android:name=".gpodder.PodderService"
             android:process=":podderservice" >
         </service>
-        <service android:name=".gpodder.PullSubscriptionsAsyncTask" >
-        </service>
-        <service android:name=".gpodder.PullFeedAsyncTask" >
-        </service>
         <service
             android:name=".mediaplayer.MediaPlayerService"
             android:icon="@android:drawable/ic_media_play" >

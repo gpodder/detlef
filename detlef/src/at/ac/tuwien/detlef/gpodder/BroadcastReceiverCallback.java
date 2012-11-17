@@ -1,44 +1,18 @@
 package at.ac.tuwien.detlef.gpodder;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.callbacks.ReliableCallback;
 
-public abstract class BroadcastReceiverCallback<Receiver> extends ReliableCallback<Receiver,
-BroadcastReceiverCallback.BroadcastReceiverEvent> {
-
-    private final String action;
-    private final BroadcastReceiver bcastRcv = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            BroadcastReceiverEvent e = new BroadcastReceiverEvent(context, intent);
-            if (!isReady()) {
-                queueEvent(e);
-                return;
-            }
-
-            deliverEvent(e);
-        }
-
-    };
+public abstract class BroadcastReceiverCallback<Receiver, Event extends
+BroadcastReceiverCallback.BroadcastReceiverEvent> extends ReliableCallback<Receiver, Event> {
 
     private Receiver rcv = null;
-
-    protected BroadcastReceiverCallback(String action) {
-        this.action = action;
-    }
 
     protected Receiver getRcv() {
         return rcv;
     }
 
     @Override
-    public final void registerReceiver(Receiver rcv) {
+    public final synchronized void registerReceiver(Receiver rcv) {
         if (isReady()) {
             unregisterReceiver();
         }
@@ -49,7 +23,7 @@ BroadcastReceiverCallback.BroadcastReceiverEvent> {
     }
 
     @Override
-    public final void unregisterReceiver() {
+    public final synchronized void unregisterReceiver() {
         if (isReady()) {
             rcv = null;
         }
@@ -57,36 +31,34 @@ BroadcastReceiverCallback.BroadcastReceiverEvent> {
 
     @Override
     public final void init() {
-        IntentFilter fil = new IntentFilter(action);
-        LocalBroadcastManager.getInstance(Detlef.getAppContext()).registerReceiver(bcastRcv, fil);
+        /* nothing to do */
     }
 
     @Override
     public final void destroy() {
-        LocalBroadcastManager.getInstance(Detlef.getAppContext()).unregisterReceiver(bcastRcv);
+        /* nothing to do */
     }
-
 
     @Override
     protected final boolean isReady() {
         return rcv != null;
     }
 
-    protected static final class BroadcastReceiverEvent {
-        private final Context context;
-        private final Intent intent;
+    @Override
+    protected void deliverEvent(Event e) {
+        e.deliver();
+    }
 
-        public BroadcastReceiverEvent(Context context, Intent intent) {
-            this.context = context;
-            this.intent = intent;
+    final synchronized void sendEvent(Event e) {
+        if (!isReady()) {
+            queueEvent(e);
+            return;
         }
 
-        public Context getContext() {
-            return context;
-        }
+        deliverEvent(e);
+    }
 
-        public Intent getIntent() {
-            return intent;
-        }
+    abstract static class BroadcastReceiverEvent {
+        abstract void deliver();
     }
 }

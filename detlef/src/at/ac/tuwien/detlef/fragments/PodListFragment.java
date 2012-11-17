@@ -77,6 +77,14 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     }
 
     @Override
+    public void onDestroy() {
+        PodcastDAOImpl dao = PodcastDAOImpl.i(this.getActivity());
+        dao.removePodListChangeListener(this);
+
+        super.onDestroy();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);

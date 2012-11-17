@@ -1,9 +1,6 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.util.Log;
-import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 
 /**
  * A class to handle replies from the PullSubscriptionsAsyncTask.
@@ -15,48 +12,68 @@ import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
  * PodcastSyncResultHandler and implement handle() and handleFailure().
  */
 public abstract class PodcastSyncResultHandler<Receiver extends Activity> extends
-BroadcastReceiverCallback<Receiver> {
+BroadcastReceiverCallback<Receiver, PodcastSyncResultHandler.PodcastSyncEvent> {
     /** Logging tag. */
     private static final String TAG = "PodcastSyncResultHandler";
-
-    protected PodcastSyncResultHandler() {
-        super(PullSubscriptionsAsyncTask.ACTION);
-    }
-
-    @Override
-    protected void deliverEvent(BroadcastReceiverCallback.BroadcastReceiverEvent e) {
-        Log.d(TAG, "deliverEvent");
-
-        Intent intent = e.getIntent();
-
-        /* See whether the Service succeeded. */
-        int status = intent.getIntExtra(PullSubscriptionsAsyncTask.EXTRA_STATE,
-                PullSubscriptionsAsyncTask.TASK_SUCC);
-
-        switch (status) {
-        case PullSubscriptionsAsyncTask.TASK_FAIL:
-            this.handleFailure((GPodderException) intent.getSerializableExtra(
-                    PullSubscriptionsAsyncTask.EXTRA_EXCEPTION));
-            break;
-        case PullSubscriptionsAsyncTask.TASK_SUCC:
-            this.handle((EnhancedSubscriptionChanges) intent.getSerializableExtra(
-                    PullSubscriptionsAsyncTask.EXTRA_CHANGES));
-            break;
-        default:
-            /* dafuq? */
-                    Log.w("PodcastSyncResultHandler", "Invalid Intent received.");
-        }
-    }
 
     /**
      * This has to be implemented by the user and is called when the Task got a subscription update.
      * @param changes The subscription changes.
      */
-    public abstract void handle(EnhancedSubscriptionChanges changes);
+    public abstract void handle();
 
     /**
      * This has to be implemented by the user and is called when the Task encountered an error.
      * @param e An Exception describing what went wrong.
      */
     public abstract void handleFailure(GPodderException e);
+
+    @Override
+    protected void deliverEvent(final PodcastSyncEvent e) {
+        getRcv().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                e.deliver();
+            }
+
+        });
+    }
+
+    abstract static class PodcastSyncEvent
+    extends BroadcastReceiverCallback.BroadcastReceiverEvent {
+        protected final PodcastSyncResultHandler<?> callback;
+
+        PodcastSyncEvent(PodcastSyncResultHandler<?> callback) {
+            this.callback = callback;
+        }
+    }
+
+    static class PodcastSyncEventError extends PodcastSyncEvent {
+        private final GPodderException exception;
+
+        PodcastSyncEventError(PodcastSyncResultHandler<?> callback,
+                GPodderException exception) {
+            super(callback);
+            this.exception = exception;
+        }
+
+        @Override
+        void deliver() {
+            callback.handleFailure(exception);
+        }
+
+    }
+
+    static class PodcastSyncEventSuccess extends PodcastSyncEvent {
+
+        PodcastSyncEventSuccess(PodcastSyncResultHandler<?> callback) {
+            super(callback);
+        }
+
+        @Override
+        void deliver() {
+            callback.handle();
+        }
+
+    }
 }

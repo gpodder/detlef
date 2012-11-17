@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
+import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.playlist.Playlist;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
@@ -32,6 +33,9 @@ public class DependencyAssistant {
     private static EpisodeDBAssistant episodeDBAssistant =
             new EpisodeDBAssistantImpl();
 
+    private static PodcastDBAssistant podcastDBAssistant =
+            new PodcastDBAssistantImpl();
+
     public static Playlist getPlaylist() {
         return playlist;
     }
@@ -48,7 +52,7 @@ public class DependencyAssistant {
      *         program.
      */
     public PodcastDBAssistant getPodcastDBAssistant() {
-        return null;
+        return podcastDBAssistant;
     }
 
     /**
