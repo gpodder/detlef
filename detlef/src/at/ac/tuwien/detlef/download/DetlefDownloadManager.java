@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import android.app.DownloadManager;
+import android.app.DownloadManager.Query;
 import android.app.DownloadManager.Request;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -65,6 +68,47 @@ public class DetlefDownloadManager {
     private boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return state.equals(Environment.MEDIA_MOUNTED);
+    }
+
+    /**
+     * Called once a download has completed. Responsible for updating the internal
+     * state and pushing episode changes to the database.
+     * @param id The download id.
+     */
+    public void downloadComplete(long id) {
+        Episode episode = activeDownloads.remove(id);
+        if (episode == null) {
+            Log.w(TAG, String.format("No active download found for id %d", id));
+            return;
+        }
+
+        if (!isDownloadSuccessful(id)) {
+            Log.w(TAG, String.format("Download for id %d did not complete successfully", id));
+            return;
+        }
+
+        Uri uri = downloadManager.getUriForDownloadedFile(id);
+        String path = uri.toString(); /* TODO: Should we update the filesize here? */
+
+        episode.setFilePath(path);
+
+        EpisodeDAOImpl dao = EpisodeDAOImpl.i(context);
+        dao.updateFilePath(episode);
+
+        Log.v(TAG, String.format("File %s downloaded successfully", path));
+    }
+
+    private boolean isDownloadSuccessful(long id) {
+        Query query = new Query();
+        query.setFilterById(id);
+
+        Cursor c = downloadManager.query(query);
+        if (!c.moveToFirst()) {
+            return false;
+        }
+
+        int columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
+        return (DownloadManager.STATUS_SUCCESSFUL == c.getInt(columnIndex));
     }
 
 }
