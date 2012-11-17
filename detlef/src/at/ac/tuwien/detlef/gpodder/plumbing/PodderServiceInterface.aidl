@@ -9,6 +9,12 @@ import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 oneway interface PodderServiceInterface
 {
 	/**
+	 * Attempt to deliver outstanding callbacks to the given callback object.
+	 * @param cb Callback to send outstanding callbacks to.
+	 */
+	void deliverOutstandingToMe(in PodderServiceCallback cb);
+
+	/**
 	 * Perform an HTTP download.
 	 * @param cb Callback object to send responses to.
 	 * @param reqId The ID of the request; will be passed to the callback unchanged.

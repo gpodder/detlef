@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import at.ac.tuwien.detlef.gpodder.plumbing.CachingCallbackProxy;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
@@ -262,24 +263,38 @@ public class PodderService extends Service {
     protected static class IpcHandler extends PodderServiceInterface.Stub {
         private static final String TAG = "PodderService.IpcHandler";
 
+        /** Caches calls. */
+        private CachingCallbackProxy theMagicalProxy;
+
+        public IpcHandler() {
+            theMagicalProxy = new CachingCallbackProxy(null);
+        }
+
+        public void deliverOutstandingToMe(PodderServiceCallback cb) throws RemoteException {
+            theMagicalProxy.setTarget(cb);
+            theMagicalProxy.resend();
+        }
+
         public void authCheck(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
                 throws RemoteException {
             Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
 
             // try authenticating
-            SimpleClient sc = performGpoLogin(cb, reqId, cinfo);
+            SimpleClient sc = performGpoLogin(theMagicalProxy, reqId, cinfo);
 
             if (sc != null) {
-                cb.authCheckSucceeded(reqId);
+                theMagicalProxy.authCheckSucceeded(reqId);
             }
         }
 
         public void downloadPodcastList(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
                 throws RemoteException {
             Log.d(TAG, "downloadPodcastList() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
 
             // try authenticating
-            SimpleClient sc = performGpoLogin(cb, reqId, cinfo);
+            SimpleClient sc = performGpoLogin(theMagicalProxy, reqId, cinfo);
             if (sc == null) {
                 return;
             }
@@ -289,30 +304,33 @@ public class PodderService extends Service {
                 casts = sc.getSubscriptions(cinfo.getDeviceId());
             } catch (IOException ioe) {
                 Log.w(TAG, "getSubscriptions IOException: " + ioe.getMessage());
-                cb.downloadPodcastListFailed(reqId, ErrorCode.IO_PROBLEM,
+                theMagicalProxy.downloadPodcastListFailed(reqId, ErrorCode.IO_PROBLEM,
                         "I/O problem: " + ioe.getMessage());
                 return;
             }
 
             if (casts != null) {
-                cb.downloadPodcastListSucceeded(reqId, casts);
+                theMagicalProxy.downloadPodcastListSucceeded(reqId, casts);
             } else {
-                cb.downloadPodcastListFailed(reqId, ErrorCode.UNKNOWN_ERROR,
+                theMagicalProxy.downloadPodcastListFailed(reqId, ErrorCode.UNKNOWN_ERROR,
                         "something went wrong");
             }
         }
 
         public void heartbeat(PodderServiceCallback cb, int reqId) throws RemoteException {
             Log.d(TAG, "heartbeat() on " + Thread.currentThread().getId());
-            cb.heartbeatSucceeded(reqId);
+            theMagicalProxy.setTarget(cb);
+            theMagicalProxy.heartbeatSucceeded(reqId);
         }
 
         public void httpDownload(PodderServiceCallback cb, int reqId, String url)
                 throws RemoteException {
             Log.d(TAG, "httpDownload() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
 
             final ByteRope rope = new ByteRope();
-            boolean ok = performHttpDownload(cb, reqId, url, new HttpDownloadHandler() {
+            boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
+                    new HttpDownloadHandler() {
 
                 public void lengthKnown(int len) {
                     // do nothing of interest
@@ -327,13 +345,14 @@ public class PodderService extends Service {
             if (ok) {
                 // good news, everyone!
                 ParcelableByteArray pba = new ParcelableByteArray(rope.toByteArray());
-                cb.httpDownloadSucceeded(reqId, pba);
+                theMagicalProxy.httpDownloadSucceeded(reqId, pba);
             }
         }
 
         public void httpDownloadToFile(final PodderServiceCallback cb, final int reqId, String url,
                 String localfn) throws RemoteException {
             Log.d(TAG, "httpDownloadToFile() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
 
             // open fire
             final FileOutputStream fos;
@@ -341,11 +360,13 @@ public class PodderService extends Service {
                 fos = new FileOutputStream(localfn);
             } catch (FileNotFoundException fnfe) {
                 Log.w(TAG, "FileOutputStream c'tor FileNotFoundException: " + fnfe.getMessage());
-                cb.httpDownloadFailed(reqId, ErrorCode.FILE_NOT_FOUND, "file not found");
+                theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.FILE_NOT_FOUND,
+                        "file not found");
                 return;
             }
 
-            boolean ok = performHttpDownload(cb, reqId, url, new HttpDownloadHandler() {
+            boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
+                    new HttpDownloadHandler() {
 
                 public void lengthKnown(int len) {
                     // do nothing of interest
@@ -356,7 +377,8 @@ public class PodderService extends Service {
                         fos.write(chunk, 0, len);
                     } catch (IOException e) {
                         Log.w(TAG, "FileOutputStream write IOException: " + e.getMessage());
-                        cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
+                        theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
+                                e.getMessage());
                         return false;
                     }
                     return true;
@@ -368,7 +390,8 @@ public class PodderService extends Service {
                 fos.close();
             } catch (IOException ioe) {
                 if (ok) {
-                    cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM, ioe.getMessage());
+                    theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
+                            ioe.getMessage());
                     return;
                 }
                 // if !ok, we have other problems to worry about already
@@ -376,7 +399,7 @@ public class PodderService extends Service {
 
             if (ok) {
                 // phew.
-                cb.httpDownloadToFileSucceeded(reqId);
+                theMagicalProxy.httpDownloadToFileSucceeded(reqId);
             }
         }
     }
