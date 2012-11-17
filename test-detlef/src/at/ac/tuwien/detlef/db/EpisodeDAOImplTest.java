@@ -29,7 +29,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         p1.setTitle("title");
         p1.setUrl("die url halt");
 
-        e1 = new Episode();
+        e1 = new Episode(p1);
         e1.setAuthor("author");
         e1.setDescription("description");
         e1.setFileSize("filesize");
@@ -42,7 +42,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e1.setState(State.NEW);
         e1.setFilePath("path");
 
-        e2 = new Episode();
+        e2 = new Episode(p1);
         e2.setAuthor("author");
         e2.setDescription("description");
         e2.setFileSize("filesize");
@@ -78,22 +78,11 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         int countBeforeInsert = edao.getAllEpisodes().size();
         e1 = edao.insertEpisode(e1);
         int countAfterInsert = edao.getAllEpisodes().size();
         assertEquals(countBeforeInsert + 1, countAfterInsert);
         assertTrue(e1.getId() > 0);
-    }
-
-    /**
-     * tests the insertEpisode functionality with no podcast given
-     */
-    public void testInsertEpisodeWithNonExistingPodcastShouldFail() {
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
-        e1.setPodcast(null);
-        e1 = edao.insertEpisode(e1);
-        assertNull(e1);
     }
 
     /**
@@ -103,7 +92,6 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         e1 = edao.insertEpisode(e1);
         int countBeforeDelete = edao.getAllEpisodes().size();
         int ret = edao.deleteEpisode(e1);
@@ -119,7 +107,6 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         e1 = edao.insertEpisode(e1);
         ArrayList<Episode> episodes = (ArrayList<Episode>)edao.getEpisodes(p1);
         assertEquals(1, episodes.size());
@@ -136,7 +123,6 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         e1 = edao.insertEpisode(e1);
         State newState = State.DOWNLOADED;
         e1.setState(newState);
@@ -153,7 +139,6 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         e1 = edao.insertEpisode(e1);
         String newPath = "a wholy shit new path";
         e1.setFilePath(newPath);
@@ -171,9 +156,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         e1 = edao.insertEpisode(e1);
-        e2.setPodcast(p1);
         e2 = edao.insertEpisode(e2);
         assertEquals(1, pdao.deletePodcast(p1));
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
@@ -188,7 +171,6 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         e1.setUrl(null);
         e1 = edao.insertEpisode(e1);
         assertNull(e1);
@@ -202,7 +184,6 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         e1.setState(null);
         e1 = edao.insertEpisode(e1);
         assertNotNull(e1);
@@ -212,7 +193,6 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setPodcast(p1);
         String newGuid = java.util.UUID.randomUUID().toString();
         e1.setGuid(newGuid);
         e1 = edao.insertEpisode(e1);

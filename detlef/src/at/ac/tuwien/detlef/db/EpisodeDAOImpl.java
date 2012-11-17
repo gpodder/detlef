@@ -219,7 +219,8 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
             e = hashMapEpisode.get(key);
             containsAlready = true;
         } else {
-            e = new Episode();
+            e = new Episode(podcastDAO.getPodcastById(c.getLong(
+                c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
         }
         e.setAuthor(c.getString(c
                 .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_AUTHOR)));
@@ -234,8 +235,6 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                 .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_LINK)));
         e.setMimetype(c.getString(c
                 .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_MIMETYPE)));
-        e.setPodcast(podcastDAO.getPodcastById(c.getLong(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
         e.setReleased(c.getLong(c
                 .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_RELEASED)));
         e.setTitle(c.getString(c

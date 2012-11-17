@@ -12,7 +12,7 @@ public class EpisodeTest extends TestCase {
      */
     public void testNameSetterAndgetter() {
         String name = "Episode 1";
-        Episode episode = new Episode();
+        Episode episode = new Episode(new Podcast());
         episode.setTitle(name);
         assertEquals(name, episode.getTitle());
     }
@@ -57,7 +57,7 @@ public class EpisodeTest extends TestCase {
             public String getTitle() { return "Book of the Dead"; }
         };
 
-        Episode e = new Episode(ie);
+        Episode e = new Episode(ie, new Podcast());
 
         assertEquals(realAuthor, e.getAuthor());
         assertEquals(ie.getDescription(), e.getDescription());

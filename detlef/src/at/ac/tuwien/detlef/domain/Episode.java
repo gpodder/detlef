@@ -15,9 +15,7 @@ public class Episode implements IEpisode {
     private long id;
 
     private String title;
-
-    private Podcast podcast;
-
+    private final Podcast podcast;
     private Episode.State state;
 
     private String fileSize;
@@ -38,9 +36,13 @@ public class Episode implements IEpisode {
 
     private String filePath;
 
-    public Episode() { }
+    public Episode(Podcast podcast) {
+        this.podcast = podcast;
+        this.state = State.NEW;
+    }
 
-    public Episode(IEpisode e) {
+    public Episode(IEpisode e, Podcast podcast) {
+        this(podcast);
         setAuthor(e.getAuthor());
         setDescription(e.getDescription());
         setFileSize(String.valueOf(e.getEnclosure().getFilesize()));
@@ -48,7 +50,6 @@ public class Episode implements IEpisode {
         setLink(e.getLink());
         setMimetype(e.getEnclosure().getMimetype());
         setReleased(e.getReleased());
-        setState(State.NEW); // TODO: which state?
         setTitle(e.getTitle());
         setUrl(e.getEnclosure().getUrl());
     }
@@ -74,11 +75,6 @@ public class Episode implements IEpisode {
 
     public Podcast getPodcast() {
         return podcast;
-    }
-
-    public Episode setPodcast(Podcast podcastIn) {
-        this.podcast = podcastIn;
-        return this;
     }
 
     public String getFileSize() {

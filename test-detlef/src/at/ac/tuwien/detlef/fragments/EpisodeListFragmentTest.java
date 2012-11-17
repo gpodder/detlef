@@ -37,14 +37,13 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         p.setTitle(uuid);
         PodcastDAOImpl.i(getActivity()).insertPodcast(p);
 
-        Episode e = new Episode();
+        Episode e = new Episode(p);
         e.setAuthor("author");
         e.setDescription("description");
         e.setFileSize("filesize");
         e.setGuid("guid");
         e.setLink("link");
         e.setMimetype("mimetype");
-        e.setPodcast(p);
         e.setReleased(System.currentTimeMillis());
         e.setTitle(uuid);
         e.setUrl("url");

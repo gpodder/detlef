@@ -43,8 +43,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
         try {
             EpisodeDAO dao = EpisodeDAOImpl.i(context);
             for (IEpisode ep : feed.getEpisodes()) {
-                Episode newEp = new Episode(ep);
-                newEp.setPodcast(p);
+                Episode newEp = new Episode(ep, p);
                 dao.insertEpisode(newEp);
             }
         } catch (Exception ex) {
