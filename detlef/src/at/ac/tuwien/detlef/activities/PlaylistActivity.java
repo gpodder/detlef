@@ -17,7 +17,7 @@ import com.mobeta.android.dslv.DragSortListView;
 
 public class PlaylistActivity extends ListActivity {
 
-    private ArrayList<Episode> listItems = new ArrayList<Episode>();
+    private final ArrayList<Episode> listItems = new ArrayList<Episode>();
     private PlaylistListAdapter adapter;
 
     @Override
@@ -64,7 +64,8 @@ public class PlaylistActivity extends ListActivity {
         registerForContextMenu(getListView());
     }
 
-    private DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
+    private final DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
+        @Override
         public void drop(int from, int to) {
             Episode item = adapter.getItem(from);
 
@@ -73,7 +74,8 @@ public class PlaylistActivity extends ListActivity {
         }
     };
 
-    private DragSortListView.RemoveListener onRemove = new DragSortListView.RemoveListener() {
+    private final DragSortListView.RemoveListener onRemove = new DragSortListView.RemoveListener() {
+        @Override
         public void remove(int which) {
             adapter.remove(adapter.getItem(which));
         }

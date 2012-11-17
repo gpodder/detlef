@@ -8,32 +8,24 @@ import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
  */
 public class Episode implements IEpisode {
 
-    public static enum State {
-        NEW, DOWNLOADED, PLAYED
+    public enum State {
+        NEW,
+        DOWNLOADED,
+        PLAYED
     }
 
     private long id;
-
     private String title;
     private final Podcast podcast;
     private Episode.State state;
-
     private String fileSize;
-
     private String author;
-
     private String description;
-
     private String mimetype; // enclosure
-
     private String guid;
-
     private String link;
-
     private long released;
-
     private String url;
-
     private String filePath;
 
     public Episode(Podcast podcast) {

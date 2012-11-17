@@ -211,49 +211,31 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     }
 
     private Episode getEpisode(Cursor c) {
-        Episode e;
-        long key =
-                c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ID));
-        boolean containsAlready = false;
+        long key = c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ID));
         if (hashMapEpisode.containsKey(key)) {
-            e = hashMapEpisode.get(key);
-            containsAlready = true;
-        } else {
-            e = new Episode(podcastDAO.getPodcastById(c.getLong(
+            return hashMapEpisode.get(key);
+        };
+
+        Episode e = new Episode(podcastDAO.getPodcastById(c.getLong(
                 c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
-        }
-        e.setAuthor(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_AUTHOR)));
-        e.setDescription(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION)));
-        e.setFileSize(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILESIZE)));
-        e.setGuid(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_GUID)));
+        e.setAuthor(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_AUTHOR)));
+        e.setDescription(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION)));
+        e.setFileSize(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILESIZE)));
+        e.setGuid(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_GUID)));
         e.setId(key);
-        e.setLink(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_LINK)));
-        e.setMimetype(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_MIMETYPE)));
-        e.setReleased(c.getLong(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_RELEASED)));
-        e.setTitle(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_TITLE)));
-        e.setUrl(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_URL)));
-        e.setFilePath(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILEPATH)));
-        String state =
-                c.getString(c
-                        .getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE));
-        if (state == null) {
-            e.setState(State.NEW);
-        } else {
+        e.setLink(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_LINK)));
+        e.setMimetype(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_MIMETYPE)));
+        e.setReleased(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_RELEASED)));
+        e.setTitle(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_TITLE)));
+        e.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_URL)));
+        e.setFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILEPATH)));
+        String state = c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE));
+        if (state != null) {
             e.setState(State.valueOf(state));
         }
-        if (!containsAlready) {
-            hashMapEpisode.put(key, e);
-        }
+
+        hashMapEpisode.put(key, e);
+
         return e;
     }
 
