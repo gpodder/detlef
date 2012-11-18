@@ -78,6 +78,16 @@ public class DetlefDownloadManager {
     }
 
     /**
+     * Cancels all active downloads.
+     */
+    public void cancelAll() {
+        for (long id : activeDownloads.keySet()) {
+            downloadManager.remove(id);
+        }
+        activeDownloads.clear();
+    }
+
+    /**
      * Called once a download has completed. Responsible for updating the internal
      * state and pushing episode changes to the database.
      * @param id The download id.
