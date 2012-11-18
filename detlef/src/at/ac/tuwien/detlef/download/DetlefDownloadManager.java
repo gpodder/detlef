@@ -16,6 +16,11 @@ import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
+/**
+ * DetlefDownloadManager keeps track of all active downloads and updates episode
+ * information once the downloads have completed. On application shutdown, all running
+ * downloads should be cancelled by calling {@link DetlefDownloadManager#cancelAll()}.
+ */
 public class DetlefDownloadManager {
 
     private static final String TAG = DetlefDownloadManager.class.getName();
