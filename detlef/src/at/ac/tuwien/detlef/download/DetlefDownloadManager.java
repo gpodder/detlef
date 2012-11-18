@@ -1,5 +1,6 @@
 package at.ac.tuwien.detlef.download;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -50,7 +51,13 @@ public class DetlefDownloadManager {
         /* We may need to change our naming policy in case of duplicates. However,
          * let's ignore this for now since it's simplest for us and the user.
          */
-        String path = String.format("%s/%s", podcast.getTitle(), episode.getTitle());
+        String path = String.format("%s/%s", podcast.getTitle(),
+                new File(uri.toString()).getName());
+
+        /* Ensure the directory already exists.
+         */
+        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), path);
+        file.mkdirs();
 
         Request request = new Request(uri);
         request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_MUSIC, path);
@@ -83,7 +90,8 @@ public class DetlefDownloadManager {
         }
 
         if (!isDownloadSuccessful(id)) {
-            Log.w(TAG, String.format("Download for id %d did not complete successfully", id));
+            Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
+                    id, getDownloadFailureReason(id)));
             return;
         }
 
@@ -99,16 +107,25 @@ public class DetlefDownloadManager {
     }
 
     private boolean isDownloadSuccessful(long id) {
+        int status = getDownloadQueryAsInt(id, DownloadManager.COLUMN_STATUS);
+        return (DownloadManager.STATUS_SUCCESSFUL == status);
+    }
+
+    private int getDownloadFailureReason(long id) {
+        return getDownloadQueryAsInt(id, DownloadManager.COLUMN_REASON);
+    }
+
+    private int getDownloadQueryAsInt(long id, String column) {
         Query query = new Query();
         query.setFilterById(id);
 
         Cursor c = downloadManager.query(query);
         if (!c.moveToFirst()) {
-            return false;
+            return -1;
         }
 
-        int columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
-        return (DownloadManager.STATUS_SUCCESSFUL == c.getInt(columnIndex));
+        int columnIndex = c.getColumnIndex(column);
+        return c.getInt(columnIndex);
     }
 
 }
