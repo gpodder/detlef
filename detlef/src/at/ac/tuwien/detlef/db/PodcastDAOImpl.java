@@ -146,15 +146,13 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     private Podcast getPodcast(Cursor c) {
-        boolean alreadyContained = false;
         long key = c.getLong(0);
-        Podcast p;
+
         if (hashMapPodcast.containsKey(key)) {
-            p = hashMapPodcast.get(key);
-            alreadyContained = true;
-        } else {
-            p = new Podcast();
+            return hashMapPodcast.get(key);
         }
+
+        Podcast p = new Podcast();
         p.setId(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_ID)));
         p.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_URL)));
         p.setTitle(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_TITLE)));
@@ -163,9 +161,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
         p.setLastUpdate(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE)));
         p.setLogoFilePath(c.getString(c
                 .getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
-        if (!alreadyContained) {
-            hashMapPodcast.put(key, p);
-        }
+
+        hashMapPodcast.put(key, p);
+
         return p;
     }
 
