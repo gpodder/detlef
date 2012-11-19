@@ -11,6 +11,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -60,9 +61,12 @@ public final class PodcastDAOImpl implements PodcastDAO {
      * @see at.ac.tuwien.detlef.db.PodcastDAO#insertPodcast(at.ac.tuwien.detlef.domain
      *      .Podcast)
      */
+    @Override
     public Podcast insertPodcast(Podcast podcast) {
+        SQLiteDatabase db = null;
         try {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db = dbHelper.getWritableDatabase();
+
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
             values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
@@ -76,17 +80,22 @@ public final class PodcastDAOImpl implements PodcastDAO {
             }
 
             long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
-            db.close();
             if (id == -1) {
-                return null;
+                throw new SQLiteException("Failed to insert podcast");
             }
+
             podcast.setId(id);
             hashMapPodcast.put(id, podcast);
             notifyListenersAdded(podcast);
+
             return podcast;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
             return null;
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
         }
     }
 

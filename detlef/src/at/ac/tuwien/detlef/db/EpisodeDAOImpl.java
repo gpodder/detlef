@@ -10,6 +10,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.State;
@@ -67,8 +68,10 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
      */
     @Override
     public Episode insertEpisode(Episode episode) {
+        SQLiteDatabase db = null;
         try {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db = dbHelper.getWritableDatabase();
+
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_EPISODE_AUTHOR,
                     episode.getAuthor());
@@ -81,8 +84,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
             values.put(DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
                     episode.getMimetype());
             if (episode.getPodcast() == null) {
-                db.close();
-                return null;
+                throw new IllegalArgumentException("The episode must belong to a podcast");
             }
             values.put(DatabaseHelper.COLUMN_EPISODE_PODCAST, episode
                     .getPodcast().getId());
@@ -102,19 +104,24 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                 values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode
                         .getState().toString());
             }
+
             long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
-            db.close();
             if (id == -1) {
-                // error occurred
-                return null;
+                throw new SQLiteException("Episode insert failed");
             }
+
             episode.setId(id);
             hashMapEpisode.put(id, episode);
             notifyListenersAdded(episode);
+
             return episode;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
             return null;
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
         }
     }
 
