@@ -1,3 +1,4 @@
+
 package at.ac.tuwien.detlef.activities;
 
 import java.util.Locale;
@@ -19,6 +20,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
@@ -36,8 +38,8 @@ import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 
 public class MainActivity extends FragmentActivity
-implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
-EpisodeListFragment.OnEpisodeSelectedListener {
+        implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
+        EpisodeListFragment.OnEpisodeSelectedListener {
 
     private static String TAG = MainActivity.class.getName();
 
@@ -282,8 +284,7 @@ EpisodeListFragment.OnEpisodeSelectedListener {
      * Called when refresh is done, dismisses the progress dialog and displays
      * msg in a Toast.
      * 
-     * @param msg
-     *            The message displayed in a Toast.
+     * @param msg The message displayed in a Toast.
      */
     private void onRefreshDone(String msg) {
         numPodSync.set(-1);
@@ -297,17 +298,17 @@ EpisodeListFragment.OnEpisodeSelectedListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         switch (mViewPager.getCurrentItem()) {
-        case SectionsPagerAdapter.POSITION_PODCASTS:
-            getMenuInflater().inflate(R.menu.podcast_menu, menu);
-            break;
-        case SectionsPagerAdapter.POSITION_EPISODES:
-            getMenuInflater().inflate(R.menu.episode_menu, menu);
-            break;
-        case SectionsPagerAdapter.POSITION_PLAYER:
-            // getMenuInflater().inflate(R.menu.player_menu, menu);
-            break;
-        default:
-            return false;
+            case SectionsPagerAdapter.POSITION_PODCASTS:
+                getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                break;
+            case SectionsPagerAdapter.POSITION_EPISODES:
+                getMenuInflater().inflate(R.menu.episode_menu, menu);
+                break;
+            case SectionsPagerAdapter.POSITION_PLAYER:
+                // getMenuInflater().inflate(R.menu.player_menu, menu);
+                break;
+            default:
+                return false;
         }
         return true;
     }
@@ -324,17 +325,17 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         if (menu != null) {
             menu.clear();
             switch (tab.getPosition()) {
-            case 0:
-                getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                break;
-            case 1:
-                getMenuInflater().inflate(R.menu.episode_menu, menu);
-                break;
-            case 2:
-                getMenuInflater().inflate(R.menu.player_menu, menu);
-                break;
-            default:
-                System.out.println("Non-existent tab selected! Please fix");
+                case 0:
+                    getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                    break;
+                case 1:
+                    getMenuInflater().inflate(R.menu.episode_menu, menu);
+                    break;
+                case 2:
+                    getMenuInflater().inflate(R.menu.player_menu, menu);
+                    break;
+                default:
+                    System.out.println("Non-existent tab selected! Please fix");
             }
         }
         mViewPager.setCurrentItem(tab.getPosition());
@@ -363,21 +364,23 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         @Override
         public Fragment getItem(int i) {
 
-            /* References to Fragments used within this adapter may not be kept anywhere,
-             * since they are not guaranteed to stay valid. Therefore, we need to create fragment
-             * instances within this method, and rely on other means (for example the fragment manager)
-             * to retrieve references.
+            /*
+             * References to Fragments used within this adapter may not be kept
+             * anywhere, since they are not guaranteed to stay valid. Therefore,
+             * we need to create fragment instances within this method, and rely
+             * on other means (for example the fragment manager) to retrieve
+             * references.
              */
 
             switch (i) {
-            case POSITION_PODCASTS:
-                return new PodListFragment();
-            case POSITION_EPISODES:
-                return new EpisodeListFragment();
-            case POSITION_PLAYER:
-                return new PlayerFragment();
-            default:
-                throw new IndexOutOfBoundsException();
+                case POSITION_PODCASTS:
+                    return new PodListFragment();
+                case POSITION_EPISODES:
+                    return new EpisodeListFragment();
+                case POSITION_PLAYER:
+                    return new PlayerFragment();
+                default:
+                    throw new IndexOutOfBoundsException();
             }
         }
 
@@ -389,14 +392,14 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-            case POSITION_PODCASTS:
-                return getString(R.string.podcasts).toUpperCase(Locale.getDefault());
-            case POSITION_EPISODES:
-                return getString(R.string.episodes).toUpperCase(Locale.getDefault());
-            case POSITION_PLAYER:
-                return getString(R.string.player).toUpperCase(Locale.getDefault());
-            default:
-                return null;
+                case POSITION_PODCASTS:
+                    return getString(R.string.podcasts).toUpperCase(Locale.getDefault());
+                case POSITION_EPISODES:
+                    return getString(R.string.episodes).toUpperCase(Locale.getDefault());
+                case POSITION_PLAYER:
+                    return getString(R.string.player).toUpperCase(Locale.getDefault());
+                default:
+                    return null;
             }
         }
     }
@@ -405,23 +408,23 @@ EpisodeListFragment.OnEpisodeSelectedListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-        case R.id.settings:
-            intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.playlist:
-            intent = new Intent(this, PlaylistActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.search:
-            intent = new Intent(this, SearchActivity.class);
-            startActivity(intent);
-            break;
-        case R.id.refresh:
-            onRefreshPressed();
-            break;
-        default:
-            break;
+            case R.id.settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.playlist:
+                intent = new Intent(this, PlaylistActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.search:
+                intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.refresh:
+                onRefreshPressed();
+                break;
+            default:
+                break;
         }
         return true;
     }
@@ -443,14 +446,25 @@ EpisodeListFragment.OnEpisodeSelectedListener {
         FragmentManager manager = getSupportFragmentManager();
         String tag = String.format("android:switcher:%d:%d", R.id.pager,
                 SectionsPagerAdapter.POSITION_EPISODES);
-        return (EpisodeListFragment)manager.findFragmentByTag(tag);
+        return (EpisodeListFragment) manager.findFragmentByTag(tag);
+    }
+
+    private PlayerFragment getPlayerFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        String tag = String.format("android:switcher:%d:%d", R.id.pager,
+                SectionsPagerAdapter.POSITION_PLAYER);
+        return (PlayerFragment) manager.findFragmentByTag(tag);
     }
 
     @Override
     public void onEpisodeSelected(Episode episode) {
         // TODO
-        // mSectionsPagerAdapter.getPlayer().setEpisode(episode);
+        getPlayerFragment().setActiveEpisode(episode);
         getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_PLAYER);
-        // mSectionsPagerAdapter.getPlayer().startPlaying();
+        getPlayerFragment().startPlaying();
+    }
+
+    public void clickDownload(View v) {
+        getEpisodeListFragment().clickDownload(v);
     }
 }

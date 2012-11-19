@@ -1,3 +1,4 @@
+
 package at.ac.tuwien.detlef.fragments;
 
 import android.content.ComponentName;
@@ -18,9 +19,13 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
+import at.ac.tuwien.detlef.util.GUIUtils;
 
 public class PlayerFragment extends Fragment {
 
@@ -31,9 +36,13 @@ public class PlayerFragment extends Fragment {
     private ImageButton buttonPlayStop;
     private SeekBar seekBar;
     private boolean bound = false;
-    private MediaPlayerService service;
+    private IMediaPlayerService service;
 
     private final Handler handler = new Handler();
+
+    private Episode activeEpisode = null;
+
+    private GUIUtils guiUtils;
 
     // TODO write tests
 
@@ -63,7 +72,7 @@ public class PlayerFragment extends Fragment {
      * Initializes the buttons play, ff, rew and the slide etc. to perform their
      * tasks when needed.
      */
-    private void initPlayingControls() {
+    private PlayerFragment initPlayingControls() {
         buttonPlayStop =
                 (ImageButton) getActivity().findViewById(R.id.ButtonPlayStop);
         buttonPlayStop.setOnClickListener(new OnClickListener() {
@@ -84,6 +93,7 @@ public class PlayerFragment extends Fragment {
                 return false;
             }
         });
+        return this;
     }
 
     @Override
@@ -95,6 +105,7 @@ public class PlayerFragment extends Fragment {
             Detlef.getAppContext().startService(serviceIntent);
         }
         Intent intent = new Intent(getActivity(), MediaPlayerService.class);
+        guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
@@ -142,9 +153,9 @@ public class PlayerFragment extends Fragment {
      * Handles the updates of the seek/progressbar as well as the state of the
      * play/pause button.
      */
-    private void startPlayProgressUpdater() {
+    private PlayerFragment startPlayProgressUpdater() {
         if (fragmentPaused) {
-            return;
+            return this;
         }
         if (service != null) {
             seekBar.setMax(service.getDuration());
@@ -162,21 +173,56 @@ public class PlayerFragment extends Fragment {
             } else {
                 buttonPlayStop
                         .setImageResource(android.R.drawable.ic_media_play);
+                if (!service.hasRunningEpisode()) {
+                    seekBar.setMax(1);
+                    seekBar.setProgress(0);
+                }
             }
         }
+        return this;
+    }
+
+    public PlayerFragment startPlaying() {
+        if (!service.isCurrentlyPlaying()) {
+            service.startPlaying();
+            buttonPlayStop.setImageResource(android.R.drawable.ic_media_pause);
+            startPlayProgressUpdater();
+        }
+        return this;
+    }
+
+    public PlayerFragment stopPlaying() {
+        if (service.isCurrentlyPlaying()) {
+            service.pausePlaying();
+            buttonPlayStop.setImageResource(android.R.drawable.ic_media_play);
+        }
+        return this;
     }
 
     /**
      * Starts or pauses the playback and updates the UI fields accordingly.
      */
-    private void startStop() {
+    private PlayerFragment startStop() {
         if (service.isCurrentlyPlaying()) {
-            service.pausePlaying();
-            buttonPlayStop.setImageResource(android.R.drawable.ic_media_play);
+            stopPlaying();
         } else {
-            service.startPlaying();
-            buttonPlayStop.setImageResource(android.R.drawable.ic_media_pause);
-            startPlayProgressUpdater();
+            startPlaying();
         }
+        return this;
+    }
+
+    private PlayerFragment setEpisodeInfoControls(Episode ep) {
+        // TODO
+        return this;
+    }
+
+    public PlayerFragment setActiveEpisode(Episode ep) {
+        if (ep != activeEpisode) {
+            stopPlaying();
+            activeEpisode = ep;
+            service.setNextEpisode(activeEpisode);
+            setEpisodeInfoControls(ep);
+        }
+        return this;
     }
 }

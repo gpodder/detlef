@@ -1,3 +1,4 @@
+
 package at.ac.tuwien.detlef;
 
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
+import at.ac.tuwien.detlef.util.GUIUtils;
 
 /**
  * This class acts as a central point for setting and retrieving service
@@ -29,19 +31,24 @@ public class DependencyAssistant {
     private static DependencyAssistant dependencyAssistant =
             new DependencyAssistant();
 
-    private static Playlist playlist = new Playlist();
+    private static final Playlist PLAYLIST = new Playlist();
 
-    private static EpisodeDBAssistant episodeDBAssistant =
+    private static final EpisodeDBAssistant EPISODE_DB_ASSISTANT =
             new EpisodeDBAssistantImpl();
 
-    private static PodcastDBAssistant podcastDBAssistant =
+    private static final PodcastDBAssistant PODCAST_DB_ASSISTANT =
             new PodcastDBAssistantImpl();
-            
+
     private static DetlefDownloadManager downloadManager = null;
 
+    private static final GUIUtils GUI_UTILS = new GUIUtils();
 
-    public static Playlist getPlaylist() {
-        return playlist;
+    public GUIUtils getGuiUtils() {
+        return GUI_UTILS;
+    }
+
+    public Playlist getPlaylist() {
+        return PLAYLIST;
     }
 
     /**
@@ -56,7 +63,7 @@ public class DependencyAssistant {
      *         program.
      */
     public PodcastDBAssistant getPodcastDBAssistant() {
-        return podcastDBAssistant;
+        return PODCAST_DB_ASSISTANT;
     }
 
     /**
@@ -64,13 +71,13 @@ public class DependencyAssistant {
      *         program.
      */
     public EpisodeDBAssistant getEpisodeDBAssistant() {
-        return episodeDBAssistant;
+        return EPISODE_DB_ASSISTANT;
     }
 
     /**
      * Returns the download manager instance.
      */
-    public DetlefDownloadManager getDownloadManager(Context context) {
+    public synchronized DetlefDownloadManager getDownloadManager(Context context) {
         if (downloadManager == null) {
             downloadManager = new DetlefDownloadManager(context);
         }
@@ -78,8 +85,7 @@ public class DependencyAssistant {
     }
 
     /**
-     * @param context
-     *            The {@link Context}. This is needed in order to be able to
+     * @param context The {@link Context}. This is needed in order to be able to
      *            access Android's system settings. Usually this will be the
      *            current {@link Activity}.
      * @return Gets the {@link GpodderSettings gpodder.net settings instance}

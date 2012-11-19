@@ -1,3 +1,4 @@
+
 package at.ac.tuwien.detlef.adapters;
 
 import java.util.List;
@@ -7,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -27,24 +30,38 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         Episode episode = episodes.get(position);
 
         if (v == null) {
-            LayoutInflater vi = (LayoutInflater)this.getContext()
+            LayoutInflater vi = (LayoutInflater) this.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.episode_list_layout, null);
         }
 
         v.setTag(episode);
 
-        TextView podcastTitle = (TextView)v.findViewById(R.id.episodeListPodcast);
+        TextView podcastTitle = (TextView) v.findViewById(R.id.episodeListPodcast);
         podcastTitle.setText(episode.getPodcast().getTitle());
 
-        TextView title = (TextView)v.findViewById(R.id.episodeListEpisode);
+        TextView title = (TextView) v.findViewById(R.id.episodeListEpisode);
         title.setText(episode.getTitle());
 
-        TextView description = (TextView)v.findViewById(R.id.episodeListDescription);
+        TextView description = (TextView) v.findViewById(R.id.episodeListDescription);
         description.setText(episode.getDescription());
 
-        TextView size = (TextView)v.findViewById(R.id.episodeListDlSize);
+        TextView size = (TextView) v.findViewById(R.id.episodeListDlSize);
         size.setText(byteToHumanSize(episode.getFileSize()));
+
+        ImageButton episodeListDownload = (ImageButton) v.findViewById(R.id.episodeListDownload);
+        episodeListDownload.setTag(episode);
+
+        ImageButton episodeListDelete = (ImageButton) v.findViewById(R.id.episodeListDelete);
+        episodeListDelete.setTag(episode);
+
+        ImageButton episodeListAddToPlaylist = (ImageButton) v
+                .findViewById(R.id.episodeListAddToPlaylist);
+        episodeListAddToPlaylist.setTag(episode);
+
+        CheckBox episodeListMarkRead = (CheckBox) v
+                .findViewById(R.id.episodeListMarkRead);
+        episodeListMarkRead.setTag(episode);
 
         return v;
 
@@ -54,7 +71,9 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
     private static final int SUBUNITS_PER_UNIT = 1024;
 
     private CharSequence byteToHumanSize(long fileSize) {
-        final String[] units = { "B", "KB", "MB", "GB", "TB" };
+        final String[] units = {
+                "B", "KB", "MB", "GB", "TB"
+        };
 
         double value = fileSize;
         int unitIndex;

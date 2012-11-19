@@ -1,27 +1,35 @@
+
 package at.ac.tuwien.detlef.fragments;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
+import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
+import at.ac.tuwien.detlef.util.GUIUtils;
 
 public class EpisodeListFragment extends ListFragment
-implements EpisodeDAOImpl.OnEpisodeChangeListener {
+        implements EpisodeDAOImpl.OnEpisodeChangeListener {
 
     private static String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
     private static long ID_NONE = -1;
@@ -30,6 +38,9 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
     private EpisodeListAdapter adapter;
     private Podcast filteredByPodcast = null;
     private OnEpisodeSelectedListener listener;
+
+    private DetlefDownloadManager downloadManager;
+    private GUIUtils guiUtils;
 
     /**
      * The parent activity must implement this interface in order to interact
@@ -66,6 +77,10 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
                 android.R.layout.simple_list_item_1,
                 new ArrayList<Episode>(eplist));
         setListAdapter(adapter);
+
+        downloadManager = DependencyAssistant.getDependencyAssistant().getDownloadManager(
+                Detlef.getAppContext());
+        guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
     }
 
     @Override
@@ -177,8 +192,8 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
     }
 
     /**
-     * Updates the displayed list based on the current model contents.
-     * Ensures that UI methods are called on the UI thread.
+     * Updates the displayed list based on the current model contents. Ensures
+     * that UI methods are called on the UI thread.
      */
     private void updateEpisodeList() {
         Activity activity = getActivity();
@@ -192,5 +207,23 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
                 adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    public EpisodeListFragment clickDownload(View v) {
+        try {
+            // TODO change download button when just downloading
+            // TODO set file path in advance so we can start playing while
+            // downloading
+            downloadManager.enqueue((Episode) v.getTag());
+        } catch (IOException e) {
+            Log.e(getClass().getName(), "IOException while trying to download: ", e);
+            guiUtils.showToast(
+                    "Cannot download episode! Please make "
+                            + "sure you have an internet "
+                            + "connection and an SD card inserted!",
+                    Toast.makeText(
+                            Detlef.getAppContext(), "", 0), getActivity(), getClass().getName());
+        }
+        return this;
     }
 }

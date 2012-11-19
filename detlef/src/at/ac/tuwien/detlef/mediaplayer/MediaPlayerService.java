@@ -1,5 +1,7 @@
+
 package at.ac.tuwien.detlef.mediaplayer;
 
+import java.io.File;
 import java.io.IOException;
 
 import android.app.Service;
@@ -10,26 +12,26 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.domain.Episode;
 
 /**
  * A service that provides methods for playing episodes.
  * 
  * @author johannes
- * 
  */
 public class MediaPlayerService extends Service implements
         MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener {
+        MediaPlayer.OnCompletionListener, IMediaPlayerService {
+
+    private static final String LOG_TAG = MediaPlayerService.class.getName();
 
     /**
      * Binder that allows local classes to communicate with the service.
      * 
      * @author johannes
-     * 
      */
     public class MediaPlayerBinder extends Binder {
-        public MediaPlayerService getService() {
+        public IMediaPlayerService getService() {
             return MediaPlayerService.this;
         }
     }
@@ -44,12 +46,17 @@ public class MediaPlayerService extends Service implements
     private boolean haveRunningEpisode = false;
     private boolean currentlyPlaying = false;
     private boolean mediaPlayerPrepared = false;
+    private Episode activeEpisode;
+    private Episode nextEpisode;
 
     private static boolean running = false;
 
-    /**
-     * @return The current media player position.
+    /*
+     * (non-Javadoc)
+     * @see
+     * at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#getCurrentPosition()
      */
+    @Override
     public int getCurrentPosition() {
         if (mediaPlayerPrepared) {
             return mediaPlayer.getCurrentPosition();
@@ -57,9 +64,11 @@ public class MediaPlayerService extends Service implements
         return 0;
     }
 
-    /**
-     * @return Returns the duration of the currently played piece.
+    /*
+     * (non-Javadoc)
+     * @see at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#getDuration()
      */
+    @Override
     public int getDuration() {
         if (mediaPlayerPrepared) {
             return mediaPlayer.getDuration();
@@ -68,19 +77,24 @@ public class MediaPlayerService extends Service implements
     }
 
     /**
-     * TODO fix this to get the actual next episode.
-     * 
-     * @return Gets the URI of the next episode to be played: The active
-     *         episode, the next episode in the playlist or null.
+     * @return Gets the URI of the active episode or null
      */
-    private Uri getNextUri() {
-        return Uri.parse("android.resource://at.ac.tuwien.detlef/"
-                + R.raw.testsong_20_sec);
+    private Uri getActiveUri() {
+        if (activeEpisode == null) {
+            return null;
+        }
+        if (!episodeFileOK(activeEpisode)) {
+            return null;
+        }
+        return Uri.fromFile(new File(activeEpisode.getFilePath()));
     }
 
-    /**
-     * @return Returns if the player is currently playing or paused/stopped.
+    /*
+     * (non-Javadoc)
+     * @see
+     * at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#isCurrentlyPlaying()
      */
+    @Override
     public boolean isCurrentlyPlaying() {
         return currentlyPlaying;
     }
@@ -92,6 +106,7 @@ public class MediaPlayerService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        Log.d(getClass().getName(), "Completion");
         haveRunningEpisode = false;
         currentlyPlaying = false;
     }
@@ -136,21 +151,29 @@ public class MediaPlayerService extends Service implements
         return Service.START_NOT_STICKY;
     }
 
-    public void pausePlaying() {
+    /*
+     * (non-Javadoc)
+     * @see at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#pausePlaying()
+     */
+    @Override
+    public IMediaPlayerService pausePlaying() {
         mediaPlayer.pause();
         currentlyPlaying = false;
+        return this;
     }
 
-    /**
-     * Sets the media player progress.
-     * 
-     * @param progress
-     *            The progress to set the media player to.
+    /*
+     * (non-Javadoc)
+     * @see at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#seekTo(int)
      */
-    public void seekTo(int progress) {
+    @Override
+    public IMediaPlayerService seekTo(int progress) {
         if (mediaPlayerPrepared) {
-            mediaPlayer.seekTo(progress);
+            int seekTo = Math.max(Math.min(progress, getDuration()), 0);
+            Log.d(getClass().getName(), "Seek to " + seekTo + ", duration: " + getDuration());
+            mediaPlayer.seekTo(seekTo);
         }
+        return this;
     }
 
     /**
@@ -161,56 +184,100 @@ public class MediaPlayerService extends Service implements
         // TODO hook up with playlist.
     }
 
-    public void fastForward() {
+    /*
+     * (non-Javadoc)
+     * @see at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#fastForward()
+     */
+    @Override
+    public IMediaPlayerService fastForward() {
         mediaPlayer.stop();
         chooseNextToPlay();
         haveRunningEpisode = false;
         currentlyPlaying = false;
         startPlaying();
+        return this;
     }
 
-    /**
-     * Starts playback of the active episode (if any).
-     * 
-     * (TODO THIS DOES NOT WORK YET:) Otherwise, gets the first episode from the
-     * playlist and starts on that.
-     * 
-     * If there is no active episode and the playlist is empty, does nothing.
+    @Override
+    public boolean episodeFileOK(Episode ep) {
+        if ((ep.getFilePath() == null) || ep.getFilePath().equals("")) {
+            Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an empty file path");
+            return false;
+        }
+        File f = new File(ep.getFilePath());
+        if (!f.exists() || !f.isFile() || !f.canRead()) {
+            Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an invalid file path: "
+                    + ep.getFilePath());
+            return false;
+        }
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#startPlaying()
      */
-    public void startPlaying() {
-        if (haveRunningEpisode) {
+    @Override
+    public IMediaPlayerService startPlaying() {
+        if (haveRunningEpisode && (nextEpisode == activeEpisode)) {
             currentlyPlaying = true;
             mediaPlayer.start();
         } else {
-            haveRunningEpisode = true;
-            currentlyPlaying = true;
-            mediaPlayerPrepared = false;
-            mediaPlayer.reset();
-            try {
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mediaPlayer
-                        .setDataSource(getApplicationContext(), getNextUri());
-                mediaPlayer.prepareAsync(); // prepare async to not block main
-                // thread
-            } catch (IllegalStateException e) {
-                Log.e(getClass().getCanonicalName(),
-                        "Media Player startup failed!", e);
-                e.printStackTrace();
-            } catch (IOException e) {
-                Log.e(getClass().getCanonicalName(),
-                        "Media Player startup failed!", e);
-                e.printStackTrace();
+            activeEpisode = nextEpisode;
+            if (episodeFileOK(activeEpisode)) {
+                prepareEpisodePlayback();
+            } else {
+                haveRunningEpisode = false;
+                currentlyPlaying = false;
+                mediaPlayerPrepared = false;
+                mediaPlayer.reset();
             }
         }
-
+        return this;
     }
 
-    /**
-     * @return Whether the player service has a currently active episode (paused
-     *         or not). This becomes false when a file has been played to its
-     *         end.
+    private MediaPlayerService prepareEpisodePlayback() {
+        haveRunningEpisode = true;
+        currentlyPlaying = true;
+        mediaPlayerPrepared = false;
+        mediaPlayer.reset();
+        try {
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer
+                    .setDataSource(getApplicationContext(), getActiveUri());
+            mediaPlayer.prepareAsync(); // prepare async to not block main
+            // thread
+        } catch (IllegalStateException e) {
+            Log.e(getClass().getCanonicalName(),
+                    "Media Player startup failed!", e);
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(getClass().getCanonicalName(),
+                    "Media Player startup failed!", e);
+            e.printStackTrace();
+        }
+        return this;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see
+     * at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#hasRunningEpisode()
      */
+    @Override
     public boolean hasRunningEpisode() {
         return haveRunningEpisode;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see
+     * at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#setActiveEpisode(
+     * at.ac.tuwien.detlef.domain.Episode)
+     */
+    @Override
+    public IMediaPlayerService setNextEpisode(Episode ep) {
+        this.nextEpisode = ep;
+        return this;
     }
 }
