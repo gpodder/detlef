@@ -51,6 +51,8 @@ public class MediaPlayerService extends Service implements
 
     private static boolean running = false;
 
+    // TODO @Joshi Testing
+
     /*
      * (non-Javadoc)
      * @see
@@ -86,7 +88,7 @@ public class MediaPlayerService extends Service implements
         if (!episodeFileOK(activeEpisode)) {
             return null;
         }
-        return Uri.fromFile(new File(activeEpisode.getFilePath()));
+        return Uri.parse(activeEpisode.getFilePath());
     }
 
     /*
@@ -204,10 +206,11 @@ public class MediaPlayerService extends Service implements
             Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an empty file path");
             return false;
         }
-        File f = new File(ep.getFilePath());
+        Uri uri = Uri.parse(ep.getFilePath());
+        File f = new File(uri.getPath());
         if (!f.exists() || !f.isFile() || !f.canRead()) {
             Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an invalid file path: "
-                    + ep.getFilePath());
+                    + f.getAbsolutePath());
             return false;
         }
         return true;

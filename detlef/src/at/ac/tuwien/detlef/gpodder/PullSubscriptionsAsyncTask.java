@@ -1,3 +1,4 @@
+
 package at.ac.tuwien.detlef.gpodder;
 
 import java.io.IOException;
@@ -19,11 +20,10 @@ import com.dragontek.mygpoclient.pub.PublicClient;
 import com.dragontek.mygpoclient.simple.IPodcast;
 
 /**
- * An IntentService to fetch subscription changes.
- *
- * It is started via an intent and sends a reply via the Intent action
- * "at.ac.tuwien.detlef.custom.intent.action.PULL_SUBSCRIPTIONS". The user of the Task needs a
- * receiver for this action.
+ * An IntentService to fetch subscription changes. It is started via an intent
+ * and sends a reply via the Intent action
+ * "at.ac.tuwien.detlef.custom.intent.action.PULL_SUBSCRIPTIONS". The user of
+ * the Task needs a receiver for this action.
  */
 public class PullSubscriptionsAsyncTask implements Runnable {
     /** Logging tag. */
@@ -45,8 +45,6 @@ public class PullSubscriptionsAsyncTask implements Runnable {
 
         EnhancedSubscriptionChanges enhanced = null;
         try {
-            // TODO: check wether the device exists and create it if not
-
             /* Login and get subscription changes */
             SubscriptionChanges changes = gpc.pullSubscriptions(gps.getDevicename(),
                     gps.getLastUpdate());
@@ -55,9 +53,10 @@ public class PullSubscriptionsAsyncTask implements Runnable {
             /* Get the Details for the individual URLs. */
             enhanced = pdr.getPodcastDetails(changes);
 
-            // TODO: We should think about updating the db here and set the update time last.
+            // TODO: We should think about updating the db here and set the
+            // update time last.
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant().
-            applySubscriptionChanges(Detlef.getAppContext(), enhanced);
+                    applySubscriptionChanges(Detlef.getAppContext(), enhanced);
 
             /* Update last changed timestamp. */
             gps.setLastUpdate(enhanced.getTimestamp());
@@ -76,8 +75,9 @@ public class PullSubscriptionsAsyncTask implements Runnable {
     }
 
     /**
-     * Called when the task encounters an error.
-     * The given Exception is sent. The Task should exit after this has been called.
+     * Called when the task encounters an error. The given Exception is sent.
+     * The Task should exit after this has been called.
+     *
      * @param e An Exception describing the error.
      */
     private void sendError(GPodderException e) {

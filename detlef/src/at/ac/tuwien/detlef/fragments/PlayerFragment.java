@@ -44,7 +44,7 @@ public class PlayerFragment extends Fragment {
 
     private GUIUtils guiUtils;
 
-    // TODO write tests
+    // TODO @Joshi write tests
 
     /**
      * Handles the connection to the MediaPlayerService that plays music.
@@ -83,7 +83,8 @@ public class PlayerFragment extends Fragment {
         });
 
         seekBar = (SeekBar) getActivity().findViewById(R.id.SeekBar01);
-        // XXX this is buggy when just clicking and not dragging the slider -
+        // XXX @Joshi this is buggy when just clicking and not dragging the
+        // slider -
         // sorry.
         seekBar.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -212,7 +213,7 @@ public class PlayerFragment extends Fragment {
     }
 
     private PlayerFragment setEpisodeInfoControls(Episode ep) {
-        // TODO
+        // TODO @Joshi
         return this;
     }
 

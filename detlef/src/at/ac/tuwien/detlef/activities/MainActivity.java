@@ -458,7 +458,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onEpisodeSelected(Episode episode) {
-        // TODO
+        // TODO @Joshi
         getPlayerFragment().setActiveEpisode(episode);
         getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_PLAYER);
         getPlayerFragment().startPlaying();
