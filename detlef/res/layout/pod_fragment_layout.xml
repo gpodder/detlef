@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        tools:listitem="@layout/episode_list_layout" >
+        tools:listitem="@layout/pod_list_layout" >
     </ListView>
 
 </RelativeLayout>
