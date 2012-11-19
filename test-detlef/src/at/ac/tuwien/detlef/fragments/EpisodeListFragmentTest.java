@@ -40,7 +40,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         Episode e = new Episode(p);
         e.setAuthor("author");
         e.setDescription("description");
-        e.setFileSize("filesize");
+        e.setFileSize(0);
         e.setGuid("guid");
         e.setLink("link");
         e.setMimetype("mimetype");

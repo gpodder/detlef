@@ -18,7 +18,7 @@ public class Episode implements IEpisode {
     private String title;
     private final Podcast podcast;
     private Episode.State state;
-    private String fileSize;
+    private long fileSize;
     private String author;
     private String description;
     private String mimetype; // enclosure
@@ -37,7 +37,7 @@ public class Episode implements IEpisode {
         this(podcast);
         setAuthor(e.getAuthor());
         setDescription(e.getDescription());
-        setFileSize(String.valueOf(e.getEnclosure().getFilesize()));
+        setFileSize(e.getEnclosure().getFilesize());
         setGuid(e.getGuid());
         setLink(e.getLink());
         setMimetype(e.getEnclosure().getMimetype());
@@ -69,11 +69,11 @@ public class Episode implements IEpisode {
         return podcast;
     }
 
-    public String getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
 
-    public Episode setFileSize(String fileSizeIn) {
+    public Episode setFileSize(long fileSizeIn) {
         this.fileSize = fileSizeIn;
         return this;
     }

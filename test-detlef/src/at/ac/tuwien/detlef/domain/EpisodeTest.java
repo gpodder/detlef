@@ -61,7 +61,7 @@ public class EpisodeTest extends TestCase {
 
         assertEquals(realAuthor, e.getAuthor());
         assertEquals(ie.getDescription(), e.getDescription());
-        assertEquals(ie.getEnclosure().getFilesize(), Long.parseLong(e.getFileSize()));
+        assertEquals(ie.getEnclosure().getFilesize(), e.getFileSize());
         assertEquals(ie.getGuid(), e.getGuid());
         assertEquals(ie.getLink(), e.getLink());
         assertEquals(ie.getEnclosure().getMimetype(), e.getMimetype());

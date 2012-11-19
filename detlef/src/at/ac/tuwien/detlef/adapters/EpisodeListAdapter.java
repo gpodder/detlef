@@ -44,7 +44,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         description.setText(episode.getDescription());
 
         TextView size = (TextView)v.findViewById(R.id.episodeListDlSize);
-        size.setText(episode.getFileSize());
+        size.setText(String.valueOf(episode.getFileSize()));
 
         return v;
 

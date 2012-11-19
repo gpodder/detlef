@@ -32,7 +32,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e1 = new Episode(p1);
         e1.setAuthor("author");
         e1.setDescription("description");
-        e1.setFileSize("filesize");
+        e1.setFileSize(0);
         e1.setGuid("guid");
         e1.setLink("link");
         e1.setMimetype("mimetype");
@@ -45,7 +45,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e2 = new Episode(p1);
         e2.setAuthor("author");
         e2.setDescription("description");
-        e2.setFileSize("filesize");
+        e2.setFileSize(0);
         e2.setGuid("guid");
         e2.setLink("link");
         e2.setMimetype("mimetype");

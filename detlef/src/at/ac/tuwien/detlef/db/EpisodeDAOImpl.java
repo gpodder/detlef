@@ -220,7 +220,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                 c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
         e.setAuthor(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_AUTHOR)));
         e.setDescription(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION)));
-        e.setFileSize(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILESIZE)));
+        e.setFileSize(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILESIZE)));
         e.setGuid(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_GUID)));
         e.setId(key);
         e.setLink(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_LINK)));
