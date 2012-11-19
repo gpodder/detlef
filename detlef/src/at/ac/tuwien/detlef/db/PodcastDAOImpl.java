@@ -22,19 +22,15 @@ public final class PodcastDAOImpl implements PodcastDAO {
     private static PodcastDAOImpl instance = null;
 
     private final DatabaseHelper dbHelper;
-
     private final Set<OnPodcastChangeListener> listeners = new HashSet<OnPodcastChangeListener>();
-
-    private HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
+    private final HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
 
     /**
      * Interface for listeners interested in podcast status changes.
      */
     public interface OnPodcastChangeListener {
         void onPodcastChanged(Podcast podcast);
-
         void onPodcastAdded(Podcast podcast);
-
         void onPodcastDeleted(Podcast podcast);
     }
 
@@ -103,6 +99,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      * @see at.ac.tuwien.detlef.db.PodcastDAO#deletePodcast(at.ac.tuwien.detlef.domain
      *      .Podcast)
      */
+    @Override
     public int deletePodcast(Podcast podcast) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
@@ -124,6 +121,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
     /**
      * @see at.ac.tuwien.detlef.db.PodcastDAO#getAllPodcasts()
      */
+    @Override
     public List<Podcast> getAllPodcasts() {
         List<Podcast> allPodcasts = new ArrayList<Podcast>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -175,6 +173,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      * @see at.ac.tuwien.detlef.db.PodcastDAO#updateLastUpdate(at.ac.tuwien.detlef
      *      .domain.Podcast)
      */
+    @Override
     public int updateLastUpdate(Podcast podcast) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -196,6 +195,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      * @see at.ac.tuwien.detlef.db.PodcastDAO#getPodcastById(at.ac.tuwien.detlef
      *      .domain.Podcast)
      */
+    @Override
     public Podcast getPodcastById(long podcastId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection = {
@@ -228,6 +228,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      * @see at.ac.tuwien.detlef.db.PodcastDAO#updateLogoFilePath(at.ac.tuwien.detlef
      *      .domain.Podcast)
      */
+    @Override
     public int updateLogoFilePath(Podcast podcast) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -272,6 +273,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
         }
     }
 
+    @Override
     public Podcast getPodcastByUrl(String url) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection = {

@@ -23,23 +23,16 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     private static EpisodeDAOImpl instance = null;
 
     private final DatabaseHelper dbHelper;
-
     private final PodcastDAOImpl podcastDAO;
-
-    private final Set<OnEpisodeChangeListener> listeners =
-            new HashSet<OnEpisodeChangeListener>();
-
-    private final HashMap<Long, Episode> hashMapEpisode =
-            new HashMap<Long, Episode>();
+    private final Set<OnEpisodeChangeListener> listeners = new HashSet<OnEpisodeChangeListener>();
+    private final HashMap<Long, Episode> hashMapEpisode = new HashMap<Long, Episode>();
 
     /**
      * Interface for listeners interested in episode status changes.
      */
     public interface OnEpisodeChangeListener {
         void onEpisodeChanged(Episode episode);
-
         void onEpisodeAdded(Episode episode);
-
         void onEpisodeDeleted(Episode episode);
     }
 
@@ -134,9 +127,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
         String[] selectionArgs = { String.valueOf(episode.getId()) };
 
-        int ret =
-                db.delete(DatabaseHelper.TABLE_EPISODE, selection,
-                        selectionArgs);
+        int ret = db.delete(DatabaseHelper.TABLE_EPISODE, selection, selectionArgs);
         db.close();
 
         notifyListenersDeleted(episode);
@@ -276,9 +267,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
             String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
             String[] selectionArgs = { String.valueOf(episode.getId()) };
 
-            int ret =
-                    db.update(DatabaseHelper.TABLE_EPISODE, values, selection,
-                            selectionArgs);
+            int ret = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
             db.close();
 
             notifyListenersChanged(episode);
@@ -318,9 +307,8 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
     @Override
     public Episode getEpisodeByUrlOrGuid(String url, String guid) {
-        String selection =
-                DatabaseHelper.COLUMN_EPISODE_URL + " = ? OR "
-                        + DatabaseHelper.COLUMN_EPISODE_GUID + " = ?";
+        String selection = DatabaseHelper.COLUMN_EPISODE_URL + " = ? OR "
+                + DatabaseHelper.COLUMN_EPISODE_GUID + " = ?";
         String[] selectionArgs = { url, guid };
         List<Episode> episodes = getEpisodesWhere(selection, selectionArgs);
         if (episodes.size() > 0) {
