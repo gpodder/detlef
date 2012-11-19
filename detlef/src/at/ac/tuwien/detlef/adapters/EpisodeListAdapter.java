@@ -44,9 +44,28 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         description.setText(episode.getDescription());
 
         TextView size = (TextView)v.findViewById(R.id.episodeListDlSize);
-        size.setText(String.valueOf(episode.getFileSize()));
+        size.setText(byteToHumanSize(episode.getFileSize()));
 
         return v;
 
+    }
+
+    private static final int MAX_VALUE = 1024;
+    private static final int SUBUNITS_PER_UNIT = 1024;
+
+    private CharSequence byteToHumanSize(long fileSize) {
+        final String[] units = { "B", "KB", "MB", "GB", "TB" };
+
+        double value = fileSize;
+        int unitIndex;
+
+        for (unitIndex = 0; unitIndex < units.length; unitIndex++) {
+            if (value < MAX_VALUE) {
+                break;
+            }
+            value /= SUBUNITS_PER_UNIT;
+        }
+
+        return String.format("%.2f %s", value, units[unitIndex]);
     }
 }
