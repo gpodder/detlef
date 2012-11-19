@@ -27,33 +27,24 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         Episode episode = episodes.get(position);
 
         if (v == null) {
-            LayoutInflater vi = (LayoutInflater) this.getContext()
+            LayoutInflater vi = (LayoutInflater)this.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.episode_list_layout, null);
         }
 
         v.setTag(episode);
 
-        TextView podcastTitle = (TextView) v.findViewById(R.id.episodeListPodcast);
-        if (podcastTitle != null) {
-            podcastTitle.setText(episode.getPodcast().getTitle());
-        }
+        TextView podcastTitle = (TextView)v.findViewById(R.id.episodeListPodcast);
+        podcastTitle.setText(episode.getPodcast().getTitle());
 
-        TextView title = (TextView) v.findViewById(R.id.episodeListEpisode);
-        if (title != null) {
-            title.setText(episode.getTitle());
-        }
+        TextView title = (TextView)v.findViewById(R.id.episodeListEpisode);
+        title.setText(episode.getTitle());
 
-        TextView description = (TextView) v
-                .findViewById(R.id.episodeListDescription);
-        if (description != null) {
-            description.setText(episode.getDescription());
-        }
+        TextView description = (TextView)v.findViewById(R.id.episodeListDescription);
+        description.setText(episode.getDescription());
 
-        TextView size = (TextView) v.findViewById(R.id.episodeListDlSize);
-        if (size != null) {
-            size.setText(episode.getFileSize());
-        }
+        TextView size = (TextView)v.findViewById(R.id.episodeListDlSize);
+        size.setText(episode.getFileSize());
 
         return v;
 
