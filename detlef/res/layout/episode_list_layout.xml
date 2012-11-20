@@ -73,7 +73,7 @@
                         android:layout_marginRight="10dp"
                         android:background="@null"
                         android:onClick="clickDownload"
-                        android:src="@android:drawable/ic_menu_save" />
+                        android:src="@drawable/ic_menu_upload" />
 
                     <ImageButton
                         android:id="@+id/episodeListAddToPlaylist"
@@ -91,7 +91,7 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:background="@null"
-                        android:src="@android:drawable/ic_menu_delete" />
+                        android:src="@drawable/ic_menu_star" />
 
                 </TableRow>
             </LinearLayout>

@@ -58,6 +58,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
                 (ImageButton)v.findViewById(R.id.episodeListAddToPlaylist);
         episodeListAddToPlaylist.setTag(episode);
 
+        /* TODO: Set image according to read state. */
         ImageButton episodeListMarkRead = (ImageButton)v.findViewById(R.id.episodeListMarkRead);
         episodeListMarkRead.setTag(episode);
 
@@ -68,11 +69,11 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
     private int stateToImageResource(StorageState storageState) {
         switch (storageState) {
             case NOT_ON_DEVICE:
-                return android.R.drawable.ic_menu_add;
+                return android.R.drawable.ic_menu_upload;
             case DOWNLOADING:
-                return android.R.drawable.ic_menu_agenda;
+                return R.drawable.ic_media_stop;
             case DOWNLOADED:
-                return android.R.drawable.ic_menu_always_landscape_portrait;
+                return android.R.drawable.ic_menu_delete;
             default:
                 Log.e(TAG, "Unknown storage state encountered");
                 return 0;
