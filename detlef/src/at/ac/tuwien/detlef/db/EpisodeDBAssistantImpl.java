@@ -43,8 +43,14 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
         try {
             EpisodeDAO dao = EpisodeDAOImpl.i(context);
             for (IEpisode ep : feed.getEpisodes()) {
-                Episode newEp = new Episode(ep, p);
-                dao.insertEpisode(newEp);
+                try {
+                    if (ep.getEnclosure() != null) {
+                        Episode newEp = new Episode(ep, p);
+                        dao.insertEpisode(newEp);
+                    }
+                } catch (Exception ex) {
+                    Log.i(TAG, "enclosure missing, " +  ex.getMessage());
+                }
             }
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
