@@ -9,13 +9,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
-import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -132,10 +133,7 @@ public class PlayerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initPlayingControls();
 
-        TextView textView =
-                (TextView) getActivity().findViewById(
-                        R.id.playerEpisodeDescription);
-        textView.setMovementMethod(ScrollingMovementMethod.getInstance());
+        setEpisodeInfoControls(activeEpisode);
     }
 
     @Override
@@ -214,7 +212,25 @@ public class PlayerFragment extends Fragment {
     }
 
     private PlayerFragment setEpisodeInfoControls(Episode ep) {
-        // TODO @Joshi
+        TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
+        WebView episodeDescription = (WebView) getView().findViewById(
+                R.id.playerEpisodeDescription);
+        TextView podcastName = (TextView) getView().findViewById(R.id.playerPodcastName);
+        TextView episodeName = (TextView) getView().findViewById(R.id.playerEpisodeName);
+
+        if (ep == null) {
+            episode.setText("No Episode Selected");
+            episodeDescription.loadData("", "text/html", "UTF-8");
+            podcastName.setText("");
+            episodeName.setText("");
+        } else {
+            episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
+            episodeDescription.loadData(ep.getDescription() == null ? "" : ep.getDescription(),
+                    "text/html", "UTF-8");
+            podcastName.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
+                    .getTitle());
+            episodeName.setText(ep.getTitle() == null ? "" : ep.getTitle());
+        }
         return this;
     }
 

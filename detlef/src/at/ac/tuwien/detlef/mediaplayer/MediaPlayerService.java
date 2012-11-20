@@ -88,7 +88,7 @@ public class MediaPlayerService extends Service implements
         if (!episodeFileOK(activeEpisode)) {
             return null;
         }
-        return Uri.parse(activeEpisode.getFilePath());
+        return Uri.fromFile(new File(activeEpisode.getFilePath()));
     }
 
     /*
@@ -206,8 +206,7 @@ public class MediaPlayerService extends Service implements
             Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an empty file path");
             return false;
         }
-        Uri uri = Uri.parse(ep.getFilePath());
-        File f = new File(uri.getPath());
+        File f = new File(ep.getFilePath());
         if (!f.exists() || !f.isFile() || !f.canRead()) {
             Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an invalid file path: "
                     + f.getAbsolutePath());

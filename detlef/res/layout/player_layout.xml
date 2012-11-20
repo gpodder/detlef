@@ -7,9 +7,9 @@
     <RelativeLayout
         android:id="@+id/infoLayout"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:layout_margin="10dp"
-        android:layout_weight="8" >
+        android:layout_weight="6" >
 
         <ImageView
             android:id="@+id/imageView1"
@@ -30,7 +30,8 @@
             android:textColor="#0099CC"
             android:textStyle="bold" />
 
-        <TextView
+        <!--
+             TextView
             android:id="@+id/playerEpisodeDescription"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -39,54 +40,61 @@
             android:maxLines="8"
             android:scrollbars="vertical"
             android:singleLine="false"
-            android:text="@string/sample_episode_description" />
+            android:text="@string/sample_episode_description" /
+        -->
+
+        <WebView
+            android:id="@+id/playerEpisodeDescription"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/playerEpisode"
+            android:gravity="center"
+            android:scrollbars="vertical" />
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="120dp"
+        android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:layout_weight="2" >
+        android:layout_weight="3" >
 
-        <!--TextView
+        <!--
+            TextView
             android:id="@+id/nowPlayingString"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:maxLines="2"
-            android:text="@string/now_playing" / -->
+            android:text="@string/now_playing" /
+        -->
 
-        <LinearLayout
-            android:id="@+id/nowPlayingLayout"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/playerPodcastName"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" >
+            android:gravity="center"
+            android:text="@string/sample_podcast_name"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
-            <TextView
-                android:id="@+id/playerPodcastName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/sample_podcast_name"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
-                android:id="@+id/playerEpisodeName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:text="@string/sample_episode_name_2"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#0099CC" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/playerEpisodeName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/playerPodcastName"
+            android:ellipsize="marquee"
+            android:gravity="center"
+            android:text="@string/sample_episode_name_2"
+            android:textColor="#0099CC"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <SeekBar
             android:id="@+id/SeekBar01"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/nowPlayingLayout"
-            android:layout_margin="5pt"
+            android:layout_below="@+id/playerEpisodeName"
             android:layout_toLeftOf="@+id/ButtonFF"
-            android:layout_toRightOf="@+id/ButtonPlayStop" />
+            android:layout_toRightOf="@+id/ButtonPlayStop"
+            android:minHeight="20dp" />
 
         <TableLayout
             android:layout_width="fill_parent"
@@ -100,18 +108,21 @@
                     android:id="@+id/ButtonRewind"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="100dp"
                     android:src="@android:drawable/ic_media_rew" />
 
                 <ImageButton
                     android:id="@+id/ButtonPlayStop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="100dp"
                     android:src="@android:drawable/ic_media_play" />
 
                 <ImageButton
                     android:id="@+id/ButtonFF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="100dp"
                     android:src="@android:drawable/ic_media_ff" />
             </TableRow>
         </TableLayout>
