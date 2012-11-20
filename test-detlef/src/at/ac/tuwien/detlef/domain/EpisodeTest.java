@@ -68,7 +68,7 @@ public class EpisodeTest extends TestCase {
         assertEquals(ie.getReleased(), e.getReleased());
         assertEquals(ie.getTitle(), e.getTitle());
         assertEquals(ie.getEnclosure().getUrl(), e.getUrl());
-        assertEquals(Episode.State.NEW, e.getState());
+        assertEquals(Episode.StorageState.NOT_ON_DEVICE, e.getStorageState());
 
         /* Check whether the Episode was really copied. */
         assertNotSame(ie, e);

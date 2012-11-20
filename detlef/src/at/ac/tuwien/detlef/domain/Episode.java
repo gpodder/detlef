@@ -8,16 +8,21 @@ import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
  */
 public class Episode implements IEpisode {
 
-    public enum State {
-        NEW,
-        DOWNLOADED,
-        PLAYED
+    /**
+     * The storage state of an episode. It can be either
+     * not stored on the device, currently downloading, or
+     * completely downloaded.
+     */
+    public enum StorageState {
+        NOT_ON_DEVICE,
+        DOWNLOADING,
+        DOWNLOADED
     }
 
     private long id;
     private String title;
     private final Podcast podcast;
-    private Episode.State state;
+    private Episode.StorageState storageState;
     private long fileSize;
     private String author;
     private String description;
@@ -30,7 +35,7 @@ public class Episode implements IEpisode {
 
     public Episode(Podcast podcast) {
         this.podcast = podcast;
-        this.state = State.NEW;
+        this.storageState = StorageState.NOT_ON_DEVICE;
     }
 
     public Episode(IEpisode e, Podcast podcast) {
@@ -51,12 +56,12 @@ public class Episode implements IEpisode {
         return title;
     }
 
-    public Episode.State getState() {
-        return state;
+    public Episode.StorageState getStorageState() {
+        return storageState;
     }
 
-    public Episode setState(Episode.State stateIn) {
-        this.state = stateIn;
+    public Episode setStorageState(Episode.StorageState storageState) {
+        this.storageState = storageState;
         return this;
     }
 

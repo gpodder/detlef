@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import android.test.AndroidTestCase;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Episode.State;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
@@ -39,7 +39,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e1.setReleased(System.currentTimeMillis());
         e1.setTitle("title");
         e1.setUrl("url");
-        e1.setState(State.NEW);
+        e1.setStorageState(StorageState.NOT_ON_DEVICE);
         e1.setFilePath("path");
 
         e2 = new Episode(p1);
@@ -52,7 +52,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e2.setReleased(System.currentTimeMillis());
         e2.setTitle("title");
         e2.setUrl("url");
-        e2.setState(State.NEW);
+        e2.setStorageState(StorageState.NOT_ON_DEVICE);
         e2.setFilePath("path");
 
         super.setUp();
@@ -124,12 +124,12 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
-        State newState = State.DOWNLOADED;
-        e1.setState(newState);
+        StorageState newState = StorageState.DOWNLOADED;
+        e1.setStorageState(newState);
         assertEquals(1, edao.updateState(e1));
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
         Episode ep = eps.get(0);
-        assertEquals(newState, ep.getState());
+        assertEquals(newState, ep.getStorageState());
     }
 
     /**
@@ -184,7 +184,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
         PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
         p1 = pdao.insertPodcast(p1);
-        e1.setState(null);
+        e1.setStorageState(null);
         e1 = edao.insertEpisode(e1);
         assertNotNull(e1);
     }

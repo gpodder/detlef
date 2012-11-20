@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Episode.State;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public final class EpisodeDAOImpl implements EpisodeDAO {
@@ -91,11 +91,11 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                 values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH,
                         episode.getFilePath());
             }
-            if (episode.getState() == null) {
+            if (episode.getStorageState() == null) {
                 values.putNull(DatabaseHelper.COLUMN_EPISODE_STATE);
             } else {
                 values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode
-                        .getState().toString());
+                        .getStorageState().toString());
             }
 
             long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
@@ -229,7 +229,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         e.setFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILEPATH)));
         String state = c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE));
         if (state != null) {
-            e.setState(State.valueOf(state));
+            e.setStorageState(StorageState.valueOf(state));
         }
 
         hashMapEpisode.put(key, e);
@@ -254,7 +254,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     @Override
     public int updateState(Episode episode) {
         ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getState()
+        values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getStorageState()
                 .toString());
         return updateFieldUsingEpisodeId(episode, values);
     }

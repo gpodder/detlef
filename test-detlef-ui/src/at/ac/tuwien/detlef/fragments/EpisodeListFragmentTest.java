@@ -5,7 +5,7 @@ import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Episode.State;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 import com.jayway.android.robotium.solo.Solo;
@@ -47,7 +47,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         e.setReleased(System.currentTimeMillis());
         e.setTitle(uuid);
         e.setUrl("url");
-        e.setState(State.NEW);
+        e.setStorageState(StorageState.NOT_ON_DEVICE);
         dao.insertEpisode(e);
 
         solo.clickOnText("EPISODES");
