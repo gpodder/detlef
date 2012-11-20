@@ -37,11 +37,8 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
         v.setTag(episode);
 
-        TextView podcastTitle = (TextView) v.findViewById(R.id.episodeListPodcast);
-        podcastTitle.setText(episode.getPodcast().getTitle());
-
         TextView title = (TextView) v.findViewById(R.id.episodeListEpisode);
-        title.setText(episode.getTitle());
+        title.setText(formatTitle(episode));
 
         TextView description = (TextView) v.findViewById(R.id.episodeListDescription);
         description.setText(episode.getDescription());
@@ -65,6 +62,19 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
         return v;
 
+    }
+
+    private static final int MAX_TITLE_LENGTH = 16;
+    private static final String ELLIPSIS = "...";
+
+    private String formatTitle(Episode episode) {
+        String podcastTitle = episode.getPodcast().getTitle();
+        if (podcastTitle.length() > MAX_TITLE_LENGTH) {
+            podcastTitle = String.format("%s%s",
+                    podcastTitle.substring(0, MAX_TITLE_LENGTH - ELLIPSIS.length()),
+                    ELLIPSIS);
+        }
+        return String.format("%s: %s", podcastTitle, episode.getTitle());
     }
 
     private static final int MAX_VALUE = 1024;
