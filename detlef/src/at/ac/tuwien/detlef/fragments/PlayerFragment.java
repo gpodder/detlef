@@ -82,10 +82,11 @@ public class PlayerFragment extends Fragment {
             }
         });
 
+        // TODO @Jakob Episode Download Size does not work yet
+
         seekBar = (SeekBar) getActivity().findViewById(R.id.SeekBar01);
         // XXX @Joshi this is buggy when just clicking and not dragging the
-        // slider -
-        // sorry.
+        // slider - sorry.
         seekBar.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
