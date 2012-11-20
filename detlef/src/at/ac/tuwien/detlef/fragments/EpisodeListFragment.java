@@ -119,6 +119,20 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
         }
     }
 
+    private void filterByPodcastOnUiThread() {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                filterByPodcast();
+            }
+        });
+    }
+
     @Override
     public void onEpisodeChanged(Episode episode) {
         updateEpisodeList();
@@ -127,13 +141,13 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
     @Override
     public void onEpisodeAdded(Episode episode) {
         model.addEpisode(episode);
-        filterByPodcast();
+        filterByPodcastOnUiThread();
     }
 
     @Override
     public void onEpisodeDeleted(Episode episode) {
         model.removeEpisode(episode);
-        filterByPodcast();
+        filterByPodcastOnUiThread();
     }
 
     /**

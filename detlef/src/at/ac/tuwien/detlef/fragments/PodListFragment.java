@@ -31,6 +31,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     private PodListModel<Podcast> model;
     private OnPodcastSelectedListener listener;
 
+
     private View allPodcasts;
 
     /**
