@@ -54,15 +54,11 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         episodeListDownload.setImageResource(stateToImageResource(episode.getStorageState()));
         episodeListDownload.setTag(episode);
 
-        ImageButton episodeListDelete = (ImageButton) v.findViewById(R.id.episodeListDelete);
-        episodeListDelete.setTag(episode);
-
-        ImageButton episodeListAddToPlaylist = (ImageButton) v
-                .findViewById(R.id.episodeListAddToPlaylist);
+        ImageButton episodeListAddToPlaylist =
+                (ImageButton)v.findViewById(R.id.episodeListAddToPlaylist);
         episodeListAddToPlaylist.setTag(episode);
 
-        CheckBox episodeListMarkRead = (CheckBox) v
-                .findViewById(R.id.episodeListMarkRead);
+        ImageButton episodeListMarkRead = (ImageButton)v.findViewById(R.id.episodeListMarkRead);
         episodeListMarkRead.setTag(episode);
 
         return v;

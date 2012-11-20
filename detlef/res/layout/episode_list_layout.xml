@@ -56,49 +56,46 @@
                     android:textStyle="italic" />
             </LinearLayout>
 
-            <TableLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:stretchColumns="*" >
+            <LinearLayout
+                android:id="@+id/LinearLayout1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
 
                 <TableRow
-                    android:layout_width="fill_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content" >
 
                     <ImageButton
                         android:id="@+id/episodeListDownload"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
                         android:background="@null"
-                        android:src="@android:drawable/ic_menu_save"
-                        android:onClick="clickDownload" />
-
-                    <ImageButton
-                        android:id="@+id/episodeListDelete"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:src="@android:drawable/ic_menu_delete" />
+                        android:onClick="clickDownload"
+                        android:src="@android:drawable/ic_menu_save" />
 
                     <ImageButton
                         android:id="@+id/episodeListAddToPlaylist"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
                         android:background="@null"
                         android:src="@android:drawable/ic_menu_add" />
 
-                    <CheckBox
+                    <ImageButton
                         android:id="@+id/episodeListMarkRead"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:focusable="false"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:text="@string/mark_read" />
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@null"
+                        android:src="@android:drawable/ic_menu_delete" />
+
                 </TableRow>
-            </TableLayout>
-
+            </LinearLayout>
         </LinearLayout>
-
     </LinearLayout>
 
 </LinearLayout>
