@@ -31,8 +31,9 @@ import at.ac.tuwien.detlef.util.GUIUtils;
 public class EpisodeListFragment extends ListFragment
 implements EpisodeDAOImpl.OnEpisodeChangeListener {
 
-    private static String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
-    private static long ID_NONE = -1;
+    private static final String TAG = EpisodeListFragment.class.getName();
+    private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
+    private static final long ID_NONE = -1;
 
     private EpisodeListModel model;
     private EpisodeListAdapter adapter;
@@ -209,19 +210,34 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
         });
     }
 
-    public EpisodeListFragment clickDownload(View v) {
+    public void onDownloadTrashClick(View v) {
+        Episode episode = (Episode)v.getTag();
+
+        switch (episode.getStorageState()) {
+            case NOT_ON_DEVICE:
+                enqueueEpisode(episode);
+                break;
+            case DOWNLOADING:
+                /* TODO: Terminate download. */
+                break;
+            case DOWNLOADED:
+                /* TODO: Delete episode. */
+                break;
+            default:
+                Log.e(TAG, "Unknown storage state encountered");
+        }
+    }
+
+    private void enqueueEpisode(Episode episode) {
         try {
-            // TODO @Joshi/@Jakob change download button when just downloading
-            downloadManager.enqueue((Episode) v.getTag());
+            downloadManager.enqueue(episode);
         } catch (IOException e) {
             Log.e(getClass().getName(), "IOException while trying to download: ", e);
-            guiUtils.showToast(
-                    "Cannot download episode! Please make "
-                            + "sure you have an internet "
+            guiUtils.showToast("Cannot download episode! Please make sure you have an internet "
                             + "connection and an SD card inserted!",
-                            Toast.makeText(
-                                    Detlef.getAppContext(), "", 0), getActivity(), getClass().getName());
+                            Toast.makeText(Detlef.getAppContext(), "", 0),
+                            getActivity(),
+                            getClass().getName());
         }
-        return this;
     }
 }

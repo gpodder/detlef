@@ -464,7 +464,7 @@ public class MainActivity extends FragmentActivity
         getPlayerFragment().startPlaying();
     }
 
-    public void clickDownload(View v) {
-        getEpisodeListFragment().clickDownload(v);
+    public void onDownloadTrashClick(View v) {
+        getEpisodeListFragment().onDownloadTrashClick(v);
     }
 }
