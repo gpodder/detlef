@@ -184,7 +184,12 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
      * Ensures that UI methods are called on the UI thread.
      */
     private void updatePodcastList() {
-        getActivity().runOnUiThread(new Runnable() {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adapter.notifyDataSetChanged();
