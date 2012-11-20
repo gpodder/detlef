@@ -51,7 +51,9 @@ public class DetlefDownloadManagerTest extends AndroidTestCase {
         mgr.enqueue(e);
         semaphore.acquire();
 
-        assertTrue(getFile().exists());
+        File file = getFile();
+        assertTrue(file.exists());
+        assertTrue(file.isFile());
     }
 
     private class MockDependencyAssistant extends DependencyAssistant {

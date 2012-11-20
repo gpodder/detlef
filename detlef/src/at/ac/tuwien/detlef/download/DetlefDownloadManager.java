@@ -59,7 +59,7 @@ public class DetlefDownloadManager {
         /* Ensure the directory already exists. */
 
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), path);
-        file.mkdirs();
+        file.getParentFile().mkdirs();
 
         Request request = new Request(uri);
         request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_MUSIC, path);
