@@ -45,6 +45,10 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
     public void testRotation() {
         solo.setActivityOrientation(Solo.LANDSCAPE);
         while (solo.scrollDown()) ;
+        Podcast p = new Podcast();
+        uuid= "NOT_A_UUID_SINCE_VARIABLE_VALUES_ARE_NOT_PERSISTED_DURING_TESTS_WTF_NEW_NEW?";
+        p.setTitle(uuid);
+        dao.insertPodcast(p);
 
         assertTrue(String.format("New podcast %s should be displayed in list", uuid), solo.searchText(uuid));
     }
@@ -55,6 +59,10 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
      */
     public void testRemovePodcast() {
         while (solo.scrollDown()) ;
+        Podcast p = new Podcast();
+        uuid= "NOT_A_UUID_SINCE_VARIABLE_VALUES_ARE_NOT_PERSISTED_DURING_TESTS_WTF_NEW?";
+        p.setTitle(uuid);
+        dao.insertPodcast(p);
 
         solo.clickLongOnText(uuid);
         solo.clickOnText(getActivity().getString(at.ac.tuwien.detlef.R.string.delete_feed));
