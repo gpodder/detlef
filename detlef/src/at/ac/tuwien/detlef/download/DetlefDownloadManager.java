@@ -3,6 +3,7 @@ package at.ac.tuwien.detlef.download;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import android.app.DownloadManager;
 import android.app.DownloadManager.Query;
@@ -14,6 +15,7 @@ import android.os.Environment;
 import android.util.Log;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
@@ -34,6 +36,7 @@ public class DetlefDownloadManager {
      * The context used for getting application directories.
      */
     private final Context context;
+    private final EpisodeDAOImpl dao;
 
     /**
      * THe {@link DownloadManager} responsible for downloading episode files.
@@ -43,8 +46,13 @@ public class DetlefDownloadManager {
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
+        dao = EpisodeDAOImpl.i(context);
     }
 
+    /**
+     * Places an episode in the system's download queue.
+     * The episode's state is set to DOWNLOADING, and its path is updated.
+     */
     public void enqueue(Episode episode) throws IOException {
         if (!isExternalStorageWritable()) {
             throw new IOException("Cannot write to external storage");
@@ -74,6 +82,14 @@ public class DetlefDownloadManager {
         long id = downloadManager.enqueue(request);
         activeDownloads.put(id, episode);
 
+        /* Finally, update the episode's path and state in the database. */
+
+        episode.setFilePath(file.getAbsolutePath());
+        episode.setStorageState(StorageState.DOWNLOADING);
+
+        dao.updateFilePath(episode);
+        dao.updateState(episode);
+
         Log.v(TAG, String.format("Enqueued download task %s", path));
     }
 
@@ -86,8 +102,12 @@ public class DetlefDownloadManager {
      * Cancels all active downloads.
      */
     public void cancelAll() {
-        for (long id : activeDownloads.keySet()) {
-            downloadManager.remove(id);
+        for (Entry<Long, Episode> entry : activeDownloads.entrySet()) {
+            Episode episode = entry.getValue();
+            episode.setStorageState(StorageState.NOT_ON_DEVICE);
+            dao.updateState(episode);
+
+            downloadManager.remove(entry.getKey());
         }
         activeDownloads.clear();
     }
@@ -107,18 +127,20 @@ public class DetlefDownloadManager {
         if (!isDownloadSuccessful(id)) {
             Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
                     id, getDownloadFailureReason(id)));
+
+            episode.setStorageState(StorageState.NOT_ON_DEVICE);
+            dao.updateState(episode);
+
             return;
         }
 
         Uri uri = downloadManager.getUriForDownloadedFile(id);
-        String path = uri.toString(); /* TODO: Should we update the filesize here? */
+        Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
 
-        episode.setFilePath(path);
+        /* Update the episode's state in the database. */
 
-        EpisodeDAOImpl dao = EpisodeDAOImpl.i(context);
-        dao.updateFilePath(episode);
-
-        Log.v(TAG, String.format("File %s downloaded successfully", path));
+        episode.setStorageState(StorageState.DOWNLOADED);
+        dao.updateState(episode);
     }
 
     private boolean isDownloadSuccessful(long id) {

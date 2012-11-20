@@ -212,8 +212,6 @@ public class EpisodeListFragment extends ListFragment
     public EpisodeListFragment clickDownload(View v) {
         try {
             // TODO @Joshi/@Jakob change download button when just downloading
-            // TODO @Jakob set file path in advance so we can start
-            // playing while downloading
             downloadManager.enqueue((Episode) v.getTag());
         } catch (IOException e) {
             Log.e(getClass().getName(), "IOException while trying to download: ", e);
