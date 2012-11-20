@@ -4,6 +4,7 @@ package at.ac.tuwien.detlef.adapters;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 
 public class EpisodeListAdapter extends ArrayAdapter<Episode> {
+
+    private static final String TAG = EpisodeListAdapter.class.getName();
 
     private final List<Episode> episodes;
 
@@ -47,6 +51,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         size.setText(byteToHumanSize(episode.getFileSize()));
 
         ImageButton episodeListDownload = (ImageButton) v.findViewById(R.id.episodeListDownload);
+        episodeListDownload.setImageResource(stateToImageResource(episode.getStorageState()));
         episodeListDownload.setTag(episode);
 
         ImageButton episodeListDelete = (ImageButton) v.findViewById(R.id.episodeListDelete);
@@ -62,6 +67,20 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
         return v;
 
+    }
+
+    private int stateToImageResource(StorageState storageState) {
+        switch (storageState) {
+            case NOT_ON_DEVICE:
+                return android.R.drawable.ic_menu_add;
+            case DOWNLOADING:
+                return android.R.drawable.ic_menu_agenda;
+            case DOWNLOADED:
+                return android.R.drawable.ic_menu_always_landscape_portrait;
+            default:
+                Log.e(TAG, "Unknown storage state encountered");
+                return 0;
+        }
     }
 
     private static final int MAX_TITLE_LENGTH = 16;
