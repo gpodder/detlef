@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
+import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public final class PodcastDAOImpl implements PodcastDAO {
@@ -20,6 +21,8 @@ public final class PodcastDAOImpl implements PodcastDAO {
     private static final String TAG = PodcastDAOImpl.class.getName();
 
     private static PodcastDAOImpl instance = null;
+
+    private static Context appContext;
 
     private final DatabaseHelper dbHelper;
     private final Set<OnPodcastChangeListener> listeners = new HashSet<OnPodcastChangeListener>();
@@ -40,6 +43,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
     public static PodcastDAOImpl i(Context context) {
         if (instance == null) {
             instance = new PodcastDAOImpl(context);
+            appContext = context;
         }
         return instance;
     }
@@ -101,20 +105,37 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public int deletePodcast(Podcast podcast) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-        String[] selectionArgs = {
-                String.valueOf(podcast.getId())
-        };
+        int ret = 0;
+        SQLiteDatabase db = null;
+        try {
+            // delete podcasts manually because of refreshing
+            // the episodeListFragment
+            EpisodeDAOImpl epDao = EpisodeDAOImpl.i(appContext);
+            List<Episode> epList = epDao.getEpisodes(podcast);
+            for (Episode ep : epList) {
+                epDao.deleteEpisode(ep);
+            }
 
-        int ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
-        db.close();
+            db = dbHelper.getWritableDatabase();
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(podcast.getId())
+            };
 
-        notifyListenersDeleted(podcast);
-        if (hashMapPodcast.containsKey(podcast.getId())) {
-            hashMapPodcast.remove(podcast.getId());
+            ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
+            db.close();
+
+            notifyListenersDeleted(podcast);
+            if (hashMapPodcast.containsKey(podcast.getId())) {
+                hashMapPodcast.remove(podcast.getId());
+            }
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage());
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
         }
-
         return ret;
     }
 
