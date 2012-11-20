@@ -27,20 +27,9 @@ public class DetlefDownloadManager {
 
     private static final String TAG = DetlefDownloadManager.class.getName();
 
-    /**
-     * Active downloads stored by their download manager id.
-     */
     private final HashMap<Long, Episode> activeDownloads = new HashMap<Long, Episode>();
-
-    /**
-     * The context used for getting application directories.
-     */
     private final Context context;
     private final EpisodeDAOImpl dao;
-
-    /**
-     * THe {@link DownloadManager} responsible for downloading episode files.
-     */
     private final DownloadManager downloadManager;
 
     public DetlefDownloadManager(Context context) {
@@ -62,13 +51,13 @@ public class DetlefDownloadManager {
         Uri uri = Uri.parse(episode.getUrl());
 
         /* We may need to change our naming policy in case of duplicates. However,
-         * let's ignore this for now since it's simplest for us and the user.
-         */
+         * let's ignore this for now since it's simplest for us and the user. */
+
         String path = String.format("%s/%s", podcast.getTitle(),
                 new File(uri.toString()).getName());
 
-        /* Ensure the directory already exists.
-         */
+        /* Ensure the directory already exists. */
+
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), path);
         file.mkdirs();
 

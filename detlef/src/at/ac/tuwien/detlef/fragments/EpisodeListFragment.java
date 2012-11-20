@@ -29,7 +29,7 @@ import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
 public class EpisodeListFragment extends ListFragment
-        implements EpisodeDAOImpl.OnEpisodeChangeListener {
+implements EpisodeDAOImpl.OnEpisodeChangeListener {
 
     private static String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
     private static long ID_NONE = -1;
@@ -219,8 +219,8 @@ public class EpisodeListFragment extends ListFragment
                     "Cannot download episode! Please make "
                             + "sure you have an internet "
                             + "connection and an SD card inserted!",
-                    Toast.makeText(
-                            Detlef.getAppContext(), "", 0), getActivity(), getClass().getName());
+                            Toast.makeText(
+                                    Detlef.getAppContext(), "", 0), getActivity(), getClass().getName());
         }
         return this;
     }
