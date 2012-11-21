@@ -1,5 +1,7 @@
 package at.ac.tuwien.detlef.adapters;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -12,6 +14,8 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public class PodListAdapter extends ArrayAdapter<Podcast> {
+
+    private static final long MS_PER_SEC = 1000;
 
     private final List<Podcast> podcasts;
 
@@ -36,7 +40,9 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
 
         TextView lastUpdate = (TextView) v.findViewById(R.id.podListLastUpdate);
         if (lastUpdate != null) {
-            lastUpdate.setText("22.06.2012");
+            Date date = new Date(podcast.getLastUpdate() * MS_PER_SEC);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            lastUpdate.setText(sdf.format(date));
         }
 
         TextView podcastName = (TextView) v
