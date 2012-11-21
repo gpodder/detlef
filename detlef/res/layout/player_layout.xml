@@ -14,7 +14,7 @@
         <RelativeLayout
             android:id="@+id/playerNames"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content" >
 
             <ImageView
                 android:id="@+id/imageView1"
@@ -28,28 +28,23 @@
                 android:id="@+id/playerPodcast"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/imageView1"
                 android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="2"
                 android:scrollHorizontally="true"
-                android:text="@string/sample_podcast_name"
-                android:layout_toRightOf="@+id/imageView1" />
+                android:text="@string/sample_podcast_name" />
 
             <TextView
                 android:id="@+id/playerEpisode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/playerPodcast"
+                android:layout_toRightOf="@+id/imageView1"
                 android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:scrollHorizontally="true"
+                android:maxLines="3"
                 android:text="@string/sample_episode_name"
                 android:textColor="#0099CC"
-                android:textStyle="bold"
-                android:layout_toRightOf="@+id/imageView1"
-                android:layout_below="@+id/playerPodcast" />
+                android:textStyle="bold" />
         </RelativeLayout>
 
         <WebView
