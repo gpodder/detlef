@@ -22,7 +22,6 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
         Log.d(TAG, "applying changes");
         PodcastDAO dao = PodcastDAOImpl.i(context);
         for (Podcast p : changes.getAdd()) {
-            p.setLastUpdate(changes.getTimestamp());
             dao.insertPodcast(p);
         }
 

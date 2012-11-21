@@ -9,6 +9,7 @@ import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
+import at.ac.tuwien.detlef.domain.FeedUpdate;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -63,11 +64,18 @@ public class PullFeedAsyncTask implements Runnable {
         FeedServiceClient fsc = new FeedServiceClient(HOST, username, password);
         MygPodderClient gpc = new MygPodderClient(username, password);
 
-        IFeed feed = null;
+        FeedUpdate feed = null;
         EpisodeActionChanges changes = null;
         try {
             /* Get the feed */
-            feed = fsc.parseFeeds(new String[] {podcast.getUrl()}, since).get(0);
+            IFeed iFeed = fsc.parseFeeds(new String[] {podcast.getUrl()}, since).get(0);
+            if (iFeed == null) {
+                String e = Detlef.getAppContext().getString(R.string.failed_to_download_feed);
+                sendError(new GPodderException(String.format("%s: %s", podcast.getTitle(), e)));
+                return;
+            }
+
+            feed = new FeedUpdate(iFeed, podcast);
 
             DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
             .upsertAndDeleteEpisodes(Detlef.getAppContext(), podcast, feed);
@@ -79,7 +87,7 @@ public class PullFeedAsyncTask implements Runnable {
             .applyActionChanges(Detlef.getAppContext(), podcast, changes);
 
             /* Update last changed timestamp.*/
-            podcast.setLastUpdate(since);
+            podcast.setLastUpdate(feed.getLastReleaseTime());
             PodcastDAOImpl.i(Detlef.getAppContext()).updateLastUpdate(podcast);
         } catch (ClientProtocolException e) {
             sendError(new GPodderException(e.getLocalizedMessage()));

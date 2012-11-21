@@ -33,7 +33,7 @@ public class EnhancedSubscriptionChanges implements Serializable {
         this.add = new ArrayList<Podcast>(add.size());
         for (IPodcast ip : add) {
             Podcast p = new Podcast(ip);
-            p.setLastUpdate(timestamp);
+            p.setLastUpdate(0);
             this.add.add(p);
         }
 
