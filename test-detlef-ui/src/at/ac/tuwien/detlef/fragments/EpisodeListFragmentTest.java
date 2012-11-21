@@ -26,7 +26,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
 
         solo = new Solo(getInstrumentation(), activity);
         dao = EpisodeDAOImpl.i(getActivity());
-        uuid = "NOT_A_UUID_SINCE_VARIABLE_VALUES_ARE_NOT_PERSISTED_DURING_TESTS_WTF?";
+        uuid = java.util.UUID.randomUUID().toString();
     }
 
     /**
@@ -36,7 +36,6 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         Podcast p = new Podcast();
         p.setTitle(uuid);
         PodcastDAOImpl.i(getActivity()).insertPodcast(p);
-
         Episode e = new Episode(p);
         e.setAuthor("author");
         e.setDescription("description");
