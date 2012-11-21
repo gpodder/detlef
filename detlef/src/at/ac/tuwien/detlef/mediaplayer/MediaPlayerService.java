@@ -202,6 +202,9 @@ public class MediaPlayerService extends Service implements
 
     @Override
     public boolean episodeFileOK(Episode ep) {
+        if (ep == null) {
+            return false;
+        }
         if ((ep.getFilePath() == null) || ep.getFilePath().equals("")) {
             Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an empty file path");
             return false;

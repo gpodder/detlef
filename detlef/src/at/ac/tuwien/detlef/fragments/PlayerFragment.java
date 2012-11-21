@@ -219,7 +219,9 @@ public class PlayerFragment extends Fragment {
         TextView episodeName = (TextView) getView().findViewById(R.id.playerEpisodeName);
 
         if (ep == null) {
-            episode.setText("No Episode Selected");
+            episode.setText(
+                    getActivity().getText(R.string.no_episode_selected)
+                            .toString());
             episodeDescription.loadData("", "text/html", "UTF-8");
             podcastName.setText("");
             episodeName.setText("");
