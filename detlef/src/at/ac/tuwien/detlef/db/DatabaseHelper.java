@@ -50,7 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "%s text not null, "
                     + "%s text not null, "
                     + "%s text, "
-                    + "%s text not null, "
+                    + "%s text, "
                     + "%s integer, "
                     + "%s text);",
                     TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,

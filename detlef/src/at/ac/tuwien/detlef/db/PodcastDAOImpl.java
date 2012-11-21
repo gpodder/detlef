@@ -74,7 +74,11 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
                 values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
                 values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
-                values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
+                if (podcast.getLogoUrl() == null) {
+                    values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_URL);                    
+                } else {
+                    values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
+                }
                 values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
                 if (podcast.getLogoFilePath() == null) {
                     values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH);
