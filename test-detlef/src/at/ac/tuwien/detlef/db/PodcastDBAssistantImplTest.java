@@ -110,9 +110,9 @@ public class PodcastDBAssistantImplTest extends AndroidTestCase{
         impl.applySubscriptionChanges(this.mContext, changes);
 
         assertNull(pdao.getPodcastById(p2.getId()));
-        assertEquals(9999,pdao.getPodcastByUrl("url new1").getLastUpdate());
-        assertEquals(9999,pdao.getPodcastByUrl("url new2").getLastUpdate());
-        assertEquals(9999,pdao.getPodcastByUrl("url new3").getLastUpdate());
+        assertEquals(0,pdao.getPodcastByUrl("url new1").getLastUpdate());
+        assertEquals(0,pdao.getPodcastByUrl("url new2").getLastUpdate());
+        assertEquals(0,pdao.getPodcastByUrl("url new3").getLastUpdate());
         assertEquals(p1.getId(),pdao.getPodcastById(p1.getId()).getId());
         assertEquals(p3.getId(), pdao.getPodcastById(p3.getId()).getId());
     }

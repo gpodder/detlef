@@ -37,12 +37,13 @@ public class EnhancedSubscriptionChangesTest extends TestCase {
         Podcast pRem2 = esc.getRemove().get(1);
 
         assertEquals("add1", pAdd1.getTitle());
-        assertEquals(666, pAdd1.getLastUpdate());
+        assertEquals(0, pAdd1.getLastUpdate());
         assertEquals("add2", pAdd2.getTitle());
-        assertEquals(666, pAdd2.getLastUpdate());
+        assertEquals(0, pAdd2.getLastUpdate());
         assertEquals("rem1", pRem1.getTitle());
         assertEquals(666, pRem1.getLastUpdate());
         assertEquals("rem2", pRem2.getTitle());
         assertEquals(666, pRem2.getLastUpdate());
+        assertEquals(666, esc.getTimestamp());
     }
 }
