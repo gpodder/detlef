@@ -4,9 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import android.util.Log;
+
 import com.dragontek.mygpoclient.feeds.IFeed;
 
 public class FeedUpdate implements IFeed {
+    
+    private static final String TAG = FeedUpdate.class.getName();
+    
     private final String title;
     private final String link;
     private final String description;
@@ -62,7 +67,12 @@ public class FeedUpdate implements IFeed {
         long lastRelease = podcast.getLastUpdate();
         for (IEpisode ie : iepisodes) {
             // TODO: skip Episodes without enclosure, find a way to correctly handle this case.
-            if (ie.getEnclosure() == null) {
+            try {
+                if (ie.getEnclosure() == null) {
+                    continue;
+                }
+            } catch (Exception ex) {
+                Log.i(TAG, "missing enclosure " + ex.getMessage());
                 continue;
             }
             if (ie.getReleased() <= podcast.getLastUpdate()) {
