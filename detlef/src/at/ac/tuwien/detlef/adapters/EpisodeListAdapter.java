@@ -4,6 +4,7 @@ package at.ac.tuwien.detlef.adapters;
 import java.util.List;
 
 import android.content.Context;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +46,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         title.setText(formatTitle(episode));
 
         TextView description = (TextView) v.findViewById(R.id.episodeListDescription);
-        description.setText(episode.getDescription());
+        description.setText(Html.fromHtml(episode.getDescription()));
 
         TextView size = (TextView) v.findViewById(R.id.episodeListDlSize);
         size.setText(byteToHumanSize(episode.getFileSize()));
