@@ -11,43 +11,52 @@
         android:layout_margin="10dp"
         android:layout_weight="6" >
 
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:contentDescription="@string/podcast_icon"
-            android:gravity="center"
-            android:src="@drawable/ic_launcher" />
+        <RelativeLayout
+            android:id="@+id/playerNames"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/playerEpisode"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/imageView1"
-            android:gravity="center"
-            android:text="@string/sample_episode_name"
-            android:textColor="#0099CC"
-            android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:contentDescription="@string/podcast_icon"
+                android:src="@drawable/ic_launcher" />
 
-        <!--
-             TextView
-            android:id="@+id/playerEpisodeDescription"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/playerEpisode"
-            android:gravity="center"
-            android:maxLines="8"
-            android:scrollbars="vertical"
-            android:singleLine="false"
-            android:text="@string/sample_episode_description" /
-        -->
+            <TextView
+                android:id="@+id/playerPodcast"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:text="@string/sample_podcast_name"
+                android:layout_toRightOf="@+id/imageView1" />
+
+            <TextView
+                android:id="@+id/playerEpisode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:text="@string/sample_episode_name"
+                android:textColor="#0099CC"
+                android:textStyle="bold"
+                android:layout_toRightOf="@+id/imageView1"
+                android:layout_below="@+id/playerPodcast" />
+        </RelativeLayout>
 
         <WebView
             android:id="@+id/playerEpisodeDescription"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/playerEpisode"
+            android:layout_below="@+id/playerNames"
             android:gravity="center"
             android:scrollbars="vertical" />
     </RelativeLayout>
@@ -56,42 +65,14 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:layout_weight="3" >
-
-        <!--
-            TextView
-            android:id="@+id/nowPlayingString"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:maxLines="2"
-            android:text="@string/now_playing" /
-        -->
-
-        <TextView
-            android:id="@+id/playerPodcastName"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/sample_podcast_name"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android:id="@+id/playerEpisodeName"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/playerPodcastName"
-            android:ellipsize="marquee"
-            android:gravity="center"
-            android:text="@string/sample_episode_name_2"
-            android:textColor="#0099CC"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:layout_weight="3"
+        android:minHeight="120dp" >
 
         <SeekBar
             android:id="@+id/SeekBar01"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/playerEpisodeName"
+            android:layout_below="@+id/playerEpisodeDescription"
             android:layout_toLeftOf="@+id/ButtonFF"
             android:layout_toRightOf="@+id/ButtonPlayStop"
             android:minHeight="20dp" />
@@ -108,21 +89,21 @@
                     android:id="@+id/ButtonRewind"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="100dp"
+                    android:minHeight="80dp"
                     android:src="@android:drawable/ic_media_rew" />
 
                 <ImageButton
                     android:id="@+id/ButtonPlayStop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="100dp"
+                    android:minHeight="80dp"
                     android:src="@android:drawable/ic_media_play" />
 
                 <ImageButton
                     android:id="@+id/ButtonFF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="100dp"
+                    android:minHeight="80dp"
                     android:src="@android:drawable/ic_media_ff" />
             </TableRow>
         </TableLayout>

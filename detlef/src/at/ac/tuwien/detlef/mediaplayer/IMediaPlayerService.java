@@ -63,6 +63,14 @@ public interface IMediaPlayerService {
     IMediaPlayerService setNextEpisode(Episode ep);
 
     /**
+     * Gets the episode that should be prepared and played on the next call to
+     * startPlaying().
+     * 
+     * @return thiThe episode to be played next
+     */
+    Episode getNextEpisode();
+
+    /**
      * Checks if the episode file path exists and points to a valid file.
      * 
      * @param ep The episode whose file path to check

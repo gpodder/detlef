@@ -133,13 +133,12 @@ public class PlayerFragmentTest extends
         // WebView description = (WebView)
         // solo.getView(R.id.playerEpisodeDescription);
         // can't load the webview contents, so cannot assert it
-        TextView episode = (TextView) solo.getView(R.id.playerEpisode);
-        TextView episodeName = (TextView) solo.getView(R.id.playerEpisodeName);
-        TextView podcastName = (TextView) solo.getView(R.id.playerPodcastName);
+        TextView episodeName = (TextView) solo.getView(R.id.playerEpisode);
+        TextView podcastName = (TextView) solo.getView(R.id.playerPodcast);
 
         String noSelected = solo.getString(R.string.no_episode_selected);
         assertTrue("Episode title should be 'No episode selected'",
-                episode.getText().equals(noSelected));
+                episodeName.getText().equals(noSelected));
         assertTrue("Episode name should be empty", episodeName.getText().equals(""));
         assertTrue("Podcast name should be empty", podcastName.getText().equals(""));
     }
@@ -175,12 +174,11 @@ public class PlayerFragmentTest extends
         }
 
         solo.clickOnText("MyTitleYxcv");
-        TextView episode = (TextView) solo.getView(R.id.playerEpisode);
-        TextView episodeName = (TextView) solo.getView(R.id.playerEpisodeName);
-        TextView podcastName = (TextView) solo.getView(R.id.playerPodcastName);
+        TextView episodeName = (TextView) solo.getView(R.id.playerEpisode);
+        TextView podcastName = (TextView) solo.getView(R.id.playerPodcast);
 
         assertTrue("Episode title should be correct",
-                episode.getText().equals(e.getTitle()));
+                episodeName.getText().equals(e.getTitle()));
         assertTrue("Episode name should be correct", episodeName.getText().equals(e.getTitle()));
         assertTrue("Podcast name should be correct", podcastName.getText().equals(p.getTitle()));
     }

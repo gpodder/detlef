@@ -274,15 +274,14 @@ public class MediaPlayerService extends Service implements
         return haveRunningEpisode;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see
-     * at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#setActiveEpisode(
-     * at.ac.tuwien.detlef.domain.Episode)
-     */
     @Override
     public IMediaPlayerService setNextEpisode(Episode ep) {
         this.nextEpisode = ep;
         return this;
+    }
+
+    @Override
+    public Episode getNextEpisode() {
+        return nextEpisode;
     }
 }

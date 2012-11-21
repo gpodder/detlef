@@ -58,6 +58,8 @@ public class PlayerFragment extends Fragment {
             MediaPlayerService.MediaPlayerBinder binder =
                     (MediaPlayerService.MediaPlayerBinder) iBinder;
             service = binder.getService();
+            activeEpisode = service.getNextEpisode();
+            setEpisodeInfoControls(activeEpisode);
             bound = true;
         }
 
@@ -83,11 +85,7 @@ public class PlayerFragment extends Fragment {
             }
         });
 
-        // TODO @Jakob Episode Download Size does not work yet
-
         seekBar = (SeekBar) getActivity().findViewById(R.id.SeekBar01);
-        // XXX @Joshi this is buggy when just clicking and not dragging the
-        // slider - sorry.
         seekBar.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -132,7 +130,6 @@ public class PlayerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initPlayingControls();
-
         setEpisodeInfoControls(activeEpisode);
     }
 
@@ -212,26 +209,23 @@ public class PlayerFragment extends Fragment {
     }
 
     private PlayerFragment setEpisodeInfoControls(Episode ep) {
-        TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
         WebView episodeDescription = (WebView) getView().findViewById(
                 R.id.playerEpisodeDescription);
-        TextView podcastName = (TextView) getView().findViewById(R.id.playerPodcastName);
-        TextView episodeName = (TextView) getView().findViewById(R.id.playerEpisodeName);
+        TextView podcast = (TextView) getView().findViewById(R.id.playerPodcast);
+        TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
 
         if (ep == null) {
             episode.setText(
                     getActivity().getText(R.string.no_episode_selected)
                             .toString());
+            podcast.setText("");
             episodeDescription.loadData("", "text/html", "UTF-8");
-            podcastName.setText("");
-            episodeName.setText("");
         } else {
-            episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
             episodeDescription.loadData(ep.getDescription() == null ? "" : ep.getDescription(),
                     "text/html", "UTF-8");
-            podcastName.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
+            podcast.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
                     .getTitle());
-            episodeName.setText(ep.getTitle() == null ? "" : ep.getTitle());
+            episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
         }
         return this;
     }
