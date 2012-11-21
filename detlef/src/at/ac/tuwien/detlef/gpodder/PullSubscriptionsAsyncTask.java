@@ -53,8 +53,7 @@ public class PullSubscriptionsAsyncTask implements Runnable {
             /* Get the Details for the individual URLs. */
             enhanced = pdr.getPodcastDetails(changes);
 
-            // TODO: We should think about updating the db here and set the
-            // update time last.
+            /* update the db here */
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant().
                     applySubscriptionChanges(Detlef.getAppContext(), enhanced);
 
