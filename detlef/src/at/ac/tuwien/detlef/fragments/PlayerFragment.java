@@ -219,10 +219,10 @@ public class PlayerFragment extends Fragment {
                     getActivity().getText(R.string.no_episode_selected)
                             .toString());
             podcast.setText("");
-            episodeDescription.loadData("", "text/html", "UTF-8");
+            episodeDescription.loadData("", "text/html; charset=UTF-8", null);
         } else {
             episodeDescription.loadData(ep.getDescription() == null ? "" : ep.getDescription(),
-                    "text/html", "UTF-8");
+                    "text/html; charset=UTF-8", null);
             podcast.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
                     .getTitle());
             episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
