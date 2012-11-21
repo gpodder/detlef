@@ -144,8 +144,24 @@ public class Episode implements IEpisode {
 
     @Override
     public IEnclosure getEnclosure() {
-        // TODO Auto-generated method stub
-        return null;
+        return new IEnclosure() {
+            
+            @Override
+            public long getFilesize() {
+                return Episode.this.getFileSize();
+            }
+
+            @Override
+            public String getMimetype() {
+                return Episode.this.getMimetype();
+            }
+
+            @Override
+            public String getUrl() {
+                return Episode.this.getUrl();
+            }
+            
+        };
     }
 
     public String getUrl() {
