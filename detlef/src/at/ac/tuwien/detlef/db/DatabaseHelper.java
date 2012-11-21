@@ -3,6 +3,8 @@ package at.ac.tuwien.detlef.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Detlef;
 
 /**
  * DatabaseHelper class which creates the database.
@@ -102,6 +104,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // TODO: What should we do on upgrade? For now, drop and recreate all tables.
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
+        DependencyAssistant.getDependencyAssistant().getGpodderSettings(Detlef.getAppContext())
+        .setLastUpdate(0);
         onCreate(db);
 
     }
