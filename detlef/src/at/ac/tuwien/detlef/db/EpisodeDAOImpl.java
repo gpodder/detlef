@@ -47,13 +47,15 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     }
 
     public EpisodeDAOImpl(Context context) {
-        dbHelper = new DatabaseHelper(context);
-        podcastDAO = PodcastDAOImpl.i(context);
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            dbHelper = new DatabaseHelper(context);
+            podcastDAO = PodcastDAOImpl.i(context);
 
-        /* Take care of any pending database upgrades. */
+            /* Take care of any pending database upgrades. */
 
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.close();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.close();
+        }
     }
 
     /**
@@ -61,59 +63,61 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
      */
     @Override
     public Episode insertEpisode(Episode episode) {
-        SQLiteDatabase db = null;
-        try {
-            db = dbHelper.getWritableDatabase();
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            SQLiteDatabase db = null;
+            try {
+                db = dbHelper.getWritableDatabase();
 
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_EPISODE_AUTHOR,
-                    episode.getAuthor());
-            values.put(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
-                    episode.getDescription());
-            values.put(DatabaseHelper.COLUMN_EPISODE_FILESIZE,
-                    episode.getFileSize());
-            values.put(DatabaseHelper.COLUMN_EPISODE_GUID, episode.getGuid());
-            values.put(DatabaseHelper.COLUMN_EPISODE_LINK, episode.getLink());
-            values.put(DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
-                    episode.getMimetype());
-            if (episode.getPodcast() == null) {
-                throw new IllegalArgumentException("The episode must belong to a podcast");
-            }
-            values.put(DatabaseHelper.COLUMN_EPISODE_PODCAST, episode
-                    .getPodcast().getId());
-            values.put(DatabaseHelper.COLUMN_EPISODE_RELEASED,
-                    episode.getReleased());
-            values.put(DatabaseHelper.COLUMN_EPISODE_TITLE, episode.getTitle());
-            values.put(DatabaseHelper.COLUMN_EPISODE_URL, episode.getUrl());
-            if (episode.getFilePath() == null) {
-                values.putNull(DatabaseHelper.COLUMN_EPISODE_FILEPATH);
-            } else {
-                values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                        episode.getFilePath());
-            }
-            if (episode.getStorageState() == null) {
-                values.putNull(DatabaseHelper.COLUMN_EPISODE_STATE);
-            } else {
-                values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode
-                        .getStorageState().toString());
-            }
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_EPISODE_AUTHOR,
+                        episode.getAuthor());
+                values.put(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
+                        episode.getDescription());
+                values.put(DatabaseHelper.COLUMN_EPISODE_FILESIZE,
+                        episode.getFileSize());
+                values.put(DatabaseHelper.COLUMN_EPISODE_GUID, episode.getGuid());
+                values.put(DatabaseHelper.COLUMN_EPISODE_LINK, episode.getLink());
+                values.put(DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
+                        episode.getMimetype());
+                if (episode.getPodcast() == null) {
+                    throw new IllegalArgumentException("The episode must belong to a podcast");
+                }
+                values.put(DatabaseHelper.COLUMN_EPISODE_PODCAST, episode
+                        .getPodcast().getId());
+                values.put(DatabaseHelper.COLUMN_EPISODE_RELEASED,
+                        episode.getReleased());
+                values.put(DatabaseHelper.COLUMN_EPISODE_TITLE, episode.getTitle());
+                values.put(DatabaseHelper.COLUMN_EPISODE_URL, episode.getUrl());
+                if (episode.getFilePath() == null) {
+                    values.putNull(DatabaseHelper.COLUMN_EPISODE_FILEPATH);
+                } else {
+                    values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH,
+                            episode.getFilePath());
+                }
+                if (episode.getStorageState() == null) {
+                    values.putNull(DatabaseHelper.COLUMN_EPISODE_STATE);
+                } else {
+                    values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode
+                            .getStorageState().toString());
+                }
 
-            long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
-            if (id == -1) {
-                throw new SQLiteException("Episode insert failed");
-            }
+                long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
+                if (id == -1) {
+                    throw new SQLiteException("Episode insert failed");
+                }
 
-            episode.setId(id);
-            hashMapEpisode.put(id, episode);
-            notifyListenersAdded(episode);
+                episode.setId(id);
+                hashMapEpisode.put(id, episode);
+                notifyListenersAdded(episode);
 
-            return episode;
-        } catch (Exception ex) {
-            Log.e(TAG, ex.getMessage());
-            return null;
-        } finally {
-            if (db != null && db.isOpen()) {
-                db.close();
+                return episode;
+            } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage());
+                return null;
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
             }
         }
     }
@@ -123,19 +127,21 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
      */
     @Override
     public int deleteEpisode(Episode episode) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(episode.getId()) };
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
+            String[] selectionArgs = { String.valueOf(episode.getId()) };
 
-        int ret = db.delete(DatabaseHelper.TABLE_EPISODE, selection, selectionArgs);
-        db.close();
+            int ret = db.delete(DatabaseHelper.TABLE_EPISODE, selection, selectionArgs);
+            db.close();
 
-        notifyListenersDeleted(episode);
-        if (hashMapEpisode.containsKey(episode.getId())) {
-            hashMapEpisode.remove(episode.getId());
+            notifyListenersDeleted(episode);
+            if (hashMapEpisode.containsKey(episode.getId())) {
+                hashMapEpisode.remove(episode.getId());
+            }
+
+            return ret;
         }
-
-        return ret;
     }
 
     /**
@@ -169,43 +175,45 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
     private List<Episode> getEpisodesWhere(String selection,
             String[] selectionArgs) {
-        List<Episode> allEpisodes = new ArrayList<Episode>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] projection =
-            { DatabaseHelper.COLUMN_EPISODE_AUTHOR,
-                DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
-                DatabaseHelper.COLUMN_EPISODE_FILESIZE,
-                DatabaseHelper.COLUMN_EPISODE_GUID,
-                DatabaseHelper.COLUMN_EPISODE_ID,
-                DatabaseHelper.COLUMN_EPISODE_LINK,
-                DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
-                DatabaseHelper.COLUMN_EPISODE_PODCAST,
-                DatabaseHelper.COLUMN_EPISODE_RELEASED,
-                DatabaseHelper.COLUMN_EPISODE_TITLE,
-                DatabaseHelper.COLUMN_EPISODE_URL,
-                DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                DatabaseHelper.COLUMN_EPISODE_STATE };
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            List<Episode> allEpisodes = new ArrayList<Episode>();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String[] projection =
+                { DatabaseHelper.COLUMN_EPISODE_AUTHOR,
+                    DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
+                    DatabaseHelper.COLUMN_EPISODE_FILESIZE,
+                    DatabaseHelper.COLUMN_EPISODE_GUID,
+                    DatabaseHelper.COLUMN_EPISODE_ID,
+                    DatabaseHelper.COLUMN_EPISODE_LINK,
+                    DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
+                    DatabaseHelper.COLUMN_EPISODE_PODCAST,
+                    DatabaseHelper.COLUMN_EPISODE_RELEASED,
+                    DatabaseHelper.COLUMN_EPISODE_TITLE,
+                    DatabaseHelper.COLUMN_EPISODE_URL,
+                    DatabaseHelper.COLUMN_EPISODE_FILEPATH,
+                    DatabaseHelper.COLUMN_EPISODE_STATE };
 
-        Cursor c =
-                db.query(DatabaseHelper.TABLE_EPISODE, projection, selection, // columns
-                        // for
-                        // where
-                        // clause
-                        selectionArgs, // values for where clause
-                        null, // group
-                        null, // filter by row group
-                        null // sort order
-                        );
+            Cursor c =
+                    db.query(DatabaseHelper.TABLE_EPISODE, projection, selection, // columns
+                            // for
+                            // where
+                            // clause
+                            selectionArgs, // values for where clause
+                            null, // group
+                            null, // filter by row group
+                            null // sort order
+                            );
 
-        if (c.moveToFirst()) {
-            do {
-                Episode e = getEpisode(c);
-                allEpisodes.add(e);
-            } while (c.moveToNext());
+            if (c.moveToFirst()) {
+                do {
+                    Episode e = getEpisode(c);
+                    allEpisodes.add(e);
+                } while (c.moveToNext());
+            }
+            c.close();
+            db.close();
+            return allEpisodes;
         }
-        c.close();
-        db.close();
-        return allEpisodes;
     }
 
     private Episode getEpisode(Cursor c) {
@@ -261,21 +269,23 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
     private int
     updateFieldUsingEpisodeId(Episode episode, ContentValues values) {
-        try {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            try {
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
-            String[] selectionArgs = { String.valueOf(episode.getId()) };
+                String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
+                String[] selectionArgs = { String.valueOf(episode.getId()) };
 
-            int ret = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
-            db.close();
+                int ret = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
+                db.close();
 
-            notifyListenersChanged(episode);
+                notifyListenersChanged(episode);
 
-            return ret;
-        } catch (Exception ex) {
-            Log.e(TAG, ex.getMessage());
-            return 0;
+                return ret;
+            } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage());
+                return 0;
+            }
         }
     }
 

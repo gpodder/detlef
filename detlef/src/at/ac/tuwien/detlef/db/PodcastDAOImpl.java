@@ -49,12 +49,14 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     public PodcastDAOImpl(Context context) {
-        dbHelper = new DatabaseHelper(context);
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            dbHelper = new DatabaseHelper(context);
 
-        /* Take care of any pending database upgrades. */
+            /* Take care of any pending database upgrades. */
 
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.close();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.close();
+        }
     }
 
     /**
@@ -63,38 +65,41 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public Podcast insertPodcast(Podcast podcast) {
-        SQLiteDatabase db = null;
-        try {
-            db = dbHelper.getWritableDatabase();
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            SQLiteDatabase db = null;
+            try {
+                db = dbHelper.getWritableDatabase();
 
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
-            values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
-            values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
-            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
-            values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
-            if (podcast.getLogoFilePath() == null) {
-                values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH);
-            } else {
-                values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
-            }
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
+                values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
+                values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
+                values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
+                values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
+                if (podcast.getLogoFilePath() == null) {
+                    values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH);
+                } else {
+                    values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
+                            podcast.getLogoFilePath());
+                }
 
-            long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
-            if (id == -1) {
-                throw new SQLiteException("Failed to insert podcast");
-            }
+                long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
+                if (id == -1) {
+                    throw new SQLiteException("Failed to insert podcast");
+                }
 
-            podcast.setId(id);
-            hashMapPodcast.put(id, podcast);
-            notifyListenersAdded(podcast);
+                podcast.setId(id);
+                hashMapPodcast.put(id, podcast);
+                notifyListenersAdded(podcast);
 
-            return podcast;
-        } catch (Exception ex) {
-            Log.e(TAG, ex.getMessage());
-            return null;
-        } finally {
-            if (db != null && db.isOpen()) {
-                db.close();
+                return podcast;
+            } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage());
+                return null;
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
             }
         }
     }
@@ -105,38 +110,40 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public int deletePodcast(Podcast podcast) {
-        int ret = 0;
-        SQLiteDatabase db = null;
-        try {
-            // delete podcasts manually because of refreshing
-            // the episodeListFragment
-            EpisodeDAOImpl epDao = EpisodeDAOImpl.i(appContext);
-            List<Episode> epList = epDao.getEpisodes(podcast);
-            for (Episode ep : epList) {
-                epDao.deleteEpisode(ep);
-            }
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            int ret = 0;
+            SQLiteDatabase db = null;
+            try {
+                // delete podcasts manually because of refreshing
+                // the episodeListFragment
+                EpisodeDAOImpl epDao = EpisodeDAOImpl.i(appContext);
+                List<Episode> epList = epDao.getEpisodes(podcast);
+                for (Episode ep : epList) {
+                    epDao.deleteEpisode(ep);
+                }
 
-            db = dbHelper.getWritableDatabase();
-            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-            String[] selectionArgs = {
-                    String.valueOf(podcast.getId())
-            };
+                db = dbHelper.getWritableDatabase();
+                String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+                String[] selectionArgs = {
+                        String.valueOf(podcast.getId())
+                };
 
-            ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
-            db.close();
-
-            notifyListenersDeleted(podcast);
-            if (hashMapPodcast.containsKey(podcast.getId())) {
-                hashMapPodcast.remove(podcast.getId());
-            }
-        } catch (Exception ex) {
-            Log.e(TAG, ex.getMessage());
-        } finally {
-            if (db != null && db.isOpen()) {
+                ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
                 db.close();
+
+                notifyListenersDeleted(podcast);
+                if (hashMapPodcast.containsKey(podcast.getId())) {
+                    hashMapPodcast.remove(podcast.getId());
+                }
+            } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage());
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
             }
+            return ret;
         }
-        return ret;
     }
 
     /**
@@ -144,26 +151,30 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public List<Podcast> getAllPodcasts() {
-        List<Podcast> allPodcasts = new ArrayList<Podcast>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] projection = {
-                DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
-                DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
-                DatabaseHelper.COLUMN_PODCAST_LOGO_URL, DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
-                DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
-        };
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            List<Podcast> allPodcasts = new ArrayList<Podcast>();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String[] projection = {
+                    DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
+                    DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
+                    DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
+                    DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
+                    DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
+            };
 
-        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, null, null, null, null, null);
+            Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, null, null, null, null,
+                    null);
 
-        if (c.moveToFirst()) {
-            do {
-                Podcast p = getPodcast(c);
-                allPodcasts.add(p);
-            } while (c.moveToNext());
+            if (c.moveToFirst()) {
+                do {
+                    Podcast p = getPodcast(c);
+                    allPodcasts.add(p);
+                } while (c.moveToNext());
+            }
+            c.close();
+            db.close();
+            return allPodcasts;
         }
-        c.close();
-        db.close();
-        return allPodcasts;
     }
 
     private Podcast getPodcast(Cursor c) {
@@ -194,20 +205,22 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public int updateLastUpdate(Podcast podcast) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
 
-        String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-        String[] selectionArgs = {
-                String.valueOf(podcast.getId())
-        };
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(podcast.getId())
+            };
 
-        int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
-        db.close();
+            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
+            db.close();
 
-        notifyListenersChanged(podcast);
-        return ret;
+            notifyListenersChanged(podcast);
+            return ret;
+        }
     }
 
     /**
@@ -216,31 +229,34 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public Podcast getPodcastById(long podcastId) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] projection = {
-                DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
-                DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
-                DatabaseHelper.COLUMN_PODCAST_LOGO_URL, DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
-                DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
-        };
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String[] projection = {
+                    DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
+                    DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
+                    DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
+                    DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
+                    DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
+            };
 
-        String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-        String[] selectionArgs = {
-                String.valueOf(podcastId)
-        };
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(podcastId)
+            };
 
-        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, selectionArgs,
-                null, null, null);
+            Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, selectionArgs,
+                    null, null, null);
 
-        Podcast p = null;
-        if (c.moveToFirst()) {
-            do {
-                p = getPodcast(c);
-            } while (c.moveToNext());
+            Podcast p = null;
+            if (c.moveToFirst()) {
+                do {
+                    p = getPodcast(c);
+                } while (c.moveToNext());
+            }
+            c.close();
+            db.close();
+            return p;
         }
-        c.close();
-        db.close();
-        return p;
     }
 
     /**
@@ -249,21 +265,23 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public int updateLogoFilePath(Podcast podcast) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
 
-        String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-        String[] selectionArgs = {
-                String.valueOf(podcast.getId())
-        };
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(podcast.getId())
+            };
 
-        int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
-        db.close();
+            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
+            db.close();
 
-        notifyListenersChanged(podcast);
+            notifyListenersChanged(podcast);
 
-        return ret;
+            return ret;
+        }
     }
 
     public void addPodcastChangedListener(OnPodcastChangeListener listener) {
@@ -294,30 +312,33 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
     @Override
     public Podcast getPodcastByUrl(String url) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] projection = {
-                DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
-                DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
-                DatabaseHelper.COLUMN_PODCAST_LOGO_URL, DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
-                DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
-        };
+        synchronized (DatabaseHelper.bigFrigginLock) {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String[] projection = {
+                    DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
+                    DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
+                    DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
+                    DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
+                    DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
+            };
 
-        String selection = DatabaseHelper.COLUMN_PODCAST_URL + " = ?";
-        String[] selectionArgs = {
-                String.valueOf(url)
-        };
+            String selection = DatabaseHelper.COLUMN_PODCAST_URL + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(url)
+            };
 
-        Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, selectionArgs,
-                null, null, null);
+            Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, selectionArgs,
+                    null, null, null);
 
-        Podcast p = null;
-        if (c.moveToFirst()) {
-            do {
-                p = getPodcast(c);
-            } while (c.moveToNext());
+            Podcast p = null;
+            if (c.moveToFirst()) {
+                do {
+                    p = getPodcast(c);
+                } while (c.moveToNext());
+            }
+            c.close();
+            db.close();
+            return p;
         }
-        c.close();
-        db.close();
-        return p;
     }
 }

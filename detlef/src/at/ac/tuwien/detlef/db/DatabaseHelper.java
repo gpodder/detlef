@@ -12,6 +12,8 @@ import at.ac.tuwien.detlef.Detlef;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     static final int VERSION = 4;
+            
+    static final Object bigFrigginLock = new Object();
 
     public static final String DB_NAME = "detlefDB";
 
