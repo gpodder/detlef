@@ -113,7 +113,8 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         Episode ep = episodes.get(0);
         assertEquals(e1.getFilePath(), ep.getFilePath());
         assertEquals(e1.getMimetype(), ep.getMimetype());
-        assertEquals(e1.hashCode(),ep.hashCode());
+        // TODO i'm not sure about his one ...
+        assertEquals(ep.getId(), e1.getId());
     }
 
     /**

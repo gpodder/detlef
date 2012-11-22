@@ -45,7 +45,7 @@ public interface EpisodeDAO {
      * @return returns a list of episodes which belongs to the given podcast
      */
     List<Episode> getEpisodes(Podcast podcast);
-
+    
     /**
      * updates the filePath column of the given episode (uses the filePath
      * attribute of the episode).
