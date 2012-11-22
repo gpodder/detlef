@@ -1,6 +1,8 @@
 
 package at.ac.tuwien.detlef.fragments;
 
+import java.util.concurrent.TimeUnit;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,18 +32,15 @@ public class PlayerFragment extends Fragment {
 
     private static final int PROGRESS_BAR_UPDATE_INTERVAL = 1000;
 
-    // TODO icon for service
-
     private ImageButton buttonPlayStop;
     private SeekBar seekBar;
+    private TextView alreadyPlayed;
+    private TextView remainingTime;
     private boolean bound = false;
     private IMediaPlayerService service;
-
     private final Handler handler = new Handler();
-
     private Episode activeEpisode = null;
     private boolean fragmentPaused = true;
-    private boolean playProgressUpdaterRunning = false;
 
     /**
      * Handles the connection to the MediaPlayerService that plays music.
@@ -85,10 +84,19 @@ public class PlayerFragment extends Fragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 int progress = seekBar.getProgress();
+                if (bound && service != null) {
+                    alreadyPlayed.setText(getAlreadyPlayed(progress));
+                    remainingTime.setText("-"
+                            + getRemainingTime(service.getDuration(),
+                                    progress));
+                }
                 service.seekTo(progress);
                 return false;
             }
         });
+
+        alreadyPlayed = (TextView) getActivity().findViewById(R.id.playerAlreadyPlayed);
+        remainingTime = (TextView) getActivity().findViewById(R.id.playerRemainingTime);
         return this;
     }
 
@@ -131,14 +139,14 @@ public class PlayerFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(getClass().getCanonicalName(), "onResume");
-        setPaused(false);
+        fragmentPaused = false;
         setEpisodeInfoControls(activeEpisode);
         startPlayProgressUpdater();
     }
 
     @Override
     public void onPause() {
-        setPaused(true);
+        fragmentPaused = true;
         super.onPause();
     }
 
@@ -146,16 +154,10 @@ public class PlayerFragment extends Fragment {
      * Handles the updates of the seek/progressbar as well as the state of the
      * play/pause button.
      */
-    private synchronized PlayerFragment startPlayProgressUpdater() {
+    private PlayerFragment startPlayProgressUpdater() {
         Log.d(getClass().getCanonicalName(), "startPlayProgressUpdater");
-        if (playProgressUpdaterRunning) {
-            Log.d(getClass().getCanonicalName(),
-                    "PlayProgressUpdater already running, not starting again");
-            return this;
-        }
-        if (getPaused()) {
+        if (fragmentPaused) {
             Log.d(getClass().getCanonicalName(), "fragmentPaused");
-            playProgressUpdaterRunning = false;
             return this;
         }
         if (service != null) {
@@ -164,12 +166,14 @@ public class PlayerFragment extends Fragment {
         return this;
     }
 
-    private synchronized void updateControls() {
+    private void updateControls() {
         Log.d(getClass().getCanonicalName(), "setting seekbar etc.");
         seekBar.setMax(service.getDuration());
         seekBar.setProgress(service.getCurrentPosition());
+        alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
+        remainingTime.setText("-"
+                + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
         if (service.isCurrentlyPlaying()) {
-            playProgressUpdaterRunning = true;
             Log.d(getClass().getCanonicalName(), "is currently playing");
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_pause);
@@ -181,7 +185,6 @@ public class PlayerFragment extends Fragment {
             };
             handler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
         } else {
-            playProgressUpdaterRunning = false;
             Log.d(getClass().getCanonicalName(), "is paused");
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_play);
@@ -257,12 +260,31 @@ public class PlayerFragment extends Fragment {
         return this;
     }
 
-    private synchronized void setPaused(boolean p) {
-        this.fragmentPaused = p;
+    private String getAlreadyPlayed(int progress) {
+        if (service != null) {
+            return String.format(
+                    "%02d:%02d",
+                    TimeUnit.MILLISECONDS.toMinutes(progress),
+                    TimeUnit.MILLISECONDS.toSeconds(progress)
+                            -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(progress))
+                    );
+        }
+        return "00:00";
     }
 
-    private synchronized boolean getPaused() {
-        return fragmentPaused;
+    private String getRemainingTime(int duration, int progress) {
+        if (service != null) {
+            return String.format(
+                    "%02d:%02d",
+                    TimeUnit.MILLISECONDS.toMinutes(duration - progress),
+                    TimeUnit.MILLISECONDS.toSeconds(duration - progress)
+                            -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration
+                                    - progress))
+                    );
+        }
+        return "00:00";
     }
 
 }

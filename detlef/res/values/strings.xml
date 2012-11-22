@@ -59,4 +59,6 @@
     <string name="all_podcasts">All Podcasts</string>
     <string name="no_episode_selected">No episode selected!</string>
     <string name="failed_to_download_feed">failed to download feed</string>
+    <string name="player_sample_already_played">00:00</string>
+    <string name="player_sample_still_to_play">-02:56</string>
 </resources>

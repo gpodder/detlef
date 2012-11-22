@@ -48,10 +48,7 @@ public class MediaPlayerService extends Service implements
     private boolean mediaPlayerPrepared = false;
     private Episode activeEpisode;
     private Episode nextEpisode;
-
     private static boolean running = false;
-
-    // TODO @Joshi Testing
 
     /*
      * (non-Javadoc)

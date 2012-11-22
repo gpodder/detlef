@@ -63,14 +63,29 @@
         android:layout_weight="3"
         android:minHeight="120dp" >
 
+        <TextView
+            android:id="@+id/playerAlreadyPlayed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:gravity="center"
+            android:text="@string/player_sample_already_played" />
+
         <SeekBar
             android:id="@+id/SeekBar01"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/playerEpisodeDescription"
-            android:layout_toLeftOf="@+id/ButtonFF"
-            android:layout_toRightOf="@+id/ButtonPlayStop"
+            android:layout_toLeftOf="@+id/playerRemainingTime"
+            android:layout_toRightOf="@+id/playerAlreadyPlayed"
             android:minHeight="20dp" />
+
+        <TextView
+            android:id="@+id/playerRemainingTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:text="@string/player_sample_still_to_play" />
 
         <TableLayout
             android:layout_width="fill_parent"
