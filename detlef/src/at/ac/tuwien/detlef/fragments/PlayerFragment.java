@@ -9,28 +9,26 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
-import at.ac.tuwien.detlef.util.GUIUtils;
 
 public class PlayerFragment extends Fragment {
 
-    private static final int PROGRESS_BAR_UPDATE_INTERVAL = 200;
+    private static final int PROGRESS_BAR_UPDATE_INTERVAL = 1000;
 
     // TODO icon for service
 
@@ -42,10 +40,8 @@ public class PlayerFragment extends Fragment {
     private final Handler handler = new Handler();
 
     private Episode activeEpisode = null;
-
-    private GUIUtils guiUtils;
-
-    // TODO @Joshi write tests
+    private boolean fragmentPaused = true;
+    private boolean playProgressUpdaterRunning = false;
 
     /**
      * Handles the connection to the MediaPlayerService that plays music.
@@ -55,12 +51,13 @@ public class PlayerFragment extends Fragment {
         @Override
         public void
                 onServiceConnected(ComponentName className, IBinder iBinder) {
+            bound = true;
             MediaPlayerService.MediaPlayerBinder binder =
                     (MediaPlayerService.MediaPlayerBinder) iBinder;
             service = binder.getService();
             activeEpisode = service.getNextEpisode();
             setEpisodeInfoControls(activeEpisode);
-            bound = true;
+            startPlayProgressUpdater();
         }
 
         @Override
@@ -68,8 +65,6 @@ public class PlayerFragment extends Fragment {
             bound = false;
         }
     };
-
-    private boolean fragmentPaused = true;
 
     /**
      * Initializes the buttons play, ff, rew and the slide etc. to perform their
@@ -106,7 +101,6 @@ public class PlayerFragment extends Fragment {
             Detlef.getAppContext().startService(serviceIntent);
         }
         Intent intent = new Intent(getActivity(), MediaPlayerService.class);
-        guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
@@ -136,13 +130,14 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        fragmentPaused = false;
+        Log.d(getClass().getCanonicalName(), "onResume");
+        setPaused(false);
         startPlayProgressUpdater();
     }
 
     @Override
     public void onPause() {
-        fragmentPaused = true;
+        setPaused(true);
         super.onPause();
     }
 
@@ -150,33 +145,50 @@ public class PlayerFragment extends Fragment {
      * Handles the updates of the seek/progressbar as well as the state of the
      * play/pause button.
      */
-    private PlayerFragment startPlayProgressUpdater() {
-        if (fragmentPaused) {
+    private synchronized PlayerFragment startPlayProgressUpdater() {
+        Log.d(getClass().getCanonicalName(), "startPlayProgressUpdater");
+        if (playProgressUpdaterRunning) {
+            Log.d(getClass().getCanonicalName(),
+                    "PlayProgressUpdater already running, not starting again");
+            return this;
+        }
+        if (getPaused()) {
+            Log.d(getClass().getCanonicalName(), "fragmentPaused");
+            playProgressUpdaterRunning = false;
             return this;
         }
         if (service != null) {
-            seekBar.setMax(service.getDuration());
-            seekBar.setProgress(service.getCurrentPosition());
-            if (service.isCurrentlyPlaying()) {
-                buttonPlayStop
-                        .setImageResource(android.R.drawable.ic_media_pause);
-                Runnable notification = new Runnable() {
-                    @Override
-                    public void run() {
-                        startPlayProgressUpdater();
-                    }
-                };
-                handler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
-            } else {
-                buttonPlayStop
-                        .setImageResource(android.R.drawable.ic_media_play);
-                if (!service.hasRunningEpisode()) {
-                    seekBar.setMax(1);
-                    seekBar.setProgress(0);
-                }
-            }
+            updateControls();
         }
         return this;
+    }
+
+    private synchronized void updateControls() {
+        Log.d(getClass().getCanonicalName(), "setting seekbar etc.");
+        seekBar.setMax(service.getDuration());
+        seekBar.setProgress(service.getCurrentPosition());
+        if (service.isCurrentlyPlaying()) {
+            playProgressUpdaterRunning = true;
+            Log.d(getClass().getCanonicalName(), "is currently playing");
+            buttonPlayStop
+                    .setImageResource(android.R.drawable.ic_media_pause);
+            Runnable notification = new Runnable() {
+                @Override
+                public void run() {
+                    startPlayProgressUpdater();
+                }
+            };
+            handler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
+        } else {
+            playProgressUpdaterRunning = false;
+            Log.d(getClass().getCanonicalName(), "is paused");
+            buttonPlayStop
+                    .setImageResource(android.R.drawable.ic_media_play);
+            if (!service.hasRunningEpisode()) {
+                seekBar.setMax(1);
+                seekBar.setProgress(0);
+            }
+        }
     }
 
     public PlayerFragment startPlaying() {
@@ -209,6 +221,10 @@ public class PlayerFragment extends Fragment {
     }
 
     private PlayerFragment setEpisodeInfoControls(Episode ep) {
+        View view = getView();
+        if (view == null) {
+            return this;
+        }
         WebView episodeDescription = (WebView) getView().findViewById(
                 R.id.playerEpisodeDescription);
         TextView podcast = (TextView) getView().findViewById(R.id.playerPodcast);
@@ -239,4 +255,13 @@ public class PlayerFragment extends Fragment {
         }
         return this;
     }
+
+    private synchronized void setPaused(boolean p) {
+        this.fragmentPaused = p;
+    }
+
+    private synchronized boolean getPaused() {
+        return fragmentPaused;
+    }
+
 }
