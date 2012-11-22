@@ -132,6 +132,7 @@ public class PlayerFragment extends Fragment {
         super.onResume();
         Log.d(getClass().getCanonicalName(), "onResume");
         setPaused(false);
+        setEpisodeInfoControls(activeEpisode);
         startPlayProgressUpdater();
     }
 
