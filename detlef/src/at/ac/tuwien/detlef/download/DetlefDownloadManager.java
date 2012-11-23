@@ -92,11 +92,12 @@ public class DetlefDownloadManager {
      */
     public void cancelAll() {
         for (Entry<Long, Episode> entry : activeDownloads.entrySet()) {
+
+            downloadManager.remove(entry.getKey());
+
             Episode episode = entry.getValue();
             episode.setStorageState(StorageState.NOT_ON_DEVICE);
             dao.updateState(episode);
-
-            downloadManager.remove(entry.getKey());
         }
         activeDownloads.clear();
     }
