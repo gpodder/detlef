@@ -239,9 +239,17 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
 
         switch (episode.getStorageState()) {
             case NOT_ON_DEVICE:
+                guiUtils.showToast(
+                        String.format("Downloading %s", episode.getTitle()),
+                        getActivity(),
+                        TAG);
                 enqueueEpisode(episode);
                 break;
             case DOWNLOADING:
+                guiUtils.showToast(
+                        "Download aborted",
+                        getActivity(),
+                        TAG);
                 downloadManager.cancel(episode);
                 break;
             case DOWNLOADED:
