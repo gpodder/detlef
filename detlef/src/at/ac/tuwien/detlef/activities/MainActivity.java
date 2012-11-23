@@ -362,7 +362,7 @@ public class MainActivity extends FragmentActivity
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the primary sections of the app.
      */
-    private class SectionsPagerAdapter extends FragmentPagerAdapter {
+    protected class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public static final int POSITION_PODCASTS = 0;
         public static final int POSITION_EPISODES = 1;

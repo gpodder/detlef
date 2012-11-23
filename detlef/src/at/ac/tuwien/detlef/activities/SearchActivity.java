@@ -1,10 +1,10 @@
 package at.ac.tuwien.detlef.activities;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import android.app.ListActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
@@ -13,20 +13,22 @@ import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.activities.MainActivity.SectionsPagerAdapter;
+import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.adapters.SearchListAdapter;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
+import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.search.Search;
 import at.ac.tuwien.detlef.search.SearchCallback;
 import at.ac.tuwien.detlef.search.SearchCriteriaKeyword;
 import at.ac.tuwien.detlef.search.SearchKeywordDb;
 
 public class SearchActivity
-    extends ListActivity
+    extends FragmentActivity
     implements EpisodeListFragment.OnEpisodeSelectedListener {
 
-    private ArrayList<Episode> listItems = new ArrayList<Episode>();
+    //private ArrayList<Episode> listItems = new ArrayList<Episode>();
     private SearchListAdapter adapter;
     
     private Search<SearchCriteriaKeyword, Episode> searchKeyword = new SearchKeywordDb();
@@ -56,7 +58,14 @@ public class SearchActivity
                         new SearchCallback<Episode>() {
                             @Override
                             public void getResult(List<Episode> result) {
-                                listItems = new ArrayList<Episode>(result);
+                                getEpisodeListFragment().setListAdapter(
+                                        new EpisodeListAdapter(
+                                            getApplicationContext(),
+                                            android.R.layout.simple_list_item_1,
+                                            result
+                                        )
+                                    );
+                                
                                 refreshSearchResult();
                             }
                         }
@@ -66,10 +75,17 @@ public class SearchActivity
         );
         
         refreshSearchResult();
-        
    
         
-        registerForContextMenu(getListView());
+        //registerForContextMenu(getListView());
+    }
+    
+    /**
+     * Retrieves the currently active episode list fragment.
+     */
+    private EpisodeListFragment getEpisodeListFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        return (EpisodeListFragment) manager.findFragmentById(R.id.SearchEpsiodeListFragment);
     }
     
     private String getSearchTerm() {
@@ -80,8 +96,8 @@ public class SearchActivity
     }
 
     private void refreshSearchResult() {
-        adapter = new SearchListAdapter(this, R.layout.search_list_layout, listItems);
-        setListAdapter(adapter);
+        //adapter = new SearchListAdapter(this, R.layout.search_list_layout, listItems);
+        //setListAdapter(adapter);
     }
 
     @Override
@@ -92,10 +108,19 @@ public class SearchActivity
         inflater.inflate(R.menu.search_context, menu);
     }
 
+    private PlayerFragment getPlayerFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        String tag = String.format("android:switcher:%d:%d", R.id.pager,
+                SectionsPagerAdapter.POSITION_PLAYER);
+        return (PlayerFragment) manager.findFragmentByTag(tag);
+    }
+    
     @Override
     public void onEpisodeSelected(Episode episode) {
         Log.d(LOG_TAG, "onEpisodeSelected(" + episode + ")");
-        // TODO Auto-generated method stub
+        getPlayerFragment().setActiveEpisode(episode);
+        getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_PLAYER);
+        getPlayerFragment().startPlaying();
         
     }
 }

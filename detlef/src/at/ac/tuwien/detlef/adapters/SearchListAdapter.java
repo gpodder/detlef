@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Podcast;
 
 public class SearchListAdapter extends ArrayAdapter<Episode> {
 

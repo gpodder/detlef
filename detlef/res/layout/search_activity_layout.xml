@@ -45,13 +45,13 @@
         </TableRow>
     </TableLayout>
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
+    <fragment
+        android:id="@+id/SearchEpsiodeListFragment"
+        android:name="at.ac.tuwien.detlef.fragments.EpisodeListFragment"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/fakeActionBar"
-        android:layout_centerHorizontal="true"
-        tools:listitem="@layout/episode_list_layout" >
-    </ListView>
+        tools:layout="@layout/episode_fragment_layout" />
 
 </RelativeLayout>
