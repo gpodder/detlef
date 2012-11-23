@@ -238,7 +238,7 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
                 enqueueEpisode(episode);
                 break;
             case DOWNLOADING:
-                /* TODO: Terminate download. */
+                downloadManager.cancel(episode);
                 break;
             case DOWNLOADED:
                 /* TODO: Delete episode. */

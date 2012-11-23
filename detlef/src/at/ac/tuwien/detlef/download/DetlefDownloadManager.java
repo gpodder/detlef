@@ -88,6 +88,27 @@ public class DetlefDownloadManager {
     }
 
     /**
+     * Cancels the download of an episode. If the specified episode is not currently being downloaded,
+     * no action is taken.
+     */
+    public void cancel(Episode episode) {
+
+        for (Entry<Long, Episode> entry : activeDownloads.entrySet()) {
+            if (entry.getValue() != episode) {
+                continue;
+            }
+
+            long id = entry.getKey();
+
+            activeDownloads.remove(id);
+            downloadManager.remove(id);
+
+            episode.setStorageState(StorageState.NOT_ON_DEVICE);
+            dao.updateState(episode);
+        }
+    }
+
+    /**
      * Cancels all active downloads.
      */
     public void cancelAll() {
