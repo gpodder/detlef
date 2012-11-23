@@ -230,6 +230,10 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
         });
     }
 
+    /**
+     * Handles a click on the combined start download / abort download / delete episode
+     * button. The action taken depends on the episode's storage state.
+     */
     public void onDownloadTrashClick(View v) {
         Episode episode = (Episode)v.getTag();
 
