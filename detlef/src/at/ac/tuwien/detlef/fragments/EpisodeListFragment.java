@@ -259,9 +259,8 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
             Log.e(getClass().getName(), "IOException while trying to download: ", e);
             guiUtils.showToast("Cannot download episode! Please make sure you have an internet "
                             + "connection and an SD card inserted!",
-                            Toast.makeText(Detlef.getAppContext(), "", 0),
                             getActivity(),
-                            getClass().getName());
+                            TAG);
         }
     }
 }

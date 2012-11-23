@@ -237,14 +237,14 @@ public class SettingsGpodderNet extends PreferenceFragment {
                                             activity.getText(R.string.connectiontest_successful)
                                                     .toString(),
                                             getSettings().getUsername()
-                                            ), toast, activity, LOG_TAG);
+                                            ), activity, LOG_TAG);
                         } else {
                             guiUtils.showToast(activity
-                                    .getText(R.string.connectiontest_unsuccessful), toast,
+                                    .getText(R.string.connectiontest_unsuccessful),
                                     activity, LOG_TAG);
                         }
                     } catch (GpodderConnectionException e) {
-                        guiUtils.showToast(activity.getText(R.string.connectiontest_error), toast,
+                        guiUtils.showToast(activity.getText(R.string.connectiontest_error),
                                 activity, LOG_TAG);
                     } catch (InterruptedException e) {
                         return;

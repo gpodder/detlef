@@ -19,10 +19,9 @@ public class GUIUtils {
      *
      * @param message
      */
-    public GUIUtils showToast(final CharSequence message, final Toast toast,
-            final Activity activity, final String LOG_TAG) {
-        Log.d(LOG_TAG, String.format("%s.showToast(%s)", toast, message));
-        Log.d(LOG_TAG, String.format("Activity(%s)", activity));
+    public GUIUtils showToast(final CharSequence message, final Activity activity, String tag) {
+        Log.d(tag, String.format("showToast: message = %s, activity = %s", message, activity));
+
         try {
             activity.runOnUiThread(new Runnable() {
                 @Override
@@ -31,7 +30,7 @@ public class GUIUtils {
                     Toast.makeText(
                             activity.getApplicationContext(),
                             message,
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_SHORT
                             ).show();
                 }
             });
@@ -40,7 +39,7 @@ public class GUIUtils {
             // receives the result under any circumstances. so better
             // catch and log any exception instead of breaking the complete
             // application at some other point.
-            Log.e(LOG_TAG, e.getMessage(), e);
+            Log.e(tag, e.getMessage(), e);
         }
         return this;
     }
