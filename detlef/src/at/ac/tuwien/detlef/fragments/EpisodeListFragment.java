@@ -1,6 +1,7 @@
 
 package at.ac.tuwien.detlef.fragments;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
@@ -253,11 +255,28 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
                 downloadManager.cancel(episode);
                 break;
             case DOWNLOADED:
-                /* TODO: Delete episode. */
+                /* Logic for episode handling and the resulting DB calls are now scattered
+                 * all over; in Fragments, in DAO classes, in the DownloadManager. I'd love to
+                 * get this all into one place, but it seems wrong to do it in the Episode class
+                 * (a dumb container) itself. Ideas? */
+                guiUtils.showToast(
+                        String.format("Deleted %s", episode.getTitle()),
+                        getActivity(),
+                        TAG);
+                deleteEpisode(episode);
                 break;
             default:
                 Log.e(TAG, "Unknown storage state encountered");
         }
+    }
+
+    private void deleteEpisode(Episode episode) {
+        File file = new File(episode.getFilePath());
+        file.delete();
+
+        episode.setStorageState(StorageState.NOT_ON_DEVICE);
+        EpisodeDAOImpl dao = EpisodeDAOImpl.i(getActivity());
+        dao.updateState(episode);
     }
 
     private void enqueueEpisode(Episode episode) {
