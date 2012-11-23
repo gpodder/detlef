@@ -2,11 +2,12 @@ package at.ac.tuwien.detlef.search;
 
 /**
  * Provides a very abstract interface for search functionality which takes some
- * {@link SearchCriteria search criteria} and invokes a callback function after finishing.
+ * {@link SearchCriteria search criteria} and invokes a callback function after the search has
+ * finished and results are available.
  * 
- * The intention is to make this interface as flexible as possible so that also more advanced
- * searches (using different filters, multiple keyword combinations, data sources) can be
- * implementations of this interface.
+ * <p>The intention is to make this interface as flexible as possible so that also more advanced
+ * searches (using different filters, multiple keyword combinations, data sources) can all be
+ * implementations of this interface.</p>
  * 
  * @param <S> The type of {@link SearchCriteria} that the implementation accepts.
  * @param <T> The type of object that shall be searched for, typically this will be something

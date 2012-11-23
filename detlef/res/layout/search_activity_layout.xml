@@ -31,21 +31,17 @@
             android:layout_height="wrap_content" >
 
             <Button
+                android:id="@+id/ButtonSearch"
+                android:layout_width="fill_parent"
                 android:layout_height="40sp"
                 android:text="@string/search"
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
                 android:textSize="11sp"
+                android:layout_span="2"
                 android:textStyle="bold" />
-            <!-- TODO better shapes -->
 
-            <Button
-                android:layout_height="40sp"
-                android:text="@string/take_url" 
-                android:textAllCaps="true"
-                android:textColor="#ffffff"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+            <!-- TODO better shapes -->
         </TableRow>
     </TableLayout>
 
@@ -55,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/fakeActionBar"
         android:layout_centerHorizontal="true"
-        tools:listitem="@layout/search_list_layout" >
+        tools:listitem="@layout/episode_list_layout" >
     </ListView>
 
 </RelativeLayout>

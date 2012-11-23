@@ -14,15 +14,15 @@ import at.ac.tuwien.detlef.domain.Episode;
  * @author moe
  */
 public class SearchKeywordDb 
-    implements Search<SearchCriteriaKeyword, Episode>
-{
+    implements Search<SearchCriteriaKeyword, Episode> {
     EpisodeDAOCore daoCore = new EpisodeDAOCore(
         Detlef.getAppContext(),
         PodcastDAOImpl.i(Detlef.getAppContext())
     );
     
     @Override
-    public void search(final SearchCriteriaKeyword criteria, final SearchCallback<Episode> callback) {
+    public void search(final SearchCriteriaKeyword criteria,
+            final SearchCallback<Episode> callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {

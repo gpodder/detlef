@@ -9,16 +9,17 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
-public class SearchListAdapter extends ArrayAdapter<Podcast> {
+public class SearchListAdapter extends ArrayAdapter<Episode> {
 
-    private ArrayList<Podcast> podcasts;
+    private ArrayList<Episode> episodes;
 
     public SearchListAdapter(Context context, int textViewResourceId,
-            ArrayList<Podcast> podcasts) {
-        super(context, textViewResourceId, podcasts);
-        this.podcasts = podcasts;
+            ArrayList<Episode> pEpisodes) {
+        super(context, textViewResourceId, pEpisodes);
+        episodes = pEpisodes;
     }
 
     @Override
@@ -27,21 +28,18 @@ public class SearchListAdapter extends ArrayAdapter<Podcast> {
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(R.layout.pod_list_layout, null);
+            v = vi.inflate(R.layout.episode_list_layout, null);
         }
 
-        Podcast podcast = podcasts.get(position);
-        if (podcast != null) {
-            TextView lastUpdate = (TextView) v
-                    .findViewById(R.id.podListLastUpdate);
-            TextView podcastName = (TextView) v
-                    .findViewById(R.id.podListPodcastName);
-            if (lastUpdate != null) {
-                lastUpdate.setText("22.06.2012");
-            }
+        Episode episode = episodes.get(position);
+        if (episodes != null) {
 
-            if (podcast != null) {
-                podcastName.setText(podcast.getTitle());
+            TextView epsiodeName = (TextView) v
+                    .findViewById(R.id.episodeListDescription );
+
+
+            if (episode != null) {
+                epsiodeName.setText(episode.getTitle());
             }
         }
 
