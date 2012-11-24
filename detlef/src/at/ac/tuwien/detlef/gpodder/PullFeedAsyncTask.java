@@ -27,9 +27,6 @@ public class PullFeedAsyncTask implements Runnable {
     /** Logging tag. */
     private static final String TAG = "PullFeedAsyncTask";
 
-    /** Key for the podcast extra variable. */
-    public static final String EXTRA_PODCAST = "EXTRA_PODCAST";
-
     /** The host for creating a FeedServiceClient. */
     private static final String HOST = "http://feeds.gpodder.net";
 

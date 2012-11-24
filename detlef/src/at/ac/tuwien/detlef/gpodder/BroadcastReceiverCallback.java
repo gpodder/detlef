@@ -26,7 +26,7 @@ BroadcastReceiverCallback.BroadcastReceiverEvent> extends ReliableCallback<Recei
      * Returns the currently registered receiver or null.
      * @return
      */
-    protected Receiver getRcv() {
+    protected final Receiver getRcv() {
         return rcv;
     }
 
