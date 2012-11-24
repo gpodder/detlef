@@ -19,11 +19,9 @@ import com.dragontek.mygpoclient.feeds.FeedServiceClient;
 import com.dragontek.mygpoclient.feeds.IFeed;
 
 /**
- * An IntentService to fetch feed changes.
- *
- * It is started via an intent and gets a podcast as parameter. It sends a reply via the Intent
- * action "at.ac.tuwien.detlef.custom.intent.action.PULL_FEED". The user of the Task needs
- * a receiver for this action.
+ * A Runnable to fetch feed changes. It should be started in its own Thread
+ * and sends a reply via the specified callback. The user of the Task needs to implement
+ * the Callback's handle & handleFailure methods.
  */
 public class PullFeedAsyncTask implements Runnable {
     /** Logging tag. */

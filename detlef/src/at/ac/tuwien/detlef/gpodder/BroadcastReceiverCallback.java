@@ -2,11 +2,30 @@ package at.ac.tuwien.detlef.gpodder;
 
 import at.ac.tuwien.detlef.callbacks.ReliableCallback;
 
+/**
+ * This is a convenience class designed to make it easier to implement a ReliableCallback.
+ * 
+ * It allows the implementor to access the receiver via the getRcv() method.
+ * 
+ * Creation or cleanup code (init() and destroy()) is not allowed. The register-,
+ * unregisterReceiver() and isReady() methods are already fully implemented. An event can
+ * be sent to the callback via sendEvent(), where it is queued or delivered accordingly.
+ * 
+ * To make things more modular the Event may implement it's own deliver() method, which is
+ * called upon delivery.
+ * 
+ * @param <Receiver> The type of receiver.
+ * @param <Event> The type of event.
+ */
 public abstract class BroadcastReceiverCallback<Receiver, Event extends
 BroadcastReceiverCallback.BroadcastReceiverEvent> extends ReliableCallback<Receiver, Event> {
 
     private Receiver rcv = null;
 
+    /**
+     * Returns the currently registered receiver or null.
+     * @return
+     */
     protected Receiver getRcv() {
         return rcv;
     }
@@ -49,6 +68,13 @@ BroadcastReceiverCallback.BroadcastReceiverEvent> extends ReliableCallback<Recei
         e.deliver();
     }
 
+    /**
+     * Order the callback to deliver the event e.
+     * 
+     * If the receiver is not ready, the event is queued.
+     * 
+     * @param e The event to deliver.
+     */
     final synchronized void sendEvent(Event e) {
         if (!isReady()) {
             queueEvent(e);
@@ -59,6 +85,9 @@ BroadcastReceiverCallback.BroadcastReceiverEvent> extends ReliableCallback<Recei
     }
 
     abstract static class BroadcastReceiverEvent {
+        /**
+         * Called upon delivery.
+         */
         abstract void deliver();
     }
 }

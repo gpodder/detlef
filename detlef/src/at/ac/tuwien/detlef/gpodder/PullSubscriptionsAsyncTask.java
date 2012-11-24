@@ -20,10 +20,9 @@ import com.dragontek.mygpoclient.pub.PublicClient;
 import com.dragontek.mygpoclient.simple.IPodcast;
 
 /**
- * An IntentService to fetch subscription changes. It is started via an intent
- * and sends a reply via the Intent action
- * "at.ac.tuwien.detlef.custom.intent.action.PULL_SUBSCRIPTIONS". The user of
- * the Task needs a receiver for this action.
+ * A Runnable to fetch subscription changes. It should be started in its own Thread
+ * and sends a reply via the specified callback. The user of the Task needs to implement
+ * the Callback's handle & handleFailure methods.
  */
 public class PullSubscriptionsAsyncTask implements Runnable {
     /** Logging tag. */
@@ -83,6 +82,10 @@ public class PullSubscriptionsAsyncTask implements Runnable {
         callback.sendEvent(new PodcastSyncResultHandler.PodcastSyncEventError(callback, e));
     }
 
+    /**
+     * Wrapper class to turn mygpoclient-java SubscriptionChanges into our
+     * EnhancedSubscriptionChanges.
+     */
     private static class PodcastDetailsRetriever {
         private final PublicClient pub;
 
@@ -90,6 +93,13 @@ public class PullSubscriptionsAsyncTask implements Runnable {
             pub = new PublicClient();
         }
 
+        /**
+         * Convert changes into EnhancedSubscriptionChanges.
+         * 
+         * This accesses the Network is may be sloooooooowwwww.
+         * @param changes
+         * @return The converted SubscriptionChagnes.
+         */
         public EnhancedSubscriptionChanges getPodcastDetails(SubscriptionChanges changes) {
             return new EnhancedSubscriptionChanges(getPodcastSetDetails(changes.add),
                     getPodcastSetDetails(changes.remove), changes.timestamp);
@@ -99,11 +109,9 @@ public class PullSubscriptionsAsyncTask implements Runnable {
             try {
                 return pub.getPodcastData(url);
             } catch (ClientProtocolException e) {
-                // TODO Somehow pass these errors to UI.
-                e.printStackTrace();
+                /* do nothing */
             } catch (IOException e) {
-                // TODO Somehow pass these errors to UI.
-                e.printStackTrace();
+                /* do nothing */
             }
 
             return null;

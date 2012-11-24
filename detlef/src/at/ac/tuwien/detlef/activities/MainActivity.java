@@ -164,9 +164,17 @@ public class MainActivity extends FragmentActivity
         }
     }
 
+    /**
+     * All callbacks this Activity receives are stored here.
+     * 
+     * This allows us to manage the Activity Lifecycle more easily.
+     */
     private static final CallbackContainer<MainActivity> cbCont =
             new CallbackContainer<MainActivity>();
 
+    /**
+     * The Tasks for the refresh are run on a single thread.
+     */
     private static final ExecutorService refreshBg = Executors.newSingleThreadExecutor();
 
     /**
@@ -196,6 +204,9 @@ public class MainActivity extends FragmentActivity
      */
     private static final class PodcastHandler extends PodcastSyncResultHandler<MainActivity> {
 
+        /**
+         * Once the Podcast list is synchronized, update all feeds.
+         */
         @Override
         public void handle() {
             PodcastDBAssistant pda = DependencyAssistant.getDependencyAssistant()
@@ -243,6 +254,9 @@ public class MainActivity extends FragmentActivity
             checkDone();
         }
 
+        /**
+         * Check whether we have refreshed all feeds and if yes call onRefreshDone.
+         */
         private void checkDone() {
             synchronized (getRcv().numPodSync) {
                 getRcv().curPodSync.incrementAndGet();
@@ -271,7 +285,6 @@ public class MainActivity extends FragmentActivity
             curPodSync.set(0);
         }
 
-        // TODO: Disable refresh button
         refreshBg.execute(new PullSubscriptionsAsyncTask((
                 PodcastSyncResultHandler<? extends Activity>)
                 cbCont.get(KEY_PODCAST_HANDLER)));
@@ -289,7 +302,6 @@ public class MainActivity extends FragmentActivity
     private void onRefreshDone(String msg) {
         numPodSync.set(-1);
 
-        // TODO: Disable reenable button
         progressDialog.dismiss();
         Toast.makeText(this, msg, REFRESH_MSG_DURATION_MS).show();
     }
