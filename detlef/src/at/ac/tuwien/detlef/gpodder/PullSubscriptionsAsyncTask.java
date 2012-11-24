@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpResponseException;
 
 import android.app.Activity;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -27,6 +29,9 @@ import com.dragontek.mygpoclient.simple.IPodcast;
 public class PullSubscriptionsAsyncTask implements Runnable {
     /** Logging tag. */
     private static final String TAG = "PullSubscriptionsAsyncTask";
+    
+    private static final int HTTP_STATUS_FORBIDDEN = 401;
+    private static final int HTTP_STATUS_NOT_FOUND = 404;
 
     private final PodcastSyncResultHandler<? extends Activity> callback;
 
@@ -40,12 +45,14 @@ public class PullSubscriptionsAsyncTask implements Runnable {
         GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
                 .getGpodderSettings(Detlef.getAppContext());
 
+        String devName = gps.getDevicename();
+        
         MygPodderClient gpc = new MygPodderClient(gps.getUsername(), gps.getPassword());
 
         EnhancedSubscriptionChanges enhanced = null;
         try {
             /* Login and get subscription changes */
-            SubscriptionChanges changes = gpc.pullSubscriptions(gps.getDevicename(),
+            SubscriptionChanges changes = gpc.pullSubscriptions(devName,
                     gps.getLastUpdate());
             PodcastDetailsRetriever pdr = new PodcastDetailsRetriever();
 
@@ -58,6 +65,20 @@ public class PullSubscriptionsAsyncTask implements Runnable {
 
             /* Update last changed timestamp. */
             gps.setLastUpdate(enhanced.getTimestamp());
+        } catch (HttpResponseException e) {
+            String eMsg = e.getLocalizedMessage();
+            switch (e.getStatusCode()) {
+                case HTTP_STATUS_FORBIDDEN:
+                    eMsg = Detlef.getAppContext().getString(R.string.connectiontest_unsuccessful);
+                    break;
+                case HTTP_STATUS_NOT_FOUND:
+                    eMsg = String.format(Detlef.getAppContext()
+                            .getString(R.string.device_doesnt_exist_fmt), devName);
+                    break;
+                default:
+                    break;
+            }
+            sendError(new GPodderException(eMsg));
         } catch (ClientProtocolException e) {
             sendError(new GPodderException(e.getLocalizedMessage()));
         } catch (IOException e) {
