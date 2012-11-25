@@ -32,16 +32,18 @@ public class PlayerFragment extends Fragment {
 
     private static final int PROGRESS_BAR_UPDATE_INTERVAL = 1000;
 
+    private final Handler playProgressUpdateHandler = new Handler();
+    private IMediaPlayerService service;
+    private Episode activeEpisode = null;
+
+    private boolean fragmentPaused = true;
+    private boolean progressUpdaterRunning = false;
+    private boolean bound = false;
+
     private ImageButton buttonPlayStop;
     private SeekBar seekBar;
     private TextView alreadyPlayed;
     private TextView remainingTime;
-    private boolean bound = false;
-    private IMediaPlayerService service;
-    private final Handler handler = new Handler();
-    private Episode activeEpisode = null;
-    private boolean fragmentPaused = true;
-    private boolean progressUpdaterRunning = false;
 
     /**
      * Handles the connection to the MediaPlayerService that plays music.
@@ -176,12 +178,7 @@ public class PlayerFragment extends Fragment {
     }
 
     private void updateControls() {
-        Log.d(getClass().getCanonicalName(), "setting seekbar etc.");
-        seekBar.setMax(service.getDuration());
-        seekBar.setProgress(service.getCurrentPosition());
-        alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
-        remainingTime.setText("-"
-                + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
+        setSeekBarAndTime();
         if (service.isCurrentlyPlaying()) {
             Log.d(getClass().getCanonicalName(), "is currently playing");
             buttonPlayStop
@@ -192,7 +189,7 @@ public class PlayerFragment extends Fragment {
                     startPlayProgressUpdater();
                 }
             };
-            handler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
+            playProgressUpdateHandler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
         } else {
             Log.d(getClass().getCanonicalName(), "is paused");
             buttonPlayStop
@@ -203,6 +200,15 @@ public class PlayerFragment extends Fragment {
             }
             progressUpdaterRunning = false;
         }
+    }
+
+    private void setSeekBarAndTime() {
+        Log.d(getClass().getCanonicalName(), "setting seekbar etc.");
+        seekBar.setMax(service.getDuration());
+        seekBar.setProgress(service.getCurrentPosition());
+        alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
+        remainingTime.setText("-"
+                + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
     }
 
     public PlayerFragment startPlaying() {
