@@ -41,6 +41,7 @@ public class PlayerFragment extends Fragment {
     private final Handler handler = new Handler();
     private Episode activeEpisode = null;
     private boolean fragmentPaused = true;
+    private boolean progressUpdaterRunning = false;
 
     /**
      * Handles the connection to the MediaPlayerService that plays music.
@@ -56,7 +57,10 @@ public class PlayerFragment extends Fragment {
             service = binder.getService();
             activeEpisode = service.getNextEpisode();
             setEpisodeInfoControls(activeEpisode);
-            startPlayProgressUpdater();
+            if (!progressUpdaterRunning) {
+                progressUpdaterRunning = true;
+                startPlayProgressUpdater();
+            }
         }
 
         @Override
@@ -138,10 +142,12 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(getClass().getCanonicalName(), "onResume");
         fragmentPaused = false;
         setEpisodeInfoControls(activeEpisode);
-        startPlayProgressUpdater();
+        if (!progressUpdaterRunning) {
+            progressUpdaterRunning = true;
+            startPlayProgressUpdater();
+        }
     }
 
     @Override
@@ -158,10 +164,13 @@ public class PlayerFragment extends Fragment {
         Log.d(getClass().getCanonicalName(), "startPlayProgressUpdater");
         if (fragmentPaused) {
             Log.d(getClass().getCanonicalName(), "fragmentPaused");
+            progressUpdaterRunning = false;
             return this;
         }
         if (service != null) {
             updateControls();
+        } else {
+            progressUpdaterRunning = false;
         }
         return this;
     }
@@ -192,11 +201,16 @@ public class PlayerFragment extends Fragment {
                 seekBar.setMax(1);
                 seekBar.setProgress(0);
             }
+            progressUpdaterRunning = false;
         }
     }
 
     public PlayerFragment startPlaying() {
+        if (service == null) {
+            return this;
+        }
         if (!service.isCurrentlyPlaying()) {
+            service.setNextEpisode(activeEpisode);
             service.startPlaying();
             buttonPlayStop.setImageResource(android.R.drawable.ic_media_pause);
             startPlayProgressUpdater();
@@ -205,6 +219,9 @@ public class PlayerFragment extends Fragment {
     }
 
     public PlayerFragment stopPlaying() {
+        if (service == null) {
+            return this;
+        }
         if (service.isCurrentlyPlaying()) {
             service.pausePlaying();
             buttonPlayStop.setImageResource(android.R.drawable.ic_media_play);
@@ -216,6 +233,9 @@ public class PlayerFragment extends Fragment {
      * Starts or pauses the playback and updates the UI fields accordingly.
      */
     private PlayerFragment startStop() {
+        if (service == null) {
+            return this;
+        }
         if (service.isCurrentlyPlaying()) {
             stopPlaying();
         } else {
@@ -254,7 +274,6 @@ public class PlayerFragment extends Fragment {
         if (ep != activeEpisode) {
             stopPlaying();
             activeEpisode = ep;
-            service.setNextEpisode(activeEpisode);
             setEpisodeInfoControls(ep);
         }
         return this;
