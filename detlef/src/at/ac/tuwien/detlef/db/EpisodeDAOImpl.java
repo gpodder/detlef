@@ -158,7 +158,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     }
 
     @Override
-    public Episode getEpisode(int id) {
+    public Episode getEpisode(long id) {
         String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
         List<Episode> ret = episodeDAOCore.getEpisodesWhere(selection, selectionArgs);

@@ -73,7 +73,7 @@ public interface EpisodeDAO {
      *            The ID of the episode to fetch.
      * @return The episode with the given ID, if it exists. Otherwise null.
      */
-    Episode getEpisode(int id);
+    Episode getEpisode(long id);
 
     /**
      * Gets an episode by the given guid or the url (both should be unique).

@@ -24,6 +24,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
@@ -45,14 +46,18 @@ public class PlayerFragment extends Fragment {
     private TextView alreadyPlayed;
     private TextView remainingTime;
 
+    private static String TAG = PlayerFragment.class.getCanonicalName();
+    
     /**
      * Handles the connection to the MediaPlayerService that plays music.
      */
     private ServiceConnection connection = new ServiceConnection() {
 
         @Override
-        public void
-                onServiceConnected(ComponentName className, IBinder iBinder) {
+        public void onServiceConnected(ComponentName className, IBinder iBinder) {
+            
+            Log.d(TAG, "onServiceConnected(" + className + "," + iBinder + ")");
+            
             bound = true;
             MediaPlayerService.MediaPlayerBinder binder =
                     (MediaPlayerService.MediaPlayerBinder) iBinder;
@@ -109,6 +114,9 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        Log.d(TAG, "onCreate(" + savedInstanceState + ")");
+        
         if (!MediaPlayerService.isRunning()) {
             Intent serviceIntent =
                     new Intent(Detlef.getAppContext(), MediaPlayerService.class);
@@ -116,6 +124,7 @@ public class PlayerFragment extends Fragment {
         }
         Intent intent = new Intent(getActivity(), MediaPlayerService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        
     }
 
     @Override
@@ -163,7 +172,7 @@ public class PlayerFragment extends Fragment {
      * play/pause button.
      */
     private PlayerFragment startPlayProgressUpdater() {
-        Log.d(getClass().getCanonicalName(), "startPlayProgressUpdater");
+        Log.d(TAG, "startPlayProgressUpdater");
         if (fragmentPaused) {
             Log.d(getClass().getCanonicalName(), "fragmentPaused");
             progressUpdaterRunning = false;
@@ -179,8 +188,9 @@ public class PlayerFragment extends Fragment {
 
     private void updateControls() {
         setSeekBarAndTime();
+
         if (service.isCurrentlyPlaying()) {
-            Log.d(getClass().getCanonicalName(), "is currently playing");
+            Log.d(TAG, "is currently playing");
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_pause);
             Runnable notification = new Runnable() {
@@ -215,6 +225,7 @@ public class PlayerFragment extends Fragment {
         if (service == null) {
             return this;
         }
+
         if (!service.isCurrentlyPlaying()) {
             service.setNextEpisode(activeEpisode);
             service.startPlaying();
@@ -225,6 +236,7 @@ public class PlayerFragment extends Fragment {
     }
 
     public PlayerFragment stopPlaying() {
+
         if (service == null) {
             return this;
         }
@@ -277,6 +289,10 @@ public class PlayerFragment extends Fragment {
     }
 
     public PlayerFragment setActiveEpisode(Episode ep) {
+        
+        Log.d(TAG, "setActiveEpisode(" + ep + ")");
+        Log.d(TAG, "service: " + service);
+        
         if (ep != activeEpisode) {
             stopPlaying();
             activeEpisode = ep;

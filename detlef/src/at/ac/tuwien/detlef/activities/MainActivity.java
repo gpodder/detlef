@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +32,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
+import at.ac.tuwien.detlef.fragments.SearchFragment;
 import at.ac.tuwien.detlef.gpodder.FeedSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.GPodderException;
 import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
@@ -73,7 +75,7 @@ public class MainActivity extends FragmentActivity
             cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
             cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
         }
-
+        
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -367,7 +369,8 @@ public class MainActivity extends FragmentActivity
         public static final int POSITION_PODCASTS = 0;
         public static final int POSITION_EPISODES = 1;
         public static final int POSITION_PLAYER = 2;
-        public static final int TABCOUNT = POSITION_PLAYER + 1;
+        public static final int POSITION_SEARCH = 3;
+        public static final int TABCOUNT = POSITION_SEARCH + 1;
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -391,6 +394,8 @@ public class MainActivity extends FragmentActivity
                     return new EpisodeListFragment();
                 case POSITION_PLAYER:
                     return new PlayerFragment();
+                case POSITION_SEARCH:
+                    return new SearchFragment();
                 default:
                     throw new IndexOutOfBoundsException();
             }
@@ -410,6 +415,8 @@ public class MainActivity extends FragmentActivity
                     return getString(R.string.episodes).toUpperCase(Locale.getDefault());
                 case POSITION_PLAYER:
                     return getString(R.string.player).toUpperCase(Locale.getDefault());
+                case POSITION_SEARCH:
+                    return getString(R.string.search).toUpperCase(Locale.getDefault());
                 default:
                     return null;
             }
@@ -426,10 +433,6 @@ public class MainActivity extends FragmentActivity
                 break;
             case R.id.playlist:
                 intent = new Intent(this, PlaylistActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.search:
-                intent = new Intent(this, SearchActivity.class);
                 startActivity(intent);
                 break;
             case R.id.refresh:
