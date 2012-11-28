@@ -45,6 +45,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_EPISODE_PLAYPOSITION = "playposition";
     public static final String COLUMN_EPISODE_ACTIONSTATE = "actionState";
 
+    /* Playlist table. */
+    public static final String TABLE_PLAYLIST = "Playlist";
+    public static final String COLUMN_PLAYLIST_ID = "_ID";
+    public static final String COLUMN_PLAYLIST_EPISODE = "episode";
+
     /* Create statement for the podcast table. */
     static final String CREATE_PODCAST_TABLE =
             String.format("create table %s ("
@@ -84,6 +89,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_EPISODE_FILESIZE, COLUMN_EPISODE_FILEPATH, COLUMN_EPISODE_STATE,
                     COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION, COLUMN_EPISODE_ACTIONSTATE,
                     COLUMN_EPISODE_PODCAST, TABLE_PODCAST, COLUMN_PODCAST_ID);
+    
+    /* Create statement for the podcast table. */
+    static final String CREATE_PLAYLIST_TABLE =
+            String.format("create table %s ("
+                    + "%s integer primary key autoincrement, "
+                    + "foreign key (%s) references %s (%s) on delete cascade);",
+                    TABLE_PLAYLIST, COLUMN_PLAYLIST_ID, COLUMN_PLAYLIST_EPISODE, TABLE_EPISODE,
+                    COLUMN_EPISODE_ID);
+
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
@@ -93,7 +107,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_PODCAST_TABLE);
         db.execSQL(CREATE_EPISODE_TABLE);
-
+        db.execSQL(CREATE_PLAYLIST_TABLE);
     }
 
     @Override
@@ -108,11 +122,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO: What should we do on upgrade? For now, drop and recreate all tables.
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
         DependencyAssistant.getDependencyAssistant().getGpodderSettings(Detlef.getAppContext())
         .setLastUpdate(0);
         onCreate(db);
-
     }
 }

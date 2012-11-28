@@ -12,7 +12,7 @@ import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
-import at.ac.tuwien.detlef.playlist.Playlist;
+import at.ac.tuwien.detlef.playlist.PlaylistAssistant;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
 import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
@@ -31,7 +31,7 @@ public class DependencyAssistant {
     private static DependencyAssistant dependencyAssistant =
             new DependencyAssistant();
 
-    private static final Playlist PLAYLIST = new Playlist();
+    private static final PlaylistAssistant PLAYLIST = new PlaylistAssistant();
 
     private static final EpisodeDBAssistant EPISODE_DB_ASSISTANT =
             new EpisodeDBAssistantImpl();
@@ -47,7 +47,7 @@ public class DependencyAssistant {
         return GUI_UTILS;
     }
 
-    public Playlist getPlaylist() {
+    public PlaylistAssistant getPlaylist() {
         return PLAYLIST;
     }
 
