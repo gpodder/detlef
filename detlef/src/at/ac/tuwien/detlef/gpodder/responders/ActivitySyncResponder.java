@@ -104,6 +104,8 @@ public class ActivitySyncResponder extends SyncResponder {
                 slrh.handleSuccess(podcasts);
             }
         });
+
+        getGps().getReqs().remove(reqId);
     }
 
     @Override
