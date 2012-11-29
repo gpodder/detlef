@@ -32,10 +32,12 @@ public class Episode implements IEpisode {
     private long released;
     private String url;
     private String filePath;
+    private int playPosition = 0;
 
     public Episode(Podcast podcast) {
         this.podcast = podcast;
         this.storageState = StorageState.NOT_ON_DEVICE;
+        this.playPosition = 0;
     }
 
     public Episode(IEpisode e, Podcast podcast) {
@@ -188,6 +190,15 @@ public class Episode implements IEpisode {
 
     public Episode setFilePath(String filePathIn) {
         this.filePath = filePathIn;
+        return this;
+    }
+
+    public int getPlayPosition() {
+        return playPosition;
+    }
+
+    public Episode setPlayPosition(int playPosition) {
+        this.playPosition = playPosition;
         return this;
     }
 }

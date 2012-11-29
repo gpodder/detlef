@@ -31,9 +31,20 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
     @Override
     public void applyActionChanges(Context context, Podcast podcast,
             EpisodeActionChanges changes) {
+        EpisodeDAO dao = EpisodeDAOImpl.i(context);
         for (EpisodeAction action : changes.actions) {
-            // do something with it
-
+            // update playposition 
+            if (action.action.equals("play")) {
+                Log.i(TAG, "updating play position from: " + action.episode + " pos: " 
+            + action.position + " started:" + action.started + " total: " + action.total);
+                Episode ep = dao.getEpisodeByUrlOrGuid(action.episode, action.episode);
+                if (ep != null) {
+                    ep.setPlayPosition(action.position);
+                    if (dao.updateState(ep) != 1) {
+                        Log.w(TAG, "update play position went wrong: " + ep.getLink());
+                    }
+                }
+            }
         }
 
     }

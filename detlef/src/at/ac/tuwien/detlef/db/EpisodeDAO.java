@@ -65,6 +65,16 @@ public interface EpisodeDAO {
      * @return the number of updated rows
      */
     int updateState(Episode episode);
+    
+    
+    /**
+     * updates the playposition of the given episode.
+     * 
+     * @param episode the episode which should be updated
+     * 
+     * @return the number of updated rows
+     */
+    int updatePlayPosition(Episode episode);
 
     /**
      * Gets an episode by ID.

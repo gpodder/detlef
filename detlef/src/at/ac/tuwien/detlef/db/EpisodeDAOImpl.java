@@ -1,5 +1,6 @@
 package at.ac.tuwien.detlef.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,6 +106,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                     values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode
                             .getStorageState().toString());
                 }
+                values.put(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION, episode.getPlayPosition());
 
                 long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
                 if (id == -1) {
@@ -133,6 +135,16 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     @Override
     public int deleteEpisode(Episode episode) {
         synchronized (DatabaseHelper.bigFrigginLock) {
+            try {
+                if (episode.getStorageState() == StorageState.DOWNLOADED) {
+                    File file = new File(episode.getFilePath());
+                    file.delete();
+                    Log.i(TAG, "file deleted: " + episode.getFilePath());
+                }
+            } catch (Exception ex) {
+                Log.e(TAG, "deleteEpisode file delete: " + ex.getMessage());
+            }
+            
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
             String[] selectionArgs = { String.valueOf(episode.getId()) };
@@ -197,6 +209,13 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getStorageState()
                 .toString());
+        return updateFieldUsingEpisodeId(episode, values);
+    }
+    
+    @Override
+    public int updatePlayPosition(Episode episode) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION, episode.getPlayPosition());
         return updateFieldUsingEpisodeId(episode, values);
     }
 

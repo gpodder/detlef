@@ -52,7 +52,8 @@ public class EpisodeDAOCore {
                     DatabaseHelper.COLUMN_EPISODE_TITLE,
                     DatabaseHelper.COLUMN_EPISODE_URL,
                     DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                    DatabaseHelper.COLUMN_EPISODE_STATE };
+                    DatabaseHelper.COLUMN_EPISODE_STATE,
+                    DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION };
 
             Cursor c =
                     db.query(DatabaseHelper.TABLE_EPISODE, projection, selection, // columns
@@ -81,7 +82,7 @@ public class EpisodeDAOCore {
         long key = c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ID));
         if (hashMapEpisode.containsKey(key)) {
             return hashMapEpisode.get(key);
-        };
+        }
 
         Episode e = new Episode(podcastDAO.getPodcastById(c.getLong(
                 c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
@@ -96,6 +97,7 @@ public class EpisodeDAOCore {
         e.setTitle(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_TITLE)));
         e.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_URL)));
         e.setFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILEPATH)));
+        e.setPlayPosition(c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION)));
         String state = c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE));
         if (state != null) {
             e.setStorageState(StorageState.valueOf(state));
