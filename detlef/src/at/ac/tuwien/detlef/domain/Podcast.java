@@ -2,13 +2,16 @@ package at.ac.tuwien.detlef.domain;
 
 import java.io.Serializable;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.dragontek.mygpoclient.simple.IPodcast;
 
 /**
  * Dummy class to display initial test podcast content until the actual podcast
  * classes are available.
  */
-public class Podcast implements IPodcast, Serializable {
+public class Podcast implements IPodcast, Serializable, Parcelable {
 
     /**
      * default serialUID added.
@@ -106,4 +109,39 @@ public class Podcast implements IPodcast, Serializable {
         return this;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeString(logoUrl);
+        dest.writeString(logoFilePath);
+        dest.writeString(url);
+        dest.writeLong(lastUpdate);
+    }
+
+    public static final Parcelable.Creator<Podcast> CREATOR = new Creator<Podcast>() {
+        @Override
+        public Podcast[] newArray(int size) {
+            return new Podcast[size];
+        }
+
+        @Override
+        public Podcast createFromParcel(Parcel source) {
+            Podcast ret = new Podcast();
+            ret.setId(source.readLong());
+            ret.setTitle(source.readString());
+            ret.setDescription(source.readString());
+            ret.setLogoUrl(source.readString());
+            ret.setLogoFilePath(source.readString());
+            ret.setUrl(source.readString());
+            ret.setLastUpdate(source.readLong());
+            return ret;
+        }
+    };
 }
