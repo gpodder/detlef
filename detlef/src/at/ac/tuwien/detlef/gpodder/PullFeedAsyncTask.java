@@ -2,6 +2,7 @@ package at.ac.tuwien.detlef.gpodder;
 
 import java.io.IOException;
 
+import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 
 import android.app.Activity;
@@ -84,6 +85,8 @@ public class PullFeedAsyncTask implements Runnable {
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
             PodcastDAOImpl.i(Detlef.getAppContext()).updateLastUpdate(podcast);
+        } catch (AuthenticationException ae) {
+            sendError(new GPodderException(ae.getLocalizedMessage()));
         } catch (ClientProtocolException e) {
             sendError(new GPodderException(e.getLocalizedMessage()));
         } catch (IOException e) {

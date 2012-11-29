@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 
@@ -79,6 +80,8 @@ public class PullSubscriptionsAsyncTask implements Runnable {
                     break;
             }
             sendError(new GPodderException(eMsg));
+        } catch (AuthenticationException ae) {
+            sendError(new GPodderException(ae.getLocalizedMessage()));
         } catch (ClientProtocolException e) {
             sendError(new GPodderException(e.getLocalizedMessage()));
         } catch (IOException e) {

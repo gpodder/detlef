@@ -9,7 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.http.client.HttpResponseException;
+import org.apache.http.auth.AuthenticationException;
 
 import android.app.Service;
 import android.content.Intent;
@@ -43,9 +43,6 @@ public class PodderService extends Service {
 
     /** Block size for the byte array when downloading data. */
     private static final int BLOCK_SIZE = 4096;
-
-    /** HTTP Forbidden error code. */
-    private static final int HTTP_STATUS_FORBIDDEN = 401;
 
     /** The inter-process communication handler. */
     private IpcHandler handler;
@@ -171,27 +168,7 @@ public class PodderService extends Service {
 
         SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
                 cinfo.getHostname());
-        boolean ok;
-        try {
-            ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
-        } catch (HttpResponseException hre) {
-            Log.d(TAG, "performGpoLogin HttpResponseException: " + hre.getMessage());
-            if (hre.getStatusCode() == HTTP_STATUS_FORBIDDEN) {
-                // authentication simply failed
-                cb.gponetLoginFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
-                        "authentication failed");
-            } else {
-                Log.w(TAG, "performGpoLogin HTTP response " + hre.getStatusCode());
-                cb.gponetLoginFailed(reqId, ErrorCode.UNEXPECTED_HTTP_RESPONSE,
-                        "unexpected response " + hre.getStatusCode());
-            }
-            return null;
-        } catch (IOException ioe) {
-            Log.w(TAG, "performGpoLogin IOException: " + ioe.getMessage());
-            cb.gponetLoginFailed(reqId, ErrorCode.IO_PROBLEM,
-                    "I/O problem during authentication: " + ioe.getMessage());
-            return null;
-        }
+        boolean ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
 
         if (!ok) {
             cb.gponetLoginFailed(reqId, ErrorCode.AUTHENTICATION_FAILED, "authentication failed");
@@ -302,6 +279,11 @@ public class PodderService extends Service {
             List<String> casts;
             try {
                 casts = sc.getSubscriptions(cinfo.getDeviceId());
+            } catch (AuthenticationException ae) {
+                Log.w(TAG, "getSubscriptions AuthenticationException: " + ae.getMessage());
+                theMagicalProxy.downloadPodcastListFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
+                        ae.getMessage());
+                return;
             } catch (IOException ioe) {
                 Log.w(TAG, "getSubscriptions IOException: " + ioe.getMessage());
                 theMagicalProxy.downloadPodcastListFailed(reqId, ErrorCode.IO_PROBLEM,
