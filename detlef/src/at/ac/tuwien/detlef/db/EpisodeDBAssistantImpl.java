@@ -5,6 +5,7 @@ import java.util.List;
 import android.content.Context;
 import android.util.Log;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 import com.dragontek.mygpoclient.api.EpisodeAction;
@@ -34,16 +35,31 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
         EpisodeDAO dao = EpisodeDAOImpl.i(context);
         for (EpisodeAction action : changes.actions) {
             // update playposition 
-            if (action.action.equals("play")) {
-                Log.i(TAG, "updating play position from: " + action.episode + " pos: " 
-            + action.position + " started:" + action.started + " total: " + action.total);
-                Episode ep = dao.getEpisodeByUrlOrGuid(action.episode, action.episode);
-                if (ep != null) {
+            Episode ep = dao.getEpisodeByUrlOrGuid(action.episode, action.episode);
+            if (ep != null) {
+                ActionState newActionState = ActionState.NEW;
+                if (action.action.equals("play")) {
+                    newActionState = ActionState.PLAY;
+                    Log.i(TAG, "updating play position from: " + action.episode + " pos: " 
+                            + action.position + " started:" + action.started + " total: " 
+                            + action.total);
                     ep.setPlayPosition(action.position);
                     if (dao.updateState(ep) != 1) {
                         Log.w(TAG, "update play position went wrong: " + ep.getLink());
                     }
+                    
+                } else {
+                    if (action.action.equals("download")) {
+                        newActionState = ActionState.DOWNLOAD;
+                    } else {
+                        if (action.action.equals("delete")) {
+                            newActionState = ActionState.DELETE;
+                        }
+                    }
                 }
+                ep.setActionState(newActionState);
+                int ret = dao.updateActionState(ep);
+                Log.i(TAG, "asdf: " + ret);
             }
         }
 

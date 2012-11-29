@@ -8,10 +8,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
-import at.ac.tuwien.detlef.search.SearchKeywordDb;
+
 
 /**
  * Provides the "core" low-level DAO functionality that is concerned with episodes.
@@ -53,7 +53,8 @@ public class EpisodeDAOCore {
                     DatabaseHelper.COLUMN_EPISODE_URL,
                     DatabaseHelper.COLUMN_EPISODE_FILEPATH,
                     DatabaseHelper.COLUMN_EPISODE_STATE,
-                    DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION };
+                    DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION,
+                    DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE };
 
             Cursor c =
                     db.query(DatabaseHelper.TABLE_EPISODE, projection, selection, // columns
@@ -99,8 +100,13 @@ public class EpisodeDAOCore {
         e.setFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILEPATH)));
         e.setPlayPosition(c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION)));
         String state = c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE));
+        String actionState = c.getString(c.getColumnIndex(
+                DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE));
         if (state != null) {
             e.setStorageState(StorageState.valueOf(state));
+        }
+        if (actionState != null) {
+            e.setActionState(ActionState.valueOf(actionState));
         }
 
         hashMapEpisode.put(key, e);

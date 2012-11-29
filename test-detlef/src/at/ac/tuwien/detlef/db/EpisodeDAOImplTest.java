@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import android.test.AndroidTestCase;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -147,6 +148,36 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
         Episode ep = eps.get(0);
         assertEquals(newPath, ep.getFilePath());
+    }
+    
+    /**
+     * tests the updateActionState functionality
+     */
+    public void testUpdateActionState() {
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        p1 = pdao.insertPodcast(p1);
+        e1 = edao.insertEpisode(e1);
+        e1.setActionState(ActionState.DELETE);
+        assertEquals(1, edao.updateActionState(e1));
+        ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
+        Episode ep = eps.get(0);
+        assertEquals(ActionState.DELETE, ep.getActionState());
+    }
+    
+    /**
+     * tests the updatePlayPosition functionality
+     */
+    public void testUpdatePlayPosition() {
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        p1 = pdao.insertPodcast(p1);
+        e1 = edao.insertEpisode(e1);
+        e1.setPlayPosition(33);
+        assertEquals(1, edao.updatePlayPosition(e1));
+        ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
+        Episode ep = eps.get(0);
+        assertEquals(33, ep.getPlayPosition());
     }
 
     /**

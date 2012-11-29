@@ -18,6 +18,13 @@ public class Episode implements IEpisode {
         DOWNLOADING,
         DOWNLOADED
     }
+    
+    public enum ActionState {
+        DOWNLOAD,
+        PLAY,
+        DELETE,
+        NEW
+    }
 
     private long id;
     private String title;
@@ -33,10 +40,12 @@ public class Episode implements IEpisode {
     private String url;
     private String filePath;
     private int playPosition = 0;
+    private Episode.ActionState actionState;
 
     public Episode(Podcast podcast) {
         this.podcast = podcast;
         this.storageState = StorageState.NOT_ON_DEVICE;
+        this.actionState = ActionState.NEW;
         this.playPosition = 0;
     }
 
@@ -199,6 +208,15 @@ public class Episode implements IEpisode {
 
     public Episode setPlayPosition(int playPosition) {
         this.playPosition = playPosition;
+        return this;
+    }
+
+    public Episode.ActionState getActionState() {
+        return actionState;
+    }
+
+    public Episode setActionState(Episode.ActionState actionState) {
+        this.actionState = actionState;
         return this;
     }
 }

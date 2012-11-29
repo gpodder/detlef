@@ -1,7 +1,6 @@
 package at.ac.tuwien.detlef.db;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
@@ -107,6 +105,12 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                             .getStorageState().toString());
                 }
                 values.put(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION, episode.getPlayPosition());
+                if (episode.getActionState() == null) {
+                    values.putNull(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE);
+                } else {
+                    values.put(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE, 
+                            episode.getActionState().toString());
+                }
 
                 long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
                 if (id == -1) {
@@ -216,6 +220,13 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     public int updatePlayPosition(Episode episode) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION, episode.getPlayPosition());
+        return updateFieldUsingEpisodeId(episode, values);
+    }
+    
+    @Override
+    public int updateActionState(Episode episode) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE, episode.getActionState().toString());
         return updateFieldUsingEpisodeId(episode, values);
     }
 

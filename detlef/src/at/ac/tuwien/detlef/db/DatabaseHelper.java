@@ -11,7 +11,7 @@ import at.ac.tuwien.detlef.Detlef;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 5;
+    static final int VERSION = 6;
             
     static final Object bigFrigginLock = new Object();
 
@@ -43,6 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_EPISODE_FILEPATH = "filePath";
     public static final String COLUMN_EPISODE_STATE = "state";
     public static final String COLUMN_EPISODE_PLAYPOSITION = "playposition";
+    public static final String COLUMN_EPISODE_ACTIONSTATE = "actionState";
 
     /* Create statement for the podcast table. */
     static final String CREATE_PODCAST_TABLE =
@@ -75,13 +76,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "%s text, "               // state
                     + "%s integer not null, "   // podcast
                     + "%s integer, "            // playposition
+                    + "%s string, "             // action state
                     + "foreign key (%s) references %s (%s) on delete cascade);",
                     TABLE_EPISODE, COLUMN_EPISODE_ID, COLUMN_EPISODE_GUID, COLUMN_EPISODE_TITLE,
                     COLUMN_EPISODE_DESCRIPTION, COLUMN_EPISODE_RELEASED, COLUMN_EPISODE_LINK,
                     COLUMN_EPISODE_AUTHOR, COLUMN_EPISODE_URL, COLUMN_EPISODE_MIMETYPE,
                     COLUMN_EPISODE_FILESIZE, COLUMN_EPISODE_FILEPATH, COLUMN_EPISODE_STATE,
-                    COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION,  COLUMN_EPISODE_PODCAST, 
-                    TABLE_PODCAST, COLUMN_PODCAST_ID);
+                    COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION, COLUMN_EPISODE_ACTIONSTATE,
+                    COLUMN_EPISODE_PODCAST, TABLE_PODCAST, COLUMN_PODCAST_ID);
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);

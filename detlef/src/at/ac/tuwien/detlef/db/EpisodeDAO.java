@@ -77,6 +77,15 @@ public interface EpisodeDAO {
     int updatePlayPosition(Episode episode);
 
     /**
+     * updates the actionstate of the given episode.
+     * 
+     * @param episode the episode which should be updated
+     * 
+     * @return the number of updated rows
+     */
+    int updateActionState(Episode episode);
+    
+    /**
      * Gets an episode by ID.
      * 
      * @param id
