@@ -84,4 +84,10 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
     public void gponetLoginFailed(int reqId, int errCode, String errStr) throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
+
+    @Override
+    public void downloadChangesFailed(int reqId, int errCode, String errStr)
+            throws RemoteException {
+        handleGenericFailure(reqId, errCode, errStr);
+    }
 }

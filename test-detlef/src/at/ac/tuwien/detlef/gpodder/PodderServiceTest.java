@@ -17,6 +17,7 @@ import android.test.mock.MockApplication;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
@@ -37,6 +38,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private static final int RESPONDED_HTTP_DOWNLOAD = 2;
     private static final int RESPONDED_HTTP_DOWNLOAD_TO_FILE = 3;
     private static final int RESPONDED_DOWNLOAD_PODCAST_LIST = 4;
+    private static final int RESPONDED_DOWNLOAD_CHANGES = 5;
 
     /** Handles responses from the service. */
     private static class IncomingHandler extends PodderServiceCallback.Stub {
@@ -106,6 +108,21 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
                 throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_DOWNLOAD_PODCAST_LIST;
             wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void downloadChangesFailed(int reqId, int errCode, String errStr)
+                throws RemoteException {
+            fail("podcast changes download failed: " + errStr);
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void downloadChangesSucceeded(int reqId,
+                EnhancedSubscriptionChanges chgs) throws RemoteException {
+            wrpst.get().msgWhat = RESPONDED_DOWNLOAD_CHANGES;
             wrpst.get().stoplight.release();
         }
     }

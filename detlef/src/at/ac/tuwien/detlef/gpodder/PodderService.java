@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.http.auth.AuthenticationException;
@@ -17,12 +19,17 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.plumbing.CachingCallbackProxy;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
 
+import com.dragontek.mygpoclient.api.MygPodderClient;
+import com.dragontek.mygpoclient.api.SubscriptionChanges;
+import com.dragontek.mygpoclient.pub.PublicClient;
+import com.dragontek.mygpoclient.simple.IPodcast;
 import com.dragontek.mygpoclient.simple.SimpleClient;
 
 /**
@@ -175,6 +182,27 @@ public class PodderService extends Service {
         }
 
         return sc;
+    }
+
+    /**
+     * Fetches details about podcasts specified by the given URLs.
+     * @param pc The gpodder.net-compatible public API client.
+     * @param urls URLs to fetch.
+     * @return
+     */
+    protected static ArrayList<IPodcast> fetchPodcastsDetails(PublicClient pc,
+            Collection<String> urls) {
+        ArrayList<IPodcast> ret = new ArrayList<IPodcast>(urls.size());
+        for (String url : urls) {
+            try {
+                IPodcast thePodcast = pc.getPodcastData(url);
+                ret.add(thePodcast);
+            } catch (IOException ioe) {
+                Log.w(TAG, "failed fetching details of podcast @ " + url + ": " + ioe.getMessage());
+                // don't add to list
+            }
+        }
+        return ret;
     }
 
     /** Contains the error codes for failures reported by the {@link PodderService}. */
@@ -382,6 +410,40 @@ public class PodderService extends Service {
             if (ok) {
                 // phew.
                 theMagicalProxy.httpDownloadToFileSucceeded(reqId);
+            }
+        }
+
+        @Override
+        public void downloadChangesSince(PodderServiceCallback cb, int reqId,
+                GpoNetClientInfo cinfo, long ts) throws RemoteException {
+            Log.d(TAG, "downloadChangesSince() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
+
+            MygPodderClient cl = new MygPodderClient(cinfo.getUsername(), cinfo.getPassword(),
+                    cinfo.getHostname());
+
+            try {
+                // fetch the subscription changes
+                SubscriptionChanges scs = cl.pullSubscriptions(cinfo.getDeviceId(), ts);
+
+                // get all the juicy details
+                PublicClient pc = new PublicClient(cinfo.getHostname());
+                List<IPodcast> added = fetchPodcastsDetails(pc, scs.add);
+                List<IPodcast> removed = fetchPodcastsDetails(pc, scs.remove);
+                EnhancedSubscriptionChanges esc = new EnhancedSubscriptionChanges(added, removed,
+                        scs.timestamp);
+
+                // sendoff
+                theMagicalProxy.downloadChangesSucceeded(reqId, esc);
+            } catch (AuthenticationException ae) {
+                theMagicalProxy.downloadChangesFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
+                        ae.getMessage());
+                return;
+            } catch (IOException e) {
+                Log.w(TAG, "downloadChangesSince IOException: " + e.getMessage());
+                theMagicalProxy.downloadChangesFailed(reqId, ErrorCode.IO_PROBLEM,
+                        e.getMessage());
+                return;
             }
         }
     }

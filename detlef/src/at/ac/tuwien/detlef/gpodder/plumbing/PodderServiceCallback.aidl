@@ -1,5 +1,6 @@
 package at.ac.tuwien.detlef.gpodder.plumbing;
 
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 
 /**
@@ -77,4 +78,20 @@ oneway interface PodderServiceCallback
 	 * @param errStr Error message describing the error that occurred.
 	 */
 	void downloadPodcastListFailed(int reqId, int errCode, in String errStr);
+
+	/**
+	 * The changes to the subscriptions have been downloaded successfully.
+	 * @param reqId The request ID you passed.
+	 * @param chgs The changes as fetched from server.
+	 */
+	void downloadChangesSucceeded(int reqId, in EnhancedSubscriptionChanges chgs);
+
+	/**
+	 * The subscription changes download failed.
+	 * @param reqId The request ID you passed.
+	 * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
+	 * error that occurred.
+	 * @param errStr Error message describing the error that occurred.
+	 */
+	void downloadChangesFailed(int reqId, int errCode, in String errStr);
 }

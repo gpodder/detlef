@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.RemoteException;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.HttpDownloadResultHandler;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderService;
 import at.ac.tuwien.detlef.gpodder.ResultHandler;
 import at.ac.tuwien.detlef.gpodder.StringListResultHandler;
+import at.ac.tuwien.detlef.gpodder.SubscriptionChangesResultHandler;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 
 /**
@@ -92,6 +94,16 @@ public class SynchronousSyncResponder extends SyncResponder {
     public void handleNoDataSuccess(int reqId) throws RemoteException {
         final NoDataResultHandler ndrh = (NoDataResultHandler) getGps().getReqs().get(reqId);
         ndrh.handleSuccess();
+        getGps().getReqs().remove(reqId);
+        stoplight.release();
+    }
+
+    @Override
+    public void downloadChangesSucceeded(int reqId, final EnhancedSubscriptionChanges chgs)
+            throws RemoteException {
+        final SubscriptionChangesResultHandler scrh =
+                (SubscriptionChangesResultHandler) getGps().getReqs().get(reqId);
+        scrh.handleSuccess(chgs);
         getGps().getReqs().remove(reqId);
         stoplight.release();
     }

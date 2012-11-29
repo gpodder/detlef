@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import android.os.IBinder;
 import android.os.RemoteException;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 
 /**
  * Caches calls to a callback object. If the call fails, the call is cached and can be re-sent,
@@ -222,6 +223,38 @@ public class CachingCallbackProxy implements PodderServiceCallback {
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.downloadPodcastListFailed(reqId, errCode, errStr);
+                } catch (RemoteException rex) {
+                    return false;
+                }
+                return true;
+            }
+        });
+        resendUnlessPassive();
+    }
+
+    @Override
+    public void downloadChangesSucceeded(final int reqId, final EnhancedSubscriptionChanges chgs)
+            throws RemoteException {
+        queuedMessages.add(new CachedCallback() {
+            public boolean resend(PodderServiceCallback cb) {
+                try {
+                    cb.downloadChangesSucceeded(reqId, chgs);
+                } catch (RemoteException rex) {
+                    return false;
+                }
+                return true;
+            }
+        });
+        resendUnlessPassive();
+    }
+
+    @Override
+    public void downloadChangesFailed(final int reqId, final int errCode, final String errStr)
+            throws RemoteException {
+        queuedMessages.add(new CachedCallback() {
+            public boolean resend(PodderServiceCallback cb) {
+                try {
+                    cb.downloadChangesFailed(reqId, errCode, errStr);
                 } catch (RemoteException rex) {
                     return false;
                 }

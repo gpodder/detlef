@@ -54,4 +54,15 @@ oneway interface PodderServiceInterface
 	 * deviceName.
 	 */
 	void downloadPodcastList(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo);
+
+	/**
+	 * Download a list of a user's subscription changes since a specific timestamp from a
+	 * gpodder.net-compatible service.
+	 * @param cb Callback object to send responses to.
+	 * @param reqId The ID of the request; will be passed to the callback unchanged.
+	 * @param cinfo The information about the client. Must contain username, password, hostname and
+	 * deviceName.
+	 * @param ts Timestamp since when to look for changes.
+	 */
+	void downloadChangesSince(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo, long ts);
 }
