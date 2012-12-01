@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,8 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import com.commonsware.cwac.merge.MergeAdapter;
 
 public class AddPodcastActivity extends Activity {
+
+    private static final String TAG = AddPodcastActivity.class.getName();
 
     private final MergeAdapter mergeAdapter = new MergeAdapter();
     private PodcastListAdapter resultAdapter;
@@ -83,6 +86,18 @@ public class AddPodcastActivity extends Activity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onSearchClick(View view) {
+        Log.v(TAG, "onSearchClick()");
+
+        /* TODO */
+    }
+
+    public void onSubscribeClick(View view) {
+        Log.v(TAG, "onSubscribeClick()");
+
+        /* TODO */
     }
 
     /**
