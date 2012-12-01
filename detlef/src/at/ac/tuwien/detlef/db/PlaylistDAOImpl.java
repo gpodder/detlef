@@ -21,15 +21,9 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
     private static final PlaylistDAOImpl INSTANCE = new PlaylistDAOImpl(Detlef.getAppContext());
 
     private final DatabaseHelper dbHelper;
-    private final Set<OnPlaylistChangeListener> listeners = new HashSet<OnPlaylistChangeListener>();
+    private final Set<PlaylistDAO.OnPlaylistChangeListener> listeners = 
+            new HashSet<PlaylistDAO.OnPlaylistChangeListener>();
     private final EpisodeDAO edao;
-
-    /**
-     * Interface for listeners interested in playlist status changes.
-     */
-    public interface OnPlaylistChangeListener {
-        void onPlaylistChanged(List<Episode> playlist);
-    }
 
     /**
      * Returns (and lazily initializes) the PlaylistDAOImpl singleton instance.
@@ -51,16 +45,16 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
     }
 
-    public void addPlaylistChangedListener(OnPlaylistChangeListener listener) {
+    public void addPlaylistChangedListener(PlaylistDAO.OnPlaylistChangeListener listener) {
         listeners.add(listener);
     }
 
-    public void removePlaylistChangeListener(OnPlaylistChangeListener listener) {
+    public void removePlaylistChangeListener(PlaylistDAO.OnPlaylistChangeListener listener) {
         listeners.remove(listener);
     }
 
     private void notifyListenersChanged() {
-        for (OnPlaylistChangeListener listener : listeners) {
+        for (PlaylistDAO.OnPlaylistChangeListener listener : listeners) {
             listener.onPlaylistChanged(getRawEpisodes());
         }
     }

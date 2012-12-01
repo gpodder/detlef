@@ -154,8 +154,8 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      * tests the updateActionState functionality
      */
     public void testUpdateActionState() {
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         e1.setActionState(ActionState.DELETE);
@@ -169,8 +169,8 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      * tests the updatePlayPosition functionality
      */
     public void testUpdatePlayPosition() {
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         e1.setPlayPosition(33);

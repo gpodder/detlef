@@ -32,7 +32,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
     @Override
     public void applyActionChanges(Context context, Podcast podcast,
             EpisodeActionChanges changes) {
-        EpisodeDAO dao = EpisodeDAOImpl.i(context);
+        EpisodeDAO dao = EpisodeDAOImpl.i();
         for (EpisodeAction action : changes.actions) {
             // update playposition 
             Episode ep = dao.getEpisodeByUrlOrGuid(action.episode, action.episode);

@@ -40,8 +40,8 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase{
     }
 
     public void testApplyActionChanges() {
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1.setUrl("podcastUrl343");
         p1 = pdao.insertPodcast(p1);
         String url = java.util.UUID.randomUUID().toString();
