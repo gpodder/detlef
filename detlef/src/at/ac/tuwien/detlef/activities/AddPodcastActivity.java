@@ -69,6 +69,18 @@ public class AddPodcastActivity extends Activity {
         p.setTitle("Somebody set me up the bomb");
         p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar");
         toplistAdapter.add(p);
+
+        p = new Podcast();
+        p.setTitle("Somebody set me up the bomb: Somebody set me up the bomb: Somebody set me up the bomb");
+        p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar");
+        toplistAdapter.add(p);
+
+        p = new Podcast();
+        p.setTitle("Dancing babies");
+        p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar "
+                + "This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar "
+                + "This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar.");
+        toplistAdapter.add(p);
     }
 
     @Override
