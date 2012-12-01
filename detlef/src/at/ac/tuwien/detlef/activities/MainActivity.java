@@ -438,6 +438,10 @@ public class MainActivity extends FragmentActivity
             case R.id.refresh:
                 onRefreshPressed();
                 break;
+            case R.id.add_new_podcast:
+                intent = new Intent(this, AddPodcastActivity.class);
+                startActivity(intent);
+                break;
             default:
                 break;
         }

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.ac.tuwien.detlef"
     android:versionCode="1"
@@ -8,7 +9,7 @@
         android:targetSdkVersion="15" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name="at.ac.tuwien.detlef.Detlef"
@@ -16,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".activities.MainActivity"
+            android:name="at.ac.tuwien.detlef.activities.MainActivity"
             android:label="@string/app_name"
             android:uiOptions="splitActionBarWhenNarrow" >
             <intent-filter>
@@ -26,29 +27,39 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.PlaylistActivity"
+            android:name="at.ac.tuwien.detlef.activities.PlaylistActivity"
             android:label="@string/title_activity_playlist"
             android:uiOptions="splitActionBarWhenNarrow" />
         <activity
-            android:name=".activities.SettingsActivity"
+            android:name="at.ac.tuwien.detlef.activities.SettingsActivity"
             android:label="@string/title_activity_settings" />
 
         <uses-library android:name="android.test.runner" />
 
         <service
-            android:name=".gpodder.PodderService"
+            android:name="at.ac.tuwien.detlef.gpodder.PodderService"
             android:process=":podderservice" >
         </service>
         <service
-            android:name=".mediaplayer.MediaPlayerService"
+            android:name="at.ac.tuwien.detlef.mediaplayer.MediaPlayerService"
             android:icon="@android:drawable/ic_media_play" >
         </service>
-        <receiver android:name=".download.DownloadBroadcastReceiver">
+
+        <receiver android:name="at.ac.tuwien.detlef.download.DownloadBroadcastReceiver" >
             <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
-                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED"/>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name="at.ac.tuwien.detlef.activities.AddPodcastActivity"
+            android:label="@string/title_activity_add_podcast"
+            android:parentActivityName="at.ac.tuwien.detlef.activities.MainActivity" android:windowSoftInputMode="stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="at.ac.tuwien.detlef.activities.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
