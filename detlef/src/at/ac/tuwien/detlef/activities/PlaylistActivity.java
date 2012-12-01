@@ -86,4 +86,9 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         playlistItems.remove(position);
         adapter.notifyDataSetChanged();
     }
+
+    public void removeFromPlaylist(View v) {
+        int position = (Integer) v.getTag();
+        playlistDAO.removeEpisode(position);
+    }
 }

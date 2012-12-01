@@ -26,7 +26,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="6dp"
                 android:drawableTop="@drawable/ic_launcher"
-                android:text="@string/sample_download_size"
                 android:textSize="12dp" />
         </LinearLayout>
 
@@ -36,21 +35,32 @@
             android:gravity="center_vertical"
             android:orientation="horizontal" >
 
-            <TextView
-                android:id="@+id/playListPodcast"
+            <RelativeLayout
+                android:id="@+id/playlistNames"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/sample_podcast_name"
-                android:textStyle="bold" />
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/playListRemoveFromPlaylist" >
 
-            <TextView
-                android:id="@+id/playListEpisode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/playListPodcast"
-                android:text="@string/sample_episode_name_2"
-                android:textColor="#0099CC"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/playListPodcast"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="@string/sample_podcast_name" />
+
+                <TextView
+                    android:id="@+id/playListEpisode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/playListPodcast"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="@string/sample_episode_name_2"
+                    android:textColor="#0099CC"
+                    android:textStyle="bold" />
+            </RelativeLayout>
 
             <Button
                 android:id="@+id/playListRemoveFromPlaylist"
@@ -58,7 +68,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:focusable="false"
-                android:text="@string/remove_from_playlist_abbreviation" />
+                android:text="@string/remove_from_playlist_abbreviation"
+                android:onClick="removeFromPlaylist" />
         </RelativeLayout>
     </LinearLayout>
 

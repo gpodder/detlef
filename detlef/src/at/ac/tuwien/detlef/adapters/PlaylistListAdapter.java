@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -33,19 +34,21 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
 
         Episode episode = episodes.get(position);
         if (episode != null) {
-            TextView podcastname = (TextView) v
+            TextView podcastName = (TextView) v
                     .findViewById(R.id.playListPodcast);
-            TextView episodeView = (TextView) v
+            TextView episodeName = (TextView) v
                     .findViewById(R.id.playListEpisode);
-            if (podcastname != null) {
-                podcastname.setText("Podcast Name");
+            if (podcastName != null) {
+                podcastName.setText(episode.getPodcast().getTitle());
             }
-
             if (episode != null) {
-                episodeView.setText(episode.getTitle());
+                episodeName.setText(episode.getTitle());
             }
         }
 
+        Button button = (Button) v.findViewById(R.id.playListRemoveFromPlaylist);
+        button.setTag(position);
+        v.setTag(episode);
         return v;
     }
 
