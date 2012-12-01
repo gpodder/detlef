@@ -25,6 +25,8 @@ import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.callbacks.CallbackContainer;
+import at.ac.tuwien.detlef.db.PlaylistDAO;
+import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -60,6 +62,8 @@ public class MainActivity extends FragmentActivity
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    
+    private PlaylistDAO playlistDAO;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -116,6 +120,8 @@ public class MainActivity extends FragmentActivity
         if (numPodSync.get() != -1) {
             progressDialog.show();
         }
+        
+        playlistDAO = PlaylistDAOImpl.i();
     }
 
     @Override
@@ -505,5 +511,9 @@ public class MainActivity extends FragmentActivity
 
     public void onDownloadTrashClick(View v) {
         getEpisodeListFragment().onDownloadTrashClick(v);
+    }
+    
+    public void onAddToPlaylistClick(View v) {
+        playlistDAO.addEpisodeToEndOfPlaylist((Episode) v.getTag());
     }
 }

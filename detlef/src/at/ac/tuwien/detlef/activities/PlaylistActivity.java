@@ -17,9 +17,9 @@ import at.ac.tuwien.detlef.domain.Episode;
 
 import com.mobeta.android.dslv.DragSortListView;
 
-public class PlaylistActivity extends ListActivity {
+public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlaylistChangeListener {
 
-    private final ArrayList<Episode> playlistItems = new ArrayList<Episode>();
+    private ArrayList<Episode> playlistItems;
     private PlaylistListAdapter adapter;
     private PlaylistDAO playlistDAO;
 
@@ -27,33 +27,29 @@ public class PlaylistActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.playlist_activity_layout);
-        
         playlistDAO = PlaylistDAOImpl.i();
-
         DragSortListView lv = (DragSortListView) getListView();
-
         lv.setDropListener(onDrop);
         lv.setRemoveListener(onRemove);
-
+        playlistItems = playlistDAO.getNonCachedEpisodes();
         adapter = new PlaylistListAdapter(this, R.layout.playlist_list_layout,
                 playlistItems);
         setListAdapter(adapter);
         registerForContextMenu(getListView());
+        playlistDAO.addPlaylistChangedListener(this);
     }
 
     private final DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
         @Override
         public void drop(int from, int to) {
-            Episode item = adapter.getItem(from);
-            adapter.remove(item);
-            adapter.insert(item, to);
+            playlistDAO.moveEpisode(from, to);
         }
     };
 
     private final DragSortListView.RemoveListener onRemove = new DragSortListView.RemoveListener() {
         @Override
         public void remove(int which) {
-            adapter.remove(adapter.getItem(which));
+            playlistDAO.removeEpisode(which);
         }
     };
 
@@ -70,5 +66,24 @@ public class PlaylistActivity extends ListActivity {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.playlist_context, menu);
+    }
+
+    @Override
+    public void onPlaylistEpisodeAdded(int position, Episode episode) {
+        playlistItems.add(position, episode);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition) {
+        Episode ep = playlistItems.remove(firstPosition);
+        playlistItems.add(secondPosition, ep);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPlaylistEpisodeRemoved(int position) {
+        playlistItems.remove(position);
+        adapter.notifyDataSetChanged();
     }
 }

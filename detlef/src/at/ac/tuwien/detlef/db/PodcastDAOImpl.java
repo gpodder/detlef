@@ -29,7 +29,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
     private final HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
 
     /**
-     * Returns (and lazily initializes) the PodcastDAOImpl singleton instance.
+     * Returns the PodcastDAOImpl singleton instance.
      */
     public static PodcastDAOImpl i() {
         return instance;

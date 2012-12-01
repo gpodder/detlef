@@ -82,6 +82,7 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:background="@null"
+                        android:onClick="onAddToPlaylistClick"
                         android:src="@android:drawable/ic_menu_add" />
 
                     <ImageButton
@@ -92,7 +93,6 @@
                         android:layout_marginRight="10dp"
                         android:background="@null"
                         android:src="@drawable/ic_menu_star" />
-
                 </TableRow>
             </LinearLayout>
         </LinearLayout>

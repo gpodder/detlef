@@ -21,12 +21,12 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
     private static final PlaylistDAOImpl INSTANCE = new PlaylistDAOImpl(Detlef.getAppContext());
 
     private final DatabaseHelper dbHelper;
-    private final Set<PlaylistDAO.OnPlaylistChangeListener> listeners = 
+    private final Set<PlaylistDAO.OnPlaylistChangeListener> listeners =
             new HashSet<PlaylistDAO.OnPlaylistChangeListener>();
     private final EpisodeDAO edao;
 
     /**
-     * Returns (and lazily initializes) the PlaylistDAOImpl singleton instance.
+     * Returns the PlaylistDAOImpl singleton instance.
      */
     public static PlaylistDAOImpl i() {
         return INSTANCE;
@@ -53,12 +53,47 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         listeners.remove(listener);
     }
 
-    private void notifyListenersChanged() {
-        for (PlaylistDAO.OnPlaylistChangeListener listener : listeners) {
-            listener.onPlaylistChanged(getRawEpisodes());
+    /**
+     * Notifies all the listeners of the added episode.
+     * 
+     * @param position The position of the new episode.
+     * @param episode The episode that was added.
+     */
+    private void notifyListenersAdded(int position, Episode episode) {
+        for (OnPlaylistChangeListener listener : listeners) {
+            listener.onPlaylistEpisodeAdded(position, episode);
         }
     }
 
+    /**
+     * Notifies all the listeners of the removed episode.
+     * 
+     * @param position The former position of the removed episode.
+     */
+    private void notifyListenersRemoved(int position) {
+        for (OnPlaylistChangeListener listener : listeners) {
+            listener.onPlaylistEpisodeRemoved(position);
+        }
+    }
+
+    /**
+     * Notifies all the listeners of a move in the ordering.
+     * 
+     * @param firstPosition The former position of the episode.
+     * @param secondPosition The late position of the episode.
+     */
+    private void notifyListenersChanged(int firstPosition, int secondPosition) {
+        for (OnPlaylistChangeListener listener : listeners) {
+            listener.onPlaylistEpisodePositionChanged(firstPosition, secondPosition);
+        }
+    }
+
+    /**
+     * Gets the next free ordering item.
+     * 
+     * @param db The db with which to perform the query.
+     * @return The next free ordering item; at least 0.
+     */
     private int getNextFreePosition(SQLiteDatabase db) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             Cursor cursor = db.rawQuery("SELECT IFNULL(MAX("
@@ -90,7 +125,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                     throw new SQLiteException("Failed to insert playlist item");
                 }
 
-                notifyListenersChanged();
+                notifyListenersAdded(nextPosition, episode);
                 return true;
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage());
@@ -121,7 +156,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                     throw new SQLiteException("Failed to insert playlist item");
                 }
 
-                notifyListenersChanged();
+                notifyListenersAdded(0, episode);
                 return true;
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage());
@@ -134,6 +169,15 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
     }
 
+    /**
+     * Shifts the ordering by the specified amount, starting from the specified
+     * position.
+     * 
+     * @param from All items >= from will be shifted.
+     * @param by The amount by which the items will be shifted. Can be negative
+     *            or positive.
+     * @param db The db with which to perform the shift.
+     */
     private void shiftPositionsFromBy(int from, int by, SQLiteDatabase db) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             String[] selectionArgs = {
@@ -155,11 +199,11 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
     }
 
     @Override
-    public List<Episode> getRawEpisodes() {
+    public ArrayList<Episode> getNonCachedEpisodes() {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = null;
             try {
-                List<Episode> allEpisodes = new ArrayList<Episode>();
+                ArrayList<Episode> allEpisodes = new ArrayList<Episode>();
                 db = dbHelper.getReadableDatabase();
                 Cursor c = db.rawQuery(
                         "SELECT "
@@ -183,18 +227,28 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
     }
 
+    /**
+     * Removes an item from the playlist and shifts the ordering accordingly.
+     * 
+     * @param position The position of the episode to remove.
+     * @param db The db with which to perform the operations.
+     * @return The number of affected rows.
+     */
     private int removePosition(int position, SQLiteDatabase db) {
-        int ret = 0;
-        String selection = DatabaseHelper.COLUMN_PLAYLIST_POSITION + " = ?";
-        String[] selectionArgs = {
-                String.valueOf(position)
-        };
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            int ret = 0;
+            String selection = DatabaseHelper.COLUMN_PLAYLIST_POSITION + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(position)
+            };
 
-        Log.d(getClass().getName(), "Deleting position " + position);
-        ret = db.delete(DatabaseHelper.TABLE_PLAYLIST, selection, selectionArgs);
+            Log.d(getClass().getName(), "Deleting position " + position);
+            ret = db.delete(DatabaseHelper.TABLE_PLAYLIST, selection, selectionArgs);
 
-        shiftPositionsFromBy(position, -1, db);
-        return ret;
+            shiftPositionsFromBy(position, -1, db);
+            notifyListenersRemoved(position);
+            return ret;
+        }
     }
 
     @Override
@@ -206,8 +260,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 db = dbHelper.getWritableDatabase();
                 ret = removePosition(position, db);
                 db.close();
-
-                notifyListenersChanged();
                 return (ret == 1);
             } catch (Exception ex) {
                 Log.e(getClass().getName(), ex.getMessage());
@@ -240,8 +292,9 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                                 + " = ?", new String[] {
                             String.valueOf(id)
                         });
-
-                notifyListenersChanged();
+                if (ret == 1) {
+                    notifyListenersChanged(firstPosition, secondPosition);
+                }
                 return ret == 1;
             } finally {
                 if (db != null && db.isOpen()) {
@@ -251,6 +304,13 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
     }
 
+    /**
+     * Gets the playlist database id at the specified playlist position.
+     * 
+     * @param position The position for which to get the id.
+     * @param db The DB with which to perform the query.
+     * @return The database ID.
+     */
     private long getIdAt(int position, SQLiteDatabase db) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             String[] selectionArgs = {
@@ -290,7 +350,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 for (int position : positions) {
                     removePosition(position, db);
                 }
-                notifyListenersChanged();
             } catch (Exception ex) {
                 Log.e(getClass().getName(), ex.getMessage());
             } finally {
@@ -301,6 +360,13 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
     }
 
+    /**
+     * Gets all the position of a specified episode in the playlist.
+     * 
+     * @param episode The episode for which to search.
+     * @param db The database with which to perform the search.
+     * @return All the position of the specified episode in the playlist.
+     */
     private Set<Integer> getPositionsOfEpisode(Episode episode, SQLiteDatabase db) {
         HashSet<Integer> ret = new HashSet<Integer>();
         String selection = DatabaseHelper.COLUMN_PLAYLIST_EPISODE + " = ?";
@@ -318,6 +384,11 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         return ret;
     }
 
+    /**
+     * @return Returns true if there are no gaps in the playlist ordering in the
+     *         DB. This is not of general interest and exists for testing
+     *         purposes only.
+     */
     public boolean checkNoGaps() {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = null;
@@ -338,6 +409,11 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
     }
 
+    /**
+     * @param db The DB with which to perform the query.
+     * @return A list of all occupied positions in the DB, including doubles and
+     *         gaps.
+     */
     private List<Integer> getAllPositions(SQLiteDatabase db) {
         List<Integer> ret = new ArrayList<Integer>();
         Cursor c = db.query(DatabaseHelper.TABLE_PLAYLIST, new String[] {

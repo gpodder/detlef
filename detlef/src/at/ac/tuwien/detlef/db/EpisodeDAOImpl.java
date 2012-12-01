@@ -31,7 +31,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     private final HashMap<Long, Episode> hashMapEpisode = new HashMap<Long, Episode>();
     
     /**
-     * Returns (and lazily initializes) the EpisodeDAOImpl singleton instance.
+     * Returns the EpisodeDAOImpl singleton instance.
      */
     public static EpisodeDAOImpl i() {
         return INSTANCE;

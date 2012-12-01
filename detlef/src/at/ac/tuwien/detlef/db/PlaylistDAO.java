@@ -1,12 +1,12 @@
 
 package at.ac.tuwien.detlef.db;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import at.ac.tuwien.detlef.domain.Episode;
 
 /**
- * DAO for podcast access.
+ * DAO for playlist access.
  */
 public interface PlaylistDAO {
 
@@ -14,7 +14,29 @@ public interface PlaylistDAO {
      * Interface for listeners interested in playlist status changes.
      */
     public interface OnPlaylistChangeListener {
-        void onPlaylistChanged(List<Episode> playlist);
+        /**
+         * Gets called when a playlist item was added.
+         * 
+         * @param position The position of the new playlist item.
+         * @param episode The episode that was added as an item.
+         */
+        void onPlaylistEpisodeAdded(int position, Episode episode);
+
+        /**
+         * Gets called when the user rearranges a playlist item.
+         * 
+         * @param firstPosition The initial position of the playlist item.
+         * @param secondPosition The late position of the playlist item.
+         */
+        void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition);
+
+        /**
+         * Gets called when some playlist item is removed (including when the
+         * user deletes a podcast and its episodes).
+         * 
+         * @param position The position of the item to be removed.
+         */
+        void onPlaylistEpisodeRemoved(int position);
     }
 
     /**
@@ -33,9 +55,11 @@ public interface PlaylistDAO {
     boolean addEpisodeToBeginningOfPlaylist(Episode episode);
 
     /**
-     * @return Gets a List of the episodes in playlist order.
+     * @return Gets an ArrayList of the episodes in playlist order. Is an
+     *         ArrayList in order to support ArrayAdapters. This will always
+     *         return a new instance.
      */
-    List<Episode> getRawEpisodes();
+    ArrayList<Episode> getNonCachedEpisodes();
 
     /**
      * Removes an episode from playlist.
