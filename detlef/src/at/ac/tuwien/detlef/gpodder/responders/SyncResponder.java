@@ -90,4 +90,8 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
             throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
+
+    public void searchPodcastsFailed(int reqId, int errCode, String errStr) throws RemoteException {
+        handleGenericFailure(reqId, errCode, errStr);
+    }
 }

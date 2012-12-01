@@ -1,6 +1,7 @@
 package at.ac.tuwien.detlef.gpodder.plumbing;
 
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
+import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 
 /**
@@ -94,4 +95,20 @@ oneway interface PodderServiceCallback
 	 * @param errStr Error message describing the error that occurred.
 	 */
 	void downloadChangesFailed(int reqId, int errCode, in String errStr);
+
+	/**
+	 * The podcast search has completed successfully.
+	 * @param reqId The request ID you passed.
+	 * @param results The matching podcasts.
+	 */
+	void searchPodcastsSucceeded(int reqId, in List<Podcast> results);
+
+	/**
+	 * The podcast search has failed.
+     * @param reqId The request ID you passed.
+     * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
+     * error that occurred.
+     * @param errStr Error message describing the error that occurred.
+     */
+	void searchPodcastsFailed(int reqId, int errCode, in String errStr);
 }

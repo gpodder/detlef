@@ -18,6 +18,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
+import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
@@ -39,6 +40,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private static final int RESPONDED_HTTP_DOWNLOAD_TO_FILE = 3;
     private static final int RESPONDED_DOWNLOAD_PODCAST_LIST = 4;
     private static final int RESPONDED_DOWNLOAD_CHANGES = 5;
+    private static final int RESPONDED_PODCAST_SEARCH = 6;
 
     /** Handles responses from the service. */
     private static class IncomingHandler extends PodderServiceCallback.Stub {
@@ -171,6 +173,9 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
     /** Stores the contents of the downloaded HTTP file. */
     private String str;
+
+    /** Stores the result of the podcast search. */
+    private List<Podcast> podcasts;
 
     /** Constructs a new PodderServiceTest. */
     public PodderServiceTest() {
@@ -305,6 +310,60 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         String quoi = new String(br.toByteArray());
 
         assertEquals("Non, Detlef, je ne regrette rien.\n", quoi);
+    }
+
+    /**
+     * Test whether the podcast search successfully returns the solid steel podcast
+     * when searching for "solid steel".
+     * @throws RemoteException
+     */
+    @SmallTest
+    public final void testPodcastSearchWithResult() throws RemoteException {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testPodcastSearch()");
+
+        PodderServiceInterface psi = performBind();
+        GpoNetClientInfo ci = getClientInfo();
+
+        int rid = rng.nextInt();
+        psi.searchPodcasts(handler, rid, ci, "solid+steel");
+
+        stoplight.acquireUninterruptibly();
+
+        assertEquals(RESPONDED_PODCAST_SEARCH, msgWhat);
+        assertEquals(rid, reqId);
+
+        /* Ensure the results contain the solid steel podcast. */
+
+        boolean containsPodcast = false;
+        for (Podcast p : podcasts) {
+            if (p.getTitle().equals("Solid Steel")) {
+                containsPodcast = true;
+                break;
+            }
+        }
+
+        assertTrue("Search results do not contain expected podcast", containsPodcast);
+    }
+
+    /**
+     * Test whether the podcast search successfully returns without result.
+     * @throws RemoteException
+     */
+    @SmallTest
+    public final void testPodcastSearchWithoutResult() throws RemoteException {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testPodcastSearch()");
+
+        PodderServiceInterface psi = performBind();
+        GpoNetClientInfo ci = getClientInfo();
+
+        int rid = rng.nextInt();
+        psi.searchPodcasts(handler, rid, ci, "as;ldfhas.dsda");
+
+        stoplight.acquireUninterruptibly();
+
+        assertEquals(RESPONDED_PODCAST_SEARCH, msgWhat);
+        assertEquals(rid, reqId);
+        assertTrue("Search results are not empty", podcasts.isEmpty());
     }
 
     private GpoNetClientInfo getClientInfo() {

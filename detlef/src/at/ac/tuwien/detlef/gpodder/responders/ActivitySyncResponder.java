@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.RemoteException;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
+import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.HttpDownloadResultHandler;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
+import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderService;
 import at.ac.tuwien.detlef.gpodder.ResultHandler;
 import at.ac.tuwien.detlef.gpodder.StringListResultHandler;
@@ -119,6 +121,21 @@ public class ActivitySyncResponder extends SyncResponder {
         act.runOnUiThread(new Runnable() {
             public void run() {
                 scrh.handleSuccess(chgs);
+            }
+        });
+
+        getGps().getReqs().remove(reqId);
+    }
+
+    @Override
+    public void searchPodcastsSucceeded(int reqId, final List<Podcast> results) throws RemoteException {
+        final PodcastListResultHandler plrh =
+                (PodcastListResultHandler) getGps().getReqs().get(reqId);
+
+        act.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                plrh.handleSuccess(results);
             }
         });
 

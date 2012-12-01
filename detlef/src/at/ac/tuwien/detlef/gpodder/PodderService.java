@@ -20,6 +20,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
+import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.plumbing.CachingCallbackProxy;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
@@ -444,6 +445,31 @@ public class PodderService extends Service {
                 theMagicalProxy.downloadChangesFailed(reqId, ErrorCode.IO_PROBLEM,
                         e.getMessage());
                 return;
+            }
+        }
+
+        @Override
+        public void searchPodcasts(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo,
+                String query) throws RemoteException {
+            Log.d(TAG, "searchPodcasts() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
+
+            PublicClient pc = new PublicClient(cinfo.getHostname());
+
+            try {
+                List<IPodcast> ipodcasts = pc.searchPodcast(query);
+
+                /* Convert the list into podcasts. */
+
+                List<Podcast> podcasts = new ArrayList<Podcast>(ipodcasts.size());
+                for (IPodcast ip : ipodcasts) {
+                    podcasts.add(new Podcast(ip));
+                }
+
+                theMagicalProxy.searchPodcastsSucceeded(reqId, podcasts);
+            } catch (IOException e) {
+                Log.w(TAG, "searchPodcasts IOException: " + e.getMessage());
+                theMagicalProxy.searchPodcastsFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
             }
         }
     }
