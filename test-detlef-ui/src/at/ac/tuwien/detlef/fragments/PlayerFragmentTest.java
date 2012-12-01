@@ -34,7 +34,7 @@ public class PlayerFragmentTest extends
     public void setUp() {
         activity = getActivity();
         solo = new Solo(getInstrumentation(), activity);
-        dao = EpisodeDAOImpl.i(getActivity());
+        dao = EpisodeDAOImpl.i();
     }
 
     private void delay() {
@@ -149,7 +149,7 @@ public class PlayerFragmentTest extends
     public void testShowEpisodeInfo() {
         Podcast p = new Podcast();
         p.setTitle("My Podcast Asdf");
-        PodcastDAOImpl.i(getActivity()).insertPodcast(p);
+        PodcastDAOImpl.i().insertPodcast(p);
 
         Episode e = new Episode(p);
         e.setAuthor("my author qwer");

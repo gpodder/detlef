@@ -25,7 +25,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         MainActivity activity = getActivity();
 
         solo = new Solo(getInstrumentation(), activity);
-        dao = EpisodeDAOImpl.i(getActivity());
+        dao = EpisodeDAOImpl.i();
         uuid = java.util.UUID.randomUUID().toString();
     }
 
@@ -35,7 +35,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
     public void testAddEpisode() {
         Podcast p = new Podcast();
         p.setTitle(uuid);
-        PodcastDAOImpl.i(getActivity()).insertPodcast(p);
+        PodcastDAOImpl.i().insertPodcast(p);
         Episode e = new Episode(p);
         e.setAuthor("author");
         e.setDescription("description");
