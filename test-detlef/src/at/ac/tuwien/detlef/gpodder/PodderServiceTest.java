@@ -280,6 +280,16 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         assertEquals("Non, Detlef, je ne regrette rien.\n", quoi);
     }
 
+    private GpoNetClientInfo getClientInfo() {
+        GpoNetClientInfo ci = new GpoNetClientInfo();
+
+        ci.setUsername("UnitTest");
+        ci.setPassword("FahrenheitSucksCelsiusRules");
+        ci.setHostname("example.org");
+
+        return ci;
+    }
+
     @SuppressWarnings("unused")
     @FlakyTest
     public final void testGpodderAuth() throws RemoteException, InterruptedException {
@@ -289,11 +299,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
             PodderServiceInterface psi = performBind();
             int rid = rng.nextInt();
-            GpoNetClientInfo ci = new GpoNetClientInfo();
-
-            ci.setUsername("UnitTest");
-            ci.setPassword("FahrenheitSucksCelsiusRules");
-            ci.setHostname("example.org");
+            GpoNetClientInfo ci = getClientInfo();
 
             psi.authCheck(handler, rid, ci);
 
