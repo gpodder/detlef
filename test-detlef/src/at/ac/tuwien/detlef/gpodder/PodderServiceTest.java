@@ -42,8 +42,9 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
     /** Handles responses from the service. */
     private static class IncomingHandler extends PodderServiceCallback.Stub {
+
         /** Reference to the test instance. */
-        private WeakReference<PodderServiceTest> wrpst;
+        private final WeakReference<PodderServiceTest> wrpst;
 
         /**
          * Construct a handler.
@@ -53,24 +54,28 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst = new WeakReference<PodderServiceTest>(pst);
         }
 
+        @Override
         public void gponetLoginFailed(int reqId, int errCode, String errStr) throws RemoteException {
             fail("Login failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
+        @Override
         public void authCheckSucceeded(int reqId) throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_AUTHCHECK;
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
+        @Override
         public void heartbeatSucceeded(int reqId) throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_HEARTBEAT;
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
+        @Override
         public void httpDownloadFailed(int reqId, int errCode, String errStr)
                 throws RemoteException {
             fail("HTTP download failed: " + errStr);
@@ -78,11 +83,13 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst.get().stoplight.release();
         }
 
+        @Override
         public void httpDownloadProgress(int reqId, int haveBytes, int totalBytes)
                 throws RemoteException {
             // ignore this message
         }
 
+        @Override
         public void httpDownloadSucceeded(int reqId, ParcelableByteArray data)
                 throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_HTTP_DOWNLOAD;
@@ -91,12 +98,14 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst.get().stoplight.release();
         }
 
+        @Override
         public void httpDownloadToFileSucceeded(int reqId) throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_HTTP_DOWNLOAD_TO_FILE;
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
 
+        @Override
         public void downloadPodcastListFailed(int reqId, int errCode,
                 String errStr) throws RemoteException {
             fail("podcast list download failed: " + errStr);
@@ -104,6 +113,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst.get().stoplight.release();
         }
 
+        @Override
         public void downloadPodcastListSucceeded(int reqId, List<String> podcasts)
                 throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_DOWNLOAD_PODCAST_LIST;
@@ -125,13 +135,30 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst.get().msgWhat = RESPONDED_DOWNLOAD_CHANGES;
             wrpst.get().stoplight.release();
         }
+
+        @Override
+        public void searchPodcastsSucceeded(int reqId, List<Podcast> results)
+                throws RemoteException {
+            wrpst.get().podcasts = results;
+            wrpst.get().msgWhat = RESPONDED_PODCAST_SEARCH;
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void searchPodcastsFailed(int reqId, int errCode, String errStr)
+                throws RemoteException {
+            fail("podcast search failed: " + errStr);
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
     }
 
     /** Semaphore to pause test execution while waiting for an answer. */
     private final Semaphore stoplight;
 
     /** Handles responses from the service. */
-    private IncomingHandler handler;
+    private final IncomingHandler handler;
 
     /** Stores the message type of the latest response. */
     private int msgWhat;
@@ -140,7 +167,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private int reqId;
 
     /** Stores a random number generator. */
-    private Random rng;
+    private final Random rng;
 
     /** Stores the contents of the downloaded HTTP file. */
     private String str;
