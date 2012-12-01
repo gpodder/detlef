@@ -21,8 +21,8 @@ public class SearchKeywordDbTest extends AndroidTestCase {
         
         result = null;
         
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
-        EpisodeDAO episodeDao = new EpisodeDAOImpl(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        EpisodeDAO episodeDao = EpisodeDAOImpl.i();
         
         // remove all episodes from db
         for (Episode episode : episodeDao.getAllEpisodes()) {

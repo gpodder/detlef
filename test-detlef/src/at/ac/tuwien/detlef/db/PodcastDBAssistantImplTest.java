@@ -92,7 +92,7 @@ public class PodcastDBAssistantImplTest extends AndroidTestCase{
      * 3 new Podcasts will be added and 1 deleted
      */
     public void testApplySubscriptionChanges() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         p2 = pdao.insertPodcast(p2); // will be deleted
         p3 = pdao.insertPodcast(p3);

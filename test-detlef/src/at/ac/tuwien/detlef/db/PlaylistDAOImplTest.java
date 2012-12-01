@@ -87,13 +87,13 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testAddToBeginning() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i(this.mContext);
+        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToBeginningOfPlaylist(e0);
         List<Episode> playlist = ldao.getEpisodes();
         assertTrue(playlist.size() == 1);
@@ -114,13 +114,13 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testAddToEnd() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i(this.mContext);
+        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         List<Episode> playlist = ldao.getEpisodes();
         assertTrue(playlist.size() == 1);
@@ -141,13 +141,13 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testRemove() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e2);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i(this.mContext);
+        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         ldao.addEpisodeToEndOfPlaylist(e1);
         ldao.addEpisodeToEndOfPlaylist(e2);
@@ -173,13 +173,13 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testMove() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i(this.mContext);
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e2);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i(this.mContext);
+        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         ldao.addEpisodeToEndOfPlaylist(e1);
         ldao.addEpisodeToEndOfPlaylist(e2);

@@ -34,7 +34,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * test the getAllPodcast functionality
      */
     public void testGetAllPodcasts() {
-        PodcastDAOImpl dao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl dao = PodcastDAOImpl.i();
         assertNotNull("List of podcasts shouldn't be null", dao.getAllPodcasts());
     }
 
@@ -42,7 +42,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the insertPodcast functionality
      */
     public void testInsertPodcast() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         int countBeforeInsert = pdao.getAllPodcasts().size();
         p1 = pdao.insertPodcast(p1);
         int countAfterInsert = pdao.getAllPodcasts().size();
@@ -54,7 +54,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the deletePodcast functionality
      */
     public void testDeletePodcast() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         int countBeforeDelete = pdao.getAllPodcasts().size();
         int ret = pdao.deletePodcast(p1);
@@ -67,7 +67,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the getPodcastById functionality
      */
     public void testGetPodcastById() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1.setTitle("expected title");
         p1 = pdao.insertPodcast(p1);
         Podcast pod = pdao.getPodcastById(p1.getId());
@@ -80,7 +80,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the updateLastUpdate functionality
      */
     public void testUpdateLastUpdate() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         long currentMilis = System.currentTimeMillis();
         p1.setLastUpdate(currentMilis);
@@ -93,7 +93,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the updateLogoFilePath functionality
      */
     public void testUpdateLogoFilePath() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         String newFilePath = "new path haha";
         p1.setLogoFilePath(newFilePath);
@@ -107,7 +107,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * null on a non nullable column
      */
     public void testInsertNotNullableColumnShouldFail() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1.setUrl(null);
         Podcast pod = pdao.insertPodcast(p1);
         assertNull(pod);
@@ -118,7 +118,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * on a nullable column
      */
     public void testInsertNullOnNullableColumn() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1.setLogoFilePath(null);
         Podcast pod = pdao.insertPodcast(p1);
         assertNotNull(pod);
@@ -128,7 +128,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the getpodcastbyurl functionality
      */
     public void testGetPodcastByUrl() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i(this.mContext);
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
         String url = "supergeileurl";
         p1.setUrl(url);
         pdao.insertPodcast(p1);
