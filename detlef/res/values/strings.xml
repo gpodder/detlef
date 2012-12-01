@@ -66,5 +66,9 @@
     <string name="title_activity_add_podcast">Add a new Podcast</string>
     <string name="add_new_podcast">Add new podcast</string>
     <string name="search_by_name">Search by name</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="podcast_logo">Podcast Logo</string>
+    <string name="search_results">Search Results</string>
+    <string name="popular_podcasts">Popular Podcasts</string>
 
 </resources>
