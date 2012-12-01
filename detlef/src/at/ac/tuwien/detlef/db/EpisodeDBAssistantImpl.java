@@ -19,13 +19,13 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
 
     @Override
     public List<Episode> getEpisodes(Context context, Podcast podcast) {
-        EpisodeDAO dao = EpisodeDAOImpl.i(context);
+        EpisodeDAO dao = EpisodeDAOImpl.i();
         return dao.getEpisodes(podcast);
     }
 
     @Override
     public List<Episode> getAllEpisodes(Context context) {
-        EpisodeDAO dao = EpisodeDAOImpl.i(context);
+        EpisodeDAO dao = EpisodeDAOImpl.i();
         return dao.getAllEpisodes();
     }
 
@@ -68,7 +68,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
     @Override
     public void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed) {
         try {
-            EpisodeDAO dao = EpisodeDAOImpl.i(context);
+            EpisodeDAO dao = EpisodeDAOImpl.i();
             for (IEpisode ep : feed.getEpisodes()) {
                 try {
                     if (ep.getEnclosure() != null) {
@@ -86,7 +86,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
 
     @Override
     public Episode getEpisodeById(Context context, int id) {
-        EpisodeDAO dao = EpisodeDAOImpl.i(context);
+        EpisodeDAO dao = EpisodeDAOImpl.i();
         return dao.getEpisode(id);
     }
 

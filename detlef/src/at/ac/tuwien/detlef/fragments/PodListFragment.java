@@ -19,11 +19,10 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl.OnPodcastChangeListener;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.PodListModel;
 
-public class PodListFragment extends ListFragment implements OnPodcastChangeListener {
+public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcastChangeListener {
 
     private static final String TAG = PodListFragment.class.getName();
 
@@ -60,7 +59,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
 
         /* Initialize our podcast model. */
 
-        PodcastDAOImpl dao = PodcastDAOImpl.i(this.getActivity());
+        PodcastDAOImpl dao = PodcastDAOImpl.i();
         dao.addPodcastChangedListener(this);
 
         List<Podcast> podlist = dao.getAllPodcasts();
@@ -100,7 +99,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
 
     @Override
     public void onDestroy() {
-        PodcastDAOImpl dao = PodcastDAOImpl.i(this.getActivity());
+        PodcastDAOImpl dao = PodcastDAOImpl.i();
         dao.removePodListChangeListener(this);
 
         super.onDestroy();
@@ -155,7 +154,7 @@ public class PodListFragment extends ListFragment implements OnPodcastChangeList
     private void onDeleteFeedClicked(int pos) {
         Log.v(TAG, String.format("onDeleteFeedClicked %d", pos));
         Podcast podcast = model.get(pos);
-        PodcastDAO dao = PodcastDAOImpl.i(getActivity());
+        PodcastDAO dao = PodcastDAOImpl.i();
         dao.deletePodcast(podcast);
     }
 

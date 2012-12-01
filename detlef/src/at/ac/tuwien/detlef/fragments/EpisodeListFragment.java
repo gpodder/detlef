@@ -18,6 +18,7 @@ import android.widget.ListView;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -26,8 +27,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
-public class EpisodeListFragment extends ListFragment
-        implements EpisodeDAOImpl.OnEpisodeChangeListener {
+public class EpisodeListFragment extends ListFragment implements EpisodeDAO.OnEpisodeChangeListener {
 
     private static final String TAG = EpisodeListFragment.class.getName();
     private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
@@ -65,7 +65,7 @@ public class EpisodeListFragment extends ListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        EpisodeDAOImpl dao = EpisodeDAOImpl.i(getActivity());
+        EpisodeDAOImpl dao = EpisodeDAOImpl.i();
         dao.addEpisodeChangedListener(this);
 
         List<Episode> eplist = dao.getAllEpisodes();
@@ -97,7 +97,7 @@ public class EpisodeListFragment extends ListFragment
         if (savedState != null) {
             long id = savedState.getLong(BUNDLE_SELECTED_PODCAST, ID_NONE);
             if (id != ID_NONE) {
-                PodcastDAOImpl dao = PodcastDAOImpl.i(getActivity());
+                PodcastDAOImpl dao = PodcastDAOImpl.i();
                 filteredByPodcast = dao.getPodcastById(id);
                 filterByPodcast();
             }
@@ -108,8 +108,10 @@ public class EpisodeListFragment extends ListFragment
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        /* Save the currently selected podcast's ID in order to be able to restore
-         * filter settings later on. */
+        /*
+         * Save the currently selected podcast's ID in order to be able to
+         * restore filter settings later on.
+         */
 
         long id = (filteredByPodcast == null ? ID_NONE : filteredByPodcast.getId());
         outState.putLong(BUNDLE_SELECTED_PODCAST, id);
@@ -117,7 +119,7 @@ public class EpisodeListFragment extends ListFragment
 
     @Override
     public void onDestroy() {
-        EpisodeDAOImpl dao = EpisodeDAOImpl.i(this.getActivity());
+        EpisodeDAOImpl dao = EpisodeDAOImpl.i();
         dao.removeEpisodeChangedListener(this);
 
         super.onDestroy();
@@ -197,7 +199,7 @@ public class EpisodeListFragment extends ListFragment
             public void run() {
                 model.addEpisode(episode);
             }
-        });        
+        });
         filterByPodcastOnUiThread();
     }
 
@@ -240,8 +242,7 @@ public class EpisodeListFragment extends ListFragment
      * episode button. The action taken depends on the episode's storage state.
      */
     public void onDownloadTrashClick(View v) {
-        Episode episode = (Episode) v.getTag();
-
+        Episode episode = ((Episode) v.getTag());
         switch (episode.getStorageState()) {
             case NOT_ON_DEVICE:
                 try {

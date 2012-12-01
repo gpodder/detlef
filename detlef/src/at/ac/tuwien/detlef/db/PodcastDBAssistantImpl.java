@@ -14,14 +14,14 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
 
     @Override
     public List<Podcast> getAllPodcasts(Context context) {
-        PodcastDAO dao = PodcastDAOImpl.i(context);
+        PodcastDAO dao = PodcastDAOImpl.i();
         return dao.getAllPodcasts();
     }
 
     @Override
     public void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {
         Log.d(TAG, "applying changes");
-        PodcastDAO dao = PodcastDAOImpl.i(context);
+        PodcastDAO dao = PodcastDAOImpl.i();
         for (Podcast p : changes.getAdd()) {
             if ((p.getTitle() != null) && (p.getUrl() != null)) {
                 dao.insertPodcast(p);

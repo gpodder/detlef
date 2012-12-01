@@ -11,6 +11,15 @@ import at.ac.tuwien.detlef.domain.Podcast;
 public interface PodcastDAO {
 
     /**
+     * Interface for listeners interested in podcast status changes.
+     */
+    public interface OnPodcastChangeListener {
+        void onPodcastChanged(Podcast podcast);
+        void onPodcastAdded(Podcast podcast);
+        void onPodcastDeleted(Podcast podcast);
+    }
+
+    /**
      * Inserts a podcast into the Database.
      *
      * @param podcast The podcast object

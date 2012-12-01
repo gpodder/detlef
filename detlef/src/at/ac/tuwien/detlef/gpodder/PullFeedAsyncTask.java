@@ -82,7 +82,7 @@ public class PullFeedAsyncTask implements Runnable {
 
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
-            PodcastDAOImpl.i(Detlef.getAppContext()).updateLastUpdate(podcast);
+            PodcastDAOImpl.i().updateLastUpdate(podcast);
         } catch (AuthenticationException ae) {
             sendError(new GPodderException(ae.getLocalizedMessage()));
         } catch (ClientProtocolException e) {

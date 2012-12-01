@@ -11,6 +11,15 @@ import at.ac.tuwien.detlef.domain.Podcast;
 public interface EpisodeDAO {
 
     /**
+     * Interface for listeners interested in episode status changes.
+     */
+    public interface OnEpisodeChangeListener {
+        void onEpisodeChanged(Episode episode);
+        void onEpisodeAdded(Episode episode);
+        void onEpisodeDeleted(Episode episode);
+    }
+
+    /**
      * inserts an episode into the database.
      * 
      * @param episode
@@ -104,5 +113,14 @@ public interface EpisodeDAO {
      * @return the episode
      */
     Episode getEpisodeByUrlOrGuid(String url, String guid);
+    
+    /**
+     * Creates a custom query on the episodes that caches with the internal episodes map.
+     * @param selection The fields in the where clause.
+     * @param selectionArgs The values of the fields in the where clause.
+     * @return A cached list of episodes that match the description.
+     */
+    List<Episode> getEpisodesWhere(String selection,
+            String[] selectionArgs);
 
 }

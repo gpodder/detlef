@@ -37,7 +37,7 @@ public class DetlefDownloadManager {
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
-        dao = EpisodeDAOImpl.i(context);
+        dao = EpisodeDAOImpl.i();
     }
 
     /**

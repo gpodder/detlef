@@ -39,8 +39,8 @@ public class SearchFragment extends Fragment {
     }
     
     private String getSearchTerm() {
-        
-        AutoCompleteTextView text = (AutoCompleteTextView) getActivity().findViewById(R.id.searchBar);
+        AutoCompleteTextView text = 
+                (AutoCompleteTextView) getActivity().findViewById(R.id.searchBar);
         return text.getText().toString();
         
     }

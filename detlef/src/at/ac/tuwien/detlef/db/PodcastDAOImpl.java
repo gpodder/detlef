@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -20,36 +21,22 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
     private static final String TAG = PodcastDAOImpl.class.getName();
 
-    private static PodcastDAOImpl instance = null;
-
-    private static Context appContext;
+    private static PodcastDAOImpl instance = new PodcastDAOImpl(Detlef.getAppContext());
 
     private final DatabaseHelper dbHelper;
-    private final Set<OnPodcastChangeListener> listeners = new HashSet<OnPodcastChangeListener>();
+    private final Set<PodcastDAO.OnPodcastChangeListener> listeners = 
+            new HashSet<PodcastDAO.OnPodcastChangeListener>();
     private final HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
-
-    /**
-     * Interface for listeners interested in podcast status changes.
-     */
-    public interface OnPodcastChangeListener {
-        void onPodcastChanged(Podcast podcast);
-        void onPodcastAdded(Podcast podcast);
-        void onPodcastDeleted(Podcast podcast);
-    }
 
     /**
      * Returns (and lazily initializes) the PodcastDAOImpl singleton instance.
      */
-    public static PodcastDAOImpl i(Context context) {
-        if (instance == null) {
-            instance = new PodcastDAOImpl(context);
-            appContext = context;
-        }
+    public static PodcastDAOImpl i() {
         return instance;
     }
 
     public PodcastDAOImpl(Context context) {
-        synchronized (DatabaseHelper.bigFrigginLock) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             dbHelper = new DatabaseHelper(context);
 
             /* Take care of any pending database upgrades. */
@@ -65,7 +52,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public Podcast insertPodcast(Podcast podcast) {
-        synchronized (DatabaseHelper.bigFrigginLock) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = null;
             try {
                 db = dbHelper.getWritableDatabase();
@@ -114,13 +101,13 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public int deletePodcast(Podcast podcast) {
-        synchronized (DatabaseHelper.bigFrigginLock) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             int ret = 0;
             SQLiteDatabase db = null;
             try {
                 // delete podcasts manually because of refreshing
                 // the episodeListFragment
-                EpisodeDAOImpl epDao = EpisodeDAOImpl.i(appContext);
+                EpisodeDAOImpl epDao = EpisodeDAOImpl.i();
                 List<Episode> epList = epDao.getEpisodes(podcast);
                 for (Episode ep : epList) {
                     epDao.deleteEpisode(ep);
@@ -155,7 +142,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public List<Podcast> getAllPodcasts() {
-        synchronized (DatabaseHelper.bigFrigginLock) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             List<Podcast> allPodcasts = new ArrayList<Podcast>();
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String[] projection = {
@@ -209,7 +196,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public int updateLastUpdate(Podcast podcast) {
-        synchronized (DatabaseHelper.bigFrigginLock) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
@@ -233,7 +220,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public Podcast getPodcastById(long podcastId) {
-        synchronized (DatabaseHelper.bigFrigginLock) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String[] projection = {
                     DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
@@ -269,7 +256,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
      */
     @Override
     public int updateLogoFilePath(Podcast podcast) {
-        synchronized (DatabaseHelper.bigFrigginLock) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
@@ -288,35 +275,35 @@ public final class PodcastDAOImpl implements PodcastDAO {
         }
     }
 
-    public void addPodcastChangedListener(OnPodcastChangeListener listener) {
+    public void addPodcastChangedListener(PodcastDAO.OnPodcastChangeListener listener) {
         listeners.add(listener);
     }
 
-    public void removePodListChangeListener(OnPodcastChangeListener listener) {
+    public void removePodListChangeListener(PodcastDAO.OnPodcastChangeListener listener) {
         listeners.remove(listener);
     }
 
     private void notifyListenersChanged(Podcast podcast) {
-        for (OnPodcastChangeListener listener : listeners) {
+        for (PodcastDAO.OnPodcastChangeListener listener : listeners) {
             listener.onPodcastChanged(podcast);
         }
     }
 
     private void notifyListenersAdded(Podcast podcast) {
-        for (OnPodcastChangeListener listener : listeners) {
+        for (PodcastDAO.OnPodcastChangeListener listener : listeners) {
             listener.onPodcastAdded(podcast);
         }
     }
 
     private void notifyListenersDeleted(Podcast podcast) {
-        for (OnPodcastChangeListener listener : listeners) {
+        for (PodcastDAO.OnPodcastChangeListener listener : listeners) {
             listener.onPodcastDeleted(podcast);
         }
     }
 
     @Override
     public Podcast getPodcastByUrl(String url) {
-        synchronized (DatabaseHelper.bigFrigginLock) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String[] projection = {
                     DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,

@@ -1,8 +1,10 @@
+
 package at.ac.tuwien.detlef.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 
@@ -12,8 +14,8 @@ import at.ac.tuwien.detlef.Detlef;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     static final int VERSION = 6;
-            
-    static final Object bigFrigginLock = new Object();
+
+    static final Object BIG_FRIGGIN_LOCK = new Object();
 
     public static final String DB_NAME = "detlefDB";
 
@@ -49,6 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_PLAYLIST = "Playlist";
     public static final String COLUMN_PLAYLIST_ID = "_ID";
     public static final String COLUMN_PLAYLIST_EPISODE = "episode";
+    public static final String COLUMN_PLAYLIST_POSITION = "position";
 
     /* Create statement for the podcast table. */
     static final String CREATE_PODCAST_TABLE =
@@ -68,18 +71,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     static final String CREATE_EPISODE_TABLE =
             String.format("create table %s ("
                     + "%s integer primary key autoincrement, "
-                    + "%s text, "               // guid
-                    + "%s text not null, "      // title
-                    + "%s text, "               // description
-                    + "%s integer, "            // released
-                    + "%s text, "               // link
-                    + "%s text, "               // author
-                    + "%s text not null, "      // url
-                    + "%s text, "               // mimetype
-                    + "%s integer, "            // filesize
-                    + "%s text, "               // filepath
-                    + "%s text, "               // state
-                    + "%s integer not null, "   // podcast
+                    + "%s text, " // guid
+                    + "%s text not null, " // title
+                    + "%s text, " // description
+                    + "%s integer, " // released
+                    + "%s text, " // link
+                    + "%s text, " // author
+                    + "%s text not null, " // url
+                    + "%s text, " // mimetype
+                    + "%s integer, " // filesize
+                    + "%s text, " // filepath
+                    + "%s text, " // state
+                    + "%s integer not null, " // podcast
                     + "%s integer, "            // playposition
                     + "%s string, "             // action state
                     + "foreign key (%s) references %s (%s) on delete cascade);",
@@ -89,15 +92,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_EPISODE_FILESIZE, COLUMN_EPISODE_FILEPATH, COLUMN_EPISODE_STATE,
                     COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION, COLUMN_EPISODE_ACTIONSTATE,
                     COLUMN_EPISODE_PODCAST, TABLE_PODCAST, COLUMN_PODCAST_ID);
-    
+
     /* Create statement for the podcast table. */
     static final String CREATE_PLAYLIST_TABLE =
             String.format("create table %s ("
                     + "%s integer primary key autoincrement, "
-                    + "foreign key (%s) references %s (%s) on delete cascade);",
-                    TABLE_PLAYLIST, COLUMN_PLAYLIST_ID, COLUMN_PLAYLIST_EPISODE, TABLE_EPISODE,
-                    COLUMN_EPISODE_ID);
-
+                    + "%s integer, "
+                    + "%s integer);",
+                    TABLE_PLAYLIST, COLUMN_PLAYLIST_ID, COLUMN_PLAYLIST_EPISODE,
+                    COLUMN_PLAYLIST_POSITION, COLUMN_PLAYLIST_EPISODE, TABLE_EPISODE,
+                    COLUMN_EPISODE_ID); // no foreign key! we handle this
+                                        // ourselves.
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
@@ -107,6 +112,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_PODCAST_TABLE);
         db.execSQL(CREATE_EPISODE_TABLE);
+        Log.d(getClass().getName(), "Creating playlist table");
         db.execSQL(CREATE_PLAYLIST_TABLE);
     }
 
@@ -121,12 +127,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // TODO: What should we do on upgrade? For now, drop and recreate all tables.
+        // TODO: What should we do on upgrade? For now, drop and recreate all
+        // tables.
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
         DependencyAssistant.getDependencyAssistant().getGpodderSettings(Detlef.getAppContext())
-        .setLastUpdate(0);
+                .setLastUpdate(0);
         onCreate(db);
     }
 }

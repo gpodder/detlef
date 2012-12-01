@@ -2,8 +2,8 @@ package at.ac.tuwien.detlef.search;
 
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.db.DatabaseHelper;
-import at.ac.tuwien.detlef.db.EpisodeDAOCore;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
+import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 
 /**
@@ -15,10 +15,12 @@ import at.ac.tuwien.detlef.domain.Episode;
  */
 public class SearchKeywordDb 
     implements Search<SearchCriteriaKeyword, Episode> {
-    EpisodeDAOCore daoCore = new EpisodeDAOCore(
-        Detlef.getAppContext(),
-        PodcastDAOImpl.i(Detlef.getAppContext())
-    );
+
+    private EpisodeDAO edao;
+    
+    public SearchKeywordDb() {
+        edao = EpisodeDAOImpl.i();
+    }
     
     @Override
     public void search(final SearchCriteriaKeyword criteria,
@@ -35,7 +37,7 @@ public class SearchKeywordDb
                     String.format("%%%s%%", criteria.getKeyword()),
                     String.format("%%%s%%", criteria.getKeyword())
                 };
-                callback.getResult(daoCore.getEpisodesWhere(selection, selectionArgs));
+                callback.getResult(edao.getEpisodesWhere(selection, selectionArgs));
             }
         }
         ).run();
