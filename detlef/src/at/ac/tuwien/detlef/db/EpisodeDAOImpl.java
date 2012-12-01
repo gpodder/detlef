@@ -237,10 +237,12 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         }
     }
 
+    @Override
     public void addEpisodeChangedListener(EpisodeDAO.OnEpisodeChangeListener listener) {
         listeners.add(listener);
     }
 
+    @Override
     public void removeEpisodeChangedListener(EpisodeDAO.OnEpisodeChangeListener listener) {
         listeners.remove(listener);
     }

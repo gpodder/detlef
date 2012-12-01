@@ -95,16 +95,19 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
 
         PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToBeginningOfPlaylist(e0);
-        List<Episode> playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        List<Episode> playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 1);
         assertTrue(playlist.get(0) == e0);
         ldao.addEpisodeToBeginningOfPlaylist(e1);
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 2);
         assertTrue(playlist.get(0) == e1);
         assertTrue(playlist.get(1) == e0);
         ldao.addEpisodeToBeginningOfPlaylist(e1);
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 3);
         assertTrue(playlist.get(0) == e1);
         assertTrue(playlist.get(1) == e1);
@@ -122,16 +125,19 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
 
         PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
-        List<Episode> playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        List<Episode> playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 1);
         assertTrue(playlist.get(0) == e0);
         ldao.addEpisodeToEndOfPlaylist(e1);
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 2);
         assertTrue(playlist.get(0) == e0);
         assertTrue(playlist.get(1) == e1);
         ldao.addEpisodeToEndOfPlaylist(e1);
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 3);
         assertTrue(playlist.get(0) == e0);
         assertTrue(playlist.get(1) == e1);
@@ -145,28 +151,31 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
-        e1 = edao.insertEpisode(e2);
+        e1 = edao.insertEpisode(e1);
+        e2 = edao.insertEpisode(e2);
 
         PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         ldao.addEpisodeToEndOfPlaylist(e1);
         ldao.addEpisodeToEndOfPlaylist(e2);
-        List<Episode> playlist = ldao.getEpisodes();
+        List<Episode> playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 3);
         assertTrue(playlist.get(0) == e0);
         assertTrue(playlist.get(1) == e1);
         assertTrue(playlist.get(2) == e2);
         assertTrue(ldao.removeEpisode(1));
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 2);
         assertTrue(playlist.get(0) == e0);
         assertTrue(playlist.get(1) == e2);
         assertTrue(ldao.removeEpisode(1));
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 1);
         assertTrue(playlist.get(0) == e0);
         assertTrue(ldao.removeEpisode(0));
-        playlist = ldao.getEpisodes();
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 0);
     }
 
@@ -177,34 +186,77 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         PodcastDAOImpl pdao = PodcastDAOImpl.i();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
-        e1 = edao.insertEpisode(e2);
+        e1 = edao.insertEpisode(e1);
+        e2 = edao.insertEpisode(e2);
 
         PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         ldao.addEpisodeToEndOfPlaylist(e1);
         ldao.addEpisodeToEndOfPlaylist(e2);
-        List<Episode> playlist = ldao.getEpisodes();
+        List<Episode> playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 3);
         assertTrue(playlist.get(0) == e0);
         assertTrue(playlist.get(1) == e1);
         assertTrue(playlist.get(2) == e2);
         assertTrue(ldao.moveEpisode(0, 2));
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 3);
         assertTrue(playlist.get(0) == e1);
         assertTrue(playlist.get(1) == e2);
         assertTrue(playlist.get(2) == e0);
         assertTrue(ldao.moveEpisode(2, 0));
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 3);
         assertTrue(playlist.get(0) == e0);
         assertTrue(playlist.get(1) == e1);
         assertTrue(playlist.get(2) == e2);
         assertTrue(ldao.moveEpisode(1, 2));
-        playlist = ldao.getEpisodes();
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
         assertTrue(playlist.size() == 3);
         assertTrue(playlist.get(0) == e0);
         assertTrue(playlist.get(1) == e2);
         assertTrue(playlist.get(2) == e1);
+    }
+
+    public void testBackgroundDelete() {
+        clearDatabase();
+
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        p1 = pdao.insertPodcast(p1);
+        e0 = edao.insertEpisode(e0);
+        e1 = edao.insertEpisode(e1);
+        e2 = edao.insertEpisode(e2);
+
+        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
+        ldao.addEpisodeToEndOfPlaylist(e0);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToEndOfPlaylist(e1);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToEndOfPlaylist(e2);
+        assertTrue(ldao.checkNoGaps());
+        List<Episode> playlist = ldao.getRawEpisodes();
+        assertTrue(playlist.size() == 3);
+        assertTrue(playlist.get(0) == e0);
+        assertTrue(playlist.get(1) == e1);
+        assertTrue(playlist.get(2) == e2);
+        edao.deleteEpisode(e1);
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
+        assertTrue(playlist.size() == 2);
+        assertTrue(playlist.get(0) == e0);
+        assertTrue(playlist.get(1) == e2);
+        edao.deleteEpisode(e0);
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
+        assertTrue(playlist.size() == 1);
+        assertTrue(playlist.get(0) == e2);
+        edao.deleteEpisode(e2);
+        assertTrue(ldao.checkNoGaps());
+        playlist = ldao.getRawEpisodes();
+        assertTrue(playlist.size() == 0);
     }
 }

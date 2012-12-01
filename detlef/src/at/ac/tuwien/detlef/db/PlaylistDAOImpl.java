@@ -18,7 +18,6 @@ import at.ac.tuwien.detlef.domain.Episode;
 public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeChangeListener {
 
     private static final String TAG = PlaylistDAOImpl.class.getName();
-
     private static final PlaylistDAOImpl INSTANCE = new PlaylistDAOImpl(Detlef.getAppContext());
 
     private final DatabaseHelper dbHelper;
@@ -41,9 +40,9 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     public PlaylistDAOImpl(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            edao = EpisodeDAOImpl.i();
-
             dbHelper = new DatabaseHelper(context);
+            edao = EpisodeDAOImpl.i();
+            edao.addEpisodeChangedListener(this);
 
             /* Take care of any pending database upgrades. */
 
@@ -62,7 +61,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     private void notifyListenersChanged() {
         for (OnPlaylistChangeListener listener : listeners) {
-            listener.onPlaylistChanged(getEpisodes());
+            listener.onPlaylistChanged(getRawEpisodes());
         }
     }
 
@@ -162,7 +161,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
     }
 
     @Override
-    public List<Episode> getEpisodes() {
+    public List<Episode> getRawEpisodes() {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = null;
             try {
@@ -190,6 +189,20 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
     }
 
+    private int removePosition(int position, SQLiteDatabase db) {
+        int ret = 0;
+        String selection = DatabaseHelper.COLUMN_PLAYLIST_POSITION + " = ?";
+        String[] selectionArgs = {
+                String.valueOf(position)
+        };
+
+        Log.d(getClass().getName(), "Deleting position " + position);
+        ret = db.delete(DatabaseHelper.TABLE_PLAYLIST, selection, selectionArgs);
+
+        shiftPositionsFromBy(position, -1, db);
+        return ret;
+    }
+
     @Override
     public boolean removeEpisode(int position) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
@@ -197,15 +210,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
             SQLiteDatabase db = null;
             try {
                 db = dbHelper.getWritableDatabase();
-                String selection = DatabaseHelper.COLUMN_PLAYLIST_POSITION + " = ?";
-                String[] selectionArgs = {
-                        String.valueOf(position)
-                };
-
-                Log.d(getClass().getName(), "Deleting position " + position);
-                ret = db.delete(DatabaseHelper.TABLE_PLAYLIST, selection, selectionArgs);
-
-                shiftPositionsFromBy(position, -1, db);
+                ret = removePosition(position, db);
                 db.close();
 
                 notifyListenersChanged();
@@ -283,7 +288,72 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     @Override
     public void onEpisodeDeleted(Episode episode) {
-        // TODO Auto-generated method stub
-        
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            SQLiteDatabase db = null;
+            try {
+                db = dbHelper.getWritableDatabase();
+                Set<Integer> positions = getPositionsOfEpisode(episode, db);
+                for (int position : positions) {
+                    removePosition(position, db);
+                }
+                notifyListenersChanged();
+            } catch (Exception ex) {
+                Log.e(getClass().getName(), ex.getMessage());
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
+            }
+        }
+    }
+
+    private Set<Integer> getPositionsOfEpisode(Episode episode, SQLiteDatabase db) {
+        HashSet<Integer> ret = new HashSet<Integer>();
+        String selection = DatabaseHelper.COLUMN_PLAYLIST_EPISODE + " = ?";
+        String[] selectionArgs = {
+                String.valueOf(episode.getId())
+        };
+        Cursor c = db.query(DatabaseHelper.TABLE_PLAYLIST, new String[] {
+                DatabaseHelper.COLUMN_PLAYLIST_POSITION
+        }, selection, selectionArgs, null, null, null);
+        if (c.moveToFirst()) {
+            do {
+                ret.add(c.getInt(0));
+            } while (c.moveToNext());
+        }
+        return ret;
+    }
+
+    public boolean checkNoGaps() {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            SQLiteDatabase db = null;
+            try {
+                db = dbHelper.getWritableDatabase();
+                List<Integer> positions = getAllPositions(db);
+                for (int i = 0; i < positions.size() - 1; i++) {
+                    if (positions.get(i + 1) != positions.get(i) + 1) {
+                        return false;
+                    }
+                }
+                return true;
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
+            }
+        }
+    }
+
+    private List<Integer> getAllPositions(SQLiteDatabase db) {
+        List<Integer> ret = new ArrayList<Integer>();
+        Cursor c = db.query(DatabaseHelper.TABLE_PLAYLIST, new String[] {
+                DatabaseHelper.COLUMN_PLAYLIST_POSITION
+        }, null, null, null, null, DatabaseHelper.COLUMN_PLAYLIST_POSITION);
+        if (c.moveToFirst()) {
+            do {
+                ret.add(c.getInt(0));
+            } while (c.moveToNext());
+        }
+        return ret;
     }
 }

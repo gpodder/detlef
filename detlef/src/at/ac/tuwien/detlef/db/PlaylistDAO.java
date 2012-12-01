@@ -28,7 +28,7 @@ public interface PlaylistDAO {
     /**
      * @return Gets a List of the episodes in playlist order.
      */
-    List<Episode> getEpisodes();
+    List<Episode> getRawEpisodes();
 
     /**
      * Removes an episode from playlist.

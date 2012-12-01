@@ -123,4 +123,8 @@ public interface EpisodeDAO {
     List<Episode> getEpisodesWhere(String selection,
             String[] selectionArgs);
 
+    void addEpisodeChangedListener(EpisodeDAO.OnEpisodeChangeListener listener);
+
+    void removeEpisodeChangedListener(EpisodeDAO.OnEpisodeChangeListener listener);
+
 }
