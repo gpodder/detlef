@@ -3,6 +3,7 @@ package at.ac.tuwien.detlef.mediaplayer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import android.app.Service;
 import android.content.Intent;
@@ -12,6 +13,9 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
+import at.ac.tuwien.detlef.db.PlaylistDAO;
+import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 
 /**
@@ -21,7 +25,11 @@ import at.ac.tuwien.detlef.domain.Episode;
  */
 public class MediaPlayerService extends Service implements
         MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener, IMediaPlayerService {
+        MediaPlayer.OnCompletionListener, IMediaPlayerService,
+        PlaylistDAO.OnPlaylistChangeListener, EpisodeDAO.OnEpisodeChangeListener {
+
+    private PlaylistDAO playlistDAO;
+    private ArrayList<Episode> playlistItems;
 
     /**
      * Binder that allows local classes to communicate with the service.
@@ -47,6 +55,14 @@ public class MediaPlayerService extends Service implements
     private Episode activeEpisode;
     private Episode nextEpisode;
     private static boolean running = false;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        playlistDAO = PlaylistDAOImpl.i();
+        playlistItems = playlistDAO.getNonCachedEpisodes();
+        playlistDAO.addPlaylistChangedListener(this);
+    }
 
     /*
      * (non-Javadoc)
@@ -278,5 +294,45 @@ public class MediaPlayerService extends Service implements
     @Override
     public Episode getNextEpisode() {
         return nextEpisode;
+    }
+
+    @Override
+    public void onPlaylistEpisodeAdded(int position, Episode episode) {
+        playlistItems.add(position, episode);
+    }
+
+    @Override
+    public void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition) {
+        Episode ep = playlistItems.remove(firstPosition);
+        playlistItems.add(secondPosition, ep);
+    }
+
+    @Override
+    public void onPlaylistEpisodeRemoved(int position) {
+        playlistItems.remove(position);
+    }
+
+    @Override
+    public void onEpisodeChanged(Episode episode) {
+        // not our problem
+    }
+
+    @Override
+    public void onEpisodeAdded(Episode episode) {
+        // not of interest
+    }
+
+    @Override
+    public void onEpisodeDeleted(Episode episode) {
+        if (activeEpisode == episode) {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            activeEpisode = null;
+        }
+        if (nextEpisode == episode) {
+            // TODO @Joshi this needs further attention - what if playlist gets
+            // notified second?
+            chooseNextToPlay();
+        }
     }
 }
