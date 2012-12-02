@@ -150,8 +150,18 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
      * If podcast is null, all episodes are shown.
      */
     public void setPodcast(Podcast podcast) {
+        boolean selectionChanged = false;
+        if (filteredByPodcast != podcast) {
+            selectionChanged = true;
+        }
+
         filteredByPodcast = podcast;
         filterByPodcast();
+
+        /* Scroll to the top of the list. */
+        if (selectionChanged) {
+            setSelection(0);
+        }
     }
 
     private void filterByPodcast() {
