@@ -263,6 +263,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         assertEquals("Non, Detlef, je ne regrette rien.\n", quoi);
     }
 
+    @SuppressWarnings("unused")
     @FlakyTest
     public final void testGpodderAuth() throws RemoteException, InterruptedException {
         // FIXME: re-enable once our virtual GPodder instance is up and running

@@ -12,9 +12,7 @@ import android.app.Activity;
  * PodcastSyncResultHandler and implement handle() and handleFailure().
  */
 public abstract class PodcastSyncResultHandler<Receiver extends Activity> extends
-BroadcastReceiverCallback<Receiver, PodcastSyncResultHandler.PodcastSyncEvent> {
-    /** Logging tag. */
-    private static final String TAG = "PodcastSyncResultHandler";
+        BroadcastReceiverCallback<Receiver, PodcastSyncResultHandler.PodcastSyncEvent> {
 
     /**
      * This has to be implemented by the user and is called when the Task got a subscription update.

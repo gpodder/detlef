@@ -23,8 +23,6 @@ public class MediaPlayerService extends Service implements
         MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, IMediaPlayerService {
 
-    private static final String LOG_TAG = MediaPlayerService.class.getName();
-
     /**
      * Binder that allows local classes to communicate with the service.
      * 

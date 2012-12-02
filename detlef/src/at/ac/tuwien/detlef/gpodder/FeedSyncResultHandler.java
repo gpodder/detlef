@@ -12,9 +12,7 @@ import android.app.Activity;
  * FeedSyncResultHandler and implement handle() and handleFailure().
  */
 public abstract class FeedSyncResultHandler<Receiver extends Activity> extends
-BroadcastReceiverCallback<Receiver,FeedSyncResultHandler.FeedSyncEvent> {
-    /** Logging tag. */
-    private static final String TAG = "FeedSyncResultHandler";
+        BroadcastReceiverCallback<Receiver, FeedSyncResultHandler.FeedSyncEvent> {
 
     /**
      * This has to be implemented by the user and is called when the Task is done.

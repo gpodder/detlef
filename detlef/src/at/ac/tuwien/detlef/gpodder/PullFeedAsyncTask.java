@@ -25,8 +25,6 @@ import com.dragontek.mygpoclient.feeds.IFeed;
  * the Callback's handle & handleFailure methods.
  */
 public class PullFeedAsyncTask implements Runnable {
-    /** Logging tag. */
-    private static final String TAG = "PullFeedAsyncTask";
 
     /** The host for creating a FeedServiceClient. */
     private static final String HOST = "http://feeds.gpodder.net";

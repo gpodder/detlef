@@ -10,6 +10,9 @@ import com.dragontek.mygpoclient.simple.IPodcast;
  * Class representing changes in podcast subscriptions.
  */
 public class EnhancedSubscriptionChanges implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /** Added podcasts. */
     private final List<Podcast> add;
 

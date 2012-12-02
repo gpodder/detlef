@@ -25,7 +25,6 @@ public class PlayerFragmentTest extends
     private Solo solo;
     private MainActivity activity;
     private EpisodeDAOImpl dao;
-    private String uuid;
 
     public PlayerFragmentTest() {
         super(MainActivity.class);
@@ -36,7 +35,6 @@ public class PlayerFragmentTest extends
         activity = getActivity();
         solo = new Solo(getInstrumentation(), activity);
         dao = EpisodeDAOImpl.i(getActivity());
-        uuid = "NOT_A_UUID_SINCE_VARIABLE_VALUES_ARE_NOT_PERSISTED_DURING_TESTS_WTF?";
     }
 
     private void delay() {
@@ -113,6 +111,7 @@ public class PlayerFragmentTest extends
         solo.finishOpenedActivities();
     }
 
+    @SuppressWarnings("deprecation")
     public void testShowEmptyInfo() {
         solo.clickOnText("EPISODES");
 

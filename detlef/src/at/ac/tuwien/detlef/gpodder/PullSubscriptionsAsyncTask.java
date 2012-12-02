@@ -28,9 +28,7 @@ import com.dragontek.mygpoclient.simple.IPodcast;
  * the Callback's handle & handleFailure methods.
  */
 public class PullSubscriptionsAsyncTask implements Runnable {
-    /** Logging tag. */
-    private static final String TAG = "PullSubscriptionsAsyncTask";
-    
+
     private static final int HTTP_STATUS_FORBIDDEN = 401;
     private static final int HTTP_STATUS_NOT_FOUND = 404;
 

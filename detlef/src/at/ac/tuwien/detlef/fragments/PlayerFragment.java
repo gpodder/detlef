@@ -24,7 +24,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;

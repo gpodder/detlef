@@ -14,7 +14,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
-import at.ac.tuwien.detlef.adapters.SearchListAdapter;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.search.Search;
 import at.ac.tuwien.detlef.search.SearchCallback;
@@ -23,11 +22,8 @@ import at.ac.tuwien.detlef.search.SearchKeywordDb;
 
 public class SearchFragment extends Fragment {
 
-    private String TAG = SearchFragment.class.getCanonicalName();
-    
-    //private ArrayList<Episode> listItems = new ArrayList<Episode>();
-    private SearchListAdapter adapter;
-    
+    private static final String TAG = SearchFragment.class.getCanonicalName();
+
     private Search<SearchCriteriaKeyword, Episode> searchKeyword = new SearchKeywordDb();
     
     @Override
@@ -67,9 +63,7 @@ public class SearchFragment extends Fragment {
         
         Button searchButton = (Button) result.findViewById(R.id.ButtonSearch);
         Log.d(TAG, "searchButton =" + searchButton);
-        
-        AutoCompleteTextView textview = (AutoCompleteTextView) result.findViewById(R.id.searchBar); 
-        
+
         searchButton.setOnClickListener(
             new OnClickListener() {
 
