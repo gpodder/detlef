@@ -17,7 +17,7 @@ import at.ac.tuwien.detlef.download.DetlefDownloadManager;
  * persistence-related functionalities related to episodes, such as download
  * management and episode file deletion.
  */
-public class EpisodePersistence {
+public final class EpisodePersistence {
 
     private static final String TAG = EpisodePersistence.class.getName();
 
@@ -43,7 +43,7 @@ public class EpisodePersistence {
         file.delete();
 
         episode.setStorageState(StorageState.NOT_ON_DEVICE);
-        EpisodeDAOImpl dao = EpisodeDAOImpl.i(getContext());
+        EpisodeDAOImpl dao = EpisodeDAOImpl.i();
         dao.updateState(episode);
     }
 

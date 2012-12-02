@@ -44,9 +44,11 @@ public class PlayerFragment extends Fragment {
     private SeekBar seekBar;
     private TextView alreadyPlayed;
     private TextView remainingTime;
+    private ImageButton buttonFF;
+    private ImageButton buttonRew;
 
     private static String TAG = PlayerFragment.class.getCanonicalName();
-    
+
     /**
      * Handles the connection to the MediaPlayerService that plays music.
      */
@@ -54,9 +56,8 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder iBinder) {
-            
             Log.d(TAG, "onServiceConnected(" + className + "," + iBinder + ")");
-            
+
             bound = true;
             MediaPlayerService.MediaPlayerBinder binder =
                     (MediaPlayerService.MediaPlayerBinder) iBinder;
@@ -80,21 +81,23 @@ public class PlayerFragment extends Fragment {
      * tasks when needed.
      */
     private PlayerFragment initPlayingControls() {
-        buttonPlayStop =
-                (ImageButton) getActivity().findViewById(R.id.ButtonPlayStop);
-        buttonPlayStop.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startStop();
-            }
-        });
+        initButtonPlayStop();
+        initButtonFF();
+        initButtonRew();
+        initSeekBar();
 
+        alreadyPlayed = (TextView) getActivity().findViewById(R.id.playerAlreadyPlayed);
+        remainingTime = (TextView) getActivity().findViewById(R.id.playerRemainingTime);
+        return this;
+    }
+
+    private void initSeekBar() {
         seekBar = (SeekBar) getActivity().findViewById(R.id.SeekBar01);
         seekBar.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 int progress = seekBar.getProgress();
-                if (bound && service != null) {
+                if (bound && (service != null)) {
                     alreadyPlayed.setText(getAlreadyPlayed(progress));
                     remainingTime.setText("-"
                             + getRemainingTime(service.getDuration(),
@@ -104,18 +107,45 @@ public class PlayerFragment extends Fragment {
                 return false;
             }
         });
+    }
 
-        alreadyPlayed = (TextView) getActivity().findViewById(R.id.playerAlreadyPlayed);
-        remainingTime = (TextView) getActivity().findViewById(R.id.playerRemainingTime);
-        return this;
+    private void initButtonRew() {
+        buttonRew = (ImageButton) getActivity().findViewById(R.id.ButtonRewind);
+        buttonRew.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rewind();
+            }
+        });
+    }
+
+    private void initButtonFF() {
+        buttonFF = (ImageButton) getActivity().findViewById(R.id.ButtonFF);
+        buttonFF.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fastForward();
+            }
+        });
+    }
+
+    private void initButtonPlayStop() {
+        buttonPlayStop =
+                (ImageButton) getActivity().findViewById(R.id.ButtonPlayStop);
+        buttonPlayStop.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startStop();
+            }
+        });
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         Log.d(TAG, "onCreate(" + savedInstanceState + ")");
-        
+
         if (!MediaPlayerService.isRunning()) {
             Intent serviceIntent =
                     new Intent(Detlef.getAppContext(), MediaPlayerService.class);
@@ -123,7 +153,7 @@ public class PlayerFragment extends Fragment {
         }
         Intent intent = new Intent(getActivity(), MediaPlayerService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        
+
     }
 
     @Override
@@ -261,6 +291,42 @@ public class PlayerFragment extends Fragment {
         return this;
     }
 
+    /**
+     * Handles clicks on the fastForward button.
+     */
+    private PlayerFragment fastForward() {
+        if (service == null) {
+            return this;
+        }
+        service.fastForward();
+        if (service.getNextEpisode() != activeEpisode) {
+            setActiveEpisode(service.getNextEpisode());
+            if (service.isCurrentlyPlaying()) {
+                stopPlaying();
+                startPlaying();
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Handles clicks on the rewind button.
+     */
+    private PlayerFragment rewind() {
+        if (service == null) {
+            return this;
+        }
+        service.rewind();
+        if (service.getNextEpisode() != activeEpisode) {
+            setActiveEpisode(service.getNextEpisode());
+            if (service.isCurrentlyPlaying()) {
+                stopPlaying();
+                startPlaying();
+            }
+        }
+        return this;
+    }
+
     private PlayerFragment setEpisodeInfoControls(Episode ep) {
         View view = getView();
         if (view == null) {
@@ -270,6 +336,10 @@ public class PlayerFragment extends Fragment {
                 R.id.playerEpisodeDescription);
         TextView podcast = (TextView) getView().findViewById(R.id.playerPodcast);
         TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
+
+        if ((ep == null) && (service != null)) {
+            ep = service.getNextEpisode();
+        }
 
         if (ep == null) {
             episode.setText(
@@ -288,10 +358,9 @@ public class PlayerFragment extends Fragment {
     }
 
     public PlayerFragment setActiveEpisode(Episode ep) {
-        
         Log.d(TAG, "setActiveEpisode(" + ep + ")");
         Log.d(TAG, "service: " + service);
-        
+
         if (ep != activeEpisode) {
             stopPlaying();
             activeEpisode = ep;

@@ -67,6 +67,9 @@ public class MediaPlayerService extends Service implements
         playlistDAO.addPlaylistChangedListener(this);
         episodeDAO = EpisodeDAOImpl.i();
         episodeDAO.addEpisodeChangedListener(this);
+        if ((nextEpisode == null) && !playlistItems.isEmpty()) {
+            nextEpisode = playlistItems.get(0);
+        }
     }
 
     /*
@@ -200,13 +203,9 @@ public class MediaPlayerService extends Service implements
      */
     @Override
     public IMediaPlayerService fastForward() {
-        if (currentPlaylistPosition < playlistItems.size() - 1) {
-            mediaPlayer.stop();
-            haveRunningEpisode = false;
-            currentlyPlaying = false;
+        if (currentPlaylistPosition < (playlistItems.size() - 1)) {
             currentPlaylistPosition++;
             nextEpisode = playlistItems.get(currentPlaylistPosition);
-            startPlaying();
         }
         return this;
     }
@@ -214,18 +213,10 @@ public class MediaPlayerService extends Service implements
     @Override
     public IMediaPlayerService rewind() {
         if (currentPlaylistPosition > 0) {
-            mediaPlayer.stop();
-            haveRunningEpisode = false;
-            currentlyPlaying = false;
             currentPlaylistPosition--;
             nextEpisode = playlistItems.get(currentPlaylistPosition);
-            startPlaying();
         } else if (currentPlaylistPosition == 0) {
-            mediaPlayer.stop();
-            haveRunningEpisode = false;
-            currentlyPlaying = false;
             nextEpisode = playlistItems.get(0);
-            startPlaying();
         }
         return this;
     }
@@ -328,10 +319,11 @@ public class MediaPlayerService extends Service implements
     public void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition) {
         Episode ep = playlistItems.remove(firstPosition);
         playlistItems.add(secondPosition, ep);
-        if (firstPosition <= currentPlaylistPosition && secondPosition >= currentPlaylistPosition) {
+        if ((firstPosition <= currentPlaylistPosition)
+                && (secondPosition >= currentPlaylistPosition)) {
             currentPlaylistPosition = Math.max(currentPlaylistPosition - 1, 0);
-        } else if (firstPosition >= currentPlaylistPosition
-                && secondPosition <= currentPlaylistPosition) {
+        } else if ((firstPosition >= currentPlaylistPosition)
+                && (secondPosition <= currentPlaylistPosition)) {
             currentPlaylistPosition = Math.min(currentPlaylistPosition + 1,
                     playlistItems.size() - 1);
         }
@@ -342,6 +334,9 @@ public class MediaPlayerService extends Service implements
         playlistItems.remove(position);
         if (position <= currentPlaylistPosition) {
             currentPlaylistPosition = Math.max(currentPlaylistPosition - 1, 0);
+            if (!playlistItems.isEmpty()) {
+                nextEpisode = playlistItems.get(currentPlaylistPosition);
+            }
         }
     }
 
@@ -352,7 +347,9 @@ public class MediaPlayerService extends Service implements
 
     @Override
     public void onEpisodeAdded(Episode episode) {
-        // not of interest
+        if (nextEpisode == null) {
+            nextEpisode = episode;
+        }
     }
 
     @Override
