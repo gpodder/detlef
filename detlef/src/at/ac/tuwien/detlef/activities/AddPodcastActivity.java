@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -141,7 +142,7 @@ public class AddPodcastActivity extends Activity {
             podcastName.setText(podcast.getTitle());
 
             TextView podcastDesc = (TextView) v.findViewById(R.id.podcast_description);
-            podcastDesc.setText(podcast.getDescription());
+            podcastDesc.setText(Html.fromHtml(podcast.getDescription()));
 
             return v;
 
