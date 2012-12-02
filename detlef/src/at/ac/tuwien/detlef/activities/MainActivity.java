@@ -54,6 +54,8 @@ public class MainActivity extends FragmentActivity
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
+    private ActionBar actionBar;
+
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -72,13 +74,13 @@ public class MainActivity extends FragmentActivity
             cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
             cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
         }
-        
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
+        actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // Set up the ViewPager with the sections adapter.
@@ -125,6 +127,26 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
+    public void onBackPressed() {
+        switch (mViewPager.getCurrentItem()) {
+            case SectionsPagerAdapter.POSITION_PODCASTS:
+                super.onBackPressed();
+                break;
+            case SectionsPagerAdapter.POSITION_EPISODES:
+                actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_PODCASTS));
+                break;
+            case SectionsPagerAdapter.POSITION_PLAYER:
+                actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_EPISODES));
+                break;
+            case SectionsPagerAdapter.POSITION_SEARCH:
+                actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_PLAYER));
+                break;
+            default:
+                super.onBackPressed();
+        }
+    }
+
+    @Override
     public void onPause() {
         /* Unregister the Podcast- & FeedHandler. */
         cbCont.unregisterReceiver();
@@ -164,9 +186,8 @@ public class MainActivity extends FragmentActivity
     }
 
     /**
-     * All callbacks this Activity receives are stored here.
-     * 
-     * This allows us to manage the Activity Lifecycle more easily.
+     * All callbacks this Activity receives are stored here. This allows us to
+     * manage the Activity Lifecycle more easily.
      */
     private static final CallbackContainer<MainActivity> cbCont =
             new CallbackContainer<MainActivity>();
@@ -254,7 +275,8 @@ public class MainActivity extends FragmentActivity
         }
 
         /**
-         * Check whether we have refreshed all feeds and if yes call onRefreshDone.
+         * Check whether we have refreshed all feeds and if yes call
+         * onRefreshDone.
          */
         private void checkDone() {
             synchronized (getRcv().numPodSync) {
@@ -474,7 +496,8 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onEpisodeSelected(Episode episode) {
-        // TODO @Joshi start playing only if episode is downloaded or downloading
+        // TODO @Joshi start playing only if episode is downloaded or
+        // downloading
         getPlayerFragment().setActiveEpisode(episode);
         getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_PLAYER);
         getPlayerFragment().startPlaying();
