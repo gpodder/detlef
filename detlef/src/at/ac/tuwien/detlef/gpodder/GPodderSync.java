@@ -230,6 +230,26 @@ public class GPodderSync {
     }
 
     /**
+     * Requests that the service performs a podcast search job.
+     *
+     * @param handler A handler for callbacks.
+     */
+    public void addSearchPodcastsJob(PodcastListResultHandler handler, String query) {
+        Log.d(TAG, "addSearchPodcastsJob");
+
+        assureBind();
+
+        int reqCode = nextReqCode();
+        try {
+            iface.searchPodcasts(syncResponder, reqCode, clientInfo, query);
+            reqs.append(reqCode, handler);
+        } catch (RemoteException rex) {
+            handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
+            iface = null;
+        }
+    }
+
+    /**
      * Assures that the service is bound.
      */
     private void assureBind() {
