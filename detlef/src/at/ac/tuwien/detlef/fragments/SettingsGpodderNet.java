@@ -41,7 +41,9 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
 import at.ac.tuwien.detlef.callbacks.CallbackContainer;
 import at.ac.tuwien.detlef.domain.DeviceId;
@@ -49,7 +51,6 @@ import at.ac.tuwien.detlef.gpodder.GPodderException;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdAsyncTask;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdResultHandler;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.DeviceRegistratorException;
 import at.ac.tuwien.detlef.settings.GpodderConnectionException;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.util.GUIUtils;
@@ -109,6 +110,18 @@ public class SettingsGpodderNet extends PreferenceFragment {
     private GUIUtils guiUtils;
 
     /**
+     * The name for the extra which controls the behavior of the settings activity.
+     * If a {@link Bundle} with this extra exists and it is set to <code>true</code> then
+     * the {@link SettingsActivity} will run in a "set up" mode. This mode guides the user
+     * through the initial steps that are needed in order to run {@link Detlef}.
+     */
+    public static final String EXTRA_SETUPMODE= "setupmode";
+
+
+
+    private boolean setupMode = false;
+
+    /**
      * All callbacks this Activity receives are stored here.
      *
      * This allows us to manage the Activity Lifecycle more easily.
@@ -134,6 +147,12 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
         super.onCreate(savedInstanceState);
 
+
+
+        if (getActivity().getIntent().getBooleanExtra(EXTRA_SETUPMODE, false)) {
+            setupMode = true;
+        }
+
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
         final Activity act = getActivity();
 
@@ -158,7 +177,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
         loadSummaries();
 
-        findPreference("button_next_step").setEnabled(false);
+
 
         Log.d(TAG, "cbCont 1:" + cbCont.get(KEY_DEVICE_ID_HANDLER));
 
@@ -188,6 +207,15 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
+                                        MainActivity.REFRESH_FEED_LIST_ON_CREATE = true;
+
+                                        Intent data = new Intent().putExtra(MainActivity.EXTRA_REFRESH_FEED_LIST, true);
+                                        if (act.getParent() == null) {
+                                            act.setResult(Activity.RESULT_OK, data);
+                                        } else {
+                                            act.getParent().setResult(Activity.RESULT_OK, data);
+                                       }
+
                                         act.finish();
 
                                     }
@@ -321,7 +349,16 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
     private void setUpNextStepButton() {
         Preference button = findPreference("button_next_step");
+
+
+        if (!setupMode) {
+            getPreferenceScreen().removePreference(button);
+            return;
+        }
+
+        button.setEnabled(false);
         button.setOnPreferenceClickListener(new NextStepButtonPreferenceListener());
+
     }
 
     /**
@@ -511,7 +548,9 @@ public class SettingsGpodderNet extends PreferenceFragment {
     private void enableButton() {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                findPreference("button_next_step").setEnabled(true);
+                if (findPreference("button_next_step") != null) {
+                    findPreference("button_next_step").setEnabled(true);
+                }
            }
        });
 

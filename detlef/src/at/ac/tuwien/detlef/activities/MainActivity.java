@@ -34,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -56,6 +57,7 @@ import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
 import at.ac.tuwien.detlef.fragments.SearchFragment;
+import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.gpodder.FeedSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.GPodderException;
 import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
@@ -65,6 +67,10 @@ import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 public class MainActivity extends FragmentActivity
         implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
         EpisodeListFragment.OnEpisodeSelectedListener {
+
+    private static final String TAG = MainActivity.class.getName();
+
+    public static boolean REFRESH_FEED_LIST_ON_CREATE = false;
 
     private Menu menu;
 
@@ -172,11 +178,16 @@ public class MainActivity extends FragmentActivity
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            startActivity(
+
+                            startActivityForResult(
                                     new Intent(
                                         getApplicationContext(),
                                         SettingsActivity.class
-                                    ).putExtra(SettingsActivity.BOOLEAN_EXTRA_SETUPSCREEN, true)
+                                    )
+                                    .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsGpodderNet.class.getName())
+                                    .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
+                                    .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
+                                    0
                                 );
 
                         }
@@ -291,6 +302,14 @@ public class MainActivity extends FragmentActivity
     private static final String KEY_NUM_POD_SYNC = "KEY_NUM_POD_SYNC";
 
     private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
+
+    /**
+     * if {@link #onActivityResult(int, int, Intent)} is called with an {@link Intent}
+     * that has a boolean extra with this key, then the podcast list will
+     * be refreshed. This is used during set up mode when the list should be refreshed
+     * automatically after the user entered his user credentials.
+     */
+    public static final String EXTRA_REFRESH_FEED_LIST = "REFRESH_FEED_LIST";
 
     /** Number of feeds to sync, -1 if no refresh is in progress. */
     private AtomicInteger numPodSync = new AtomicInteger(-1);
@@ -588,4 +607,17 @@ public class MainActivity extends FragmentActivity
     public void onAddToPlaylistClick(View v) {
         playlistDAO.addEpisodeToEndOfPlaylist((Episode) v.getTag());
     }
+
+    protected void onActivityResult(int requestCode, int resultCode,
+            Intent data) {
+
+        Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
+
+        if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
+            onRefreshPressed();
+        }
+
+
+    }
+
 }
