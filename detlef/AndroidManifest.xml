@@ -34,6 +34,10 @@
             android:name="at.ac.tuwien.detlef.activities.SettingsActivity"
             android:label="@string/title_activity_settings" />
 
+        <activity
+            android:name=".activities.SetupActivity"
+            android:label="@string/title_activity_setup" />
+
         <uses-library android:name="android.test.runner" />
 
         <service

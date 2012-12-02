@@ -11,6 +11,7 @@
     <string name="title_activity_playlist">Playlist</string>
     <string name="title_activity_search">Search</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_setup">Setup</string>
     <string name="refresh">Refresh</string>
     <string name="playlist">Playlist</string>
     <string name="search">Search</string>
@@ -70,6 +71,13 @@
     <string name="podcast_logo">Podcast Logo</string>
     <string name="search_results">Search Results</string>
     <string name="popular_podcasts">Popular Podcasts</string>
+    <string name="continue_set_up_title">Next Step</string>
+    <string name="continue_set_up_summary" >After you have successfully verified your account settings, tap here to continue setting up your account.</string>
+    <string name="register_device_title">Registering device&#8230;</string>
+    <string name="register_device_summary">Your device is now registered at gpodder.net</string>
+
+
+
     <string name="cannot_download_episode">Cannot download episode! Please make sure you have an internet connection and an SD card inserted!</string>
     <string name="suggestions">Suggestions</string>
     <string name="storage_location">StorageLocation</string>

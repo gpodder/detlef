@@ -20,15 +20,33 @@ package at.ac.tuwien.detlef.activities;
 
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
-
+/**
+ * This activity handles the preferences. This activity can be accessed via two methods:
+ * <ul>
+ *     <li></li>
+ * </ul>
+ * @author moe
+ *
+ */
 public class SettingsActivity extends PreferenceActivity {
+
+    /**
+     * The name for the extra which controls the behavior of the settings activity.
+     * If a {@link Bundle} with this extra exists and it is set to <code>true</code> then
+     * the {@link SettingsActivity} will run in a "set up" mode. This mode guides the user
+     * through the initial steps that are needed in order to run {@link Detlef}.
+     */
+    public static final String BOOLEAN_EXTRA_SETUPSCREEN = "show_setup_screen";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override

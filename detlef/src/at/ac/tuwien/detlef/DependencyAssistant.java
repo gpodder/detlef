@@ -28,10 +28,14 @@ import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
+import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
 import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
+import at.ac.tuwien.detlef.settings.DeviceRegistrator;
+import at.ac.tuwien.detlef.settings.DeviceRegistratorException;
+import at.ac.tuwien.detlef.settings.GpodderConnectionException;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
@@ -115,12 +119,44 @@ public class DependencyAssistant {
     }
 
     /**
+     *
+     * @return TODO right now this is only a mock.
+     */
+    public DeviceRegistrator getDeviceRegistrator() {
+        return new DeviceRegistrator() {
+
+            @Override
+            public DeviceRegistrator registerNewDeviceId(DeviceId deviceId)
+                    throws DeviceRegistratorException {
+
+                try {
+                    Thread.sleep(3333);
+                } catch (InterruptedException e) {
+                }
+
+                return this;
+            }
+
+        };
+    }
+
+    /**
      * @return The {@link ConnectionTester} that verifies a set of of
      *         {@link GpodderSettings}.
      */
     public ConnectionTester getConnectionTester() {
-        return new ConnectionTesterGpodderNet().setContext(Detlef
-                .getAppContext());
+        //return new ConnectionTesterGpodderNet().setContext(Detlef
+        //        .getAppContext());
+
+        return new ConnectionTester() {
+
+            @Override
+            public boolean testConnection(GpodderSettings settings) throws InterruptedException,
+                    GpodderConnectionException {
+                return true;
+            }
+        };
+
     }
 
     public static DependencyAssistant getDependencyAssistant() {

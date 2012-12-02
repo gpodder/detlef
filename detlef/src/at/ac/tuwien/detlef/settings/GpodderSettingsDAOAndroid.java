@@ -21,6 +21,7 @@ package at.ac.tuwien.detlef.settings;
 import java.util.HashMap;
 
 import android.content.SharedPreferences;
+import at.ac.tuwien.detlef.domain.DeviceId;
 
 public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 
@@ -60,6 +61,12 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 
             public void setLastUpdate(long timestamp) {
                 getSharedPreferences().edit().putLong("lastUpdate", timestamp).commit();
+            }
+
+            @Override
+            public DeviceId getDeviceId() {
+                return null;
+                //return getSharedPreferences().getString("deviceid", "");
             }
 		};
 	}

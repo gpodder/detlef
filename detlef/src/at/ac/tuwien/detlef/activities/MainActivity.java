@@ -27,8 +27,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,6 +39,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -86,6 +90,9 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        startSetupActivityIfNoDeviceIdSet();
+
         setContentView(R.layout.main_activity_layout);
 
         /* old Activity is recreated */
@@ -140,6 +147,54 @@ public class MainActivity extends FragmentActivity
         }
 
         playlistDAO = PlaylistDAOImpl.i();
+    }
+
+    private void startSetupActivityIfNoDeviceIdSet() {
+
+            if (DependencyAssistant
+                    .getDependencyAssistant()
+                    .getGpodderSettings(this)
+                    .getDeviceId() != null
+            ) {
+                return;
+            }
+
+            final AlertDialog.Builder b = new AlertDialog.Builder(this);
+            b.setTitle("Detlef says Hello!");
+            b.setMessage(
+                    "Detlef is not set up on this device. "
+                     + "Do you want to set up your account now?"
+            );
+
+
+            b.setPositiveButton(
+                    android.R.string.yes, new OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startActivity(
+                                    new Intent(
+                                        getApplicationContext(),
+                                        SettingsActivity.class
+                                    ).putExtra(SettingsActivity.BOOLEAN_EXTRA_SETUPSCREEN, true)
+                                );
+
+                        }
+                    });
+            b.setNegativeButton(
+                    android.R.string.no,
+                    new OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(), "No worries, you can set up your account anytime in the settings.", Toast.LENGTH_LONG).show();
+
+                        }
+                    }
+                );
+
+            b.show();
+
     }
 
     @Override

@@ -18,6 +18,8 @@
 
 package at.ac.tuwien.detlef.settings;
 
+import at.ac.tuwien.detlef.domain.DeviceId;
+
 /**
  * POJO that holds the settings for Gpodder.net.
  *
@@ -36,10 +38,19 @@ public interface GpodderSettings {
     String getPassword();
 
     /**
-     * @return The name that is used to identify this device in gpodder.net
+     * @return A human readable label for the device to identify it at gpodder.net.
+     * The device name must not be confused with the {@link #getDeviceId() device id} that
+     * uniquely identifies a device.
+     *
      */
     String getDevicename();
     
+    /**
+     * @return The {@link DeviceId} that belongs to this account. If no device id is set, this
+     *     method must return <code>null</code>.
+     */
+    DeviceId getDeviceId();
+
     /**
      * @return The timestamp of the last synchronization with gpodder.net
      */

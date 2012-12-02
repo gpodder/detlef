@@ -19,11 +19,17 @@
 
 package at.ac.tuwien.detlef.fragments;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -31,11 +37,19 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.activities.SettingsActivity;
+import at.ac.tuwien.detlef.callbacks.CallbackContainer;
+import at.ac.tuwien.detlef.domain.DeviceId;
+import at.ac.tuwien.detlef.gpodder.GPodderException;
+import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdAsyncTask;
+import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdResultHandler;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
+import at.ac.tuwien.detlef.settings.DeviceRegistratorException;
 import at.ac.tuwien.detlef.settings.GpodderConnectionException;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.util.GUIUtils;
@@ -68,7 +82,14 @@ public class SettingsGpodderNet extends PreferenceFragment {
      */
     private static Thread connectionTestThread;
 
+    /**
+     *
+     */
+    private static final ExecutorService REGISTER_DEVICE = Executors.newSingleThreadExecutor();
+
     private static ProgressDialog checkUserCredentialsProgress;
+
+    private static ProgressDialog registerDeviceProgress;
 
     /**
      * This holds a static reference to the activity that currently is
@@ -83,9 +104,22 @@ public class SettingsGpodderNet extends PreferenceFragment {
     /**
      * A tag for the LogCat so everything this class produces can be filtered.
      */
-    private static final String LOG_TAG = "settings";
+    private static final String TAG = SettingsGpodderNet.class.getCanonicalName();
 
     private GUIUtils guiUtils;
+
+    /**
+     * All callbacks this Activity receives are stored here.
+     *
+     * This allows us to manage the Activity Lifecycle more easily.
+     */
+    private static final CallbackContainer<SettingsGpodderNet> cbCont =
+            new CallbackContainer<SettingsGpodderNet>();
+
+    /**
+     *
+     */
+    private static final String KEY_DEVICE_ID_HANDLER = "device_id_handler";
 
     /**
      * @return The {@link ConnectionTester} that can be used to determine if the
@@ -101,9 +135,10 @@ public class SettingsGpodderNet extends PreferenceFragment {
         super.onCreate(savedInstanceState);
 
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
+        final Activity act = getActivity();
 
-        Log.d(LOG_TAG, "onCreate(" + savedInstanceState + ")");
-        Log.d(LOG_TAG, "Associated Activity is: " + getActivity());
+        Log.d(TAG, "onCreate(" + savedInstanceState + "): " + this);
+        Log.d(TAG, "Associated Activity is: " + act);
 
         activity = getActivity();
 
@@ -111,17 +146,73 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
         toast = Toast.makeText(getActivity(), "", 0);
 
-        Log.d(LOG_TAG, "Toast: " + toast);
+        Log.d(TAG, "Toast: " + toast);
 
         addPreferencesFromResource(R.xml.preferences_gpoddernet);
 
         setUpTestConnectionButton();
+        setUpNextStepButton();
         setUpUsernameField();
         setUpPasswordField();
         setUpDeviceNameButton();
 
         loadSummaries();
+
+        findPreference("button_next_step").setEnabled(false);
+
+        Log.d(TAG, "cbCont 1:" + cbCont.get(KEY_DEVICE_ID_HANDLER));
+
+        cbCont.put(KEY_DEVICE_ID_HANDLER, new RegisterDeviceIdResultHandler<SettingsGpodderNet>() {
+
+            @Override
+            public void handle() {
+                Log.d(TAG, "Me " + this + " has a handle!");
+                Log.d(TAG, "My activity is: " + act);
+
+                getRcv().dismissRegisterDeviceDialog();
+
+                act.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        final AlertDialog.Builder b = new AlertDialog.Builder(act);
+                        b.setTitle("Almost done!");
+                        b.setMessage(
+                                "Your device is now connected to gpodder.net."
+                                 + "Now Detlef will download your podcast list."
+                        );
+
+
+                        b.setPositiveButton(
+                                android.R.string.ok, new OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        act.finish();
+
+                                    }
+                                });
+
+                        b.show();
+                    }
+                });
+
+
+
+            }
+
+            @Override
+            public void handleFailure(GPodderException e) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+        Log.d(TAG, "cbCont 2:" + cbCont.get(KEY_DEVICE_ID_HANDLER));
+
     }
+
+
 
     private void restoreState(Bundle savedInstanceState) {
 
@@ -144,7 +235,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
                         return true;
                     }
                 }
-                );
+        );
     }
 
     private void setUpPasswordField() {
@@ -223,9 +314,14 @@ public class SettingsGpodderNet extends PreferenceFragment {
     }
 
     private void setUpTestConnectionButton() {
-        Preference button = findPreference("button");
+        Preference button = findPreference("button_test_connect");
         button.setOnPreferenceClickListener(new TestConnectionButtonPreferenceListener());
         updateTestConnectionButtonEnabledState(getSettings());
+    }
+
+    private void setUpNextStepButton() {
+        Preference button = findPreference("button_next_step");
+        button.setOnPreferenceClickListener(new NextStepButtonPreferenceListener());
     }
 
     /**
@@ -255,15 +351,16 @@ public class SettingsGpodderNet extends PreferenceFragment {
                                             activity.getText(R.string.connectiontest_successful)
                                                     .toString(),
                                             getSettings().getUsername()
-                                            ), activity, LOG_TAG);
+                                            ), activity, TAG);
+                            enableButton();
                         } else {
                             guiUtils.showToast(activity
                                     .getText(R.string.connectiontest_unsuccessful),
-                                    activity, LOG_TAG);
+                                    activity, TAG);
                         }
                     } catch (GpodderConnectionException e) {
                         guiUtils.showToast(activity.getText(R.string.connectiontest_error),
-                                activity, LOG_TAG);
+                                activity, TAG);
                     } catch (InterruptedException e) {
                         return;
                     }
@@ -274,12 +371,43 @@ public class SettingsGpodderNet extends PreferenceFragment {
                         checkUserCredentialsProgress.dismiss();
                     }
                 }
+
+
             });
 
             connectionTestThread.start();
 
             return true;
         }
+    }
+
+    public class NextStepButtonPreferenceListener implements OnPreferenceClickListener {
+
+        @Override
+        public boolean onPreferenceClick(Preference arg0) {
+
+            showRegisterDeviceProgressDialog();
+
+            // create new devide id
+            DeviceId deviceId = new DeviceId(
+                Settings.System.getString(
+                    getActivity().getContentResolver(),
+                    Settings.Secure.ANDROID_ID
+                )
+            );
+
+            REGISTER_DEVICE.execute(
+                new RegisterDeviceIdAsyncTask(
+                    (RegisterDeviceIdResultHandler<SettingsGpodderNet>) cbCont.get(
+                        KEY_DEVICE_ID_HANDLER
+                    ),
+                    deviceId
+                )
+            );
+
+            return true;
+        }
+
     }
 
     private void updateTestConnectionButtonEnabledState(GpodderSettings settings) {
@@ -294,7 +422,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
      * @param password
      */
     private void updateTestConnectionButtonEnabledState(String username, String password) {
-        Preference button = findPreference("button");
+        Preference button = findPreference("button_test_connect");
         button.setEnabled((!username.isEmpty()) && (!password.isEmpty()));
     }
 
@@ -318,7 +446,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
 
-        Log.d(LOG_TAG, "onSaveInstanceState()");
+        Log.d(TAG, "onSaveInstanceState()");
         savedInstanceState.putBoolean(
                 STATEVAR_PROGRESSDIALOG,
                 (checkUserCredentialsProgress != null)
@@ -341,19 +469,77 @@ public class SettingsGpodderNet extends PreferenceFragment {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         Log.d(
-                                LOG_TAG,
+                                TAG,
                                 String.format("%s.onCancel(%s)", checkUserCredentialsProgress,
                                         dialog)
                                 );
                         if ((connectionTestThread != null) && connectionTestThread.isAlive()) {
-                            Log.d(LOG_TAG, "interrupting thread.");
+                            Log.d(TAG, "interrupting thread.");
                             connectionTestThread.interrupt();
                         }
                     }
                 }
                 );
 
-        Log.d(LOG_TAG, "Open Progressbar: " + checkUserCredentialsProgress);
+        Log.d(TAG, "Open Progressbar: " + checkUserCredentialsProgress);
     }
+
+    /**
+     * Opens up the {@link ProgressDialog} that is shown while the user name and
+     * password is checked against gpodder.net.
+     */
+    private void showRegisterDeviceProgressDialog() {
+        registerDeviceProgress = ProgressDialog.show(
+                getActivity(),
+                getString(R.string.register_device_title),
+                getString(R.string.register_device_summary),
+                true,
+                true,
+                new OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                       //TODO
+                    }
+                }
+                );
+    }
+
+    public void dismissRegisterDeviceDialog() {
+        registerDeviceProgress.dismiss();
+    }
+
+    private void enableButton() {
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                findPreference("button_next_step").setEnabled(true);
+           }
+       });
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        /* Register the Podcast- & FeedHandler. */
+        cbCont.registerReceiver(this);
+    }
+
+    @Override
+    public void onPause() {
+        /* Unregister the Podcast- & FeedHandler. */
+        Log.d(TAG, "onPause()");
+        cbCont.unregisterReceiver();
+
+        super.onPause();
+    }
+
+    public void onStop() {
+
+        Log.d(TAG, "onStop()");
+        cbCont.clear();
+        super.onStop();
+    }
+
 
 }

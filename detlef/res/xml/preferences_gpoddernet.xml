@@ -6,10 +6,18 @@
         <EditTextPreference android:title="@string/device_name" android:key="devicename" android:inputType="textNoSuggestions"/>
 
         <Preference
-			android:title="@string/test_connection"
-			android:key="button"
-			android:summary="@string/tap_here_to_test_connection"
-			android:id="@+id/button_testconnection"
-		/>
+            android:title="@string/test_connection"
+            android:key="button_test_connect"
+            android:summary="@string/tap_here_to_test_connection"
+            android:id="@+id/button_testconnection"
+        />
+
+        <Preference
+            android:title="@string/continue_set_up_title"
+            android:key="button_next_step"
+            android:summary="@string/continue_set_up_summary"
+            android:id="@+id/button_continue_setup"
+        />
+
 
 </PreferenceScreen>
