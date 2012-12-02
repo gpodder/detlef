@@ -14,6 +14,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
+import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -29,6 +30,7 @@ public class MediaPlayerService extends Service implements
         PlaylistDAO.OnPlaylistChangeListener, EpisodeDAO.OnEpisodeChangeListener {
 
     private PlaylistDAO playlistDAO;
+    private EpisodeDAO episodeDAO;
     private ArrayList<Episode> playlistItems;
 
     /**
@@ -54,6 +56,7 @@ public class MediaPlayerService extends Service implements
     private boolean mediaPlayerPrepared = false;
     private Episode activeEpisode;
     private Episode nextEpisode;
+    private int currentPlaylistPosition = 0;
     private static boolean running = false;
 
     @Override
@@ -62,6 +65,8 @@ public class MediaPlayerService extends Service implements
         playlistDAO = PlaylistDAOImpl.i();
         playlistItems = playlistDAO.getNonCachedEpisodes();
         playlistDAO.addPlaylistChangedListener(this);
+        episodeDAO = EpisodeDAOImpl.i();
+        episodeDAO.addEpisodeChangedListener(this);
     }
 
     /*
@@ -189,25 +194,39 @@ public class MediaPlayerService extends Service implements
         return this;
     }
 
-    /**
-     * Switches next URI to the next file to be played and updates the active
-     * episode.
-     */
-    private void chooseNextToPlay() {
-        // TODO hook up with playlist.
-    }
-
     /*
      * (non-Javadoc)
      * @see at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService#fastForward()
      */
     @Override
     public IMediaPlayerService fastForward() {
-        mediaPlayer.stop();
-        chooseNextToPlay();
-        haveRunningEpisode = false;
-        currentlyPlaying = false;
-        startPlaying();
+        if (currentPlaylistPosition < playlistItems.size() - 1) {
+            mediaPlayer.stop();
+            haveRunningEpisode = false;
+            currentlyPlaying = false;
+            currentPlaylistPosition++;
+            nextEpisode = playlistItems.get(currentPlaylistPosition);
+            startPlaying();
+        }
+        return this;
+    }
+
+    @Override
+    public IMediaPlayerService rewind() {
+        if (currentPlaylistPosition > 0) {
+            mediaPlayer.stop();
+            haveRunningEpisode = false;
+            currentlyPlaying = false;
+            currentPlaylistPosition--;
+            nextEpisode = playlistItems.get(currentPlaylistPosition);
+            startPlaying();
+        } else if (currentPlaylistPosition == 0) {
+            mediaPlayer.stop();
+            haveRunningEpisode = false;
+            currentlyPlaying = false;
+            nextEpisode = playlistItems.get(0);
+            startPlaying();
+        }
         return this;
     }
 
@@ -299,17 +318,31 @@ public class MediaPlayerService extends Service implements
     @Override
     public void onPlaylistEpisodeAdded(int position, Episode episode) {
         playlistItems.add(position, episode);
+        if (position <= currentPlaylistPosition) {
+            currentPlaylistPosition = Math.min(currentPlaylistPosition + 1,
+                    playlistItems.size() - 1);
+        }
     }
 
     @Override
     public void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition) {
         Episode ep = playlistItems.remove(firstPosition);
         playlistItems.add(secondPosition, ep);
+        if (firstPosition <= currentPlaylistPosition && secondPosition >= currentPlaylistPosition) {
+            currentPlaylistPosition = Math.max(currentPlaylistPosition - 1, 0);
+        } else if (firstPosition >= currentPlaylistPosition
+                && secondPosition <= currentPlaylistPosition) {
+            currentPlaylistPosition = Math.min(currentPlaylistPosition + 1,
+                    playlistItems.size() - 1);
+        }
     }
 
     @Override
     public void onPlaylistEpisodeRemoved(int position) {
         playlistItems.remove(position);
+        if (position <= currentPlaylistPosition) {
+            currentPlaylistPosition = Math.max(currentPlaylistPosition - 1, 0);
+        }
     }
 
     @Override
@@ -330,9 +363,7 @@ public class MediaPlayerService extends Service implements
             activeEpisode = null;
         }
         if (nextEpisode == episode) {
-            // TODO @Joshi this needs further attention - what if playlist gets
-            // notified second?
-            chooseNextToPlay();
+            nextEpisode = null;
         }
     }
 }

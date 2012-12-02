@@ -40,6 +40,13 @@ public interface IMediaPlayerService {
     IMediaPlayerService fastForward();
 
     /**
+     * Starts the previous piece from the playlist.
+     * 
+     * @return this
+     */
+    IMediaPlayerService rewind();
+
+    /**
      * Starts playback of the active episode (if any). Otherwise, gets the first
      * episode from the playlist and starts on that. If there is no active
      * episode and the playlist is empty, does nothing.
