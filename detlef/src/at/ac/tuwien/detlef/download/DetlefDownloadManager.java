@@ -105,9 +105,11 @@ public class DetlefDownloadManager {
             activeDownloads.remove(id);
             downloadManager.remove(id);
 
-            episode.setStorageState(StorageState.NOT_ON_DEVICE);
-            dao.updateState(episode);
+            break;
         }
+
+        episode.setStorageState(StorageState.NOT_ON_DEVICE);
+        dao.updateState(episode);
     }
 
     /**
