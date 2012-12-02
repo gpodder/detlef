@@ -1,7 +1,6 @@
 
 package at.ac.tuwien.detlef.fragments;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,20 +16,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import at.ac.tuwien.detlef.DependencyAssistant;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Episode.StorageState;
+import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
 public class EpisodeListFragment extends ListFragment
-implements EpisodeDAOImpl.OnEpisodeChangeListener {
+        implements EpisodeDAOImpl.OnEpisodeChangeListener {
 
     private static final String TAG = EpisodeListFragment.class.getName();
     private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
@@ -41,7 +38,6 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
     private Podcast filteredByPodcast = null;
     private OnEpisodeSelectedListener listener;
 
-    private DetlefDownloadManager downloadManager;
     private GUIUtils guiUtils;
 
     /**
@@ -80,8 +76,6 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
                 new ArrayList<Episode>(eplist));
         setListAdapter(adapter);
 
-        downloadManager = DependencyAssistant.getDependencyAssistant().getDownloadManager(
-                Detlef.getAppContext());
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
     }
 
@@ -242,61 +236,34 @@ implements EpisodeDAOImpl.OnEpisodeChangeListener {
     }
 
     /**
-     * Handles a click on the combined start download / abort download / delete episode
-     * button. The action taken depends on the episode's storage state.
+     * Handles a click on the combined start download / abort download / delete
+     * episode button. The action taken depends on the episode's storage state.
      */
     public void onDownloadTrashClick(View v) {
-        Episode episode = (Episode)v.getTag();
+        Episode episode = (Episode) v.getTag();
 
         switch (episode.getStorageState()) {
             case NOT_ON_DEVICE:
-                guiUtils.showToast(
-                        String.format("Downloading %s", episode.getTitle()),
-                        getActivity(),
-                        TAG);
-                enqueueEpisode(episode);
+                try {
+                    guiUtils.showToast(String.format("Downloading %s", episode.getTitle()),
+                            getActivity(), TAG);
+                    EpisodePersistence.download(episode);
+                } catch (IOException e) {
+                    guiUtils.showToast(getActivity().getString(R.string.cannot_download_episode),
+                            getActivity(), TAG);
+                }
                 break;
             case DOWNLOADING:
-                guiUtils.showToast(
-                        "Download aborted",
-                        getActivity(),
-                        TAG);
-                downloadManager.cancel(episode);
+                guiUtils.showToast("Download aborted", getActivity(), TAG);
+                EpisodePersistence.cancelDownload(episode);
                 break;
             case DOWNLOADED:
-                /* Logic for episode handling and the resulting DB calls are now scattered
-                 * all over; in Fragments, in DAO classes, in the DownloadManager. I'd love to
-                 * get this all into one place, but it seems wrong to do it in the Episode class
-                 * (a dumb container) itself. Ideas? */
-                guiUtils.showToast(
-                        String.format("Deleted %s", episode.getTitle()),
-                        getActivity(),
-                        TAG);
-                deleteEpisode(episode);
+                guiUtils.showToast(String.format("Deleted %s", episode.getTitle()),
+                        getActivity(), TAG);
+                EpisodePersistence.delete(episode);
                 break;
             default:
                 Log.e(TAG, "Unknown storage state encountered");
-        }
-    }
-
-    private void deleteEpisode(Episode episode) {
-        File file = new File(episode.getFilePath());
-        file.delete();
-
-        episode.setStorageState(StorageState.NOT_ON_DEVICE);
-        EpisodeDAOImpl dao = EpisodeDAOImpl.i(getActivity());
-        dao.updateState(episode);
-    }
-
-    private void enqueueEpisode(Episode episode) {
-        try {
-            downloadManager.enqueue(episode);
-        } catch (IOException e) {
-            Log.e(getClass().getName(), "IOException while trying to download: ", e);
-            guiUtils.showToast("Cannot download episode! Please make sure you have an internet "
-                            + "connection and an SD card inserted!",
-                            getActivity(),
-                            TAG);
         }
     }
 }
