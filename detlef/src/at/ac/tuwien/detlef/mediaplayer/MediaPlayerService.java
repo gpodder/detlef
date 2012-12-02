@@ -24,14 +24,16 @@ import at.ac.tuwien.detlef.domain.Episode;
  * 
  * @author johannes
  */
-public class MediaPlayerService extends Service implements
+public class MediaPlayerService extends Service implements IMediaPlayerService,
         MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener, IMediaPlayerService,
-        PlaylistDAO.OnPlaylistChangeListener, EpisodeDAO.OnEpisodeChangeListener {
+        MediaPlayer.OnCompletionListener, PlaylistDAO.OnPlaylistChangeListener,
+        EpisodeDAO.OnEpisodeChangeListener {
 
     private PlaylistDAO playlistDAO;
     private EpisodeDAO episodeDAO;
     private ArrayList<Episode> playlistItems;
+    private boolean manual = false;
+    private Episode manualEpisode;
 
     /**
      * Binder that allows local classes to communicate with the service.
@@ -203,23 +205,47 @@ public class MediaPlayerService extends Service implements
      */
     @Override
     public IMediaPlayerService fastForward() {
-        if (currentPlaylistPosition < (playlistItems.size() - 1)) {
+        if (manual && !playlistItems.isEmpty()) {
+            currentPlaylistPosition = 0;
+            nextEpisode = playlistItems.get(currentPlaylistPosition);
+            manual = false;
+        } else if (currentPlaylistPosition < (playlistItems.size() - 1)) {
             currentPlaylistPosition++;
             nextEpisode = playlistItems.get(currentPlaylistPosition);
+        }
+        if (currentPlaylistPosition > 0) {
+            manualEpisode = null;
         }
         return this;
     }
 
     @Override
     public IMediaPlayerService rewind() {
-        if (currentPlaylistPosition > 0) {
-            currentPlaylistPosition--;
-        }
-        if (!playlistItems.isEmpty()) {
-            nextEpisode = playlistItems.get(currentPlaylistPosition);
+        if ((currentPlaylistPosition == 0) && (manualEpisode != null)) {
+            manual = true;
         } else {
-            currentPlaylistPosition = 0;
+            if (currentPlaylistPosition > 0) {
+                currentPlaylistPosition--;
+            }
+            if (!playlistItems.isEmpty()) {
+                nextEpisode = playlistItems.get(currentPlaylistPosition);
+            }
         }
+        return this;
+    }
+
+    @Override
+    public IMediaPlayerService skipToPosition(int position) {
+        if (position >= playlistItems.size()) {
+            Log.e(getClass().getName(), "Wrong playlist index: " + position + ", current size: "
+                    + playlistItems.size());
+            return this;
+        }
+        Log.d(getClass().getName(), "Skipping to position " + position);
+        manual = false;
+        currentPlaylistPosition = position;
+        nextEpisode = playlistItems.get(currentPlaylistPosition);
+        manualEpisode = null;
         return this;
     }
 
@@ -251,7 +277,7 @@ public class MediaPlayerService extends Service implements
             currentlyPlaying = true;
             mediaPlayer.start();
         } else {
-            activeEpisode = nextEpisode;
+            activeEpisode = getNextEpisode();
             if (episodeFileOK(activeEpisode)) {
                 prepareEpisodePlayback();
             } else {
@@ -305,7 +331,11 @@ public class MediaPlayerService extends Service implements
 
     @Override
     public Episode getNextEpisode() {
-        return nextEpisode;
+        if (manual) {
+            return manualEpisode;
+        } else {
+            return nextEpisode;
+        }
     }
 
     @Override
@@ -365,4 +395,21 @@ public class MediaPlayerService extends Service implements
             nextEpisode = null;
         }
     }
+
+    @Override
+    public Episode getManualEpisode() {
+        return manualEpisode;
+    }
+
+    @Override
+    public void setManualEpisode(Episode manualEpisode) {
+        this.manualEpisode = manualEpisode;
+        manual = true;
+    }
+
+    @Override
+    public boolean isManual() {
+        return manual;
+    }
+
 }

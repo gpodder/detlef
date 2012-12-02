@@ -5,9 +5,6 @@ import at.ac.tuwien.detlef.domain.Episode;
 
 public interface IMediaPlayerService {
 
-    // TODO @Joshi how to test these methods? Need episode with downloaded audio
-    // file.
-
     /**
      * @return The current media player position.
      */
@@ -45,6 +42,11 @@ public interface IMediaPlayerService {
      * @return this
      */
     IMediaPlayerService rewind();
+
+    /**
+     * @param position Skips to the specified position in the playlist.
+     */
+    IMediaPlayerService skipToPosition(int position);
 
     /**
      * Starts playback of the active episode (if any). Otherwise, gets the first
@@ -85,4 +87,23 @@ public interface IMediaPlayerService {
      */
     boolean episodeFileOK(Episode ep);
 
+    /**
+     * @return The episode that should be played when the user manually selects
+     *         an episode.
+     */
+    Episode getManualEpisode();
+
+    /**
+     * Sets the episode that should be played when the user manually selects an
+     * episode.
+     * 
+     * @param manualEpisode The manual episode
+     */
+    void setManualEpisode(Episode manualEpisode);
+
+    /**
+     * @return If we are in manual mode. In this mode, the manual episode is
+     *         played instead of the next episode.
+     */
+    boolean isManual();
 }

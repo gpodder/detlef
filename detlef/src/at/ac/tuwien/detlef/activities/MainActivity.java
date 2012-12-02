@@ -516,9 +516,8 @@ public class MainActivity extends FragmentActivity
     public void onEpisodeSelected(Episode episode) {
         // TODO @Joshi start playing only if episode is downloaded or
         // downloading
-        getPlayerFragment().setActiveEpisode(episode);
+        getPlayerFragment().setManualEpisode(episode);
         getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_PLAYER);
-        getPlayerFragment().startPlaying();
     }
 
     public void onDownloadTrashClick(View v) {

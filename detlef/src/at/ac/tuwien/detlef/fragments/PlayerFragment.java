@@ -53,7 +53,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
      * Handles the connection to the MediaPlayerService that plays music.
      */
     private ServiceConnection connection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName className, IBinder iBinder) {
             bound = true;
@@ -210,9 +209,13 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         return this;
     }
 
+    // TODO @Joshi set time once even when not playing, if it's possible
+
     private void updateControls() {
         setSeekBarAndTime();
-
+        if ((service.getNextEpisode() != null) && (service.getNextEpisode() != activeEpisode)) {
+            setActiveEpisode(service.getNextEpisode());
+        }
         if (service.isCurrentlyPlaying()) {
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_pause);
@@ -349,7 +352,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         return this;
     }
 
-    public PlayerFragment setActiveEpisode(Episode ep) {
+    private PlayerFragment setActiveEpisode(Episode ep) {
         if (ep != activeEpisode) {
             activeEpisode = ep;
             setEpisodeInfoControls(ep);
@@ -402,6 +405,17 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onPlaylistEpisodeRemoved(int position) {
         // not of interest here.
+    }
+
+    public PlayerFragment setManualEpisode(Episode episode) {
+        if (service == null) {
+            return this;
+        }
+        service.setManualEpisode(episode);
+        setActiveEpisode(episode);
+        stopPlaying();
+        startPlaying();
+        return this;
     }
 
 }

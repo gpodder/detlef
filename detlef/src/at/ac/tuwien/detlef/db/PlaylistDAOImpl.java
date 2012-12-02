@@ -425,9 +425,8 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         return ret;
     }
 
-    // TODO @Joshi what happens if the user presses an episode? Add to beginning
-    // of playlist?
-    // TODO @Joshi Episodes in playlist should be selectable
+    // TODO @Joshi remove played episodes from playlist
+    // TODO @Jakob stop download button doesn't change back to download
 
     @Override
     public void clearPlaylist() {
