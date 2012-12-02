@@ -23,5 +23,13 @@ public class MainActivityTest extends
     public void tearDown() throws Exception {
         solo.finishOpenedActivities();
     }
+    
+    public void testBackButtonPress() {
+        solo.clickOnText("PLAYER");
+        solo.goBack();
+        assertTrue("Episode tab should be displayed now!",solo.searchText("EPISODES"));
+        solo.goBack();
+        assertTrue("Podcasts tab should be displayed now!", solo.searchText("PODCASTS"));
+    }
 
 }
