@@ -21,8 +21,8 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
     private static final PlaylistDAOImpl INSTANCE = new PlaylistDAOImpl(Detlef.getAppContext());
 
     private final DatabaseHelper dbHelper;
-    private final Set<PlaylistDAO.OnPlaylistChangeListener> listeners =
-            new HashSet<PlaylistDAO.OnPlaylistChangeListener>();
+    private final List<PlaylistDAO.OnPlaylistChangeListener> listeners =
+            new ArrayList<PlaylistDAO.OnPlaylistChangeListener>();
     private final EpisodeDAO edao;
 
     /**
@@ -45,10 +45,14 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
     }
 
+    @Override
     public void addPlaylistChangedListener(PlaylistDAO.OnPlaylistChangeListener listener) {
-        listeners.add(listener);
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
     }
 
+    @Override
     public void removePlaylistChangeListener(PlaylistDAO.OnPlaylistChangeListener listener) {
         listeners.remove(listener);
     }
@@ -114,8 +118,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
             try {
                 db = dbHelper.getWritableDatabase();
                 int nextPosition = getNextFreePosition(db);
-                Log.d(getClass().getName(), "Next free position: " + nextPosition);
-
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.COLUMN_PLAYLIST_EPISODE, episode.getId());
                 values.put(DatabaseHelper.COLUMN_PLAYLIST_POSITION, nextPosition);
@@ -131,7 +133,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 Log.e(TAG, ex.getMessage());
                 return false;
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }
@@ -151,7 +153,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 values.put(DatabaseHelper.COLUMN_PLAYLIST_POSITION, 0);
 
                 long id = db.insert(DatabaseHelper.TABLE_PLAYLIST, null, values);
-                Log.d(getClass().getName(), "New playlist item id: " + id);
                 if (id == -1) {
                     throw new SQLiteException("Failed to insert playlist item");
                 }
@@ -162,7 +163,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 Log.e(TAG, ex.getMessage());
                 return false;
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }
@@ -190,7 +191,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 operator = "-";
                 by *= (-1);
             }
-            Log.d(getClass().getName(), "Shifting playlist from " + from + " by " + operator + by);
             db.execSQL("UPDATE " + DatabaseHelper.TABLE_PLAYLIST + " SET "
                     + DatabaseHelper.COLUMN_PLAYLIST_POSITION + " = "
                     + DatabaseHelper.COLUMN_PLAYLIST_POSITION + operator + by + " WHERE "
@@ -212,7 +212,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                                 + DatabaseHelper.COLUMN_PLAYLIST_POSITION + " ASC", null);
                 if (c.moveToFirst()) {
                     do {
-                        Log.d(getClass().getName(), "Getting episode " + c.getLong(0));
                         Episode e = edao.getEpisode(c.getLong(0));
                         allEpisodes.add(e);
                     } while (c.moveToNext());
@@ -220,7 +219,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 c.close();
                 return allEpisodes;
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }
@@ -242,7 +241,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                     String.valueOf(position)
             };
 
-            Log.d(getClass().getName(), "Deleting position " + position);
             ret = db.delete(DatabaseHelper.TABLE_PLAYLIST, selection, selectionArgs);
 
             shiftPositionsFromBy(position, -1, db);
@@ -265,7 +263,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 Log.e(getClass().getName(), ex.getMessage());
                 return false;
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }
@@ -297,7 +295,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 }
                 return ret == 1;
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }
@@ -353,7 +351,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
             } catch (Exception ex) {
                 Log.e(getClass().getName(), ex.getMessage());
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }
@@ -395,14 +393,14 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
             try {
                 db = dbHelper.getWritableDatabase();
                 List<Integer> positions = getAllPositions(db);
-                for (int i = 0; i < positions.size() - 1; i++) {
-                    if (positions.get(i + 1) != positions.get(i) + 1) {
+                for (int i = 0; i < (positions.size() - 1); i++) {
+                    if (positions.get(i + 1) != (positions.get(i) + 1)) {
                         return false;
                     }
                 }
                 return true;
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }

@@ -24,11 +24,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.db.PlaylistDAO;
+import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 
-public class PlayerFragment extends Fragment {
+public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistChangeListener {
 
     private static final int PROGRESS_BAR_UPDATE_INTERVAL = 1000;
 
@@ -47,8 +49,6 @@ public class PlayerFragment extends Fragment {
     private ImageButton buttonFF;
     private ImageButton buttonRew;
 
-    private static String TAG = PlayerFragment.class.getCanonicalName();
-
     /**
      * Handles the connection to the MediaPlayerService that plays music.
      */
@@ -56,8 +56,6 @@ public class PlayerFragment extends Fragment {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder iBinder) {
-            Log.d(TAG, "onServiceConnected(" + className + "," + iBinder + ")");
-
             bound = true;
             MediaPlayerService.MediaPlayerBinder binder =
                     (MediaPlayerService.MediaPlayerBinder) iBinder;
@@ -144,8 +142,6 @@ public class PlayerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate(" + savedInstanceState + ")");
-
         if (!MediaPlayerService.isRunning()) {
             Intent serviceIntent =
                     new Intent(Detlef.getAppContext(), MediaPlayerService.class);
@@ -153,7 +149,6 @@ public class PlayerFragment extends Fragment {
         }
         Intent intent = new Intent(getActivity(), MediaPlayerService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
-
     }
 
     @Override
@@ -182,6 +177,7 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        PlaylistDAOImpl.i().addPlaylistChangedListener(this);
         fragmentPaused = false;
         setEpisodeInfoControls(activeEpisode);
         if (!progressUpdaterRunning) {
@@ -193,6 +189,7 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onPause() {
         fragmentPaused = true;
+        PlaylistDAOImpl.i().removePlaylistChangeListener(this);
         super.onPause();
     }
 
@@ -201,9 +198,7 @@ public class PlayerFragment extends Fragment {
      * play/pause button.
      */
     private PlayerFragment startPlayProgressUpdater() {
-        Log.d(TAG, "startPlayProgressUpdater");
         if (fragmentPaused) {
-            Log.d(getClass().getCanonicalName(), "fragmentPaused");
             progressUpdaterRunning = false;
             return this;
         }
@@ -219,7 +214,6 @@ public class PlayerFragment extends Fragment {
         setSeekBarAndTime();
 
         if (service.isCurrentlyPlaying()) {
-            Log.d(TAG, "is currently playing");
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_pause);
             Runnable notification = new Runnable() {
@@ -230,7 +224,6 @@ public class PlayerFragment extends Fragment {
             };
             playProgressUpdateHandler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
         } else {
-            Log.d(getClass().getCanonicalName(), "is paused");
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_play);
             if (!service.hasRunningEpisode()) {
@@ -242,7 +235,6 @@ public class PlayerFragment extends Fragment {
     }
 
     private void setSeekBarAndTime() {
-        Log.d(getClass().getCanonicalName(), "setting seekbar etc.");
         seekBar.setMax(service.getDuration());
         seekBar.setProgress(service.getCurrentPosition());
         alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
@@ -265,7 +257,6 @@ public class PlayerFragment extends Fragment {
     }
 
     public PlayerFragment stopPlaying() {
-
         if (service == null) {
             return this;
         }
@@ -338,6 +329,7 @@ public class PlayerFragment extends Fragment {
         TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
 
         if ((ep == null) && (service != null)) {
+            Log.d(getClass().getName(), "Getting next episode from service");
             ep = service.getNextEpisode();
         }
 
@@ -390,6 +382,26 @@ public class PlayerFragment extends Fragment {
                     );
         }
         return "00:00";
+    }
+
+    @Override
+    public void onPlaylistEpisodeAdded(int position, Episode episode) {
+        Log.d(getClass().getName(), "Getting episode at position " + position);
+        if ((activeEpisode == null) && (position == 0)) {
+            Log.d(getClass().getName(), "setting active episode to " + episode);
+            activeEpisode = episode;
+            setEpisodeInfoControls(activeEpisode);
+        }
+    }
+
+    @Override
+    public void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition) {
+        // not our problem here
+    }
+
+    @Override
+    public void onPlaylistEpisodeRemoved(int position) {
+        // not of interest here.
     }
 
 }
