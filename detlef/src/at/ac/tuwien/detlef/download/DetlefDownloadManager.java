@@ -1,9 +1,11 @@
+
 package at.ac.tuwien.detlef.download;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.app.DownloadManager;
 import android.app.DownloadManager.Query;
@@ -27,7 +29,7 @@ public class DetlefDownloadManager {
 
     private static final String TAG = DetlefDownloadManager.class.getName();
 
-    private final HashMap<Long, Episode> activeDownloads = new HashMap<Long, Episode>();
+    private final Map<Long, Episode> activeDownloads = new ConcurrentHashMap<Long, Episode>();
     private final Context context;
     private final EpisodeDAOImpl dao;
     private final DownloadManager downloadManager;
