@@ -92,4 +92,9 @@ public interface PlaylistDAO {
      * @param listener The listener to be removed.
      */
     void removePlaylistChangeListener(OnPlaylistChangeListener listener);
+
+    /**
+     * Removes all episodes from the playlist.
+     */
+    void clearPlaylist();
 }

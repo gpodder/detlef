@@ -424,4 +424,18 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         }
         return ret;
     }
+
+    // TODO @Joshi what happens if the user presses an episode? Add to beginning
+    // of playlist?
+    // TODO @Joshi Episodes in playlist should be selectable
+
+    @Override
+    public void clearPlaylist() {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            List<Episode> currentEpisodes = getNonCachedEpisodes();
+            for (int i = 0; i < currentEpisodes.size(); i++) {
+                removeEpisode(0);
+            }
+        }
+    }
 }

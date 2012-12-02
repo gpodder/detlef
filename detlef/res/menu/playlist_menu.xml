@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/downloadAll"
+        android:id="@+id/playlistDownloadAll"
         android:showAsAction="ifRoom"
         android:title="Download all">
     </item>
     <item
-        android:id="@+id/clear"
+        android:id="@+id/playlistClear"
         android:showAsAction="ifRoom"
         android:title="Clear playlist"
         android:titleCondensed="Clear">

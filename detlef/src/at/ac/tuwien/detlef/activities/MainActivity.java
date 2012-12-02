@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,7 +63,7 @@ public class MainActivity extends FragmentActivity
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-    
+
     private PlaylistDAO playlistDAO;
 
     @Override
@@ -120,7 +121,7 @@ public class MainActivity extends FragmentActivity
         if (numPodSync.get() != -1) {
             progressDialog.show();
         }
-        
+
         playlistDAO = PlaylistDAOImpl.i();
     }
 
@@ -467,10 +468,21 @@ public class MainActivity extends FragmentActivity
                 intent = new Intent(this, AddPodcastActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.playlistClear:
+                playlistClear();
+                break;
             default:
                 break;
         }
         return true;
+    }
+
+    /**
+     * Clears the playlist.
+     */
+    private void playlistClear() {
+        Log.d(getClass().getName(), "Clearing playlist");
+        playlistDAO.clearPlaylist();
     }
 
     /**
@@ -512,7 +524,7 @@ public class MainActivity extends FragmentActivity
     public void onDownloadTrashClick(View v) {
         getEpisodeListFragment().onDownloadTrashClick(v);
     }
-    
+
     public void onAddToPlaylistClick(View v) {
         playlistDAO.addEpisodeToEndOfPlaylist((Episode) v.getTag());
     }

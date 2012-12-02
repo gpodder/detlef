@@ -5,9 +5,11 @@ import java.util.ArrayList;
 
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
@@ -90,5 +92,25 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
     public void removeFromPlaylist(View v) {
         int position = (Integer) v.getTag();
         playlistDAO.removeEpisode(position);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.playlistClear:
+                playlistClear();
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * Clears the playlist.
+     */
+    private void playlistClear() {
+        Log.d(getClass().getName(), "Clearing playlist");
+        playlistDAO.clearPlaylist();
     }
 }
