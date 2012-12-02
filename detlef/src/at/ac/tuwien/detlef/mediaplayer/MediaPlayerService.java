@@ -214,9 +214,11 @@ public class MediaPlayerService extends Service implements
     public IMediaPlayerService rewind() {
         if (currentPlaylistPosition > 0) {
             currentPlaylistPosition--;
+        }
+        if (!playlistItems.isEmpty()) {
             nextEpisode = playlistItems.get(currentPlaylistPosition);
-        } else if (currentPlaylistPosition == 0) {
-            nextEpisode = playlistItems.get(0);
+        } else {
+            currentPlaylistPosition = 0;
         }
         return this;
     }

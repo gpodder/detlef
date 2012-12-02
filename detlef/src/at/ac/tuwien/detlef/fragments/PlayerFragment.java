@@ -358,11 +358,7 @@ public class PlayerFragment extends Fragment {
     }
 
     public PlayerFragment setActiveEpisode(Episode ep) {
-        Log.d(TAG, "setActiveEpisode(" + ep + ")");
-        Log.d(TAG, "service: " + service);
-
         if (ep != activeEpisode) {
-            stopPlaying();
             activeEpisode = ep;
             setEpisodeInfoControls(ep);
         }
