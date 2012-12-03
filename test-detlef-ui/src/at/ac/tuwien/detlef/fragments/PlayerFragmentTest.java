@@ -158,4 +158,5 @@ public class PlayerFragmentTest extends
         assertTrue("Episode name should be correct", episodeName.getText().equals(e.getTitle()));
         assertTrue("Podcast name should be correct", podcastName.getText().equals(p.getTitle()));
     }
+
 }

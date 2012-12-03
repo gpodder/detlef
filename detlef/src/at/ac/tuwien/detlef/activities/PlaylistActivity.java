@@ -17,12 +17,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 
@@ -33,6 +35,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
     private ArrayList<Episode> playlistItems;
     private PlaylistListAdapter adapter;
     private PlaylistDAO playlistDAO;
+    private DetlefDownloadManager downloadManager;
 
     private boolean bound;
     private IMediaPlayerService service;
@@ -64,6 +67,9 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         playlistDAO = PlaylistDAOImpl.i();
         playlistDAO.addPlaylistChangedListener(this);
         playlistItems = playlistDAO.getNonCachedEpisodes();
+
+        downloadManager = DependencyAssistant.getDependencyAssistant().getDownloadManager(
+                Detlef.getAppContext());
 
         initListView();
         registerForContextMenu(getListView());
@@ -157,10 +163,28 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
             case R.id.playlistClear:
                 playlistClear();
                 break;
+            case R.id.playlistDownloadAll:
+                playlistDownloadAll();
+                break;
             default:
                 break;
         }
         return true;
+    }
+
+    /**
+     * Adds all items on the playlist to the downloader
+     */
+    private void playlistDownloadAll() {
+        for (int i = 0; i < playlistItems.size(); i++) {
+            try {
+                downloadManager.enqueue(playlistItems.get(i));
+            } catch (Exception e) {
+                // TODO @Joshi show that episodes are being downloaded somehow?
+                Log.d(getClass().getName(), "Could not add episode " + i
+                        + " on playlist to download manager");
+            }
+        }
     }
 
     /**
