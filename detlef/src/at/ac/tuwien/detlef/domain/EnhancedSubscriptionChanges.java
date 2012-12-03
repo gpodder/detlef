@@ -109,8 +109,8 @@ public class EnhancedSubscriptionChanges implements Serializable, Parcelable {
                 @Override
                 @SuppressWarnings("unchecked")
                 public EnhancedSubscriptionChanges createFromParcel(Parcel source) {
-                    List<IPodcast> a = (List<IPodcast>) source.readArrayList(null);
-                    List<IPodcast> r = (List<IPodcast>) source.readArrayList(null);
+                    List<IPodcast> a = source.readArrayList(IPodcast.class.getClassLoader());
+                    List<IPodcast> r = source.readArrayList(IPodcast.class.getClassLoader());
                     long t = source.readLong();
                     return new EnhancedSubscriptionChanges(a, r, t);
                 }
