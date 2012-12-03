@@ -132,6 +132,28 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         Log.d(getClass().getName(), "Completion");
         haveRunningEpisode = false;
         currentlyPlaying = false;
+        if (manual) {
+            manual = false;
+            manualEpisode = null;
+            currentPlaylistPosition = 0;
+            if (!playlistItems.isEmpty()) {
+                setNextEpisode(playlistItems.get(currentPlaylistPosition));
+            } else {
+                nextEpisode = null;
+            }
+        } else {
+            playlistDAO.removeEpisode(currentPlaylistPosition);
+            if (!playlistItems.isEmpty()) {
+                if (currentPlaylistPosition >= playlistItems.size()) {
+                    currentPlaylistPosition = playlistItems.size() - 1;
+                    setNextEpisode(playlistItems.get(currentPlaylistPosition));
+                }
+                startPlaying();
+            } else {
+                currentPlaylistPosition = 0;
+                nextEpisode = null;
+            }
+        }
     }
 
     @Override

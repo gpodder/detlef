@@ -425,7 +425,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         return ret;
     }
 
-    // TODO @Joshi remove played episodes from playlist
     // TODO @Jakob stop download button doesn't change back to download
 
     @Override

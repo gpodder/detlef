@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -209,7 +210,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         return this;
     }
 
-    // TODO @Joshi set time once even when not playing, if it's possible
+    // TODO @Joshi set time once even when not playing (?), if it's possible
 
     private void updateControls() {
         setSeekBarAndTime();
@@ -348,8 +349,35 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             podcast.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
                     .getTitle());
             episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
+            setStaticDuration(ep);
         }
         return this;
+    }
+
+    private void setStaticDuration(Episode ep) {
+        Log.d(getClass().getName(), "Setting static duration");
+        if (service == null) {
+            return;
+        }
+        if (service.isCurrentlyPlaying()) {
+            return;
+        }
+        try {
+            // TODO @Joshi setting remaining time does not work, and I have no
+            // idea why
+            if (service.episodeFileOK(ep)) {
+                MediaMetadataRetriever metaData = new MediaMetadataRetriever();
+                metaData.setDataSource(ep.getFilePath());
+                String durationString = metaData
+                        .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                int duration = Integer.parseInt(durationString);
+                String minutesSeconds = getRemainingTime(duration, 0);
+                remainingTime.setText("-" + minutesSeconds);
+            }
+        } catch (Exception ex) {
+            Log.d(getClass().getName(),
+                    "Error while retrieving duration of episode: " + ex.getMessage());
+        }
     }
 
     private PlayerFragment setActiveEpisode(Episode ep) {
@@ -361,30 +389,24 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     }
 
     private String getAlreadyPlayed(int progress) {
-        if (service != null) {
-            return String.format(
-                    "%02d:%02d",
-                    TimeUnit.MILLISECONDS.toMinutes(progress),
-                    TimeUnit.MILLISECONDS.toSeconds(progress)
-                            -
-                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(progress))
-                    );
-        }
-        return "00:00";
+        return String.format(
+                "%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(progress),
+                TimeUnit.MILLISECONDS.toSeconds(progress)
+                        -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(progress))
+                );
     }
 
     private String getRemainingTime(int duration, int progress) {
-        if (service != null) {
-            return String.format(
-                    "%02d:%02d",
-                    TimeUnit.MILLISECONDS.toMinutes(duration - progress),
-                    TimeUnit.MILLISECONDS.toSeconds(duration - progress)
-                            -
-                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration
-                                    - progress))
-                    );
-        }
-        return "00:00";
+        return String.format(
+                "%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(duration - progress),
+                TimeUnit.MILLISECONDS.toSeconds(duration - progress)
+                        -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration
+                                - progress))
+                );
     }
 
     @Override
@@ -417,5 +439,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         startPlaying();
         return this;
     }
+
+    // TODO @Joshi show extra warning/button if episode is not downloaded
 
 }
