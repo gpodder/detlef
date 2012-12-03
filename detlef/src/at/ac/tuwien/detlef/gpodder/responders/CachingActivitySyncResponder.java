@@ -249,6 +249,26 @@ public class CachingActivitySyncResponder extends SyncResponder {
     }
 
     @Override
+    public void updateSubscriptionsSucceeded(int reqId) throws RemoteException {
+        final NoDataResultHandler ndrh = (NoDataResultHandler) getGps().getReqs().get(reqId);
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                ndrh.handleSuccess();
+            }
+        };
+
+        if (act.get() == null) {
+            waitings.add(r);
+        } else {
+            act.get().runOnUiThread(r);
+        }
+
+        getGps().getReqs().remove(reqId);
+    }
+
+    @Override
     public void startAndBindService(ServiceConnection sconn) {
         // bind the service from the application
         Intent intent = new Intent();

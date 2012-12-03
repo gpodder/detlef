@@ -1,5 +1,6 @@
 package at.ac.tuwien.detlef.gpodder.plumbing;
 
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 
@@ -75,4 +76,14 @@ oneway interface PodderServiceInterface
      * "electronic+music".
      */
     void searchPodcasts(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo, String query);
+
+    /**
+     * Update a user's subscriptions on a gpodder.net-compatible service.
+     * @param cb Callback object to send responses to.
+     * @param reqId The ID of the request; will be passed to the callback unchanged.
+     * @param cinfo The information about the client. Must contain username, password, hostname and deviceName.
+     * @param changes The changes to push to the gpodder.net-compatible service.
+     */
+    void updateSubscriptions(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo,
+        in EnhancedSubscriptionChanges changes);
 }

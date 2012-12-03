@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
@@ -41,6 +42,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private static final int RESPONDED_DOWNLOAD_PODCAST_LIST = 4;
     private static final int RESPONDED_DOWNLOAD_CHANGES = 5;
     private static final int RESPONDED_PODCAST_SEARCH = 6;
+    private static final int RESPONDED_SUBSCRIPTION_UPDATE = 7;
 
     /** Handles responses from the service. */
     private static class IncomingHandler extends PodderServiceCallback.Stub {
@@ -151,6 +153,21 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         public void searchPodcastsFailed(int reqId, int errCode, String errStr)
                 throws RemoteException {
             fail("podcast search failed: " + errStr);
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void updateSubscriptionsSucceeded(int reqId) throws RemoteException {
+            wrpst.get().msgWhat = RESPONDED_SUBSCRIPTION_UPDATE;
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void updateSubscriptionsFailed(int reqId, int errCode, String errStr)
+                throws RemoteException {
+            fail("subscription update failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
@@ -364,6 +381,30 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         assertEquals(RESPONDED_PODCAST_SEARCH, msgWhat);
         assertEquals(rid, reqId);
         assertTrue("Search results are not empty", podcasts.isEmpty());
+    }
+
+    /**
+     * Test whether the subscription update successfully adds a podcast.
+     * @throws RemoteException
+     */
+    @SmallTest
+    public final void testUpdateSubscriptionAddPodcast() throws RemoteException {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testUpdateSubscriptionAddPodcast()");
+
+        PodderServiceInterface psi = performBind();
+        GpoNetClientInfo ci = getClientInfo();
+
+        List<Podcast> podcasts = new ArrayList<Podcast>();
+        podcasts.add(new Podcast().setUrl("http://this.is.a.test.com"));
+        EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(podcasts, new ArrayList<Podcast>(), 0);
+
+        int rid = rng.nextInt();
+        psi.updateSubscriptions(handler, rid, ci, changes);
+
+        stoplight.acquireUninterruptibly();
+
+        assertEquals(RESPONDED_SUBSCRIPTION_UPDATE, msgWhat);
+        assertEquals(rid, reqId);
     }
 
     private GpoNetClientInfo getClientInfo() {

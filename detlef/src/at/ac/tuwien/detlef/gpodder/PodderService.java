@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.auth.AuthenticationException;
 
@@ -29,6 +30,7 @@ import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
 
 import com.dragontek.mygpoclient.api.MygPodderClient;
 import com.dragontek.mygpoclient.api.SubscriptionChanges;
+import com.dragontek.mygpoclient.api.UpdateResult;
 import com.dragontek.mygpoclient.pub.PublicClient;
 import com.dragontek.mygpoclient.simple.IPodcast;
 import com.dragontek.mygpoclient.simple.SimpleClient;
@@ -470,6 +472,37 @@ public class PodderService extends Service {
             } catch (IOException e) {
                 Log.w(TAG, "searchPodcasts IOException: " + e.getMessage());
                 theMagicalProxy.searchPodcastsFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
+            }
+        }
+
+        @Override
+        public void updateSubscriptions(PodderServiceCallback cb, int reqId,
+                GpoNetClientInfo cinfo, EnhancedSubscriptionChanges changes) throws RemoteException {
+            Log.d(TAG, "updateSubscriptions() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
+
+            MygPodderClient mpc = new MygPodderClient(
+                    cinfo.getUsername(),
+                    cinfo.getPassword(),
+                    cinfo.getHostname());
+
+            try {
+                UpdateResult result = mpc.updateSubscriptions(
+                        cinfo.getDeviceId(),
+                        changes.getAddUrls(),
+                        changes.getRemoveUrls());
+
+                /* TODO: Remove debug output. */
+                Log.v(TAG, String.format("UpdateResult: timestamp %d%n", result.timestamp));
+                for (Map.Entry<String, String> e : result.updateUrls.entrySet()) {
+                    Log.v(TAG, String.format("%s: %s%n", e.getKey(), e.getValue()));
+                }
+
+                theMagicalProxy.updateSubscriptionsSucceeded(reqId);
+            } catch (IOException e) {
+                Log.w(TAG, "updateSubscriptions IOException: " + e.getMessage());
+                theMagicalProxy.updateSubscriptionsFailed(reqId, ErrorCode.IO_PROBLEM,
+                        e.getMessage());
             }
         }
     }

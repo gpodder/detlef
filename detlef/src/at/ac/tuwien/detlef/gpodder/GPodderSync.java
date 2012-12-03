@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
 import at.ac.tuwien.detlef.gpodder.responders.SyncResponder;
@@ -233,6 +234,7 @@ public class GPodderSync {
      * Requests that the service performs a podcast search job.
      *
      * @param handler A handler for callbacks.
+     * @param query The search query.
      */
     public void addSearchPodcastsJob(PodcastListResultHandler handler, String query) {
         Log.d(TAG, "addSearchPodcastsJob");
@@ -242,6 +244,28 @@ public class GPodderSync {
         int reqCode = nextReqCode();
         try {
             iface.searchPodcasts(syncResponder, reqCode, clientInfo, query);
+            reqs.append(reqCode, handler);
+        } catch (RemoteException rex) {
+            handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());
+            iface = null;
+        }
+    }
+
+    /**
+     * Requests that the service performs a subscription update job.
+     *
+     * @param handler A handler for callbacks.
+     * @param changes The changes to submit to the service.
+     */
+    public void addUpdateSubscriptionsJob(NoDataResultHandler handler,
+            EnhancedSubscriptionChanges changes) {
+        Log.d(TAG, "addUpdateSubscriptionsJob");
+
+        assureBind();
+
+        int reqCode = nextReqCode();
+        try {
+            iface.updateSubscriptions(syncResponder, reqCode, clientInfo, changes);
             reqs.append(reqCode, handler);
         } catch (RemoteException rex) {
             handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED, rex.toString());

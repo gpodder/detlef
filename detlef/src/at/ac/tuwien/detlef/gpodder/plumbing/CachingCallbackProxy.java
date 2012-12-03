@@ -296,6 +296,38 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     }
 
+    @Override
+    public void updateSubscriptionsSucceeded(final int reqId) {
+        queuedMessages.add(new CachedCallback() {
+            @Override
+            public boolean resend(PodderServiceCallback cb) {
+                try {
+                    cb.updateSubscriptionsSucceeded(reqId);
+                } catch (RemoteException rex) {
+                    return false;
+                }
+                return true;
+            }
+        });
+        resendUnlessPassive();
+    }
+
+    @Override
+    public void updateSubscriptionsFailed(final int reqId, final int errCode, final String errStr) {
+        queuedMessages.add(new CachedCallback() {
+            @Override
+            public boolean resend(PodderServiceCallback cb) {
+                try {
+                    cb.updateSubscriptionsFailed(reqId, errCode, errStr);
+                } catch (RemoteException rex) {
+                    return false;
+                }
+                return true;
+            }
+        });
+        resendUnlessPassive();
+    }
+
     /**
      * A callback cached for later processing.
      * @author ondra

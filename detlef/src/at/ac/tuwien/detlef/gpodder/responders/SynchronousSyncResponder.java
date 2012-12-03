@@ -120,6 +120,14 @@ public class SynchronousSyncResponder extends SyncResponder {
     }
 
     @Override
+    public void updateSubscriptionsSucceeded(int reqId) throws RemoteException {
+        final NoDataResultHandler ndrh = (NoDataResultHandler) getGps().getReqs().get(reqId);
+        ndrh.handleSuccess();
+        getGps().getReqs().remove(reqId);
+        stoplight.release();
+    }
+
+    @Override
     public void startAndBindService(ServiceConnection sconn) {
         Intent intent = new Intent();
         intent.setClass(ctx, PodderService.class);
