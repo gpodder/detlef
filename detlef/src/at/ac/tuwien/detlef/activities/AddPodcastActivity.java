@@ -225,7 +225,12 @@ public class AddPodcastActivity extends Activity {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
-            Toast.makeText(activity, "Podcast search failed", Toast.LENGTH_SHORT);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(activity, "Podcast search failed", Toast.LENGTH_SHORT);
+                }
+            });
         }
 
         @Override
