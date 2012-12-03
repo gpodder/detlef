@@ -20,13 +20,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
+import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.commonsware.cwac.merge.MergeAdapter;
+import com.dragontek.mygpoclient.simple.IPodcast;
 
 public class AddPodcastActivity extends Activity {
 
@@ -204,10 +209,44 @@ public class AddPodcastActivity extends Activity {
     public void onSubscribeClick(View view) {
         Log.v(TAG, "onSubscribeClick()");
 
-        /* TODO */
+        /*
+         * Note that view is the actual button in this case. We need to retrieve
+         * the tag from its parent.
+         */
+        View parent = (View) view.getParent();
+        Podcast p = (Podcast) parent.getTag();
+        List<Podcast> add = new ArrayList<Podcast>();
+        add.add(p);
 
-        Toast.makeText(this, "When implemented, the podcast will be subscribed to here",
-                Toast.LENGTH_SHORT).show();
+        final EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(add,
+                new ArrayList<IPodcast>(), 0);
+
+        /*
+         * TODO: If this is not run in a new thread, it blocks. As the service
+         * is supposed to be async, I'm wondering whether this is intentional.
+         * There is no progress (or 'I'm busy') indicator. The results are not
+         * restored after screen rotations. This code won't work if the screen
+         * is rotated (and the activity destroyed) while the service is busy.
+         */
+
+        final SubscriptionUpdateResultHandler surh = new SubscriptionUpdateResultHandler(this);
+        Thread t = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                GPodderSync gps = new GPodderSync(new SynchronousSyncResponder(
+                        AddPodcastActivity.this));
+                GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+                        .getGpodderSettings(AddPodcastActivity.this);
+                gps.setDeviceName(settings.getDevicename());
+                gps.setUsername(settings.getUsername());
+                gps.setPassword(settings.getPassword());
+                gps.addUpdateSubscriptionsJob(surh, changes);
+            }
+        });
+        t.start();
+
+        /* TODO: Automatically refresh the podcast list on success. */
     }
 
     /**
@@ -244,6 +283,42 @@ public class AddPodcastActivity extends Activity {
 
                     Toast.makeText(activity,
                             String.format("%d results found", result.size()),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    /**
+     * Handles subscription update results and notifies the user. TODO: Note
+     * that this does not safely handle cases in which the activity has been
+     * exchanged during an ongoing search.
+     */
+    private static class SubscriptionUpdateResultHandler implements NoDataResultHandler {
+
+        private final AddPodcastActivity activity;
+
+        public SubscriptionUpdateResultHandler(AddPodcastActivity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void handleFailure(int errCode, String errStr) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(activity, "Subscription update failed", Toast.LENGTH_SHORT);
+                }
+            });
+        }
+
+        @Override
+        public void handleSuccess() {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(activity,
+                            "Subscription update succeeded",
                             Toast.LENGTH_SHORT).show();
                 }
             });
