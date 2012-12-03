@@ -17,7 +17,8 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="@string/search_by_name" >
+            android:hint="@string/search_by_name"
+            android:inputType="text" >
 
             <requestFocus />
         </EditText>
