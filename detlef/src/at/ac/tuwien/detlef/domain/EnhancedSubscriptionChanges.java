@@ -1,8 +1,11 @@
+
 package at.ac.tuwien.detlef.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -35,7 +38,8 @@ public class EnhancedSubscriptionChanges implements Serializable, Parcelable {
      * @param remove List of IPodcasts to remove.
      * @param timestamp The timestamp of the changes.
      */
-    public EnhancedSubscriptionChanges(List<IPodcast> add, List<IPodcast> remove, long timestamp) {
+    public EnhancedSubscriptionChanges(List<? extends IPodcast> add,
+            List<? extends IPodcast> remove, long timestamp) {
         this.add = new ArrayList<Podcast>(add.size());
         for (IPodcast ip : add) {
             Podcast p = new Podcast(ip);
@@ -57,8 +61,26 @@ public class EnhancedSubscriptionChanges implements Serializable, Parcelable {
         return add;
     }
 
+    public Set<String> getAddUrls() {
+        return getUrlsFromPodcasts(getAdd());
+    }
+
     public List<Podcast> getRemove() {
         return remove;
+    }
+
+    public Set<String> getRemoveUrls() {
+        return getUrlsFromPodcasts(getRemove());
+    }
+
+    private static Set<String> getUrlsFromPodcasts(List<Podcast> from) {
+        Set<String> to = new HashSet<String>(from.size());
+
+        for (Podcast p : from) {
+            to.add(p.getUrl());
+        }
+
+        return to;
     }
 
     public long getTimestamp() {
