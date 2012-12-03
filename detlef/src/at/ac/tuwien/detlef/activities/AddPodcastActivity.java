@@ -33,6 +33,7 @@ public class AddPodcastActivity extends Activity {
 
     private final MergeAdapter mergeAdapter = new MergeAdapter();
     private PodcastListAdapter resultAdapter;
+    private PodcastListAdapter suggestionsAdapter;
     private PodcastListAdapter toplistAdapter;
 
     @Override
@@ -55,40 +56,49 @@ public class AddPodcastActivity extends Activity {
         mergeAdapter.addAdapter(resultAdapter);
 
         tv = (TextView) vi.inflate(R.layout.add_podcast_list_header, null);
+        tv.setText(R.string.suggestions);
+        mergeAdapter.addView(tv);
+
+        suggestionsAdapter = new PodcastListAdapter(this, android.R.layout.simple_list_item_1,
+                new ArrayList<Podcast>());
+        fillAdapterWithDummies(suggestionsAdapter);
+        mergeAdapter.addAdapter(suggestionsAdapter);
+
+        tv = (TextView) vi.inflate(R.layout.add_podcast_list_header, null);
         tv.setText(R.string.popular_podcasts);
         mergeAdapter.addView(tv);
 
         toplistAdapter = new PodcastListAdapter(this, android.R.layout.simple_list_item_1,
                 new ArrayList<Podcast>());
-        fillToplistWithDummies();
+        fillAdapterWithDummies(toplistAdapter);
         mergeAdapter.addAdapter(toplistAdapter);
 
         ListView lv = (ListView) findViewById(R.id.result_list);
         lv.setAdapter(mergeAdapter);
     }
 
-    private void fillToplistWithDummies() {
+    private void fillAdapterWithDummies(PodcastListAdapter adapter) {
         Podcast p = new Podcast();
         p.setTitle("Bestest podcast evar");
         p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar");
-        toplistAdapter.add(p);
+        adapter.add(p);
 
         p = new Podcast();
         p.setTitle("Somebody set me up the bomb");
         p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar");
-        toplistAdapter.add(p);
+        adapter.add(p);
 
         p = new Podcast();
         p.setTitle("Somebody set me up the bomb: Somebody set me up the bomb: Somebody set me up the bomb");
         p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar");
-        toplistAdapter.add(p);
+        adapter.add(p);
 
         p = new Podcast();
         p.setTitle("Dancing babies");
         p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar "
                 + "This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar "
                 + "This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar.");
-        toplistAdapter.add(p);
+        adapter.add(p);
     }
 
     @Override
