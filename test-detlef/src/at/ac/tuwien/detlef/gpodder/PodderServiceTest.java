@@ -351,7 +351,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      */
     @SmallTest
     public final void testPodcastSearchWithoutResult() throws RemoteException {
-        Log.d("PodderServiceTest@" + this.hashCode(), "testPodcastSearch()");
+        Log.d("PodderServiceTest@" + this.hashCode(), "testPodcastSearchWithoutResult()");
 
         PodderServiceInterface psi = performBind();
         GpoNetClientInfo ci = getClientInfo();
@@ -369,30 +369,26 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private GpoNetClientInfo getClientInfo() {
         GpoNetClientInfo ci = new GpoNetClientInfo();
 
-        ci.setUsername("UnitTest");
-        ci.setPassword("FahrenheitSucksCelsiusRules");
-        ci.setHostname("example.org");
+        ci.setUsername("detlef");
+        ci.setPassword("detlef");
+        ci.setHostname("gpodder.net");
 
         return ci;
     }
 
-    @SuppressWarnings("unused")
     @FlakyTest
     public final void testGpodderAuth() throws RemoteException, InterruptedException {
-        // FIXME: re-enable once our virtual GPodder instance is up and running
-        if (false) {
-            Log.d("PodderServiceTest@" + this.hashCode(), "testGpodderAuth()");
+        Log.d("PodderServiceTest@" + this.hashCode(), "testGpodderAuth()");
 
-            PodderServiceInterface psi = performBind();
-            int rid = rng.nextInt();
-            GpoNetClientInfo ci = getClientInfo();
+        PodderServiceInterface psi = performBind();
+        int rid = rng.nextInt();
+        GpoNetClientInfo ci = getClientInfo();
 
-            psi.authCheck(handler, rid, ci);
+        psi.authCheck(handler, rid, ci);
 
-            stoplight.acquireUninterruptibly();
+        stoplight.acquireUninterruptibly();
 
-            assertEquals(RESPONDED_AUTHCHECK, msgWhat);
-            assertEquals(rid, reqId);
-        }
+        assertEquals(RESPONDED_AUTHCHECK, msgWhat);
+        assertEquals(rid, reqId);
     }
 }
