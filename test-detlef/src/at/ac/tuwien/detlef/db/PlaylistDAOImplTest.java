@@ -259,4 +259,27 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         playlist = ldao.getNonCachedEpisodes();
         assertTrue(playlist.size() == 0);
     }
+
+    public void testClear() {
+        clearDatabase();
+
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        p1 = pdao.insertPodcast(p1);
+        e0 = edao.insertEpisode(e0);
+        e1 = edao.insertEpisode(e1);
+        e2 = edao.insertEpisode(e2);
+
+        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
+        ldao.addEpisodeToEndOfPlaylist(e0);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToEndOfPlaylist(e1);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToEndOfPlaylist(e2);
+        assertTrue(ldao.checkNoGaps());
+        assertTrue(ldao.getNonCachedEpisodes().size() == 3);
+        ldao.clearPlaylist();
+        assertTrue(ldao.checkNoGaps());
+        assertTrue(ldao.getNonCachedEpisodes().size() == 0);
+    }
 }

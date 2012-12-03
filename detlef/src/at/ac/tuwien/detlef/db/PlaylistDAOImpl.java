@@ -434,6 +434,15 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
             for (int i = 0; i < currentEpisodes.size(); i++) {
                 removeEpisode(0);
             }
+            SQLiteDatabase db = null;
+            try {
+                db = dbHelper.getReadableDatabase();
+                db.execSQL("DELETE FROM " + DatabaseHelper.TABLE_PLAYLIST);
+            } finally {
+                if ((db != null) && db.isOpen()) {
+                    db.close();
+                }
+            }
         }
     }
 }
