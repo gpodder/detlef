@@ -71,6 +71,11 @@ public class MainActivity extends FragmentActivity
     private static final String TAG = MainActivity.class.getName();
 
     public static boolean REFRESH_FEED_LIST_ON_CREATE = false;
+        
+    public enum RefreshDoneNotification {
+        TOAST, DIALOG
+    }
+
 
     private Menu menu;
 
@@ -330,16 +335,36 @@ public class MainActivity extends FragmentActivity
             PodcastDBAssistant pda = DependencyAssistant.getDependencyAssistant()
                     .getPodcastDBAssistant();
 
+            final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false);
+
+            Log.d(TAG, "r bundle: " + getBundle());
+            Log.d(TAG, "r bundle extra: " + showDialog);
+            Log.d(TAG, "r handler: " + this);
+
             synchronized (getRcv().numPodSync) {
+
+                Log.d(TAG, "r bundle extra 2: " + showDialog);
+
                 for (Podcast p : pda.getAllPodcasts(getRcv())) {
-                    refreshBg.execute(new PullFeedAsyncTask((
-                            FeedSyncResultHandler<? extends Activity>)
-                            cbCont.get(KEY_FEED_HANDLER), p));
+
+                    FeedSyncResultHandler<? extends Activity> handler = (FeedSyncResultHandler<? extends Activity>) cbCont.get(KEY_FEED_HANDLER);
+                    handler.setBundle(getBundle());
+                    refreshBg.execute(new PullFeedAsyncTask(handler, p));
                     getRcv().numPodSync.incrementAndGet();
                 }
 
+                Log.d(TAG, "r bundle extra 3: " + showDialog);
+
                 if (getRcv().numPodSync.get() == 0) {
-                    getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
+
+                    Log.d(TAG, "r bundle extra 4: " + showDialog);
+
+                    if (showDialog) {
+                        Log.d(TAG, "WTF IS THIS?!");
+                        getRcv().onRefreshDone("Detlef is now ready to use!", RefreshDoneNotification.DIALOG);
+                    } else {
+                        getRcv().onRefreshDone("wew1"); //getRcv().getString(R.string.refresh_successful));
+                    }
                 }
 
                 getRcv().prepareProgressDialog();
@@ -381,7 +406,14 @@ public class MainActivity extends FragmentActivity
                 getRcv().curPodSync.incrementAndGet();
 
                 if (getRcv().curPodSync.get() == getRcv().numPodSync.get()) {
-                    getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
+
+                    if (getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false)) {
+                        getRcv().onRefreshDone("Hoo.Ray.", RefreshDoneNotification.DIALOG);
+                    } else {
+                        getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
+                    }
+
+
                 }
 
                 getRcv().prepareProgressDialog();
@@ -391,10 +423,18 @@ public class MainActivity extends FragmentActivity
     };
 
     /**
-     * Called when the refresh button is pressed. Displays a progress dialog and
-     * starts the PullSubscriptionsAsyncTask.
+     * Calls {@link #onRefreshPressed(Bundle)} with an empty Bundle.
      */
     private void onRefreshPressed() {
+        onRefreshPressed(new Bundle());
+    }
+
+    /**
+     * Called when the refresh button is pressed. Displays a progress dialog and
+     * starts the {@link PullSubscriptionsAsyncTask}.
+     * @param pBundle The {@link Bundle} that is passed to the {@link PodcastSyncResultHandler}.
+     */
+    private void onRefreshPressed(Bundle pBundle) {
         synchronized (numPodSync) {
             if (numPodSync.get() != -1) {
                 return;
@@ -404,9 +444,13 @@ public class MainActivity extends FragmentActivity
             curPodSync.set(0);
         }
 
-        refreshBg.execute(new PullSubscriptionsAsyncTask((
-                PodcastSyncResultHandler<? extends Activity>)
-                cbCont.get(KEY_PODCAST_HANDLER)));
+        PodcastSyncResultHandler<? extends Activity> handler = (PodcastSyncResultHandler<? extends Activity>) cbCont.get(KEY_PODCAST_HANDLER);
+        handler.setBundle(pBundle);
+
+        Log.d(TAG, "bundle: " + pBundle);
+        Log.d(TAG, "handler: " + handler);
+
+        refreshBg.execute(new PullSubscriptionsAsyncTask(handler));
         startService(new Intent().setClass(this,
                 PullSubscriptionsAsyncTask.class));
         progressDialog.show();
@@ -419,10 +463,29 @@ public class MainActivity extends FragmentActivity
      * @param msg The message displayed in a Toast.
      */
     private void onRefreshDone(String msg) {
-        numPodSync.set(-1);
+        onRefreshDone(msg, RefreshDoneNotification.TOAST);
+    }
 
+    private void onRefreshDone(String msg, RefreshDoneNotification notificationType) {
+        numPodSync.set(-1);
         progressDialog.dismiss();
-        Toast.makeText(this, msg, REFRESH_MSG_DURATION_MS).show();
+
+        Log.d(TAG, "notificationType: " + notificationType);
+
+        switch (notificationType) {
+            case TOAST:
+            default:
+                Toast.makeText(this, msg, REFRESH_MSG_DURATION_MS).show();
+                break;
+            case DIALOG:
+                final AlertDialog.Builder b = new AlertDialog.Builder(this);
+                b.setTitle("Refresh done.");
+                b.setMessage(msg);
+                b.setPositiveButton(android.R.string.ok, null);
+                b.show();
+                break;
+        }
+
     }
 
     @Override
@@ -614,7 +677,9 @@ public class MainActivity extends FragmentActivity
         Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
 
         if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
-            onRefreshPressed();
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(EXTRA_REFRESH_FEED_LIST, true);
+            onRefreshPressed(bundle);
         }
 
 

@@ -19,6 +19,7 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import android.app.Activity;
+import android.os.Bundle;
 
 /**
  * A class to handle replies from the PullSubscriptionsAsyncTask.
@@ -29,8 +30,8 @@ import android.app.Activity;
  * In order to implement handling of the Task's results the user has to subclass
  * PodcastSyncResultHandler and implement handle() and handleFailure().
  */
-public abstract class PodcastSyncResultHandler<Receiver extends Activity> extends
-        BroadcastReceiverCallback<Receiver, PodcastSyncResultHandler.PodcastSyncEvent> {
+public abstract class PodcastSyncResultHandler<Receiver extends Activity>
+    extends BroadcastReceiverCallback<Receiver, PodcastSyncResultHandler.PodcastSyncEvent> {
 
     /**
      * This has to be implemented by the user and is called when the Task got a subscription update.
@@ -92,4 +93,7 @@ public abstract class PodcastSyncResultHandler<Receiver extends Activity> extend
         }
 
     }
+
+
+
 }

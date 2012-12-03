@@ -207,7 +207,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        MainActivity.REFRESH_FEED_LIST_ON_CREATE = true;
 
                                         Intent data = new Intent().putExtra(MainActivity.EXTRA_REFRESH_FEED_LIST, true);
                                         if (act.getParent() == null) {
