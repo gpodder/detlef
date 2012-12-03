@@ -44,7 +44,9 @@ public class AddPodcastActivity extends Activity {
 
         /* Set up our merged list. */
 
-        TextView tv = new TextView(this);
+        LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        TextView tv = (TextView) vi.inflate(R.layout.add_podcast_list_header, null);
         tv.setText(R.string.search_results);
         mergeAdapter.addView(tv);
 
@@ -52,7 +54,7 @@ public class AddPodcastActivity extends Activity {
                 new ArrayList<Podcast>());
         mergeAdapter.addAdapter(resultAdapter);
 
-        tv = new TextView(this);
+        tv = (TextView) vi.inflate(R.layout.add_podcast_list_header, null);
         tv.setText(R.string.popular_podcasts);
         mergeAdapter.addView(tv);
 
