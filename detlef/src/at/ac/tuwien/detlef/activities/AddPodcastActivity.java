@@ -7,6 +7,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.NavUtils;
 import android.text.Html;
 import android.util.Log;
@@ -30,6 +31,10 @@ import com.commonsware.cwac.merge.MergeAdapter;
 public class AddPodcastActivity extends Activity {
 
     private static final String TAG = AddPodcastActivity.class.getName();
+
+    private static final String BUNDLE_SEARCH_RESULTS = "BUNDLE_SEARCH_RESULTS";
+    private static final String BUNDLE_SUGGESTIONS = "BUNDLE_SUGGESTIONS";
+    private static final String BUNDLE_TOPLIST = "BUNDLE_TOPLIST";
 
     private final MergeAdapter mergeAdapter = new MergeAdapter();
     private PodcastListAdapter resultAdapter;
@@ -61,7 +66,6 @@ public class AddPodcastActivity extends Activity {
 
         suggestionsAdapter = new PodcastListAdapter(this, android.R.layout.simple_list_item_1,
                 new ArrayList<Podcast>());
-        fillAdapterWithDummies(suggestionsAdapter);
         mergeAdapter.addAdapter(suggestionsAdapter);
 
         tv = (TextView) vi.inflate(R.layout.add_podcast_list_header, null);
@@ -70,13 +74,62 @@ public class AddPodcastActivity extends Activity {
 
         toplistAdapter = new PodcastListAdapter(this, android.R.layout.simple_list_item_1,
                 new ArrayList<Podcast>());
-        fillAdapterWithDummies(toplistAdapter);
         mergeAdapter.addAdapter(toplistAdapter);
 
         ListView lv = (ListView) findViewById(R.id.result_list);
         lv.setAdapter(mergeAdapter);
+
+        /*
+         * Iff we are starting for the first time, create dummy content for
+         * suggestions and the toplist. Otherwise, saved content will be
+         * restored later on.
+         */
+
+        if (savedInstanceState == null) {
+            fillAdapterWithDummies(suggestionsAdapter);
+            fillAdapterWithDummies(toplistAdapter);
+        }
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            return;
+        }
+
+        resultAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SEARCH_RESULTS));
+        suggestionsAdapter
+                .addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SUGGESTIONS));
+        toplistAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_TOPLIST));
+    }
+
+    /**
+     * Retrieves the the list of parcelables with the given key from the bundle,
+     * and returns it with each element cast to Podcast.
+     */
+    private List<Podcast> restorePodcastsFromBundle(Bundle savedInstanceState, String key) {
+        List<Parcelable> parcels = savedInstanceState.getParcelableArrayList(key);
+        List<Podcast> podcasts = new ArrayList<Podcast>(parcels.size());
+
+        for (Parcelable p : parcels) {
+            podcasts.add((Podcast) p);
+        }
+
+        return podcasts;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(BUNDLE_SEARCH_RESULTS, resultAdapter.getList());
+        outState.putParcelableArrayList(BUNDLE_SUGGESTIONS, suggestionsAdapter.getList());
+        outState.putParcelableArrayList(BUNDLE_TOPLIST, toplistAdapter.getList());
+
+        super.onSaveInstanceState(outState);
+    }
+
+    /* TODO: Remove me. */
     private void fillAdapterWithDummies(PodcastListAdapter adapter) {
         Podcast p = new Podcast();
         p.setTitle("Bestest podcast evar");
@@ -197,11 +250,16 @@ public class AddPodcastActivity extends Activity {
      */
     private static class PodcastListAdapter extends ArrayAdapter<Podcast> {
 
-        private final List<Podcast> podcasts;
+        private final ArrayList<Podcast> podcasts;
 
-        public PodcastListAdapter(Context context, int textViewResourceId, List<Podcast> objects) {
+        public PodcastListAdapter(Context context, int textViewResourceId,
+                ArrayList<Podcast> objects) {
             super(context, textViewResourceId, objects);
             podcasts = objects;
+        }
+
+        public ArrayList<Podcast> getList() {
+            return podcasts;
         }
 
         @Override
