@@ -387,6 +387,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
      *         DB. This is not of general interest and exists for testing
      *         purposes only.
      */
+    @SuppressWarnings("resource")
     public boolean checkNoGaps() {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = null;

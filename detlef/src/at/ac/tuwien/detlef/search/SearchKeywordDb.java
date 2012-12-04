@@ -1,6 +1,5 @@
 package at.ac.tuwien.detlef.search;
 
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.db.DatabaseHelper;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
