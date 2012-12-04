@@ -33,7 +33,6 @@ import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
 import at.ac.tuwien.detlef.settings.DeviceRegistrator;
 import at.ac.tuwien.detlef.settings.DeviceRegistratorException;
 import at.ac.tuwien.detlef.settings.GpodderConnectionException;

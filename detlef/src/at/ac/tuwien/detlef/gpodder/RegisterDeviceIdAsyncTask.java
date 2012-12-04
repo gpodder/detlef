@@ -1,32 +1,11 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.http.auth.AuthenticationException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
-
-import android.app.Activity;
 import android.app.Fragment;
-import android.bluetooth.BluetoothClass.Device;
 import android.util.Log;
 import at.ac.tuwien.detlef.DependencyAssistant;
-import at.ac.tuwien.detlef.Detlef;
-import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.callbacks.Callback;
 import at.ac.tuwien.detlef.domain.DeviceId;
-import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.settings.DeviceRegistratorException;
-import at.ac.tuwien.detlef.settings.GpodderSettings;
-
-import com.dragontek.mygpoclient.api.MygPodderClient;
-import com.dragontek.mygpoclient.api.SubscriptionChanges;
-import com.dragontek.mygpoclient.pub.PublicClient;
-import com.dragontek.mygpoclient.simple.IPodcast;
 
 /**
  * Background task that registers a {@link DeviceId} at gpodder.net.

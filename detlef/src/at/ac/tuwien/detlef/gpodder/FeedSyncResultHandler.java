@@ -19,7 +19,6 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import android.app.Activity;
-import android.os.Bundle;
 
 /**
  * A class to handle replies from the PullFeedAsyncTask.

@@ -1,6 +1,5 @@
 package at.ac.tuwien.detlef.gpodder;
 
-import android.app.Activity;
 import android.app.Fragment;
 import at.ac.tuwien.detlef.domain.DeviceId;
 
@@ -9,8 +8,7 @@ import at.ac.tuwien.detlef.domain.DeviceId;
  */
 public abstract class RegisterDeviceIdResultHandler<Receiver extends Fragment> extends
 BroadcastReceiverCallback<Receiver, RegisterDeviceIdResultHandler.PodcastSyncEvent> {
-    /** Logging tag. */
-    private static final String TAG = RegisterDeviceIdResultHandler.class.getCanonicalName();
+
     private DeviceId devideId;
 
     /**
