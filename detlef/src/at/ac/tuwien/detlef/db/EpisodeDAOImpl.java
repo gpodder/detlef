@@ -15,6 +15,7 @@ import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -298,7 +299,9 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                     DatabaseHelper.COLUMN_EPISODE_TITLE,
                     DatabaseHelper.COLUMN_EPISODE_URL,
                     DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                    DatabaseHelper.COLUMN_EPISODE_STATE
+                    DatabaseHelper.COLUMN_EPISODE_STATE,
+                    DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION,
+                    DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE
             };
 
             Cursor c =
@@ -343,9 +346,14 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         e.setTitle(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_TITLE)));
         e.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_URL)));
         e.setFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILEPATH)));
+        e.setPlayPosition(c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION)));
         String state = c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_STATE));
+        String aState = c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE));
         if (state != null) {
             e.setStorageState(StorageState.valueOf(state));
+        }
+        if (aState != null) {
+            e.setActionState(ActionState.valueOf(aState));
         }
 
         hashMapEpisode.put(key, e);
