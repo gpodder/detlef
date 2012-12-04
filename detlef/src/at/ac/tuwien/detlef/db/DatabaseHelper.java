@@ -13,7 +13,7 @@ import at.ac.tuwien.detlef.Detlef;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 6;
+    static final int VERSION = 7;
 
     static final Object BIG_FRIGGIN_LOCK = new Object();
 
