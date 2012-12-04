@@ -23,6 +23,12 @@ public final class EpisodePersistence {
         /* Non-instantiable. */
     }
 
+    /**
+     * Begins downloading the current episode, setting its storage state to
+     * DOWNLOADING. On completion, the episode's state is updated to DOWNLOADED.
+     * Interested parties are notified through EpisodeDAO listeners.
+     * @param episode The episode to download (episode != null, episode.getUrl() != null).
+     */
     public static void download(Episode episode) throws IOException {
         try {
             getDownloadManager().enqueue(episode);
@@ -32,10 +38,23 @@ public final class EpisodePersistence {
         }
     }
 
+    /**
+     * Cancels active downloads of the current episode (if one exists),
+     * and sets its storage state to NOT_ON_DEVICE. Does not fail if there
+     * is no active download.
+     * @param episode The episode whose download to cancel.
+     */
     public static void cancelDownload(Episode episode) {
         getDownloadManager().cancel(episode);
     }
 
+    /**
+     * Delete the specified episode file from disk. Automatically cancels
+     * any ongoing downloads (see {@link EpisodePersistence#cancelDownload(Episode)}).
+     * Never fails, even if the episode is currently not stored on the device and if
+     * there is no active download.
+     * @param episode The episode to delete.
+     */
     public static void delete(Episode episode) {
         cancelDownload(episode);
 
