@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 /**
  * DatabaseHelper class which creates the database.
@@ -150,8 +151,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
-        DependencyAssistant.getDependencyAssistant().getGpodderSettings(Detlef.getAppContext())
-                .setLastUpdate(0);
+        GpodderSettings settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(Detlef.getAppContext());
+        settings.setLastUpdate(0);
+        DependencyAssistant.getDependencyAssistant().getGpodderSettingsDAO(Detlef.getAppContext()).writeSettings(settings);
         onCreate(db);
     }
 }

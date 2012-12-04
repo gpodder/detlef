@@ -37,12 +37,13 @@ public class DeviceId {
     /**
      *
      * @param pDeviceId This device's id that must match the format {@value #DEVICE_ID_REGEX}.
-     * @throws IllegalArgumentException If pDeviceId is not a valid device id.
+     * @throws IllegalArgumentException If pDeviceId is not a valid device id (this covers also
+     *     the case that pDeviceId is <code>null</code>).
      *
      */
     public DeviceId(String pDeviceId) {
 
-        if (!Pattern.matches(DEVICE_ID_REGEX, pDeviceId)) {
+        if (pDeviceId == null || !Pattern.matches(DEVICE_ID_REGEX, pDeviceId)) {
             throw new IllegalArgumentException(
                 String.format(
                     "Invalid device id provided: %s does not match pattern %s",

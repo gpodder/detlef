@@ -2,6 +2,7 @@ package at.ac.tuwien.detlef.gpodder;
 
 import android.app.Activity;
 import android.app.Fragment;
+import at.ac.tuwien.detlef.domain.DeviceId;
 
 /**
  *
@@ -10,6 +11,7 @@ public abstract class RegisterDeviceIdResultHandler<Receiver extends Fragment> e
 BroadcastReceiverCallback<Receiver, RegisterDeviceIdResultHandler.PodcastSyncEvent> {
     /** Logging tag. */
     private static final String TAG = RegisterDeviceIdResultHandler.class.getCanonicalName();
+    private DeviceId devideId;
 
     /**
      * This has to be implemented by the user and is called when the Task got a subscription update.
@@ -70,5 +72,14 @@ BroadcastReceiverCallback<Receiver, RegisterDeviceIdResultHandler.PodcastSyncEve
             callback.handle();
         }
 
+    }
+
+    public void setDeviceId(DeviceId pDeviceId) {
+        devideId = pDeviceId;
+
+    }
+
+    public DeviceId getDeviceId() {
+        return devideId;
     }
 }

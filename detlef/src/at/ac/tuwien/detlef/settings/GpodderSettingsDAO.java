@@ -30,6 +30,14 @@ public interface GpodderSettingsDAO {
 
     GpodderSettings getSettings();
 
+    /**
+     * Writes the settings to the storage engine.
+     * @param settings
+     * @return Fluent interface.
+     * @throws UnsupportedOperationException If the Implementation does not support writing
+     * settings. This might be the case if the settings are stored via some internal mechanism,
+     * as it is the case in {@link GpodderSettingsDAOAndroid}.
+     */
     GpodderSettingsDAO writeSettings(GpodderSettings settings);
 
     /**

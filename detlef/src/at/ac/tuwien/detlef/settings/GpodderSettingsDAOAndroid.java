@@ -21,60 +21,48 @@ package at.ac.tuwien.detlef.settings;
 import java.util.HashMap;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 import at.ac.tuwien.detlef.domain.DeviceId;
 
+/**
+ * Implementation of {@link GpodderSettingsDAO} that uses the internal Preference Storage
+ * Registry of Android to store and retrieve Settings.
+ * @author moe
+ */
 public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 
-	private HashMap<String, Object> dependencies;
+    /** The key that is used to store the {@link DeviceId}. */
+    private static final String KEY_DEVICE_ID = "device-id";
+
+    private static final String TAG = GpodderSettingsDAOAndroid.class.getCanonicalName();
+
+	private HashMap<String, Object> dependencies = new HashMap<String, Object>();
 
 	public GpodderSettings getSettings() {
-		return new GpodderSettings() {
-			public String getUsername() {
-				return getSharedPreferences().getString("username", "");
-			}
+	    GpodderSettings result = new GpodderSettings();
 
-			public String getPassword() {
-				return getSharedPreferences().getString("password", "");
-			}
+	    result.setUsername(getSharedPreferences().getString("username", ""));
+	    result.setPassword(getSharedPreferences().getString("password", ""));
+	    result.setDevicename(getSharedPreferences().getString("devicename", ""));
+	    result.setLastUpdate(getSharedPreferences().getLong("lastUpdate", 0));
 
-			public String getDevicename() {
-				String storedName = getSharedPreferences().getString("devicename", "");
+        try {
+            result.setDeviceId(new DeviceId(getSharedPreferences().getString(KEY_DEVICE_ID, null)));
+        } catch (IllegalArgumentException e) {
+            result.setDeviceId(null);
+        }
 
-				if (storedName.isEmpty()) {
-					return getDefaultDevicename();
-				}
-
-				return storedName;
-			}
-
-			private String getDefaultDevicename() {
-				return String.format("%s-android", getUsername());
-			}
-
-			public boolean isDefaultDevicename() {
-				return getDevicename().equals(getDefaultDevicename());
-			}
-
-            public long getLastUpdate() {
-                return getSharedPreferences().getLong("lastUpdate", 0);
-            }
-
-            public void setLastUpdate(long timestamp) {
-                getSharedPreferences().edit().putLong("lastUpdate", timestamp).commit();
-            }
-
-            @Override
-            public DeviceId getDeviceId() {
-                return null;
-                //return getSharedPreferences().getString("deviceid", "");
-            }
-		};
+        return result;
 	}
 
 	public GpodderSettingsDAO writeSettings(GpodderSettings settings) {
-		throw new UnsupportedOperationException(
-			"The Android Settings DAO does not support write operations"
-		);
+
+	    getSharedPreferences().edit()
+	        .putString(KEY_DEVICE_ID, settings.getDeviceId().toString())
+	        .putLong("lastUpdate", settings.getLastUpdate())
+	        .commit();
+	    return this;
+
 	}
 
 	/**
@@ -82,11 +70,13 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 	 * {@link SharedPreferences} with the key sharedPreferences.
 	 */
 	public GpodderSettingsDAO setDependencies(HashMap<String, Object> pDependencies) {
+	    Log.d(TAG, this + "setDependencies: " + pDependencies);
 		dependencies = pDependencies;
 		return this;
 	}
 
 	private SharedPreferences getSharedPreferences() {
+	    Log.d(TAG, this + "getSharedPreferences: " + dependencies);
 		return (SharedPreferences) dependencies.get("sharedPreferences");
 	}
 

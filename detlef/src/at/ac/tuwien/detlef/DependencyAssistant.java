@@ -24,6 +24,7 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
@@ -61,6 +62,8 @@ public class DependencyAssistant {
     private static DetlefDownloadManager downloadManager = null;
 
     private static final GUIUtils GUI_UTILS = new GUIUtils();
+
+    private static final String TAG = DependencyAssistant.class.getCanonicalName();
 
     public GUIUtils getGuiUtils() {
         return GUI_UTILS;
@@ -108,14 +111,35 @@ public class DependencyAssistant {
      */
     public GpodderSettings getGpodderSettings(Context context) {
 
+
+        return getGpodderSettingsDAO(context).getSettings();
+
+    }
+
+    /**
+     * The DAO class that is used to store and retrieve {@link GpodderSettings}.
+     * @param context The current {@link Context}.
+     * @return an implementation of {@link GpodderSettingsDAO}.
+     * @throws IllegalArgumentException In case context is null.
+     */
+    public GpodderSettingsDAO getGpodderSettingsDAO(Context context) {
+
+        if (context == null) {
+            throw new IllegalArgumentException("context must not be null");
+        }
+
+        Log.d(TAG, "sharedPreferences:" + PreferenceManager.getDefaultSharedPreferences(context));
+
         HashMap<String, Object> dependencies = new HashMap<String, Object>();
-        dependencies.put("sharedPreferences",
-                PreferenceManager.getDefaultSharedPreferences(context));
+        dependencies.put(
+            "sharedPreferences",
+            PreferenceManager.getDefaultSharedPreferences(context)
+        );
 
         GpodderSettingsDAO gpodderSettingsDAO = new GpodderSettingsDAOAndroid();
         gpodderSettingsDAO.setDependencies(dependencies);
-        return gpodderSettingsDAO.getSettings();
 
+        return gpodderSettingsDAO;
     }
 
     /**

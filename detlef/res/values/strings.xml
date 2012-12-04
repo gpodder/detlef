@@ -75,8 +75,13 @@
     <string name="continue_set_up_summary" >After you have successfully verified your account settings, tap here to continue setting up your account.</string>
     <string name="register_device_title">Registering device&#8230;</string>
     <string name="register_device_summary">Your device is now registered at gpodder.net</string>
-
-
+    <string name="detlef_says_hello">Detlef says hello.</string>
+    <string name="detlef_is_not_set_up_yet">Detlef is not set up on this device. Do you want to set up your account now?</string>
+    <string name="almost_done">Almost done&#8230;</string>
+    <string name="should_detlef_download_podcast_list">Your device is now connected to gpodder.net. Should Detlef now download your podcast list?</string>
+    <string name="you_can_setup_your_account_later">No worries, you can set up your account anytime in the settings.</string>
+    <string name="you_can_refresh_your_podcasts_later">No worries, you can refresh your podcast anytime later.</string>
+    <string name="setup_finished">Horray! Set up is finished now. You may now use Detlef.</string>
 
     <string name="cannot_download_episode">Cannot download episode! Please make sure you have an internet connection and an SD card inserted!</string>
     <string name="suggestions">Suggestions</string>

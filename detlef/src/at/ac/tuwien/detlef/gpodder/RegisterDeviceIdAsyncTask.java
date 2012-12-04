@@ -41,6 +41,7 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
 
     public RegisterDeviceIdAsyncTask(RegisterDeviceIdResultHandler<? extends Fragment> callback, DeviceId pDeviceId) {
         deviceId = pDeviceId;
+        callback.setDeviceId(pDeviceId);
         this.callback = callback;
     }
 

@@ -25,17 +25,44 @@ import at.ac.tuwien.detlef.domain.DeviceId;
  *
  * @author moe
  */
-public interface GpodderSettings {
+public class GpodderSettings {
+
+    private String username;
+
+    private String password;
+
+    private String devicename;
+
+    private DeviceId deviceId;
+
+    private long lastUpdate;
 
     /**
      * @return The user name
      */
-    String getUsername();
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * @return The user name
+     */
+    public GpodderSettings setUsername(String pUsername) {
+        username = pUsername;
+        return this;
+    }
 
     /**
      * @return The password
      */
-    String getPassword();
+    public String getPassword() {
+        return password;
+    }
+
+    public GpodderSettings setPassword(String pPassword) {
+        password = pPassword;
+        return this;
+    }
 
     /**
      * @return A human readable label for the device to identify it at gpodder.net.
@@ -43,23 +70,44 @@ public interface GpodderSettings {
      * uniquely identifies a device.
      *
      */
-    String getDevicename();
+    public String getDevicename() {
+        return devicename;
+    }
+
+    public GpodderSettings setDevicename(String pDevicename) {
+        devicename = pDevicename;
+        return this;
+    }
     
     /**
-     * @return The {@link DeviceId} that belongs to this account. If no device id is set, this
-     *     method must return <code>null</code>.
+     * @return The {@link DeviceId} that belongs to this account. If the device id is not set
+     *     or invalid this method <strong>must</strong> return <code>null</code>.
      */
-    DeviceId getDeviceId();
+    public DeviceId getDeviceId() {
+        return deviceId;
+    }
+
+    public GpodderSettings setDeviceId(DeviceId pDevideId) {
+        deviceId = pDevideId;
+        return this;
+    }
 
     /**
      * @return The timestamp of the last synchronization with gpodder.net
      */
-    long getLastUpdate();
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
 
     /**
      * @return Set the timestamp of the last synchronization with gpodder.net
      */
-    void setLastUpdate(long timestamp);
+    public GpodderSettings setLastUpdate(long timestamp) {
+        lastUpdate = timestamp;
+        return this;
+    }
+
+
 
     /**
      * This is used to indicate whether the value of
@@ -70,6 +118,12 @@ public interface GpodderSettings {
      * @return true, if the value from {@link GpodderSettings#getDevicename()} 
      *         is the default value, false otherwise.
      */
-    boolean isDefaultDevicename();
+    public boolean isDefaultDevicename() {
+        return getDevicename().equals(getDefaultDevicename());
+    }
+
+    private String getDefaultDevicename() {
+        return String.format("%s-android", getUsername());
+    }
 
 }

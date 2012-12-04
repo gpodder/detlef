@@ -61,6 +61,11 @@ import at.ac.tuwien.detlef.util.GUIUtils;
  * name Additionally, there exists a button which checks the validity of the
  * entered data.
  * 
+ * <p>This fragment may also run in a "set up mode": This will display an additional
+ * button that registers the {@link DeviceId} against the gpodder.net API  and
+ * refreshes the {@link MainActivity}'s list of Podcasts and Episodes.
+ * </p>
+ *
  * @author moe
  */
 public class SettingsGpodderNet extends PreferenceFragment {
@@ -177,16 +182,15 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
         loadSummaries();
 
-
-
-        Log.d(TAG, "cbCont 1:" + cbCont.get(KEY_DEVICE_ID_HANDLER));
-
         cbCont.put(KEY_DEVICE_ID_HANDLER, new RegisterDeviceIdResultHandler<SettingsGpodderNet>() {
 
             @Override
             public void handle() {
-                Log.d(TAG, "Me " + this + " has a handle!");
-                Log.d(TAG, "My activity is: " + act);
+
+
+                GpodderSettings settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(getRcv().getActivity());
+                settings.setDeviceId(getDeviceId());
+                DependencyAssistant.getDependencyAssistant().getGpodderSettingsDAO(getRcv().getActivity()).writeSettings(settings);
 
                 getRcv().dismissRegisterDeviceDialog();
 
@@ -195,12 +199,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
                     @Override
                     public void run() {
                         final AlertDialog.Builder b = new AlertDialog.Builder(act);
-                        b.setTitle("Almost done!");
-                        b.setMessage(
-                                "Your device is now connected to gpodder.net."
-                                 + "Now Detlef will download your podcast list."
-                        );
-
+                        b.setTitle(R.string.almost_done);
+                        b.setMessage(R.string.should_detlef_download_podcast_list);
 
                         b.setPositiveButton(
                                 android.R.string.ok, new OnClickListener() {
@@ -220,6 +220,25 @@ public class SettingsGpodderNet extends PreferenceFragment {
                                     }
                                 });
 
+                        b.setNegativeButton(
+                            android.R.string.cancel,
+                            new OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent data = new Intent().putExtra(MainActivity.EXTRA_REFRESH_FEED_LIST, true);
+                                    if (act.getParent() == null) {
+                                        act.setResult(Activity.RESULT_CANCELED, data);
+                                    } else {
+                                        act.getParent().setResult(Activity.RESULT_CANCELED, data);
+                                   }
+
+                                    act.finish();
+
+                                }
+                            }
+                        );
+
                         b.show();
                     }
                 });
@@ -235,7 +254,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
             }
         });
 
-        Log.d(TAG, "cbCont 2:" + cbCont.get(KEY_DEVICE_ID_HANDLER));
 
     }
 

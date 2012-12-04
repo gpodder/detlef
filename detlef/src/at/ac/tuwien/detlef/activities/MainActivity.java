@@ -171,11 +171,8 @@ public class MainActivity extends FragmentActivity
             }
 
             final AlertDialog.Builder b = new AlertDialog.Builder(this);
-            b.setTitle("Detlef says Hello!");
-            b.setMessage(
-                    "Detlef is not set up on this device. "
-                     + "Do you want to set up your account now?"
-            );
+            b.setTitle(R.string.detlef_says_hello);
+            b.setMessage(R.string.detlef_is_not_set_up_yet);
 
 
             b.setPositiveButton(
@@ -203,7 +200,7 @@ public class MainActivity extends FragmentActivity
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getApplicationContext(), "No worries, you can set up your account anytime in the settings.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.you_can_setup_your_account_later), Toast.LENGTH_LONG).show();
 
                         }
                     }
@@ -343,7 +340,6 @@ public class MainActivity extends FragmentActivity
 
             synchronized (getRcv().numPodSync) {
 
-                Log.d(TAG, "r bundle extra 2: " + showDialog);
 
                 for (Podcast p : pda.getAllPodcasts(getRcv())) {
 
@@ -352,18 +348,15 @@ public class MainActivity extends FragmentActivity
                     refreshBg.execute(new PullFeedAsyncTask(handler, p));
                     getRcv().numPodSync.incrementAndGet();
                 }
-
-                Log.d(TAG, "r bundle extra 3: " + showDialog);
+                
 
                 if (getRcv().numPodSync.get() == 0) {
 
-                    Log.d(TAG, "r bundle extra 4: " + showDialog);
 
                     if (showDialog) {
-                        Log.d(TAG, "WTF IS THIS?!");
-                        getRcv().onRefreshDone("Detlef is now ready to use!", RefreshDoneNotification.DIALOG);
+                        getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished), RefreshDoneNotification.DIALOG);
                     } else {
-                        getRcv().onRefreshDone("wew1"); //getRcv().getString(R.string.refresh_successful));
+                        getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
                     }
                 }
 
@@ -408,7 +401,10 @@ public class MainActivity extends FragmentActivity
                 if (getRcv().curPodSync.get() == getRcv().numPodSync.get()) {
 
                     if (getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false)) {
-                        getRcv().onRefreshDone("Hoo.Ray.", RefreshDoneNotification.DIALOG);
+                        getRcv().onRefreshDone(
+                            getRcv().getString(R.string.setup_finished),
+                            RefreshDoneNotification.DIALOG
+                        );
                     } else {
                         getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
                     }
@@ -676,10 +672,19 @@ public class MainActivity extends FragmentActivity
 
         Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
 
-        if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
+        if (!data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
+            return;
+        }
+
+        if (resultCode == Activity.RESULT_OK) {
             Bundle bundle = new Bundle();
             bundle.putBoolean(EXTRA_REFRESH_FEED_LIST, true);
             onRefreshPressed(bundle);
+        } else {
+            Toast.makeText(
+                this, getString(R.string.you_can_refresh_your_podcasts_later),
+                Toast.LENGTH_LONG
+            ).show();
         }
 
 

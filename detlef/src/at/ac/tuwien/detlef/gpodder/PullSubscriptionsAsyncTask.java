@@ -82,6 +82,11 @@ public class PullSubscriptionsAsyncTask implements Runnable {
 
             /* Update last changed timestamp. */
             gps.setLastUpdate(enhanced.getTimestamp());
+
+            DependencyAssistant.getDependencyAssistant()
+                .getGpodderSettingsDAO(Detlef.getAppContext())
+                .writeSettings(gps);
+
         } catch (HttpResponseException e) {
             String eMsg = e.getLocalizedMessage();
             switch (e.getStatusCode()) {
