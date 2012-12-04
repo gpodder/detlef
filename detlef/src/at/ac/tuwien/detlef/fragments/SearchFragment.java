@@ -45,10 +45,10 @@ public class SearchFragment extends Fragment {
         
     }
     
-    private EpisodeListFragment getEpisodeListFragment() {
-        FragmentManager manager = getActivity().getSupportFragmentManager();
-        return (EpisodeListFragment) manager.findFragmentById(R.id.SearchEpsiodeListFragment);
-    }
+//    private EpisodeListFragment getEpisodeListFragment() {
+//        FragmentManager manager = getActivity().getSupportFragmentManager();
+//        return (EpisodeListFragment) manager.findFragmentById(R.id.SearchEpsiodeListFragment);
+//    }
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,13 +77,13 @@ public class SearchFragment extends Fragment {
                         new SearchCallback<Episode>() {
                             @Override
                             public void getResult(List<Episode> result) {
-                                getEpisodeListFragment().setListAdapter(
-                                        new EpisodeListAdapter(
-                                            getActivity().getApplicationContext(),
-                                            android.R.layout.simple_list_item_1,
-                                            result
-                                        )
-                                    );
+//                                getEpisodeListFragment().setListAdapter(
+//                                        new EpisodeListAdapter(
+//                                            getActivity().getApplicationContext(),
+//                                            android.R.layout.simple_list_item_1,
+//                                            result
+//                                        )
+//                                    );
                                 
                                 //refreshSearchResult();
                             }
