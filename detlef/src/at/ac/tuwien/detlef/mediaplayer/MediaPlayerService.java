@@ -234,9 +234,12 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         } else if (currentPlaylistPosition < (playlistItems.size() - 1)) {
             currentPlaylistPosition++;
             nextEpisode = playlistItems.get(currentPlaylistPosition);
-        }
-        if (currentPlaylistPosition > 0) {
-            manualEpisode = null;
+            if (currentPlaylistPosition > 0) {
+                manualEpisode = null;
+            }
+        } else if (!playlistItems.isEmpty()) {
+            currentPlaylistPosition = 0;
+            nextEpisode = playlistItems.get(currentPlaylistPosition);
         }
         return this;
     }
