@@ -29,10 +29,7 @@ import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
-import at.ac.tuwien.detlef.db.PodcastDAO;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 
@@ -92,7 +89,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         initSeekBar(v);
 
         alreadyPlayed = (TextView) v.findViewById(R.id.playerAlreadyPlayed);
-        Log.d(getClass().getName(), "Setting remainingTime");
         remainingTime = (TextView) v.findViewById(R.id.playerRemainingTime);
         return this;
     }
@@ -118,7 +114,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 }
                 if (bound && (service != null)) {
                     alreadyPlayed.setText(getAlreadyPlayed(progress));
-                    Log.d(getClass().getName(), "Setting remaining time");
                     remainingTime.setText("-"
                             + getRemainingTime(service.getDuration(),
                                     progress));
@@ -349,7 +344,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
 
         if ((ep == null) && (service != null)) {
-            Log.d(getClass().getName(), "Getting next episode from service");
             ep = service.getNextEpisode();
         }
 
@@ -371,7 +365,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     }
 
     private void setNotPlayingSeekBarAndTime(Episode ep) {
-        Log.d(getClass().getName(), "Setting static duration");
         if (service == null) {
             return;
         }
@@ -389,13 +382,10 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 }
                 String minutesSecondsRemaining = getRemainingTime(duration, pos);
                 String minutesSecondsAlreadyPlayed = getAlreadyPlayed(pos);
-                Log.d(getClass().getName(), "Setting all the fields to " + minutesSecondsRemaining
-                        + ", " + minutesSecondsAlreadyPlayed + ", " + pos + ", " + duration);
                 remainingTime.setText("-" + minutesSecondsRemaining);
                 alreadyPlayed.setText(minutesSecondsAlreadyPlayed);
                 seekBar.setMax(duration);
                 seekBar.setProgress(pos);
-                Log.d(getClass().getName(), "Just set all the fields");
             } else {
                 remainingTime.setText("-00:00");
                 alreadyPlayed.setText("00:00");
@@ -412,9 +402,11 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return;
         }
+        if (trackingTouch) {
+            return;
+        }
         seekBar.setMax(service.getDuration());
         seekBar.setProgress(service.getCurrentPosition());
-        Log.d(getClass().getName(), "Setting remaining time");
         alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
         remainingTime.setText("-"
                 + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
@@ -451,9 +443,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
 
     @Override
     public void onPlaylistEpisodeAdded(int position, Episode episode) {
-        Log.d(getClass().getName(), "Getting episode at position " + position);
         if ((activeEpisode == null) && (position == 0)) {
-            Log.d(getClass().getName(), "setting active episode to " + episode);
             activeEpisode = episode;
             setEpisodeInfoControls(activeEpisode);
         }
@@ -491,9 +481,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d(getClass().getName(), "On Episode Deleted");
                 if (activeEpisode == episode) {
-                    Log.d(getClass().getName(), "Deleted the currently active episode");
                     stopPlaying();
                     activeEpisode = null;
                     setEpisodeInfoControls(activeEpisode);
