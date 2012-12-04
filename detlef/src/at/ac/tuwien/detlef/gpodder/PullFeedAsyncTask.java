@@ -17,7 +17,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
 import com.dragontek.mygpoclient.api.EpisodeActionChanges;
 import com.dragontek.mygpoclient.api.MygPodderClient;
 import com.dragontek.mygpoclient.feeds.FeedServiceClient;
-import com.dragontek.mygpoclient.feeds.IFeed;
+import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
 
 /**
  * A Runnable to fetch feed changes. It should be started in its own Thread
@@ -62,14 +62,14 @@ public class PullFeedAsyncTask implements Runnable {
         EpisodeActionChanges changes = null;
         try {
             /* Get the feed */
-            IFeed iFeed = fsc.parseFeeds(new String[] {podcast.getUrl()}, since).get(0);
-            if (iFeed == null) {
+            FeedServiceResponse fsr = fsc.parseFeeds(new String[] {podcast.getUrl()}, since);
+            if (fsr == null || fsr.size() == 0) {
                 String e = Detlef.getAppContext().getString(R.string.failed_to_download_feed);
                 sendError(new GPodderException(String.format("%s: %s", podcast.getTitle(), e)));
                 return;
             }
 
-            feed = new FeedUpdate(iFeed, podcast);
+            feed = new FeedUpdate(fsr.get(0), podcast);
 
             DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
             .upsertAndDeleteEpisodes(Detlef.getAppContext(), podcast, feed);
