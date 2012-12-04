@@ -4,11 +4,13 @@ package at.ac.tuwien.detlef.adapters;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -46,10 +48,30 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
             }
         }
 
-        Button button = (Button) v.findViewById(R.id.playListRemoveFromPlaylist);
-        button.setTag(position);
+        Button removeButton = (Button) v.findViewById(R.id.playListRemoveFromPlaylist);
+        removeButton.setTag(position);
+
+        ImageButton downloadButton = (ImageButton) v.findViewById(R.id.playListDownload);
+        downloadButton.setTag(episode);
+        setDownloadButtonStatus(downloadButton, episode);
+
         v.setTag(episode);
         return v;
     }
 
+    private void setDownloadButtonStatus(ImageButton downloadButton, Episode episode) {
+        switch (episode.getStorageState()) {
+            case NOT_ON_DEVICE:
+                downloadButton.setVisibility(ImageButton.VISIBLE);
+                downloadButton.setImageResource(android.R.drawable.ic_menu_upload);
+                break;
+            case DOWNLOADING:
+                downloadButton.setVisibility(ImageButton.VISIBLE);
+                downloadButton.setImageResource(R.drawable.ic_media_stop);
+                break;
+            default:
+                downloadButton.setVisibility(ImageButton.INVISIBLE);
+        }
+        downloadButton.setTag(episode);
+    }
 }

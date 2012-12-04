@@ -1,6 +1,7 @@
 
 package at.ac.tuwien.detlef.activities;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.ListActivity;
@@ -21,16 +22,22 @@ import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
+import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.EpisodePersistence;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
+import at.ac.tuwien.detlef.util.GUIUtils;
 
 import com.mobeta.android.dslv.DragSortListView;
 
-public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlaylistChangeListener {
+public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlaylistChangeListener,
+        EpisodeDAO.OnEpisodeChangeListener {
 
     private ArrayList<Episode> playlistItems;
     private PlaylistListAdapter adapter;
@@ -57,7 +64,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         public void onServiceDisconnected(ComponentName arg0) {
             bound = false;
         }
-    };;
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +74,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         playlistDAO = PlaylistDAOImpl.i();
         playlistDAO.addPlaylistChangedListener(this);
         playlistItems = playlistDAO.getNonCachedEpisodes();
+        EpisodeDAOImpl.i().addEpisodeChangedListener(this);
 
         downloadManager = DependencyAssistant.getDependencyAssistant().getDownloadManager(
                 Detlef.getAppContext());
@@ -166,10 +174,40 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
             case R.id.playlistDownloadAll:
                 playlistDownloadAll();
                 break;
+            case R.id.playlistStopDownload:
+                playlistStopPlaylistDownloads();
+                break;
+            case R.id.playlistStopAllDownloads:
+                stopAllDownloads();
+                break;
+            case R.id.settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
             default:
                 break;
         }
         return true;
+    }
+
+    private void stopAllDownloads() {
+        downloadManager.cancelAll();
+    }
+
+    /**
+     * Stops all the current downloads in the playlist.
+     */
+    private void playlistStopPlaylistDownloads() {
+        for (int i = 0; i < playlistItems.size(); i++) {
+            try {
+                Episode ep = playlistItems.get(i);
+                downloadManager.cancel(ep);
+            } catch (Exception e) {
+                // TODO @Joshi show that episodes are being downloaded somehow?
+                Log.d(getClass().getName(), "Could not add episode " + i
+                        + " on playlist to download manager");
+            }
+        }
     }
 
     /**
@@ -178,7 +216,10 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
     private void playlistDownloadAll() {
         for (int i = 0; i < playlistItems.size(); i++) {
             try {
-                downloadManager.enqueue(playlistItems.get(i));
+                Episode ep = playlistItems.get(i);
+                if (ep.getStorageState() == StorageState.NOT_ON_DEVICE) {
+                    downloadManager.enqueue(playlistItems.get(i));
+                }
             } catch (Exception e) {
                 // TODO @Joshi show that episodes are being downloaded somehow?
                 Log.d(getClass().getName(), "Could not add episode " + i
@@ -203,5 +244,43 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         }
         service.skipToPosition(position);
         service.startPlaying();
+    }
+
+    @Override
+    public void onEpisodeChanged(Episode episode) {
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onEpisodeAdded(Episode episode) {
+    }
+
+    @Override
+    public void onEpisodeDeleted(Episode episode) {
+        // we get this automatically from the playlistDAO
+    }
+
+    public void downloadEpisode(View v) {
+        Episode episode = ((Episode) v.getTag());
+        GUIUtils guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
+        String tag = getClass().getName();
+        switch (episode.getStorageState()) {
+            case NOT_ON_DEVICE:
+                try {
+                    guiUtils.showToast(String.format("Downloading %s", episode.getTitle()),
+                            this, tag);
+                    EpisodePersistence.download(episode);
+                } catch (IOException e) {
+                    guiUtils.showToast(getString(R.string.cannot_download_episode),
+                            this, tag);
+                }
+                break;
+            case DOWNLOADING:
+                guiUtils.showToast("Download aborted", this, tag);
+                EpisodePersistence.cancelDownload(episode);
+                break;
+            default:
+                Log.e(tag, "Invalid storage state encountered");
+        }
     }
 }

@@ -24,7 +24,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
     private static PodcastDAOImpl instance = new PodcastDAOImpl(Detlef.getAppContext());
 
     private final DatabaseHelper dbHelper;
-    private final Set<PodcastDAO.OnPodcastChangeListener> listeners = 
+    private final Set<PodcastDAO.OnPodcastChangeListener> listeners =
             new HashSet<PodcastDAO.OnPodcastChangeListener>();
     private final HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
 
@@ -62,7 +62,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
                 values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
                 if (podcast.getLogoUrl() == null) {
-                    values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_URL);                    
+                    values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_URL);
                 } else {
                     values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
                 }
@@ -85,7 +85,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
                 return podcast;
             } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage());
+                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
                 return null;
             } finally {
                 if (db != null && db.isOpen()) {
@@ -127,7 +127,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                     hashMapPodcast.remove(podcast.getId());
                 }
             } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage());
+                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
             } finally {
                 if (db != null && db.isOpen()) {
                     db.close();

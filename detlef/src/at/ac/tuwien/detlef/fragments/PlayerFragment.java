@@ -3,6 +3,7 @@ package at.ac.tuwien.detlef.fragments;
 
 import java.util.concurrent.TimeUnit;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,13 +25,19 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
+import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
+import at.ac.tuwien.detlef.db.PodcastDAO;
+import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 
-public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistChangeListener {
+public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistChangeListener,
+        EpisodeDAO.OnEpisodeChangeListener {
 
     private static final int PROGRESS_BAR_UPDATE_INTERVAL = 500;
 
@@ -154,6 +161,8 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PlaylistDAOImpl.i().addPlaylistChangedListener(this);
+        EpisodeDAOImpl.i().addEpisodeChangedListener(this);
 
         if (!MediaPlayerService.isRunning()) {
             Intent serviceIntent =
@@ -162,6 +171,13 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         }
         Intent intent = new Intent(getActivity(), MediaPlayerService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onDestroy() {
+        PlaylistDAOImpl.i().removePlaylistChangeListener(this);
+        EpisodeDAOImpl.i().removeEpisodeChangedListener(this);
+        super.onDestroy();
     }
 
     @Override
@@ -190,7 +206,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onResume() {
         super.onResume();
-        PlaylistDAOImpl.i().addPlaylistChangedListener(this);
         fragmentPaused = false;
         setEpisodeInfoControls(activeEpisode);
         if (!progressUpdaterRunning) {
@@ -202,7 +217,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onPause() {
         fragmentPaused = true;
-        PlaylistDAOImpl.i().removePlaylistChangeListener(this);
         super.onPause();
     }
 
@@ -453,6 +467,39 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onPlaylistEpisodeRemoved(int position) {
         // not of interest here.
+    }
+
+    @Override
+    public void onEpisodeChanged(Episode episode) {
+        // don't care - let's suppose this doesn't happen,
+        // and even if the info is miraculously updated
+        // during playback, I'll just ignore this
+    }
+
+    @Override
+    public void onEpisodeAdded(Episode episode) {
+        // thankfully I can be totally indifferent about this
+    }
+
+    @Override
+    public void onEpisodeDeleted(final Episode episode) {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(getClass().getName(), "On Episode Deleted");
+                if (activeEpisode == episode) {
+                    Log.d(getClass().getName(), "Deleted the currently active episode");
+                    stopPlaying();
+                    activeEpisode = null;
+                    setEpisodeInfoControls(activeEpisode);
+                }
+            }
+        });
     }
 
     public PlayerFragment setManualEpisode(Episode episode) {

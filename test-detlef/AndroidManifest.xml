@@ -6,21 +6,13 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="15"
         android:targetSdkVersion="16" />
-    <!--
-         We add an application tag here just so that we can indicate that
-         this package needs to link against the android.test library,
-         which is needed when building test cases.
-    -->
+
     <application>
         <uses-library android:name="android.test.runner" />
     </application>
-    <!--
-    This declares that this application uses the instrumentation test runner targeting
-    the package of at.ac.tuwien.detlef.  To run the tests use the command:
-    "adb shell am instrument -w at.ac.tuwien.detlef.tests/android.test.InstrumentationTestRunner"
-    -->
+
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
         android:label="Tests for at.ac.tuwien.detlef"

@@ -1,3 +1,4 @@
+
 package at.ac.tuwien.detlef.db;
 
 import java.util.List;
@@ -34,20 +35,20 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
             EpisodeActionChanges changes) {
         EpisodeDAO dao = EpisodeDAOImpl.i();
         for (EpisodeAction action : changes.actions) {
-            // update playposition 
+            // update playposition
             Episode ep = dao.getEpisodeByUrlOrGuid(action.episode, action.episode);
             if (ep != null) {
                 ActionState newActionState = ActionState.NEW;
                 if (action.action.equals("play")) {
                     newActionState = ActionState.PLAY;
-                    Log.i(TAG, "updating play position from: " + action.episode + " pos: " 
-                            + action.position + " started:" + action.started + " total: " 
+                    Log.i(TAG, "updating play position from: " + action.episode + " pos: "
+                            + action.position + " started:" + action.started + " total: "
                             + action.total);
                     ep.setPlayPosition(action.position);
                     if (dao.updateStorageState(ep) != 1) {
                         Log.w(TAG, "update play position went wrong: " + ep.getLink());
                     }
-                    
+
                 } else {
                     if (action.action.equals("download")) {
                         newActionState = ActionState.DOWNLOAD;
@@ -76,7 +77,8 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                         dao.insertEpisode(newEp);
                     }
                 } catch (Exception ex) {
-                    Log.i(TAG, "enclosure missing, " +  ex.getMessage());
+                    Log.i(TAG, "enclosure missing, " + ex.getMessage() != null ? ex.getMessage()
+                            : ex.toString());
                 }
             }
         } catch (Exception ex) {

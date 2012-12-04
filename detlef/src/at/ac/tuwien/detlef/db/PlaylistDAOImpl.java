@@ -130,7 +130,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 notifyListenersAdded(nextPosition, episode);
                 return true;
             } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage());
+                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
                 return false;
             } finally {
                 if ((db != null) && db.isOpen()) {
@@ -160,7 +160,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 notifyListenersAdded(0, episode);
                 return true;
             } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage());
+                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
                 return false;
             } finally {
                 if ((db != null) && db.isOpen()) {
@@ -260,7 +260,8 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 db.close();
                 return (ret == 1);
             } catch (Exception ex) {
-                Log.e(getClass().getName(), ex.getMessage());
+                Log.e(getClass().getName(),
+                        ex.getMessage() != null ? ex.getMessage() : ex.toString());
                 return false;
             } finally {
                 if ((db != null) && db.isOpen()) {
@@ -349,7 +350,8 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                     removePosition(position, db);
                 }
             } catch (Exception ex) {
-                Log.e(getClass().getName(), ex.getMessage());
+                Log.e(getClass().getName(),
+                        ex.getMessage() != null ? ex.getMessage() : ex.toString());
             } finally {
                 if ((db != null) && db.isOpen()) {
                     db.close();

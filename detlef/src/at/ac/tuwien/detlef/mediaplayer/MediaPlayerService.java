@@ -426,6 +426,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
     @Override
     public void onEpisodeDeleted(Episode episode) {
+        Log.d(getClass().getName(), "MediaPlayerService Episode deleted");
         if (activeEpisode == episode) {
             mediaPlayer.stop();
             mediaPlayer.reset();
@@ -433,6 +434,9 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         }
         if (nextEpisode == episode) {
             nextEpisode = null;
+        }
+        if (manualEpisode == episode) {
+            manualEpisode = null;
         }
     }
 
