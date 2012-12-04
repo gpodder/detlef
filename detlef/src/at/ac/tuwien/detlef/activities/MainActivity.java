@@ -18,7 +18,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -345,7 +344,7 @@ public class MainActivity extends FragmentActivity
                 getMenuInflater().inflate(R.menu.episode_menu, menu);
                 break;
             case SectionsPagerAdapter.POSITION_PLAYER:
-                // getMenuInflater().inflate(R.menu.player_menu, menu);
+                getMenuInflater().inflate(R.menu.player_menu, menu);
                 break;
             default:
                 return false;
@@ -468,21 +467,10 @@ public class MainActivity extends FragmentActivity
                 intent = new Intent(this, AddPodcastActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.playlistClear:
-                playlistClear();
-                break;
             default:
                 break;
         }
         return true;
-    }
-
-    /**
-     * Clears the playlist.
-     */
-    private void playlistClear() {
-        Log.d(getClass().getName(), "Clearing playlist");
-        playlistDAO.clearPlaylist();
     }
 
     /**

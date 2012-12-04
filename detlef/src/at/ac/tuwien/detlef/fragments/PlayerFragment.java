@@ -14,14 +14,13 @@ import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
@@ -33,7 +32,7 @@ import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 
 public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistChangeListener {
 
-    private static final int PROGRESS_BAR_UPDATE_INTERVAL = 1000;
+    private static final int PROGRESS_BAR_UPDATE_INTERVAL = 500;
 
     private final Handler playProgressUpdateHandler = new Handler();
     private IMediaPlayerService service;
@@ -42,6 +41,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     private boolean fragmentPaused = true;
     private boolean progressUpdaterRunning = false;
     private boolean bound = false;
+    private boolean trackingTouch = false;
 
     private ImageButton buttonPlayStop;
     private SeekBar seekBar;
@@ -78,37 +78,50 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
      * Initializes the buttons play, ff, rew and the slide etc. to perform their
      * tasks when needed.
      */
-    private PlayerFragment initPlayingControls() {
-        initButtonPlayStop();
-        initButtonFF();
-        initButtonRew();
-        initSeekBar();
+    private PlayerFragment initPlayingControls(View v) {
+        initButtonPlayStop(v);
+        initButtonFF(v);
+        initButtonRew(v);
+        initSeekBar(v);
 
-        alreadyPlayed = (TextView) getActivity().findViewById(R.id.playerAlreadyPlayed);
-        remainingTime = (TextView) getActivity().findViewById(R.id.playerRemainingTime);
+        alreadyPlayed = (TextView) v.findViewById(R.id.playerAlreadyPlayed);
+        Log.d(getClass().getName(), "Setting remainingTime");
+        remainingTime = (TextView) v.findViewById(R.id.playerRemainingTime);
         return this;
     }
 
-    private void initSeekBar() {
-        seekBar = (SeekBar) getActivity().findViewById(R.id.SeekBar01);
-        seekBar.setOnTouchListener(new OnTouchListener() {
+    private void initSeekBar(View v) {
+        seekBar = (SeekBar) v.findViewById(R.id.SeekBar01);
+        seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int progress = seekBar.getProgress();
+            public void onStopTrackingTouch(SeekBar seekBar1) {
+                service.seekTo(seekBar1.getProgress());
+                trackingTouch = false;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar1) {
+                trackingTouch = true;
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar1, int progress, boolean fromUser) {
+                if (!fromUser) {
+                    return;
+                }
                 if (bound && (service != null)) {
                     alreadyPlayed.setText(getAlreadyPlayed(progress));
+                    Log.d(getClass().getName(), "Setting remaining time");
                     remainingTime.setText("-"
                             + getRemainingTime(service.getDuration(),
                                     progress));
                 }
-                service.seekTo(progress);
-                return false;
             }
         });
     }
 
-    private void initButtonRew() {
-        buttonRew = (ImageButton) getActivity().findViewById(R.id.ButtonRewind);
+    private void initButtonRew(View v) {
+        buttonRew = (ImageButton) v.findViewById(R.id.ButtonRewind);
         buttonRew.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,8 +130,8 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         });
     }
 
-    private void initButtonFF() {
-        buttonFF = (ImageButton) getActivity().findViewById(R.id.ButtonFF);
+    private void initButtonFF(View v) {
+        buttonFF = (ImageButton) v.findViewById(R.id.ButtonFF);
         buttonFF.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,9 +140,9 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         });
     }
 
-    private void initButtonPlayStop() {
+    private void initButtonPlayStop(View v) {
         buttonPlayStop =
-                (ImageButton) getActivity().findViewById(R.id.ButtonPlayStop);
+                (ImageButton) v.findViewById(R.id.ButtonPlayStop);
         buttonPlayStop.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -170,7 +183,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initPlayingControls();
+        initPlayingControls(view);
         setEpisodeInfoControls(activeEpisode);
     }
 
@@ -213,13 +226,13 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     // TODO @Joshi set time once even when not playing (?), if it's possible
 
     private void updateControls() {
-        setSeekBarAndTime();
         if ((service.getNextEpisode() != null) && (service.getNextEpisode() != activeEpisode)) {
             setActiveEpisode(service.getNextEpisode());
         }
         if (service.isCurrentlyPlaying()) {
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_pause);
+            setPlayingSeekBarAndTime();
             Runnable notification = new Runnable() {
                 @Override
                 public void run() {
@@ -230,20 +243,9 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         } else {
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_play);
-            if (!service.hasRunningEpisode()) {
-                seekBar.setMax(1);
-                seekBar.setProgress(0);
-            }
+            setNotPlayingSeekBarAndTime(activeEpisode);
             progressUpdaterRunning = false;
         }
-    }
-
-    private void setSeekBarAndTime() {
-        seekBar.setMax(service.getDuration());
-        seekBar.setProgress(service.getCurrentPosition());
-        alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
-        remainingTime.setText("-"
-                + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
     }
 
     public PlayerFragment startPlaying() {
@@ -349,35 +351,59 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             podcast.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
                     .getTitle());
             episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
-            setStaticDuration(ep);
+            setNotPlayingSeekBarAndTime(ep);
         }
         return this;
     }
 
-    private void setStaticDuration(Episode ep) {
+    private void setNotPlayingSeekBarAndTime(Episode ep) {
         Log.d(getClass().getName(), "Setting static duration");
         if (service == null) {
             return;
         }
-        if (service.isCurrentlyPlaying()) {
-            return;
-        }
         try {
-            // TODO @Joshi setting remaining time does not work, and I have no
-            // idea why
             if (service.episodeFileOK(ep)) {
                 MediaMetadataRetriever metaData = new MediaMetadataRetriever();
                 metaData.setDataSource(ep.getFilePath());
                 String durationString = metaData
                         .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                 int duration = Integer.parseInt(durationString);
-                String minutesSeconds = getRemainingTime(duration, 0);
-                remainingTime.setText("-" + minutesSeconds);
+                int playingPosition = ep.getPlayPosition();
+                int pos = 0;
+                if ((playingPosition) > 0 && (playingPosition < duration)) {
+                    pos = playingPosition;
+                }
+                String minutesSecondsRemaining = getRemainingTime(duration, pos);
+                String minutesSecondsAlreadyPlayed = getAlreadyPlayed(pos);
+                Log.d(getClass().getName(), "Setting all the fields to " + minutesSecondsRemaining
+                        + ", " + minutesSecondsAlreadyPlayed + ", " + pos + ", " + duration);
+                remainingTime.setText("-" + minutesSecondsRemaining);
+                alreadyPlayed.setText(minutesSecondsAlreadyPlayed);
+                seekBar.setMax(duration);
+                seekBar.setProgress(pos);
+                Log.d(getClass().getName(), "Just set all the fields");
+            } else {
+                remainingTime.setText("-00:00");
+                alreadyPlayed.setText("00:00");
+                seekBar.setMax(1);
+                seekBar.setProgress(0);
             }
         } catch (Exception ex) {
             Log.d(getClass().getName(),
                     "Error while retrieving duration of episode: " + ex.getMessage());
         }
+    }
+
+    private void setPlayingSeekBarAndTime() {
+        if (service == null) {
+            return;
+        }
+        seekBar.setMax(service.getDuration());
+        seekBar.setProgress(service.getCurrentPosition());
+        Log.d(getClass().getName(), "Setting remaining time");
+        alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
+        remainingTime.setText("-"
+                + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
     }
 
     private PlayerFragment setActiveEpisode(Episode ep) {
@@ -439,7 +465,5 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         startPlaying();
         return this;
     }
-
-    // TODO @Joshi show extra warning/button if episode is not downloaded
 
 }

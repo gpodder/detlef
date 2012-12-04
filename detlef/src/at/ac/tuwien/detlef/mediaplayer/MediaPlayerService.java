@@ -228,7 +228,6 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     public IMediaPlayerService seekTo(int progress) {
         if (mediaPlayerPrepared) {
             int seekTo = Math.max(Math.min(progress, getDuration()), 0);
-            Log.d(getClass().getName(), "Seek to " + seekTo + ", duration: " + getDuration());
             mediaPlayer.seekTo(seekTo);
         }
         return this;
