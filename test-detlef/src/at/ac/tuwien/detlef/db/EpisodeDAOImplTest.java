@@ -128,7 +128,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         StorageState newState = StorageState.DOWNLOADED;
         e1.setStorageState(newState);
-        assertEquals(1, edao.updateState(e1));
+        assertEquals(1, edao.updateStorageState(e1));
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
         Episode ep = eps.get(0);
         assertEquals(newState, ep.getStorageState());

@@ -79,7 +79,7 @@ public class DetlefDownloadManager {
         episode.setStorageState(StorageState.DOWNLOADING);
 
         dao.updateFilePath(episode);
-        dao.updateState(episode);
+        dao.updateStorageState(episode);
 
         Log.v(TAG, String.format("Enqueued download task %s", path));
     }
@@ -109,7 +109,7 @@ public class DetlefDownloadManager {
         }
 
         episode.setStorageState(StorageState.NOT_ON_DEVICE);
-        dao.updateState(episode);
+        dao.updateStorageState(episode);
     }
 
     /**
@@ -122,7 +122,7 @@ public class DetlefDownloadManager {
 
             Episode episode = entry.getValue();
             episode.setStorageState(StorageState.NOT_ON_DEVICE);
-            dao.updateState(episode);
+            dao.updateStorageState(episode);
         }
         activeDownloads.clear();
     }
@@ -144,7 +144,7 @@ public class DetlefDownloadManager {
                     id, getDownloadFailureReason(id)));
 
             episode.setStorageState(StorageState.NOT_ON_DEVICE);
-            dao.updateState(episode);
+            dao.updateStorageState(episode);
 
             return;
         }
@@ -155,7 +155,7 @@ public class DetlefDownloadManager {
         /* Update the episode's state in the database. */
 
         episode.setStorageState(StorageState.DOWNLOADED);
-        dao.updateState(episode);
+        dao.updateStorageState(episode);
     }
 
     private boolean isDownloadSuccessful(long id) {

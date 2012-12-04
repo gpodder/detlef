@@ -66,14 +66,14 @@ public interface EpisodeDAO {
     int updateFilePath(Episode episode);
 
     /**
-     * updates the state column of the given episode (uses the state attribute
+     * updates the storage state column of the given episode (uses the state attribute
      * of the episode).
      * 
      * @param episode
      *            the episode which should be updated
      * @return the number of updated rows
      */
-    int updateState(Episode episode);
+    int updateStorageState(Episode episode);
     
     
     /**

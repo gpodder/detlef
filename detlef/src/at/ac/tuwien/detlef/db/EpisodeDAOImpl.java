@@ -194,10 +194,10 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     }
 
     /**
-     * @see EpisodeDAO#updateState(Episode)
+     * @see EpisodeDAO#updateStorageState(Episode)
      */
     @Override
-    public int updateState(Episode episode) {
+    public int updateStorageState(Episode episode) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getStorageState()
                 .toString());

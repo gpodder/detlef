@@ -44,7 +44,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                             + action.position + " started:" + action.started + " total: " 
                             + action.total);
                     ep.setPlayPosition(action.position);
-                    if (dao.updateState(ep) != 1) {
+                    if (dao.updateStorageState(ep) != 1) {
                         Log.w(TAG, "update play position went wrong: " + ep.getLink());
                     }
                     
