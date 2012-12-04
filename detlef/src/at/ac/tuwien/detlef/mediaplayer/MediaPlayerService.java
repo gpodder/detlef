@@ -295,12 +295,12 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             return false;
         }
         if ((ep.getFilePath() == null) || ep.getFilePath().equals("")) {
-            Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an empty file path");
+            Log.d(getClass().getName(), "Episode " + ep.getGuid() + " has an empty file path");
             return false;
         }
         File f = new File(ep.getFilePath());
         if (!f.exists() || !f.isFile() || !f.canRead()) {
-            Log.e(getClass().getName(), "Episode " + ep.getGuid() + " has an invalid file path: "
+            Log.d(getClass().getName(), "Episode " + ep.getGuid() + " has an invalid file path: "
                     + f.getAbsolutePath());
             return false;
         }
@@ -426,7 +426,6 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
     @Override
     public void onEpisodeDeleted(Episode episode) {
-        Log.d(getClass().getName(), "MediaPlayerService Episode deleted");
         if (activeEpisode == episode) {
             mediaPlayer.stop();
             mediaPlayer.reset();
