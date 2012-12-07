@@ -57,8 +57,14 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 
 	public GpodderSettingsDAO writeSettings(GpodderSettings settings) {
 
+        String deviceId = null;
+        
+        if (settings.getDeviceId() != null) {
+            deviceId = settings.getDeviceId().toString();
+        }
+	    
 	    getSharedPreferences().edit()
-	        .putString(KEY_DEVICE_ID, settings.getDeviceId().toString())
+	        .putString(KEY_DEVICE_ID, deviceId)
 	        .putLong("lastUpdate", settings.getLastUpdate())
 	        .commit();
 	    return this;
