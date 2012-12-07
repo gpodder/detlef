@@ -69,13 +69,13 @@ public class PullFeedAsyncTask implements Runnable {
         GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
                 .getGpodderSettings(Detlef.getAppContext());
 
-        String deviceID = gps.getDevicename();
+        String deviceID = gps.getDeviceId().toString();
         String username = gps.getUsername();
         String password = gps.getPassword();
 
         FeedServiceClient fsc = new FeedServiceClient(HOST, username, password);
         MygPodderClient gpc = new MygPodderClient(username, password);
-
+        
         FeedUpdate feed = null;
         EpisodeActionChanges changes = null;
         try {

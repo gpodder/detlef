@@ -62,14 +62,14 @@ public class PullSubscriptionsAsyncTask implements Runnable {
         GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
                 .getGpodderSettings(Detlef.getAppContext());
 
-        String devName = gps.getDevicename();
+        String devId = gps.getDeviceId().toString();
         
         MygPodderClient gpc = new MygPodderClient(gps.getUsername(), gps.getPassword());
 
         EnhancedSubscriptionChanges enhanced = null;
         try {
             /* Login and get subscription changes */
-            SubscriptionChanges changes = gpc.pullSubscriptions(devName,
+            SubscriptionChanges changes = gpc.pullSubscriptions(devId,
                     gps.getLastUpdate());
             PodcastDetailsRetriever pdr = new PodcastDetailsRetriever();
 
@@ -95,7 +95,7 @@ public class PullSubscriptionsAsyncTask implements Runnable {
                     break;
                 case HTTP_STATUS_NOT_FOUND:
                     eMsg = String.format(Detlef.getAppContext()
-                            .getString(R.string.device_doesnt_exist_fmt), devName);
+                            .getString(R.string.device_doesnt_exist_fmt), devId);
                     break;
                 default:
                     break;

@@ -19,6 +19,13 @@
 
 package at.ac.tuwien.detlef.fragments;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -442,13 +449,17 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
             showRegisterDeviceProgressDialog();
 
+            MessageDigest md;
+            byte[] digest = null;
+            
+            try {
+                md = MessageDigest.getInstance("MD5");
+                digest = md.digest(UUID.randomUUID().toString().getBytes());
+            } catch (NoSuchAlgorithmException e) {
+            }
+            
             // create new devide id
-            DeviceId deviceId = new DeviceId(
-                Settings.System.getString(
-                    getActivity().getContentResolver(),
-                    Settings.Secure.ANDROID_ID
-                )
-            );
+            DeviceId deviceId = new DeviceId(new String(digest).substring(0, 12));
 
             REGISTER_DEVICE.execute(
                 new RegisterDeviceIdAsyncTask(

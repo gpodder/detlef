@@ -256,7 +256,7 @@ public class AddPodcastActivity extends Activity {
                         AddPodcastActivity.this));
                 GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
                         .getGpodderSettings(AddPodcastActivity.this);
-                gps.setDeviceName(settings.getDevicename());
+                gps.setDeviceName(settings.getDeviceId().toString());
                 gps.setUsername(settings.getUsername());
                 gps.setPassword(settings.getPassword());
                 gps.addUpdateSubscriptionsJob(surh, changes);
