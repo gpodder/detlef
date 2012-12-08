@@ -14,12 +14,25 @@ import at.ac.tuwien.detlef.domain.DeviceId;
 public class DeviceRegistratorGpodderNet 
     implements DeviceRegistrator {
 
-    public DeviceRegistratorGpodderNet registerNewDeviceId(DeviceId deviceId) throws DeviceRegistratorException {
+    public DeviceRegistratorGpodderNet registerNewDeviceId(DeviceId deviceId)
+        throws DeviceRegistratorException {
         
         try {
-            GpodderSettings gpodderSettings = DependencyAssistant.getDependencyAssistant().getGpodderSettings();
-            MygPodderClient gpc = new MygPodderClient(gpodderSettings.getUsername(), gpodderSettings.getPassword());
-            gpc.updateDeviceSettings(deviceId.toString(), gpodderSettings.getDevicename(), "mobile");
+            GpodderSettings gpodderSettings = DependencyAssistant
+                .getDependencyAssistant()
+                .getGpodderSettings();
+            
+            MygPodderClient gpc = new MygPodderClient(
+                gpodderSettings.getUsername(),
+                gpodderSettings.getPassword()
+            );
+            
+            gpc.updateDeviceSettings(
+                deviceId.toString(),
+                gpodderSettings.getDevicename(),
+                "mobile"
+            );
+            
         } catch (Exception e) {
             throw new DeviceRegistratorException();
         }

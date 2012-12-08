@@ -20,17 +20,14 @@ package at.ac.tuwien.detlef.activities;
 
 import java.util.List;
 
-import android.app.AlertDialog;
-import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.util.Log;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
+
 /**
  * This activity handles the preferences. This activity can be accessed via two methods:
  * <ul>
- *     <li></li>
+ *     <li>Open up the settings menu</li>
+ *     <li>If the app is started for the first time, settings will be invoked too.</li>
  * </ul>
  * @author moe
  *

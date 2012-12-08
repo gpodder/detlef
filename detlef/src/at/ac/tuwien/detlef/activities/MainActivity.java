@@ -69,8 +69,6 @@ public class MainActivity extends FragmentActivity
         EpisodeListFragment.OnEpisodeSelectedListener {
 
     private static final String TAG = MainActivity.class.getName();
-
-    public static boolean REFRESH_FEED_LIST_ON_CREATE = false;
         
     public enum RefreshDoneNotification {
         TOAST, DIALOG
@@ -102,7 +100,7 @@ public class MainActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        startSetupActivityIfNoDeviceIdSet();
+        startSettingsActivityIfNoDeviceIdSet();
 
         setContentView(R.layout.main_activity_layout);
 
@@ -160,7 +158,7 @@ public class MainActivity extends FragmentActivity
         playlistDAO = PlaylistDAOImpl.i();
     }
 
-    private void startSetupActivityIfNoDeviceIdSet() {
+    private void startSettingsActivityIfNoDeviceIdSet() {
 
             if (DependencyAssistant
                     .getDependencyAssistant()
@@ -182,15 +180,18 @@ public class MainActivity extends FragmentActivity
                         public void onClick(DialogInterface dialog, int which) {
 
                             startActivityForResult(
-                                    new Intent(
-                                        getApplicationContext(),
-                                        SettingsActivity.class
-                                    )
-                                    .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsGpodderNet.class.getName())
-                                    .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
-                                    .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
-                                    0
-                                );
+                                new Intent(
+                                    getApplicationContext(),
+                                    SettingsActivity.class
+                                )
+                                .putExtra(
+                                    PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+                                    SettingsGpodderNet.class.getName()
+                                )
+                                .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
+                                .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
+                                0
+                            );
 
                         }
                     });
@@ -200,7 +201,11 @@ public class MainActivity extends FragmentActivity
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getApplicationContext(), getString(R.string.you_can_setup_your_account_later), Toast.LENGTH_LONG).show();
+                            Toast.makeText(
+                                getApplicationContext(),
+                                getString(R.string.you_can_setup_your_account_later),
+                                Toast.LENGTH_LONG
+                            ).show();
 
                         }
                     }

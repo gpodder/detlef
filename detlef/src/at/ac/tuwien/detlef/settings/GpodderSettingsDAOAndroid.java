@@ -36,15 +36,15 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 
     private static final String TAG = GpodderSettingsDAOAndroid.class.getCanonicalName();
 
-	private HashMap<String, Object> dependencies = new HashMap<String, Object>();
+    private HashMap<String, Object> dependencies = new HashMap<String, Object>();
 
-	public GpodderSettings getSettings() {
-	    GpodderSettings result = new GpodderSettings();
+    public GpodderSettings getSettings() {
+        GpodderSettings result = new GpodderSettings();
 
-	    result.setUsername(getSharedPreferences().getString("username", ""));
-	    result.setPassword(getSharedPreferences().getString("password", ""));
-	    result.setDevicename(getSharedPreferences().getString("devicename", ""));
-	    result.setLastUpdate(getSharedPreferences().getLong("lastUpdate", 0));
+        result.setUsername(getSharedPreferences().getString("username", ""));
+        result.setPassword(getSharedPreferences().getString("password", ""));
+        result.setDevicename(getSharedPreferences().getString("devicename", ""));
+        result.setLastUpdate(getSharedPreferences().getLong("lastUpdate", 0));
 
         try {
             result.setDeviceId(new DeviceId(getSharedPreferences().getString(KEY_DEVICE_ID, null)));
@@ -53,37 +53,37 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         }
 
         return result;
-	}
+    }
 
-	public GpodderSettingsDAO writeSettings(GpodderSettings settings) {
+    public GpodderSettingsDAO writeSettings(GpodderSettings settings) {
 
         String deviceId = null;
         
         if (settings.getDeviceId() != null) {
             deviceId = settings.getDeviceId().toString();
         }
-	    
-	    getSharedPreferences().edit()
-	        .putString(KEY_DEVICE_ID, deviceId)
-	        .putLong("lastUpdate", settings.getLastUpdate())
-	        .commit();
-	    return this;
+        
+        getSharedPreferences().edit()
+            .putString(KEY_DEVICE_ID, deviceId)
+            .putLong("lastUpdate", settings.getLastUpdate())
+            .commit();
+        return this;
 
-	}
+    }
 
-	/**
-	 * This implementation requires an object of type
-	 * {@link SharedPreferences} with the key sharedPreferences.
-	 */
-	public GpodderSettingsDAO setDependencies(HashMap<String, Object> pDependencies) {
-	    Log.d(TAG, this + "setDependencies: " + pDependencies);
-		dependencies = pDependencies;
-		return this;
-	}
+    /**
+     * This implementation requires an object of type
+     * {@link SharedPreferences} with the key sharedPreferences.
+     */
+    public GpodderSettingsDAO setDependencies(HashMap<String, Object> pDependencies) {
+        Log.d(TAG, this + "setDependencies: " + pDependencies);
+        dependencies = pDependencies;
+        return this;
+    }
 
-	private SharedPreferences getSharedPreferences() {
-	    Log.d(TAG, this + "getSharedPreferences: " + dependencies);
-		return (SharedPreferences) dependencies.get("sharedPreferences");
-	}
+    private SharedPreferences getSharedPreferences() {
+        Log.d(TAG, this + "getSharedPreferences: " + dependencies);
+        return (SharedPreferences) dependencies.get("sharedPreferences");
+    }
 
 }

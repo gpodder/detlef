@@ -23,8 +23,8 @@ package at.ac.tuwien.detlef.settings;
  * @author moe
  */
 public class GpodderConnectionException
-	extends Exception {
+    extends Exception {
 
-	private static final long serialVersionUID = 7052733566816901657L;
+    private static final long serialVersionUID = 7052733566816901657L;
 
 }

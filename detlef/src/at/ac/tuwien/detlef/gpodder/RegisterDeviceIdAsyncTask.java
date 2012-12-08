@@ -18,7 +18,8 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
 
     private DeviceId deviceId;
 
-    public RegisterDeviceIdAsyncTask(RegisterDeviceIdResultHandler<? extends Fragment> callback, DeviceId pDeviceId) {
+    public RegisterDeviceIdAsyncTask(RegisterDeviceIdResultHandler<? extends Fragment> callback,
+        DeviceId pDeviceId) {
         deviceId = pDeviceId;
         callback.setDeviceId(pDeviceId);
         this.callback = callback;
@@ -31,12 +32,12 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
 
         try {
             Log.d(TAG, "Registering new Device with id " + deviceId);
-            DependencyAssistant.getDependencyAssistant().getDeviceRegistrator().registerNewDeviceId(deviceId);
+            DependencyAssistant.getDependencyAssistant()
+                .getDeviceRegistrator()
+                .registerNewDeviceId(deviceId);
             Log.d(TAG, "Registering new Device: Done");
         } catch (DeviceRegistratorException e) {
-
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(TAG, "DeviceRegistratorException", e);
         }
 
         Log.d(TAG, "RegisterDeviceIdAsyncTask.run(): Done");

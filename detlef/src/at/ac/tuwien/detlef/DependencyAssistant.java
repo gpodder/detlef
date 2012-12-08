@@ -21,7 +21,6 @@ package at.ac.tuwien.detlef;
 
 import java.util.HashMap;
 
-import android.app.Activity;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -33,6 +32,8 @@ import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
 import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
+import at.ac.tuwien.detlef.settings.DeviceIdGenerator;
+import at.ac.tuwien.detlef.settings.DeviceIdGeneratorRandom;
 import at.ac.tuwien.detlef.settings.DeviceRegistrator;
 import at.ac.tuwien.detlef.settings.DeviceRegistratorGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
@@ -179,5 +180,10 @@ public class DependencyAssistant {
     public GpodderSettings getGpodderSettings() {
         return getGpodderSettings(Detlef.getAppContext());
     }
+    
+    public DeviceIdGenerator getDeviceIdGenerator() {
+        return new DeviceIdGeneratorRandom();
+    }
+    
 
 }

@@ -19,20 +19,12 @@
 
 package at.ac.tuwien.detlef.fragments;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
@@ -44,16 +36,12 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.MainActivity;
-import at.ac.tuwien.detlef.activities.SettingsActivity;
 import at.ac.tuwien.detlef.callbacks.CallbackContainer;
-import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.gpodder.GPodderException;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdAsyncTask;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdResultHandler;
@@ -127,7 +115,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
      * the {@link SettingsActivity} will run in a "set up" mode. This mode guides the user
      * through the initial steps that are needed in order to run {@link Detlef}.
      */
-    public static final String EXTRA_SETUPMODE= "setupmode";
+    public static final String EXTRA_SETUPMODE = "setupmode";
 
 
 
@@ -138,7 +126,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
      *
      * This allows us to manage the Activity Lifecycle more easily.
      */
-    private static final CallbackContainer<SettingsGpodderNet> cbCont =
+    private static final CallbackContainer<SettingsGpodderNet> CALLBACK_CONTAINER =
             new CallbackContainer<SettingsGpodderNet>();
 
     /**
@@ -159,17 +147,11 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
         super.onCreate(savedInstanceState);
 
-
-
         if (getActivity().getIntent().getBooleanExtra(EXTRA_SETUPMODE, false)) {
             setupMode = true;
         }
 
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
-        final Activity act = getActivity();
-
-        Log.d(TAG, "onCreate(" + savedInstanceState + "): " + this);
-        Log.d(TAG, "Associated Activity is: " + act);
 
         activity = getActivity();
 
@@ -188,83 +170,101 @@ public class SettingsGpodderNet extends PreferenceFragment {
         setUpDeviceNameButton();
 
         loadSummaries();
+        setUpRegisterDeviceIdCallback();
 
-        cbCont.put(KEY_DEVICE_ID_HANDLER, new RegisterDeviceIdResultHandler<SettingsGpodderNet>() {
-
-            @Override
-            public void handle() {
+    }
 
 
-                GpodderSettings settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(getRcv().getActivity());
-                settings.setDeviceId(getDeviceId());
-                DependencyAssistant.getDependencyAssistant().getGpodderSettingsDAO(getRcv().getActivity()).writeSettings(settings);
 
-                getRcv().dismissRegisterDeviceDialog();
+    private void setUpRegisterDeviceIdCallback() {
+        
+        final Activity act = getActivity();
+        
+        CALLBACK_CONTAINER.put(
+                KEY_DEVICE_ID_HANDLER,
+                new RegisterDeviceIdResultHandler<SettingsGpodderNet>() {
 
-                act.runOnUiThread(new Runnable() {
+                @Override
+                public void handle() {
 
-                    @Override
-                    public void run() {
-                        final AlertDialog.Builder b = new AlertDialog.Builder(act);
-                        b.setTitle(R.string.almost_done);
-                        b.setMessage(R.string.should_detlef_download_podcast_list);
 
-                        b.setPositiveButton(
-                                android.R.string.ok, new OnClickListener() {
+                    GpodderSettings settings = DependencyAssistant
+                        .getDependencyAssistant()
+                        .getGpodderSettings(getRcv().getActivity());
+                    settings.setDeviceId(getDeviceId());
+                    DependencyAssistant.getDependencyAssistant()
+                        .getGpodderSettingsDAO(getRcv().getActivity())
+                        .writeSettings(settings);
+
+                    getRcv().dismissRegisterDeviceDialog();
+
+                    act.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            final AlertDialog.Builder b = new AlertDialog.Builder(act);
+                            b.setTitle(R.string.almost_done);
+                            b.setMessage(R.string.should_detlef_download_podcast_list);
+
+                            b.setPositiveButton(
+                                    android.R.string.ok, new OnClickListener() {
+
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            Intent data = new Intent().putExtra(
+                                                MainActivity.EXTRA_REFRESH_FEED_LIST,
+                                                true
+                                            );
+                                            if (act.getParent() == null) {
+                                                act.setResult(Activity.RESULT_OK, data);
+                                            } else {
+                                                act.getParent().setResult(Activity.RESULT_OK, data);
+                                           }
+
+                                            act.finish();
+
+                                        }
+                                    });
+
+                            b.setNegativeButton(
+                                android.R.string.cancel,
+                                new OnClickListener() {
 
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-
-                                        Intent data = new Intent().putExtra(MainActivity.EXTRA_REFRESH_FEED_LIST, true);
+                                        Intent data = new Intent().putExtra(
+                                            MainActivity.EXTRA_REFRESH_FEED_LIST,
+                                            true
+                                        );
                                         if (act.getParent() == null) {
-                                            act.setResult(Activity.RESULT_OK, data);
+                                            act.setResult(Activity.RESULT_CANCELED, data);
                                         } else {
-                                            act.getParent().setResult(Activity.RESULT_OK, data);
+                                            act.getParent().setResult(
+                                                Activity.RESULT_CANCELED,
+                                                data
+                                            );
                                        }
 
                                         act.finish();
 
                                     }
-                                });
-
-                        b.setNegativeButton(
-                            android.R.string.cancel,
-                            new OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent data = new Intent().putExtra(MainActivity.EXTRA_REFRESH_FEED_LIST, true);
-                                    if (act.getParent() == null) {
-                                        act.setResult(Activity.RESULT_CANCELED, data);
-                                    } else {
-                                        act.getParent().setResult(Activity.RESULT_CANCELED, data);
-                                   }
-
-                                    act.finish();
-
                                 }
-                            }
-                        );
+                            );
 
-                        b.show();
-                    }
-                });
+                            b.show();
+                        }
+                    });
+                }
 
+                @Override
+                public void handleFailure(GPodderException e) {
+                    // TODO Auto-generated method stub
 
-
-            }
-
-            @Override
-            public void handleFailure(GPodderException e) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-
-
+                }
+            });
+        
     }
-
-
 
     private void restoreState(Bundle savedInstanceState) {
 
@@ -449,24 +449,12 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
             showRegisterDeviceProgressDialog();
 
-            MessageDigest md;
-            byte[] digest = null;
-            
-            try {
-                md = MessageDigest.getInstance("MD5");
-                digest = md.digest(UUID.randomUUID().toString().getBytes());
-            } catch (NoSuchAlgorithmException e) {
-            }
-            
-            // create new devide id
-            DeviceId deviceId = new DeviceId(new String(digest).substring(0, 12));
-
             REGISTER_DEVICE.execute(
                 new RegisterDeviceIdAsyncTask(
-                    (RegisterDeviceIdResultHandler<SettingsGpodderNet>) cbCont.get(
+                    (RegisterDeviceIdResultHandler<SettingsGpodderNet>) CALLBACK_CONTAINER.get(
                         KEY_DEVICE_ID_HANDLER
                     ),
-                    deviceId
+                    DependencyAssistant.getDependencyAssistant().getDeviceIdGenerator().generate()
                 )
             );
 
@@ -589,14 +577,14 @@ public class SettingsGpodderNet extends PreferenceFragment {
         super.onResume();
 
         /* Register the Podcast- & FeedHandler. */
-        cbCont.registerReceiver(this);
+        CALLBACK_CONTAINER.registerReceiver(this);
     }
 
     @Override
     public void onPause() {
         /* Unregister the Podcast- & FeedHandler. */
         Log.d(TAG, "onPause()");
-        cbCont.unregisterReceiver();
+        CALLBACK_CONTAINER.unregisterReceiver();
 
         super.onPause();
     }
@@ -604,7 +592,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
     public void onStop() {
 
         Log.d(TAG, "onStop()");
-        cbCont.clear();
+        CALLBACK_CONTAINER.clear();
         super.onStop();
     }
 
