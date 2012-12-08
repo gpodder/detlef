@@ -36,10 +36,14 @@ BroadcastReceiverCallback<Receiver, RegisterDeviceIdResultHandler.PodcastSyncEve
 
     abstract static class PodcastSyncEvent
     extends BroadcastReceiverCallback.BroadcastReceiverEvent {
-        protected final RegisterDeviceIdResultHandler<?> callback;
+        private final RegisterDeviceIdResultHandler<?> callback;
 
         PodcastSyncEvent(RegisterDeviceIdResultHandler<?> callback) {
             this.callback = callback;
+        }
+
+        public RegisterDeviceIdResultHandler<?> getCallback() {
+            return callback;
         }
     }
 
@@ -54,7 +58,7 @@ BroadcastReceiverCallback<Receiver, RegisterDeviceIdResultHandler.PodcastSyncEve
 
         @Override
         void deliver() {
-            callback.handleFailure(exception);
+            getCallback().handleFailure(exception);
         }
 
     }
@@ -67,7 +71,7 @@ BroadcastReceiverCallback<Receiver, RegisterDeviceIdResultHandler.PodcastSyncEve
 
         @Override
         void deliver() {
-            callback.handle();
+            getCallback().handle();
         }
 
     }

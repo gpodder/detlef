@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <preference-headers
     xmlns:android="http://schemas.android.com/apk/res/android">
+    
     <header android:fragment="at.ac.tuwien.detlef.fragments.SettingsGpodderNet"
            android:title="@string/gpodder_net_account_settings"
            android:summary="@string/connection_settings_for_gpodder_net"
            android:id="@+id/preferences_gpoddernet"
-	/>
+    />
+    
     <header android:fragment="at.ac.tuwien.detlef.fragments.SettingsStorage"
         android:title="@string/storage_settings"
         android:summary="@string/storage_settings_summary"
         android:id="@+id/storage_settings"
     />
+    
+    <header android:fragment="at.ac.tuwien.detlef.fragments.SettingsAdvanced"
+           android:title="@string/advanced_settings"
+           android:summary="@string/advanced_settings_summary"
+           android:id="@+id/preferences_gpoddernet"
+    />
+    
 </preference-headers>

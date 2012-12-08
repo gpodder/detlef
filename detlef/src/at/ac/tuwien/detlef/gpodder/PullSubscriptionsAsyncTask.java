@@ -64,7 +64,11 @@ public class PullSubscriptionsAsyncTask implements Runnable {
 
         String devId = gps.getDeviceId().toString();
         
-        MygPodderClient gpc = new MygPodderClient(gps.getUsername(), gps.getPassword());
+        MygPodderClient gpc = new MygPodderClient(
+            gps.getUsername(),
+            gps.getPassword(),
+            gps.getApiHostname()
+        );
 
         EnhancedSubscriptionChanges enhanced = null;
         try {

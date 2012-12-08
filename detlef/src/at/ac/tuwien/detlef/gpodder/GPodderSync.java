@@ -27,6 +27,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
@@ -39,9 +40,6 @@ import at.ac.tuwien.detlef.gpodder.responders.SyncResponder;
 public class GPodderSync {
     /** Logging tag. */
     private static final String TAG = "GPodderSync";
-
-    /** Hostname of the default gpodder.net-compatible service. */
-    protected static final String DEFAULT_HOSTNAME = "gpodder.net";
 
     /** Manages the connection to the service. */
     private ConMan conMan;
@@ -78,7 +76,9 @@ public class GPodderSync {
         reqs = new SparseArray<ResultHandler>();
         stoplight = new Semaphore(1);
         clientInfo = new GpoNetClientInfo();
-        clientInfo.setHostname(DEFAULT_HOSTNAME);
+        clientInfo.setHostname(
+            DependencyAssistant.getDependencyAssistant().getGpodderSettings().getApiHostname()
+        );
     }
 
     /**

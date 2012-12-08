@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen 
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <EditTextPreference
+        android:title="@string/api_endpoint_hostname"
+        android:key="api_endpoint_hostname"
+        android:inputType="textNoSuggestions"
+    />
+    
+    <EditTextPreference
+        android:title="@string/feed_endpoint_hostname"
+        android:key="feed_endpoint_hostname"
+        android:inputType="textNoSuggestions"
+    />
+    
+        
+</PreferenceScreen>

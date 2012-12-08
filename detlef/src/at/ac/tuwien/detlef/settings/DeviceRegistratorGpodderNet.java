@@ -24,7 +24,8 @@ public class DeviceRegistratorGpodderNet
             
             MygPodderClient gpc = new MygPodderClient(
                 gpodderSettings.getUsername(),
-                gpodderSettings.getPassword()
+                gpodderSettings.getPassword(),
+                gpodderSettings.getApiHostname()
             );
             
             gpc.updateDeviceSettings(

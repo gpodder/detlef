@@ -43,12 +43,6 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
     private boolean gpodderNetResult = false;
     
     /**
-     * The hostname of the gpodder.net service.
-     * TODO make this configurable?
-     */
-    private final String gpodderHostname = "gpodder.net";
-    
-    /**
      * The raw error string that is returned by the {@link NoDataResultHandler}.
      */
     private String resultErrStr = "";
@@ -69,7 +63,7 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
 
         GPodderSync gpodderSync = new GPodderSync(syncResponder);
         
-        gpodderSync.setHostname(gpodderHostname);
+        gpodderSync.setHostname(settings.getApiHostname());
         
         gpodderSync.addAuthCheckJob(
             settings.getUsername(),

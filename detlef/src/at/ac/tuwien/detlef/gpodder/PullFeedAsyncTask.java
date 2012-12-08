@@ -44,9 +44,6 @@ import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
  */
 public class PullFeedAsyncTask implements Runnable {
 
-    /** The host for creating a FeedServiceClient. */
-    private static final String HOST = "http://feeds.gpodder.net";
-
     private final FeedSyncResultHandler<? extends Activity> callback;
     private final Podcast podcast;
 
@@ -73,8 +70,8 @@ public class PullFeedAsyncTask implements Runnable {
         String username = gps.getUsername();
         String password = gps.getPassword();
 
-        FeedServiceClient fsc = new FeedServiceClient(HOST, username, password);
-        MygPodderClient gpc = new MygPodderClient(username, password);
+        FeedServiceClient fsc = new FeedServiceClient(gps.getFeedHostname(), username, password);
+        MygPodderClient gpc = new MygPodderClient(username, password, gps.getApiHostname());
         
         FeedUpdate feed = null;
         EpisodeActionChanges changes = null;

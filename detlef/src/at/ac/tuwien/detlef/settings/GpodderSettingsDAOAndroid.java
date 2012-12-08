@@ -31,9 +31,6 @@ import at.ac.tuwien.detlef.domain.DeviceId;
  */
 public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 
-    /** The key that is used to store the {@link DeviceId}. */
-    private static final String KEY_DEVICE_ID = "device-id";
-
     private static final String TAG = GpodderSettingsDAOAndroid.class.getCanonicalName();
 
     private HashMap<String, Object> dependencies = new HashMap<String, Object>();
@@ -45,6 +42,12 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         result.setPassword(getSharedPreferences().getString("password", ""));
         result.setDevicename(getSharedPreferences().getString("devicename", ""));
         result.setLastUpdate(getSharedPreferences().getLong("lastUpdate", 0));
+        result.setApiHostname(
+            getSharedPreferences().getString(KEY_API_ENDPOINT, DEFAULT_API_ENDPOINT)
+        );
+        result.setFeedHostname(
+            getSharedPreferences().getString(KEY_FEED_ENDPOINT, DEFAULT_FEED_ENDPOINT)
+        );
 
         try {
             result.setDeviceId(new DeviceId(getSharedPreferences().getString(KEY_DEVICE_ID, null)));
@@ -65,6 +68,8 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         
         getSharedPreferences().edit()
             .putString(KEY_DEVICE_ID, deviceId)
+            .putString(KEY_API_ENDPOINT, settings.getApiHostname())
+            .putString(KEY_FEED_ENDPOINT, settings.getFeedHostname())
             .putLong("lastUpdate", settings.getLastUpdate())
             .commit();
         return this;

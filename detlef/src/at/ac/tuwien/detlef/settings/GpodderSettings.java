@@ -34,7 +34,11 @@ public class GpodderSettings {
     private String devicename;
 
     private DeviceId deviceId;
-
+    
+    private String apiHostname = "gpodder.net";
+    
+    private String feedHostname = "feeds.gpodder.net";
+    
     private long lastUpdate;
 
     /**
@@ -106,7 +110,15 @@ public class GpodderSettings {
         lastUpdate = timestamp;
         return this;
     }
-
+    
+    public GpodderSettings setApiHostname(String pHostname) {
+        apiHostname = pHostname;
+        return this;
+    }
+    
+    public String getApiHostname() {
+        return apiHostname;
+    }
 
 
     /**
@@ -124,6 +136,15 @@ public class GpodderSettings {
 
     private String getDefaultDevicename() {
         return String.format("%s-android", getUsername());
+    }
+
+    public String getFeedHostname() {
+        return feedHostname;
+    }
+
+    public GpodderSettings setFeedHostname(String pFeedHostname) {
+        feedHostname = pFeedHostname;
+        return this;
     }
 
 }
