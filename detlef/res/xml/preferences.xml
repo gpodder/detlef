@@ -6,4 +6,9 @@
            android:summary="@string/connection_settings_for_gpodder_net"
            android:id="@+id/preferences_gpoddernet"
 	/>
+    <header android:fragment="at.ac.tuwien.detlef.fragments.SettingsStorage"
+        android:title="@string/storage_settings"
+        android:summary="@string/storage_settings_summary"
+        android:id="@+id/storage_settings"
+    />
 </preference-headers>

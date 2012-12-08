@@ -72,5 +72,8 @@
     <string name="popular_podcasts">Popular Podcasts</string>
     <string name="cannot_download_episode">Cannot download episode! Please make sure you have an internet connection and an SD card inserted!</string>
     <string name="suggestions">Suggestions</string>
+    <string name="storage_location">StorageLocation</string>
+    <string name="storage_settings">Storage Settings</string>
+    <string name="storage_settings_summary">Lists storage information</string>
 
 </resources>
