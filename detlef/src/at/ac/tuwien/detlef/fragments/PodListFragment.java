@@ -183,16 +183,37 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
     }
 
     @Override
-    public void onPodcastAdded(Podcast podcast) {
+    public void onPodcastAdded(final Podcast podcast) {
         Log.v(TAG, String.format("onPodcastAdded: %s", podcast.getTitle()));
-        model.addPodcast(podcast);
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                model.addPodcast(podcast);
+            }
+        });
+        
         updatePodcastList();
     }
 
     @Override
-    public void onPodcastDeleted(Podcast podcast) {
+    public void onPodcastDeleted(final Podcast podcast) {
         Log.v(TAG, String.format("onPodcastDeleted: %s", podcast.getTitle()));
-        model.removePodcast(podcast);
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                model.removePodcast(podcast);
+            }
+        });
         updatePodcastList();
     }
 
@@ -210,6 +231,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
             @Override
             public void run() {
                 adapter.notifyDataSetChanged();
+                getListView().requestLayout();
             }
         });
     }
