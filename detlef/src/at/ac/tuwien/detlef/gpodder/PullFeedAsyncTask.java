@@ -70,7 +70,11 @@ public class PullFeedAsyncTask implements Runnable {
         String username = gps.getUsername();
         String password = gps.getPassword();
 
-        FeedServiceClient fsc = new FeedServiceClient(gps.getFeedHostname(), username, password);
+        FeedServiceClient fsc = new FeedServiceClient(
+            "http://" + gps.getFeedHostname(),
+            username,
+            password
+        );
         MygPodderClient gpc = new MygPodderClient(username, password, gps.getApiHostname());
         
         FeedUpdate feed = null;
