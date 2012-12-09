@@ -97,4 +97,8 @@
     <string name="warning">Warning</string>
     <string name="you_are_changing_verified_username">You are changing the account settings of an account that already has been verified. If you change your settings you have to re-verify and syncronize your new settings afterwards.</string>
 
+    <string name="account_is_verified">Account is verified.</string>
+    <string name="enter_username_password_first">Enter username/password first!</string>
+    <string name="device_registered_with_id">Device registered with id %1$s.</string>
+    <string name="verify_settings_first">Verify settings first!</string>
 </resources>
