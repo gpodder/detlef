@@ -350,4 +350,18 @@ public final class PodcastDAOImpl implements PodcastDAO {
             return p;
         }
     }
+
+    @Override
+    public int deleteAllPodcasts() {
+        
+        int numOfDeletedPocasts = 0;
+        
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            for (Podcast podcast : getAllPodcasts()) {
+                deletePodcast(podcast);
+                numOfDeletedPocasts++;
+            }
+        }
+        return numOfDeletedPocasts;
+    }
 }

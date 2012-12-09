@@ -29,6 +29,12 @@ import java.util.HashMap;
 public interface GpodderSettingsDAO {
 
     
+    /** The key that is used to store the user name. */
+    String KEY_USERNAME = "username";
+    
+    /** The key that is used to store the password. */
+    String KEY_PASSWORD = "password";
+    
     /** The key that is used to store the {@link DeviceId}. */
     String KEY_DEVICE_ID = "device-id";
 
@@ -43,6 +49,9 @@ public interface GpodderSettingsDAO {
     
     /** Default hostname for the feed end point. */
     String DEFAULT_FEED_ENDPOINT = "feeds.gpodder.net";
+    
+    /** Key that stores if an account has been verified. */
+    String KEY_ACCOUNT_VERIFIED = "account_verified";
     
     /**
      * Loads the current settings form the storage engine and makes them available to the

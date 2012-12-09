@@ -11,12 +11,12 @@
             android:summary="@string/tap_here_to_test_connection"
             android:id="@+id/button_testconnection"
         />
-
+        
         <Preference
-            android:title="@string/continue_set_up_title"
-            android:key="button_next_step"
-            android:summary="@string/continue_set_up_summary"
-            android:id="@+id/button_continue_setup"
+            android:title="@string/register_device"
+            android:key="button_register_device"
+            android:summary="@string/register_device_summary"
+            android:id="@+id/button_register_device"
         />
 
 

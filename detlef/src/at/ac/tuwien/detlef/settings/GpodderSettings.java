@@ -41,6 +41,8 @@ public class GpodderSettings {
     
     private long lastUpdate;
 
+    private boolean accountVerified = false;
+    
     /**
      * @return The user name
      */
@@ -144,6 +146,15 @@ public class GpodderSettings {
 
     public GpodderSettings setFeedHostname(String pFeedHostname) {
         feedHostname = pFeedHostname;
+        return this;
+    }
+
+    public boolean isAccountVerified() {
+        return accountVerified;
+    }
+
+    public GpodderSettings setAccountVerified(boolean pAccountVerified) {
+        accountVerified = pAccountVerified;
         return this;
     }
 

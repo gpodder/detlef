@@ -26,8 +26,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
+import at.ac.tuwien.detlef.db.PodcastDAO;
+import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
+import at.ac.tuwien.detlef.domain.DeviceId;
+import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
@@ -35,6 +39,7 @@ import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
 import at.ac.tuwien.detlef.settings.DeviceIdGenerator;
 import at.ac.tuwien.detlef.settings.DeviceIdGeneratorRandom;
 import at.ac.tuwien.detlef.settings.DeviceRegistrator;
+import at.ac.tuwien.detlef.settings.DeviceRegistratorException;
 import at.ac.tuwien.detlef.settings.DeviceRegistratorGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
@@ -183,6 +188,13 @@ public class DependencyAssistant {
     
     public DeviceIdGenerator getDeviceIdGenerator() {
         return new DeviceIdGeneratorRandom();
+    }
+    
+    /**
+     * @return The DAO that is used to crud {@link Podcast Podcasts}.
+     */
+    public PodcastDAO getPodcastDAO() {
+        return PodcastDAOImpl.i();
     }
     
 

@@ -23,26 +23,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnClickListener;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.callbacks.CallbackContainer;
-import at.ac.tuwien.detlef.gpodder.GPodderException;
+import at.ac.tuwien.detlef.fragments.callbacks.DeviceIdCallbackHandler;
+import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceChangeListener;
+import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceClickListener;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdAsyncTask;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdResultHandler;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
@@ -51,15 +47,21 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
 /**
- * This fragment contains the UI logic for the gpodder.net account settings
- * screen. The user can enter these settings: - User name - Password - Device
- * name Additionally, there exists a button which checks the validity of the
- * entered data.
+ * This fragment contains the UI logic for the gpodder.net account preferences
+ * screen.
  * 
- * <p>This fragment may also run in a "set up mode": This will display an additional
- * button that registers the {@link DeviceId} against the gpodder.net API  and
- * refreshes the {@link MainActivity}'s list of Podcasts and Episodes.
- * </p>
+ * <p>There are two different states in which this fragment can run:</p>
+ * 
+ * <ul>
+ *     <li>"set up mode": This will return to the {@link MainActivity} after the 
+ *     "register device id" button has been pressed where then the podcast and episode
+ *     list is refreshed. This mode is started by passing an {@link Intent} with a boolean
+ *     extra that has the key {@value #EXTRA_SETUPMODE} and is set to <code>true</code>.
+ *     </li>
+ *     <li>"default mode": If no intent is passed or if the boolean extra with the key
+ *         {@value #EXTRA_SETUPMODE} is <code>false</code>.
+ *     </li>
+ * </ul>
  *
  * @author moe
  */
@@ -163,107 +165,25 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
         addPreferencesFromResource(R.xml.preferences_gpoddernet);
 
-        setUpTestConnectionButton();
-        setUpNextStepButton();
+
         setUpUsernameField();
         setUpPasswordField();
         setUpDeviceNameButton();
-
+        setUpTestConnectionButton();
+        setUpRegisterDeviceButton();
+        
         loadSummaries();
         setUpRegisterDeviceIdCallback();
+        
 
     }
 
 
 
+
+
     private void setUpRegisterDeviceIdCallback() {
-        
-        final Activity act = getActivity();
-        
-        CALLBACK_CONTAINER.put(
-                KEY_DEVICE_ID_HANDLER,
-                new RegisterDeviceIdResultHandler<SettingsGpodderNet>() {
-
-                @Override
-                public void handle() {
-
-
-                    GpodderSettings settings = DependencyAssistant
-                        .getDependencyAssistant()
-                        .getGpodderSettings(getRcv().getActivity());
-                    settings.setDeviceId(getDeviceId());
-                    DependencyAssistant.getDependencyAssistant()
-                        .getGpodderSettingsDAO(getRcv().getActivity())
-                        .writeSettings(settings);
-
-                    getRcv().dismissRegisterDeviceDialog();
-
-                    act.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            final AlertDialog.Builder b = new AlertDialog.Builder(act);
-                            b.setTitle(R.string.almost_done);
-                            b.setMessage(R.string.should_detlef_download_podcast_list);
-
-                            b.setPositiveButton(
-                                    android.R.string.ok, new OnClickListener() {
-
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            Intent data = new Intent().putExtra(
-                                                MainActivity.EXTRA_REFRESH_FEED_LIST,
-                                                true
-                                            );
-                                            if (act.getParent() == null) {
-                                                act.setResult(Activity.RESULT_OK, data);
-                                            } else {
-                                                act.getParent().setResult(Activity.RESULT_OK, data);
-                                           }
-
-                                            act.finish();
-
-                                        }
-                                    });
-
-                            b.setNegativeButton(
-                                android.R.string.cancel,
-                                new OnClickListener() {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Intent data = new Intent().putExtra(
-                                            MainActivity.EXTRA_REFRESH_FEED_LIST,
-                                            true
-                                        );
-                                        if (act.getParent() == null) {
-                                            act.setResult(Activity.RESULT_CANCELED, data);
-                                        } else {
-                                            act.getParent().setResult(
-                                                Activity.RESULT_CANCELED,
-                                                data
-                                            );
-                                       }
-
-                                        act.finish();
-
-                                    }
-                                }
-                            );
-
-                            b.show();
-                        }
-                    });
-                }
-
-                @Override
-                public void handleFailure(GPodderException e) {
-                    // TODO Auto-generated method stub
-
-                }
-            });
-        
+        CALLBACK_CONTAINER.put(KEY_DEVICE_ID_HANDLER, new DeviceIdCallbackHandler());
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -296,10 +216,12 @@ public class SettingsGpodderNet extends PreferenceFragment {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         preference.setSummary(maskPassword((String) newValue));
-                        updateTestConnectionButtonEnabledState(
-                                getSettings().getUsername(),
-                                (String) newValue
-                        );
+                        DependencyAssistant.getDependencyAssistant()
+                            .getGpodderSettingsDAO(getActivity())
+                            .writeSettings(
+                                    getSettings().setPassword((String) newValue)
+                            );
+                        setUpTestConnectionButton();
                         return true;
                     }
                 }
@@ -312,40 +234,14 @@ public class SettingsGpodderNet extends PreferenceFragment {
      * input field and the state of the "Test Connection" button.
      */
     private void setUpUsernameField() {
+        
+        findPreference("username").setOnPreferenceClickListener(
+            new SettingsUsernameOnPreferenceClickListener()
+        );
+        
         findPreference("username").setOnPreferenceChangeListener(
-                new OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        preference.setSummary((String) newValue);
-
-                        if (getSettings().isDefaultDevicename()) {
-                            updateDeviceName((String) newValue);
-                        }
-
-                        updateTestConnectionButtonEnabledState(
-                                (String) newValue,
-                                getSettings().getPassword()
-                        );
-
-                        return true;
-                    }
-
-                    private void updateDeviceName(String username) {
-                        Editor edit = PreferenceManager
-                                .getDefaultSharedPreferences(getActivity())
-                                .edit();
-
-                        boolean writeDevicenameStatus = edit.putString(
-                                "devicename",
-                                String.format("%s-android", username)
-                                ).commit();
-
-                        if (writeDevicenameStatus) {
-                            findPreference("devicename").setSummary(getSettings().getDevicename());
-                        }
-                    }
-                }
-                );
+            new SettingsUsernameOnPreferenceChangeListener(this)
+        );
     }
 
     /**
@@ -365,24 +261,52 @@ public class SettingsGpodderNet extends PreferenceFragment {
         return DependencyAssistant.getDependencyAssistant().getGpodderSettings(getActivity());
     }
 
-    private void setUpTestConnectionButton() {
+    public void setUpTestConnectionButton() {
         Preference button = findPreference("button_test_connect");
-        button.setOnPreferenceClickListener(new TestConnectionButtonPreferenceListener());
-        updateTestConnectionButtonEnabledState(getSettings());
-    }
-
-    private void setUpNextStepButton() {
-        Preference button = findPreference("button_next_step");
-
-
-        if (!setupMode) {
-            getPreferenceScreen().removePreference(button);
+        
+        if (getSettings().isAccountVerified()) {
+            button.setEnabled(false);
+            button.setSummary(R.string.account_is_verified);
             return;
         }
-
-        button.setEnabled(false);
-        button.setOnPreferenceClickListener(new NextStepButtonPreferenceListener());
-
+        
+        if (getSettings().getUsername().isEmpty() || getSettings().getPassword().isEmpty()) {
+            button.setEnabled(false);
+            button.setSummary(R.string.enter_username_password_first);
+            return;
+        }
+        
+        button.setEnabled(true);
+        button.setSummary(getText(R.string.tap_here_to_test_connection));
+        
+        button.setOnPreferenceClickListener(new TestConnectionButtonPreferenceListener());
+    }
+    
+    public void setUpRegisterDeviceButton() {
+        
+        Preference button = findPreference("button_register_device");
+        
+        if (getSettings().getDeviceId() != null) {
+            button.setEnabled(false);
+            button.setSummary(
+                String.format(
+                    getText(R.string.device_registered_with_id).toString(),
+                    getSettings().getDeviceId()
+                )
+            );
+            return;
+        }
+        
+        if (!getSettings().isAccountVerified()) {
+            button.setEnabled(false);
+            button.setSummary(R.string.verify_settings_first);
+            return;
+        }
+        
+        button.setEnabled(true);
+        button.setSummary(getText(R.string.register_device_summary));
+        
+        button.setOnPreferenceClickListener(new RegisterDeviceIdPreferenceListener());
     }
 
     /**
@@ -407,13 +331,30 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
                     try {
                         if (getConnectionTester().testConnection(getSettings())) {
+                            
                             guiUtils.showToast(
                                     String.format(
-                                            activity.getText(R.string.connectiontest_successful)
-                                                    .toString(),
-                                            getSettings().getUsername()
-                                            ), activity, TAG);
-                            enableButton();
+                                        activity.getText(R.string.connectiontest_successful)
+                                            .toString(),
+                                        getSettings().getUsername()
+                                    ), activity, TAG);
+                            
+                            DependencyAssistant.getDependencyAssistant()
+                                .getGpodderSettingsDAO(activity)
+                                .writeSettings(getSettings().setAccountVerified(true));
+                            
+                            enableNextStepButton();
+                            
+                            getActivity().runOnUiThread(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setUpTestConnectionButton();
+                                        setUpRegisterDeviceButton();
+                                    }
+                                }
+                            );
+
                         } else {
                             guiUtils.showToast(activity
                                     .getText(R.string.connectiontest_unsuccessful),
@@ -441,9 +382,13 @@ public class SettingsGpodderNet extends PreferenceFragment {
             return true;
         }
     }
-
-    public class NextStepButtonPreferenceListener implements OnPreferenceClickListener {
-
+    
+    /**
+     * A {@link OnPreferenceClickListener} that registers a new {@link DeviceId} at gpodder.net.
+     * @author moe
+     */
+    public class RegisterDeviceIdPreferenceListener implements OnPreferenceClickListener {
+        
         @Override
         public boolean onPreferenceClick(Preference arg0) {
 
@@ -461,22 +406,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
             return true;
         }
 
-    }
-
-    private void updateTestConnectionButtonEnabledState(GpodderSettings settings) {
-        updateTestConnectionButtonEnabledState(settings.getUsername(), settings.getPassword());
-    }
-
-    /**
-     * This updates the enabled state of the "Test Connection" button depending
-     * on if the user name and password are both non-empty.
-     *
-     * @param username
-     * @param password
-     */
-    private void updateTestConnectionButtonEnabledState(String username, String password) {
-        Preference button = findPreference("button_test_connect");
-        button.setEnabled((!username.isEmpty()) && (!password.isEmpty()));
     }
 
     /**
@@ -543,33 +472,32 @@ public class SettingsGpodderNet extends PreferenceFragment {
      */
     private void showRegisterDeviceProgressDialog() {
         registerDeviceProgress = ProgressDialog.show(
-                getActivity(),
-                getString(R.string.register_device_title),
-                getString(R.string.register_device_summary),
-                true,
-                true,
-                new OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                       //TODO
-                    }
-                }
-                );
+            getActivity(),
+            getString(R.string.register_device_title),
+            getString(R.string.register_device_summary),
+            true,
+            true,
+            null
+        );
     }
 
     public void dismissRegisterDeviceDialog() {
         registerDeviceProgress.dismiss();
     }
 
-    private void enableButton() {
-        getActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                if (findPreference("button_next_step") != null) {
-                    findPreference("button_next_step").setEnabled(true);
-                }
+    /**
+     * Enables the "next step" button which is used during the set up mode.
+     */
+    private void enableNextStepButton() {
+        getActivity().runOnUiThread(
+            new Runnable() {
+                public void run() {
+                    if (findPreference("button_next_step") != null) {
+                        findPreference("button_next_step").setEnabled(true);
+                    }
+               }
            }
-       });
-
+       );
     }
 
     @Override
@@ -594,6 +522,10 @@ public class SettingsGpodderNet extends PreferenceFragment {
         Log.d(TAG, "onStop()");
         CALLBACK_CONTAINER.clear();
         super.onStop();
+    }
+
+    public boolean isSetupMode() {
+        return setupMode;
     }
 
 

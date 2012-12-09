@@ -20,10 +20,15 @@
 package at.ac.tuwien.detlef.util;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface.OnClickListener;
 import android.util.Log;
 import android.widget.Toast;
 
 public class GUIUtils {
+
+    /** Logging Tag. */
+    private static final String TAG = GUIUtils.class.getCanonicalName();
 
     /**
      * Takes its best effort to display a toast message within the current
@@ -61,5 +66,39 @@ public class GUIUtils {
         }
         return this;
     }
-
+    
+    /**
+     * A simple {@link AlertDialog} with only one OK button.
+     * 
+     * @param title The title's resource id.
+     * @param message The messages's resource id.
+     * @param okButtonListener The {@link OnClickListener} that will be called after the user
+     *     has clicked on OK.
+     * @param activity The {@link Activity} that invokes the Dialog.
+     * @return
+     */
+    public GUIUtils showSimpleOkDialog(final int title, final int message,
+        final OnClickListener okButtonListener, final Activity activity) {
+        try {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final AlertDialog.Builder b = new AlertDialog.Builder(activity);
+                    b.setTitle(title);
+                    b.setMessage(message);
+                    b.setPositiveButton(android.R.string.ok, okButtonListener);
+                    b.show();
+                }
+            });
+        } catch (Exception e) {
+            // don't care - after all it's not that critical that the user
+            // receives the result under any circumstances. so better
+            // catch and log any exception instead of breaking the complete
+            // application at some other point.
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return this;
+        
+    }
+    
 }

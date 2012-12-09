@@ -19,10 +19,10 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
     private DeviceId deviceId;
 
     public RegisterDeviceIdAsyncTask(RegisterDeviceIdResultHandler<? extends Fragment> callback,
-        DeviceId pDeviceId) {
-        deviceId = pDeviceId;
-        callback.setDeviceId(pDeviceId);
-        this.callback = callback;
+            DeviceId pDeviceId) {
+            deviceId = pDeviceId;
+            callback.setDeviceId(pDeviceId);
+            this.callback = callback;
     }
 
     @Override
@@ -42,7 +42,6 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
 
         Log.d(TAG, "RegisterDeviceIdAsyncTask.run(): Done");
 
-        /* Send the result. */
         callback.handle();
     }
 

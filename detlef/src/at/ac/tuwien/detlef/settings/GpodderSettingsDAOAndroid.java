@@ -38,8 +38,8 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
     public GpodderSettings getSettings() {
         GpodderSettings result = new GpodderSettings();
 
-        result.setUsername(getSharedPreferences().getString("username", ""));
-        result.setPassword(getSharedPreferences().getString("password", ""));
+        result.setUsername(getSharedPreferences().getString(KEY_USERNAME, ""));
+        result.setPassword(getSharedPreferences().getString(KEY_PASSWORD, ""));
         result.setDevicename(getSharedPreferences().getString("devicename", ""));
         result.setLastUpdate(getSharedPreferences().getLong("lastUpdate", 0));
         result.setApiHostname(
@@ -48,7 +48,9 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         result.setFeedHostname(
             getSharedPreferences().getString(KEY_FEED_ENDPOINT, DEFAULT_FEED_ENDPOINT)
         );
-
+        
+        result.setAccountVerified(getSharedPreferences().getBoolean(KEY_ACCOUNT_VERIFIED, false));
+        
         try {
             result.setDeviceId(new DeviceId(getSharedPreferences().getString(KEY_DEVICE_ID, null)));
         } catch (IllegalArgumentException e) {
@@ -67,9 +69,12 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         }
         
         getSharedPreferences().edit()
+            .putString(KEY_USERNAME, settings.getUsername())
+            .putString(KEY_PASSWORD, settings.getPassword())
             .putString(KEY_DEVICE_ID, deviceId)
             .putString(KEY_API_ENDPOINT, settings.getApiHostname())
             .putString(KEY_FEED_ENDPOINT, settings.getFeedHostname())
+            .putBoolean(KEY_ACCOUNT_VERIFIED, settings.isAccountVerified())
             .putLong("lastUpdate", settings.getLastUpdate())
             .commit();
         return this;

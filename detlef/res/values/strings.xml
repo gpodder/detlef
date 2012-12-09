@@ -45,8 +45,8 @@
     <string name="password">Password</string>
     <string name="password_mask_char">&#183;</string>
     <string name="device_name">Device name</string>
-    <string name="test_connection">Test connection</string>
-    <string name="tap_here_to_test_connection">Tap here to test the connection to gpodder.net</string>
+    <string name="test_connection">Verify account settings</string>
+    <string name="tap_here_to_test_connection">Tap here to verify your gpodder.net account settings</string>
     <string name="checking_your_account_settings_title">Checking account settings&#8230;</string>
     <string name="checking_your_account_settings_summary">Hold your breath and cross your fingers - Your account settings are being checked on gpodder.net</string>
     <string name="connectiontest_successful">Howdy %1$s! Your account settings are valid.</string>
@@ -78,7 +78,8 @@
     <string name="detlef_says_hello">Detlef says hello.</string>
     <string name="detlef_is_not_set_up_yet">Detlef is not set up on this device. Do you want to set up your account now?</string>
     <string name="almost_done">Almost done&#8230;</string>
-    <string name="should_detlef_download_podcast_list">Your device is now connected to gpodder.net. Should Detlef now download your podcast list?</string>
+    <string name="device_id_registration_success">Successfully connected device to gpodder.net.</string>
+    <string name="detlef_will_now_synchronize">Your device is now connected to gpodder.net. Detlef will now synchronize your podcast list.</string>
     <string name="you_can_setup_your_account_later">No worries, you can set up your account anytime in the settings.</string>
     <string name="you_can_refresh_your_podcasts_later">No worries, you can refresh your podcast anytime later.</string>
     <string name="setup_finished">Horray! Set up is finished now. You may now use Detlef.</string>
@@ -91,5 +92,9 @@
     <string name="advanced_settings_summary">Settings for experienced users</string>
     <string name="api_endpoint_hostname">API Endpoint Hostname</string>
     <string name="feed_endpoint_hostname">Feed Endpoint Hostname</string>
+    <string name="register_device">Register Device</string>
+    <string name="register_device_summary">Register your device at gpodder.net</string>
+    <string name="warning">Warning</string>
+    <string name="you_are_changing_verified_username">You are changing the account settings of an account that already has been verified. If you change your settings you have to re-verify and syncronize your new settings afterwards.</string>
 
 </resources>

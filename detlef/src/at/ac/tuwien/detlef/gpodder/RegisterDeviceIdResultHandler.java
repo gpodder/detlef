@@ -84,4 +84,6 @@ BroadcastReceiverCallback<Receiver, RegisterDeviceIdResultHandler.PodcastSyncEve
     public DeviceId getDeviceId() {
         return devideId;
     }
+
+    
 }

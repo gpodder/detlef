@@ -15,24 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-package at.ac.tuwien.detlef.settings;
-
-import at.ac.tuwien.detlef.domain.DeviceId;
 
 /**
- * Generates a new {@link DeviceId}.
+ * Utility and helper classes. Please keep it to the absolute minimum, as packages like this
+ * tend to become "trash dumps".
+ * 
  * @author moe
- *
  */
-public interface DeviceIdGenerator {
-    
-    /**
-     * Generates a new {@link DeviceId} by some algorithm intrinsic to
-     * the concrete implementation.
-     * @return The newly generated DeviceId which must be a) unique and b) do not expose
-     *     any private data (e.g. it must not be possible to track back sensitive user data like
-     *     ANDROID_ID).
-     */
-    DeviceId generate();
-    
-}
+package at.ac.tuwien.detlef.util;
