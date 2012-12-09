@@ -23,7 +23,7 @@ package at.ac.tuwien.detlef.gpodder;
  * HttpDownloadResultHandler))}.
  * @author ondra
  */
-public interface HttpDownloadResultHandler extends ResultHandler {
+public interface HttpDownloadResultHandler<Receiver> extends ResultHandler<Receiver> {
     /**
      * Called to handle a successful HTTP download.
      * @param bytes The bytes downloaded from the server.
@@ -36,4 +36,34 @@ public interface HttpDownloadResultHandler extends ResultHandler {
      * @param total Total size of file being downloaded, or -1 if unknown.
      */
     void handleProgress(int have, int total);
+
+    static class HttpSuccessEvent implements ResultEvent {
+        private final HttpDownloadResultHandler<?> cb;
+        private final byte[] bytes;
+
+        public HttpSuccessEvent(HttpDownloadResultHandler<?> cb, byte[] bytes) {
+            this.cb = cb;
+            this.bytes = bytes;
+        }
+
+        public void deliver() {
+            cb.handleSuccess(bytes);
+        }
+    }
+
+    static class HttpProgressEvent implements ResultEvent {
+        private final HttpDownloadResultHandler<?> cb;
+        private final int have;
+        private final int total;
+
+        public HttpProgressEvent(HttpDownloadResultHandler<?> cb, int have, int total) {
+            this.cb = cb;
+            this.have = have;
+            this.total = total;
+        }
+
+        public void deliver() {
+            cb.handleProgress(have, total);
+        }
+    }
 }

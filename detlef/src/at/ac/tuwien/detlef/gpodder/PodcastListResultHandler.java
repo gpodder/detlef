@@ -25,10 +25,24 @@ import at.ac.tuwien.detlef.domain.Podcast;
 /**
  * This is the callback interface for jobs which return a list of podcasts on success.
  */
-public interface PodcastListResultHandler extends ResultHandler {
+public interface PodcastListResultHandler<Receiver> extends ResultHandler<Receiver> {
     /**
      * Called to handle a successful fetching of a podcast list.
      * @param result List of strings that has been successfully fetched.
      */
     void handleSuccess(List<Podcast> result);
+
+    static class PodcastListSuccessEvent implements ResultEvent {
+        private final PodcastListResultHandler<?> cb;
+        private final List<Podcast> result;
+
+        public PodcastListSuccessEvent(PodcastListResultHandler<?> cb, List<Podcast> result) {
+            this.cb = cb;
+            this.result = result;
+        }
+
+        public void deliver() {
+            cb.handleSuccess(result);
+        }
+    }
 }

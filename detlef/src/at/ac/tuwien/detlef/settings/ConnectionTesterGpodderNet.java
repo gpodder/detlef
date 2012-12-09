@@ -22,6 +22,7 @@ import android.content.Context;
 import android.util.Log;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
+import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
 
 /**
@@ -65,24 +66,13 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
         
         gpodderSync.setHostname(settings.getApiHostname());
         
+        ConnectionTesterResultHandler ctrh = new ConnectionTesterResultHandler();
+        ctrh.registerReceiver(this);
+
         gpodderSync.addAuthCheckJob(
             settings.getUsername(),
             settings.getPassword(),
-            new NoDataResultHandler() {
-
-                public void handleFailure(int errCode, String errStr) {
-                    Log.d(TAG, String.format("failure! errCode: %d errStr: %s", errCode, errStr));
-                    
-                    resultErrStr = errStr;
-                    gpodderNetResult = false;
-                }
-
-
-                public void handleSuccess() {
-                    Log.d(TAG, String.format("success!"));
-                    gpodderNetResult = true;
-                }
-            }
+            ctrh
         );
         
         Log.d(TAG, "wating for completion ...");
@@ -95,6 +85,26 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
         
         return gpodderNetResult;
     }
+
+    private static class ConnectionTesterResultHandler
+    extends ReliableResultHandler<ConnectionTesterGpodderNet>
+    implements NoDataResultHandler<ConnectionTesterGpodderNet> {
+
+        @Override
+        public void handleFailure(int errCode, String errStr) {
+            Log.d(TAG, String.format("failure! errCode: %d errStr: %s", errCode, errStr));
+            
+            getRcv().resultErrStr = errStr;
+            getRcv().gpodderNetResult = false;
+        }
+
+        @Override
+        public void handleSuccess() {
+            Log.d(TAG, String.format("success!"));
+            getRcv().gpodderNetResult = true;
+        }
+    }
+
     /**
      * @return true if the response from gpodder.net was 401 UNAUTHORIZED,
      *     false else.

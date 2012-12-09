@@ -18,11 +18,13 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
+import at.ac.tuwien.detlef.callbacks.Callback;
+
 /**
  * General callback interface.
  * @author ondra
  */
-public interface ResultHandler {
+public interface ResultHandler<Receiver> extends Callback<Receiver> {
 
     /**
      * Called to handle a failed HTTP download.
@@ -30,4 +32,30 @@ public interface ResultHandler {
      * @param errStr A string describing the error.
      */
     void handleFailure(int errCode, String errStr);
+    
+    void sendEvent(ResultEvent e);
+
+    interface ResultEvent {
+        /**
+         * Called upon delivery.
+         */
+        abstract void deliver();
+    }
+    
+    static class GenericFailureEvent implements ResultEvent {
+        private final ResultHandler<?> cb;
+        private final int errCode;
+        private final String errString;
+
+        public GenericFailureEvent(ResultHandler<?> cb, int errCode,
+                String errString) {
+            this.cb = cb;
+            this.errCode = errCode;
+            this.errString = errString;
+        }
+        
+        public void deliver() {
+            cb.handleFailure(errCode, errString);
+        }
+    }
 }

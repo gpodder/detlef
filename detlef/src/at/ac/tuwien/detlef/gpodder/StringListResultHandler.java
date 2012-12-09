@@ -26,10 +26,24 @@ import java.util.List;
  * GPodderSync#addDownloadPodcastListJob(StringListResultHandler)}.
  * @author ondra
  */
-public interface StringListResultHandler extends ResultHandler {
+public interface StringListResultHandler<Receiver> extends ResultHandler<Receiver> {
     /**
      * Called to handle a successful fetching of a string list.
      * @param strs List of strings that has been successfully fetched.
      */
     void handleSuccess(List<String> strs);
+
+    static class StringListSuccessEvent implements ResultEvent {
+        private final StringListResultHandler<?> cb;
+        private final List<String> strs;
+
+        public StringListSuccessEvent(StringListResultHandler<?> cb, List<String> strs) {
+            this.cb = cb;
+            this.strs = strs;
+        }
+
+        public void deliver() {
+            cb.handleSuccess(strs);
+        }
+    }
 }

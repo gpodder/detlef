@@ -45,6 +45,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
+import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -63,6 +64,10 @@ public class AddPodcastActivity extends Activity {
     private PodcastListAdapter resultAdapter;
     private PodcastListAdapter suggestionsAdapter;
     private PodcastListAdapter toplistAdapter;
+
+    private static final SearchResultHandler srh = new SearchResultHandler();
+    private static final SubscriptionUpdateResultHandler surh =
+            new SubscriptionUpdateResultHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +117,22 @@ public class AddPodcastActivity extends Activity {
             fillAdapterWithDummies(suggestionsAdapter);
             fillAdapterWithDummies(toplistAdapter);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        srh.unregisterReceiver();
+        surh.unregisterReceiver();
+
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        srh.registerReceiver(this);
+        surh.registerReceiver(this);
     }
 
     @Override
@@ -211,7 +232,6 @@ public class AddPodcastActivity extends Activity {
          * is rotated (and the activity destroyed) while the service is busy.
          */
 
-        final SearchResultHandler srh = new SearchResultHandler(this);
         Thread t = new Thread(new Runnable() {
 
             @Override
@@ -247,7 +267,6 @@ public class AddPodcastActivity extends Activity {
          * is rotated (and the activity destroyed) while the service is busy.
          */
 
-        final SubscriptionUpdateResultHandler surh = new SubscriptionUpdateResultHandler(this);
         Thread t = new Thread(new Runnable() {
 
             @Override
@@ -272,34 +291,29 @@ public class AddPodcastActivity extends Activity {
      * displays the results. TODO: Note that this does not safely handle cases
      * in which the activity has been exchanged during an ongoing search.
      */
-    private static class SearchResultHandler implements PodcastListResultHandler {
-
-        private final AddPodcastActivity activity;
-
-        public SearchResultHandler(AddPodcastActivity activity) {
-            this.activity = activity;
-        }
+    private static class SearchResultHandler extends ReliableResultHandler<AddPodcastActivity>
+    implements PodcastListResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
-            activity.runOnUiThread(new Runnable() {
+            getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(activity, "Podcast search failed", Toast.LENGTH_SHORT);
+                    Toast.makeText(getRcv(), "Podcast search failed", Toast.LENGTH_SHORT);
                 }
             });
         }
 
         @Override
         public void handleSuccess(final List<Podcast> result) {
-            activity.runOnUiThread(new Runnable() {
+            getRcv().runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
-                    activity.resultAdapter.clear();
-                    activity.resultAdapter.addAll(result);
+                    getRcv().resultAdapter.clear();
+                    getRcv().resultAdapter.addAll(result);
 
-                    Toast.makeText(activity,
+                    Toast.makeText(getRcv(),
                             String.format("%d results found", result.size()),
                             Toast.LENGTH_SHORT).show();
                 }
@@ -312,30 +326,26 @@ public class AddPodcastActivity extends Activity {
      * that this does not safely handle cases in which the activity has been
      * exchanged during an ongoing search.
      */
-    private static class SubscriptionUpdateResultHandler implements NoDataResultHandler {
-
-        private final AddPodcastActivity activity;
-
-        public SubscriptionUpdateResultHandler(AddPodcastActivity activity) {
-            this.activity = activity;
-        }
+    private static class SubscriptionUpdateResultHandler
+    extends ReliableResultHandler<AddPodcastActivity>
+    implements NoDataResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
-            activity.runOnUiThread(new Runnable() {
+            getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(activity, "Subscription update failed", Toast.LENGTH_SHORT);
+                    Toast.makeText(getRcv(), "Subscription update failed", Toast.LENGTH_SHORT);
                 }
             });
         }
 
         @Override
         public void handleSuccess() {
-            activity.runOnUiThread(new Runnable() {
+            getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(activity,
+                    Toast.makeText(getRcv(),
                             "Subscription update succeeded",
                             Toast.LENGTH_SHORT).show();
                 }

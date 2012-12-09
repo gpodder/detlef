@@ -54,7 +54,7 @@ public class GPodderSync {
     private int nextReqCode;
 
     /** Maps request codes to handlers. */
-    private SparseArray<ResultHandler> reqs;
+    private SparseArray<ResultHandler<?> > reqs;
 
     /** Pauses while the service is being bound. */
     private Semaphore stoplight;
@@ -73,7 +73,7 @@ public class GPodderSync {
         syncResponder = sr;
         syncResponder.setGpoSync(this);
         nextReqCode = 0;
-        reqs = new SparseArray<ResultHandler>();
+        reqs = new SparseArray<ResultHandler<?> >();
         stoplight = new Semaphore(1);
         clientInfo = new GpoNetClientInfo();
         clientInfo.setHostname(
@@ -127,7 +127,7 @@ public class GPodderSync {
      * Return the currently stored requests. Reserved for usage by {@link SyncResponder}s.
      * @return The currently stored requests.
      */
-    public SparseArray<ResultHandler> getReqs() {
+    public SparseArray<ResultHandler<?>> getReqs() {
         return reqs;
     }
 
@@ -143,7 +143,7 @@ public class GPodderSync {
      * @param url The URL of the file to download.
      * @param handler A handler for callbacks.
      */
-    public void addHttpDownloadJob(String url, HttpDownloadResultHandler handler) {
+    public void addHttpDownloadJob(String url, HttpDownloadResultHandler<?> handler) {
         Log.d(TAG, "addHttpDownloadJob");
 
         // bind to the service
@@ -174,7 +174,7 @@ public class GPodderSync {
      * @param localfn The local file name into which to store the downloaded file.
      * @param handler A handler for callbacks.
      */
-    public void addHttpDownloadToFileJob(String url, String localfn, NoDataResultHandler handler) {
+    public void addHttpDownloadToFileJob(String url, String localfn, NoDataResultHandler<?> handler) {
         Log.d(TAG, "addHttpDownloadToFileJob");
 
         assureBind();
@@ -203,7 +203,7 @@ public class GPodderSync {
      * @param handler A handler for callbacks.
      */
     public void addAuthCheckJob(String authUsername, String authPassword,
-            NoDataResultHandler handler) {
+            NoDataResultHandler<?> handler) {
         Log.d(TAG, "addAuthCheckJob");
 
         GpoNetClientInfo tempClientInfo = new GpoNetClientInfo();
@@ -232,7 +232,7 @@ public class GPodderSync {
      *
      * @param handler A handler for callbacks.
      */
-    public void addDownloadPodcastListJob(StringListResultHandler handler) {
+    public void addDownloadPodcastListJob(StringListResultHandler<?> handler) {
         Log.d(TAG, "addDownloadPodcastListJob");
 
         assureBind();
@@ -254,7 +254,7 @@ public class GPodderSync {
      * @param handler A handler for callbacks.
      * @param query The search query.
      */
-    public void addSearchPodcastsJob(PodcastListResultHandler handler, String query) {
+    public void addSearchPodcastsJob(PodcastListResultHandler<?> handler, String query) {
         Log.d(TAG, "addSearchPodcastsJob");
 
         assureBind();
@@ -275,7 +275,7 @@ public class GPodderSync {
      * @param handler A handler for callbacks.
      * @param changes The changes to submit to the service.
      */
-    public void addUpdateSubscriptionsJob(NoDataResultHandler handler,
+    public void addUpdateSubscriptionsJob(NoDataResultHandler<?> handler,
             EnhancedSubscriptionChanges changes) {
         Log.d(TAG, "addUpdateSubscriptionsJob");
 

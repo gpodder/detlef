@@ -24,9 +24,21 @@ package at.ac.tuwien.detlef.gpodder;
  * NoDataResultHandler)))}.
  * @author ondra
  */
-public interface NoDataResultHandler extends ResultHandler {
+public interface NoDataResultHandler<Receiver> extends ResultHandler<Receiver> {
     /**
      * Called to handle a successful operation.
      */
     void handleSuccess();
+
+    static class NoDataSuccessEvent implements ResultEvent {
+        private final NoDataResultHandler<?> cb;
+
+        public NoDataSuccessEvent(NoDataResultHandler<?> cb) {
+            this.cb = cb;
+        }
+
+        public void deliver() {
+            cb.handleSuccess();
+        }
+    }
 }

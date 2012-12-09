@@ -25,10 +25,25 @@ import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
  * EnhancedSubscriptionChanges} on success.
  * @author ondra
  */
-public interface SubscriptionChangesResultHandler extends ResultHandler {
+public interface SubscriptionChangesResultHandler<Receiver> extends ResultHandler<Receiver> {
     /**
      * Called to handle a successful fetching of subscription changes.
      * @param chgs Subscription changes that have been successfully fetched.
      */
     void handleSuccess(EnhancedSubscriptionChanges chgs);
+
+    static class SubscriptionChangesSuccessEvent implements ResultEvent {
+        private final SubscriptionChangesResultHandler<?> cb;
+        private final EnhancedSubscriptionChanges chgs;
+
+        public SubscriptionChangesSuccessEvent(SubscriptionChangesResultHandler<?> cb,
+                EnhancedSubscriptionChanges chgs) {
+            this.cb = cb;
+            this.chgs = chgs;
+        }
+
+        public void deliver() {
+            cb.handleSuccess(chgs);
+        }
+    }
 }
