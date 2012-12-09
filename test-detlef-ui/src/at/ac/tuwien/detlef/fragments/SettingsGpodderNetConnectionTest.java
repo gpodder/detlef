@@ -288,9 +288,9 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
                 }
 
                 @Override
-                public void setLastUpdate(long timestamp) {
+                public GpodderSettings setLastUpdate(long timestamp) {
                     // TODO Auto-generated method stub
-
+                    return this;
                 }
             };
         }
