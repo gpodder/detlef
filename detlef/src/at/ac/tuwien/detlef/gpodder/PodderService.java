@@ -28,7 +28,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.http.auth.AuthenticationException;
 
@@ -512,9 +511,6 @@ public class PodderService extends Service {
 
                 /* TODO: Remove debug output. */
                 Log.v(TAG, String.format("UpdateResult: timestamp %d%n", result.timestamp));
-                for (Map.Entry<String, String> e : result.updateUrls.entrySet()) {
-                    Log.v(TAG, String.format("%s: %s%n", e.getKey(), e.getValue()));
-                }
 
                 theMagicalProxy.updateSubscriptionsSucceeded(reqId);
             } catch (IOException e) {
