@@ -34,6 +34,7 @@ import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
+import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
 import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
 import at.ac.tuwien.detlef.settings.DeviceIdGenerator;
@@ -69,6 +70,9 @@ public class DependencyAssistant {
 
     private static final String TAG = DependencyAssistant.class.getCanonicalName();
 
+    private static final GPodderSync gPodderSync = new GPodderSync(new SynchronousSyncResponder(
+            Detlef.getAppContext()));
+
     public GUIUtils getGuiUtils() {
         return GUI_UTILS;
     }
@@ -77,7 +81,7 @@ public class DependencyAssistant {
      * @return Gets the quasi-singleton GPodderSync instance for this program.
      */
     public GPodderSync getGPodderSync() {
-        return null;
+        return gPodderSync;
     }
 
     /**

@@ -46,7 +46,6 @@ import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
-import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.commonsware.cwac.merge.MergeAdapter;
@@ -236,8 +235,7 @@ public class AddPodcastActivity extends Activity {
 
             @Override
             public void run() {
-                GPodderSync gps = new GPodderSync(new SynchronousSyncResponder(
-                        AddPodcastActivity.this));
+                GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
                 gps.addSearchPodcastsJob(srh, tv.getText().toString());
             }
         });
@@ -271,8 +269,7 @@ public class AddPodcastActivity extends Activity {
 
             @Override
             public void run() {
-                GPodderSync gps = new GPodderSync(new SynchronousSyncResponder(
-                        AddPodcastActivity.this));
+                GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
                 GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
                         .getGpodderSettings(AddPodcastActivity.this);
                 gps.setDeviceName(settings.getDeviceId().toString());
