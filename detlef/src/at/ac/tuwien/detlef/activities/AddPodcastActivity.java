@@ -220,26 +220,14 @@ public class AddPodcastActivity extends Activity {
         /* Hide the soft keyboard when starting a search. */
 
         final TextView tv = (TextView) findViewById(R.id.search_textbox);
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(
+                Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
-        /*
-         * TODO: If this is not run in a new thread, it blocks. As the service
-         * is supposed to be async, I'm wondering whether this is intentional.
-         * There is no progress (or 'I'm busy') indicator. The results are not
-         * restored after screen rotations. This code won't work if the screen
-         * is rotated (and the activity destroyed) while the service is busy.
-         */
-
-        Thread t = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
-                gps.addSearchPodcastsJob(srh, tv.getText().toString());
-            }
-        });
-        t.start();
+        /* TODO: There is no progress (or 'I'm busy') indicator.*/
+        
+        GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+        gps.addSearchPodcastsJob(srh, tv.getText().toString());
     }
 
     public void onSubscribeClick(View view) {
@@ -257,28 +245,15 @@ public class AddPodcastActivity extends Activity {
         final EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(add,
                 new ArrayList<IPodcast>(), 0);
 
-        /*
-         * TODO: If this is not run in a new thread, it blocks. As the service
-         * is supposed to be async, I'm wondering whether this is intentional.
-         * There is no progress (or 'I'm busy') indicator. The results are not
-         * restored after screen rotations. This code won't work if the screen
-         * is rotated (and the activity destroyed) while the service is busy.
-         */
+        /* TODO: There is no progress (or 'I'm busy') indicator.*/
 
-        Thread t = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
-                GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
-                        .getGpodderSettings(AddPodcastActivity.this);
-                gps.setDeviceName(settings.getDeviceId().toString());
-                gps.setUsername(settings.getUsername());
-                gps.setPassword(settings.getPassword());
-                gps.addUpdateSubscriptionsJob(surh, changes);
-            }
-        });
-        t.start();
+        GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+        GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+                .getGpodderSettings(AddPodcastActivity.this);
+        gps.setDeviceName(settings.getDeviceId().toString());
+        gps.setUsername(settings.getUsername());
+        gps.setPassword(settings.getPassword());
+        gps.addUpdateSubscriptionsJob(surh, changes);
 
         /* TODO: Automatically refresh the podcast list on success. */
     }

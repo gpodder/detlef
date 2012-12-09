@@ -113,7 +113,7 @@ public class CachingActivitySyncResponder extends SyncResponder {
     public void httpDownloadSucceeded(int reqId, final ParcelableByteArray data)
             throws RemoteException {
         final HttpDownloadResultHandler<?> hdrh =
-                (HttpDownloadResultHandler<?>) getGps().getReqs().get(reqId);
+                (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
@@ -128,13 +128,13 @@ public class CachingActivitySyncResponder extends SyncResponder {
             act.get().runOnUiThread(r);
         }
 
-        getGps().getReqs().remove(reqId);
+        getGps().removeReq(reqId);
     }
 
     @Override
     public void handleNoDataSuccess(int reqId) throws RemoteException {
         final NoDataResultHandler<?> ndrh =
-                (NoDataResultHandler<?>) getGps().getReqs().get(reqId);
+                (NoDataResultHandler<?>) getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
@@ -149,13 +149,13 @@ public class CachingActivitySyncResponder extends SyncResponder {
             act.get().runOnUiThread(r);
         }
 
-        getGps().getReqs().remove(reqId);
+        getGps().removeReq(reqId);
     }
 
     @Override
     public void handleGenericFailure(int reqId, final int errCode, final String errStr)
             throws RemoteException {
-        final ResultHandler<?> rh = getGps().getReqs().get(reqId);
+        final ResultHandler<?> rh = getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
@@ -170,14 +170,14 @@ public class CachingActivitySyncResponder extends SyncResponder {
             act.get().runOnUiThread(r);
         }
 
-        getGps().getReqs().remove(reqId);
+        getGps().removeReq(reqId);
     }
 
     @Override
     public void httpDownloadProgress(int reqId, final int haveBytes, final int totalBytes)
             throws RemoteException {
         final HttpDownloadResultHandler<?> hdrh =
-                (HttpDownloadResultHandler<?>) getGps().getReqs().get(reqId);
+                (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
@@ -204,7 +204,7 @@ public class CachingActivitySyncResponder extends SyncResponder {
     public void downloadPodcastListSucceeded(int reqId, final List<String> podcasts)
             throws RemoteException {
         final StringListResultHandler<?> slrh =
-                (StringListResultHandler<?>) getGps().getReqs().get(reqId);
+                (StringListResultHandler<?>) getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
@@ -219,14 +219,14 @@ public class CachingActivitySyncResponder extends SyncResponder {
             act.get().runOnUiThread(r);
         }
 
-        getGps().getReqs().remove(reqId);
+        getGps().removeReq(reqId);
     }
 
     @Override
     public void downloadChangesSucceeded(int reqId, final EnhancedSubscriptionChanges chgs)
             throws RemoteException {
         final SubscriptionChangesResultHandler<?> scrh =
-                (SubscriptionChangesResultHandler<?>) getGps().getReqs().get(reqId);
+                (SubscriptionChangesResultHandler<?>) getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
@@ -241,14 +241,14 @@ public class CachingActivitySyncResponder extends SyncResponder {
             act.get().runOnUiThread(r);
         }
 
-        getGps().getReqs().remove(reqId);
+        getGps().removeReq(reqId);
     }
 
     @Override
     public void searchPodcastsSucceeded(int reqId, final List<Podcast> results)
             throws RemoteException {
         final PodcastListResultHandler<?> plrh =
-                (PodcastListResultHandler<?>) getGps().getReqs().get(reqId);
+                (PodcastListResultHandler<?>) getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
@@ -263,12 +263,12 @@ public class CachingActivitySyncResponder extends SyncResponder {
             act.get().runOnUiThread(r);
         }
 
-        getGps().getReqs().remove(reqId);
+        getGps().removeReq(reqId);
     }
 
     @Override
     public void updateSubscriptionsSucceeded(int reqId) throws RemoteException {
-        final NoDataResultHandler<?> ndrh = (NoDataResultHandler<?>) getGps().getReqs().get(reqId);
+        final NoDataResultHandler<?> ndrh = (NoDataResultHandler<?>) getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
@@ -283,7 +283,7 @@ public class CachingActivitySyncResponder extends SyncResponder {
             act.get().runOnUiThread(r);
         }
 
-        getGps().getReqs().remove(reqId);
+        getGps().removeReq(reqId);
     }
 
     @Override
