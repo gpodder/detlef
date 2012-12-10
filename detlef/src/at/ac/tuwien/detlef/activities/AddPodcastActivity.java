@@ -40,6 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.db.PodcastDAO;
+import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
@@ -69,8 +71,6 @@ public class AddPodcastActivity extends Activity {
     private static final SearchResultHandler srh = new SearchResultHandler();
     private static final ToplistResultHandler trh = new ToplistResultHandler();
     private static final SuggestionResultHandler urh = new SuggestionResultHandler();
-    private static final SubscriptionUpdateResultHandler surh =
-            new SubscriptionUpdateResultHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +127,6 @@ public class AddPodcastActivity extends Activity {
     @Override
     protected void onPause() {
         srh.unregisterReceiver();
-        surh.unregisterReceiver();
         trh.unregisterReceiver();
         urh.unregisterReceiver();
 
@@ -139,7 +138,6 @@ public class AddPodcastActivity extends Activity {
         super.onResume();
 
         srh.registerReceiver(this);
-        surh.registerReceiver(this);
         trh.registerReceiver(this);
         urh.registerReceiver(this);
     }
@@ -239,21 +237,15 @@ public class AddPodcastActivity extends Activity {
          */
         View parent = (View) view.getParent();
         Podcast p = (Podcast) parent.getTag();
-        List<Podcast> add = new ArrayList<Podcast>();
-        add.add(p);
 
-        final EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(add,
-                new ArrayList<IPodcast>(), 0);
+        PodcastDAO dao = PodcastDAOImpl.i();
+        p.setLocalAdd(true);
+        if (dao.insertPodcast(p) == null) {
+            Toast.makeText(this, "Subscription update failed", Toast.LENGTH_SHORT);
+            return;
+        }
 
-        /* TODO: There is no progress (or 'I'm busy') indicator.*/
-
-        GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
-        GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
-                .getGpodderSettings(AddPodcastActivity.this);
-        gps.setDeviceName(settings.getDeviceId().toString());
-        gps.setUsername(settings.getUsername());
-        gps.setPassword(settings.getPassword());
-        gps.addUpdateSubscriptionsJob(surh, changes);
+        Toast.makeText(this, "Subscription update succeeded", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -341,37 +333,6 @@ public class AddPodcastActivity extends Activity {
             });
         }
         
-    }
-
-    /**
-     * Handles subscription update results and notifies the user.
-     */
-    private static class SubscriptionUpdateResultHandler
-    extends ReliableResultHandler<AddPodcastActivity>
-    implements NoDataResultHandler<AddPodcastActivity> {
-
-        @Override
-        public void handleFailure(int errCode, String errStr) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getRcv(), "Subscription update failed", Toast.LENGTH_SHORT);
-                }
-            });
-        }
-
-        @Override
-        public void handleSuccess() {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getRcv(),
-                            "Subscription update succeeded",
-                            Toast.LENGTH_SHORT).show();
-                    podcastsAdded++;
-                }
-            });
-        }
     }
 
     /**
