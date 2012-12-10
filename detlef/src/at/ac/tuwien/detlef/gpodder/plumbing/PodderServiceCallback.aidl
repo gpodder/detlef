@@ -148,7 +148,7 @@ oneway interface PodderServiceCallback
      * The subscription update has completed successfully.
      * @param reqId The request ID you passed.
      */
-    void updateSubscriptionsSucceeded(int reqId);
+    void updateSubscriptionsSucceeded(int reqId, long timestamp);
 
     /**
      * The subscription update has failed.

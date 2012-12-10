@@ -572,7 +572,8 @@ public class PodderService extends Service {
                 /* TODO: Remove debug output. */
                 Log.v(TAG, String.format("UpdateResult: timestamp %d%n", result.timestamp));
 
-                theMagicalProxy.updateSubscriptionsSucceeded(reqId);
+                /* TODO: copy the updateUrls too */
+                theMagicalProxy.updateSubscriptionsSucceeded(reqId, result.timestamp);
             } catch (IOException e) {
                 Log.w(TAG, "updateSubscriptions IOException: " + e.getMessage());
                 theMagicalProxy.updateSubscriptionsFailed(reqId, ErrorCode.IO_PROBLEM,

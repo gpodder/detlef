@@ -388,7 +388,7 @@ public class GPodderSync {
      * @param handler A handler for callbacks.
      * @param changes The changes to submit to the service.
      */
-    public void addUpdateSubscriptionsJob(final NoDataResultHandler<?> handler,
+    public void addUpdateSubscriptionsJob(final PushSubscriptionChangesResultHandler<?> handler,
             final EnhancedSubscriptionChanges changes) {
         Log.d(TAG, "addUpdateSubscriptionsJob");
 

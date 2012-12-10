@@ -20,6 +20,7 @@ package at.ac.tuwien.detlef.gpodder.plumbing;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import android.os.IBinder;
@@ -375,12 +376,12 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void updateSubscriptionsSucceeded(final int reqId) {
+    public void updateSubscriptionsSucceeded(final int reqId, final long timestamp) {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
-                    cb.updateSubscriptionsSucceeded(reqId);
+                    cb.updateSubscriptionsSucceeded(reqId, timestamp);
                 } catch (RemoteException rex) {
                     return false;
                 }

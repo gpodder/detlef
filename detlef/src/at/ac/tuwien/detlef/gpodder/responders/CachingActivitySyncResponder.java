@@ -35,6 +35,7 @@ import at.ac.tuwien.detlef.gpodder.HttpDownloadResultHandler;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderService;
+import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
 import at.ac.tuwien.detlef.gpodder.ResultHandler;
 import at.ac.tuwien.detlef.gpodder.StringListResultHandler;
 import at.ac.tuwien.detlef.gpodder.SubscriptionChangesResultHandler;
@@ -309,13 +310,15 @@ public class CachingActivitySyncResponder extends SyncResponder {
     }
 
     @Override
-    public void updateSubscriptionsSucceeded(int reqId) throws RemoteException {
-        final NoDataResultHandler<?> ndrh = (NoDataResultHandler<?>) getGps().getReq(reqId);
+    public void updateSubscriptionsSucceeded(int reqId, final long timestamp)
+            throws RemoteException {
+        final PushSubscriptionChangesResultHandler<?> pscrh =
+                (PushSubscriptionChangesResultHandler<?>) getGps().getReq(reqId);
 
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                ndrh.handleSuccess();
+                pscrh.handleSuccess(timestamp, null);
             }
         };
 
