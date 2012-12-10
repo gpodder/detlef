@@ -50,6 +50,10 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
 
     private long lastUpdate;
 
+    private boolean localAdd;
+
+    private boolean localDel;
+
     public Podcast() { }
 
     public Podcast(IPodcast p) {
@@ -132,6 +136,22 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         return 0;
     }
 
+    public boolean isLocalAdd() {
+        return localAdd;
+    }
+
+    public void setLocalAdd(boolean localAdd) {
+        this.localAdd = localAdd;
+    }
+
+    public boolean isLocalDel() {
+        return localDel;
+    }
+
+    public void setLocalDel(boolean localDel) {
+        this.localDel = localDel;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id);
@@ -141,6 +161,7 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         dest.writeString(logoFilePath);
         dest.writeString(url);
         dest.writeLong(lastUpdate);
+        dest.writeBooleanArray(new boolean[]{localAdd, localDel});
     }
 
     public static final Parcelable.Creator<Podcast> CREATOR = new Creator<Podcast>() {
@@ -159,6 +180,10 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
             ret.setLogoFilePath(source.readString());
             ret.setUrl(source.readString());
             ret.setLastUpdate(source.readLong());
+            boolean localAddDel[] = new boolean[2];
+            source.readBooleanArray(localAddDel);
+            ret.setLocalAdd(localAddDel[0]);
+            ret.setLocalDel(localAddDel[1]);
             return ret;
         }
     };
