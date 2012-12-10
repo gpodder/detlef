@@ -124,13 +124,10 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
     }
 
     private View createHeader() {
-        View v = getLayoutInflater(getArguments()).inflate(R.layout.pod_list_layout, null);
+        View v = getLayoutInflater(getArguments()).inflate(R.layout.pod_list_header, null);
 
         TextView tv = (TextView)v.findViewById(R.id.podListPodcastName);
         tv.setText(R.string.all_podcasts);
-
-        tv = (TextView)v.findViewById(R.id.podListLastUpdate);
-        tv.setText("22.06.2012");
 
         v.setOnClickListener(new View.OnClickListener() {
             @Override
