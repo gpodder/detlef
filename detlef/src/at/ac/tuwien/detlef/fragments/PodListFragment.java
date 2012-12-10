@@ -92,6 +92,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
         /* Then create the 'All Podcasts' header. */
 
         allPodcasts = createHeader();
+        
     }
 
     @Override
@@ -101,10 +102,11 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
 
         View view = inflater.inflate(R.layout.pod_fragment_layout, container, false);
 
-        /* Add the 'All Podcasts' header. */
+        /* Add the 'All Podcasts' header and empty views. */
 
         ListView listView = (ListView) view.findViewById(android.R.id.list);
         listView.addHeaderView(allPodcasts);
+        listView.setEmptyView(getLayoutInflater(getArguments()).inflate(R.layout.pod_list_empty, null));
 
         return view;
     }
