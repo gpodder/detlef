@@ -108,4 +108,46 @@ public interface PodcastDAO {
      * @return the podcast with the given id
      */
     Podcast getPodcastById(long podcastId);
+
+    /**
+     * Deletes the podcast locally.
+     * 
+     * If the podcast has only been added locally but was never uploaded it is completely
+     * removed, otherwise it is marked as deleted in the database. Once this delete action has
+     * been pushed to the gpodder service the podcast should be completely deleted (with
+     * deletePodcast()).
+     *
+     * @param podcast The podcast to delete.
+     * @return True on success, false otherwise.
+     */
+    boolean localDeletePodcast(Podcast podcast);
+
+    /**
+     * Removes the podcast from both the local add and the local delete list.
+     *
+     * @param podcast The podcast to remove from the local add and delete lists.
+     * @return True on success, false otherwise.
+     */
+    boolean setRemotePodcast(Podcast podcast);
+
+    /**
+     * Returns all podcasts that aren't marked as deleted.
+     * 
+     * @return A list of podcast objects.
+     */
+    List<Podcast> getNonDeletedPodcasts();
+
+    /**
+     * Returns all podcasts are marked as locally added.
+     * 
+     * @return A list of podcast objects.
+     */
+    List<Podcast> getLocallyAddedPodcasts();
+
+    /**
+     * Returns all podcasts are marked as locally deleted.
+     * 
+     * @return A list of podcast objects.
+     */
+    List<Podcast> getLocallyDeletedPodcasts();
 }

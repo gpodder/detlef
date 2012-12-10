@@ -41,6 +41,17 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
         Log.d(TAG, "applying changes");
         PodcastDAO dao = PodcastDAOImpl.i();
         for (Podcast p : changes.getAdd()) {
+            /* The podcast may already be in the local add/delete table. */
+            Podcast pod = dao.getPodcastByUrl(p.getUrl());
+            if (pod != null) {
+                if (pod.isLocalAdd() || pod.isLocalDel()) {
+                    dao.setRemotePodcast(pod);
+                }
+
+                /* Never insert a podcast twice. */
+                continue;
+            }
+
             if ((p.getTitle() != null) && (p.getUrl() != null)) {
                 dao.insertPodcast(p);
             } else {

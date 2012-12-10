@@ -92,14 +92,34 @@ public final class PodcastDAOImpl implements PodcastDAO {
                             podcast.getLogoFilePath());
                 }
 
+                db.beginTransaction();
+
                 long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
                 if (id == -1) {
                     throw new SQLiteException("Failed to insert podcast");
                 }
 
+                if (podcast.isLocalAdd()) {
+                    values = new ContentValues();
+                    values.put(DatabaseHelper.COLUMN_PODCAST_ADD_ID, id);
+                    if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_ADD, null, values) == -1) {
+                        throw new SQLiteException("Failed to insert podcast into local add table");
+                    }
+                }
+
+                if (podcast.isLocalDel()) {
+                    values = new ContentValues();
+                    values.put(DatabaseHelper.COLUMN_PODCAST_DEL_ID, id);
+                    if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, null, values) == -1) {
+                        throw new SQLiteException("Failed to insert podcast into local del table");
+                    }
+                }
+
                 podcast.setId(id);
                 hashMapPodcast.put(id, podcast);
                 notifyListenersAdded(podcast);
+
+                db.setTransactionSuccessful();
 
                 return podcast;
             } catch (Exception ex) {
@@ -107,6 +127,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 return null;
             } finally {
                 if (db != null && db.isOpen()) {
+                    db.endTransaction();
                     db.close();
                 }
             }
@@ -155,35 +176,37 @@ public final class PodcastDAOImpl implements PodcastDAO {
         }
     }
 
+    private static final String QUERY_COLUMN_PODCAST_LOCAL_ADD = "lAdd";
+    private static final String QUERY_COLUMN_PODCAST_LOCAL_DEL = "lDel";
+    private static final String QUERY_ALL_PODCASTS = String.format("select "
+            + "p.%s,"
+            + "p.%s,"
+            + "p.%s,"
+            + "p.%s,"
+            + "p.%s,"
+            + "p.%s,"
+            + "p.%s,"
+            + "a.%s,d.%s "
+            + "from %s p "
+            + "left outer join (select %s as addID,'add' as %s from %s) a on %s = addID "
+            + "left outer join (select %s as delID,'del' as %s from %s) d on %s = delID;",
+            DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
+            DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
+            DatabaseHelper.COLUMN_PODCAST_LOGO_URL, DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
+            DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
+            QUERY_COLUMN_PODCAST_LOCAL_ADD, QUERY_COLUMN_PODCAST_LOCAL_DEL,
+            DatabaseHelper.TABLE_PODCAST,
+            DatabaseHelper.COLUMN_PODCAST_ADD_ID, QUERY_COLUMN_PODCAST_LOCAL_ADD,
+            DatabaseHelper.TABLE_PODCAST_LOCAL_ADD, DatabaseHelper.COLUMN_PODCAST_ID,
+            DatabaseHelper.COLUMN_PODCAST_DEL_ID, QUERY_COLUMN_PODCAST_LOCAL_DEL,
+            DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, DatabaseHelper.COLUMN_PODCAST_ID);
+
     /**
      * @see at.ac.tuwien.detlef.db.PodcastDAO#getAllPodcasts()
      */
     @Override
     public List<Podcast> getAllPodcasts() {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            List<Podcast> allPodcasts = new ArrayList<Podcast>();
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String[] projection = {
-                    DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
-                    DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
-                    DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
-                    DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
-                    DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
-            };
-
-            Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, null, null, null, null,
-                    null);
-
-            if (c.moveToFirst()) {
-                do {
-                    Podcast p = getPodcast(c);
-                    allPodcasts.add(p);
-                } while (c.moveToNext());
-            }
-            c.close();
-            db.close();
-            return allPodcasts;
-        }
+        return getPodcastsForQuery(QUERY_ALL_PODCASTS);
     }
 
     private Podcast getPodcast(Cursor c) {
@@ -202,6 +225,8 @@ public final class PodcastDAOImpl implements PodcastDAO {
         p.setLastUpdate(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE)));
         p.setLogoFilePath(c.getString(c
                 .getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
+        p.setLocalAdd(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_ADD)));
+        p.setLocalDel(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_DEL)));
 
         hashMapPodcast.put(key, p);
 
@@ -232,6 +257,10 @@ public final class PodcastDAOImpl implements PodcastDAO {
         }
     }
 
+    private static final String QUERY_PODCAST_BY_ID = String.format("%s where %s = ?;",
+            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+            DatabaseHelper.COLUMN_PODCAST_ID);
+
     /**
      * @see at.ac.tuwien.detlef.db.PodcastDAO#getPodcastById(at.ac.tuwien.detlef
      *      .domain.Podcast)
@@ -240,21 +269,12 @@ public final class PodcastDAOImpl implements PodcastDAO {
     public Podcast getPodcastById(long podcastId) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String[] projection = {
-                    DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
-                    DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
-                    DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
-                    DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
-                    DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
-            };
 
-            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
             String[] selectionArgs = {
                     String.valueOf(podcastId)
             };
 
-            Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, selectionArgs,
-                    null, null, null);
+            Cursor c = db.rawQuery(QUERY_PODCAST_BY_ID, selectionArgs);
 
             Podcast p = null;
             if (c.moveToFirst()) {
@@ -319,25 +339,20 @@ public final class PodcastDAOImpl implements PodcastDAO {
         }
     }
 
+    private static final String QUERY_PODCAST_BY_URL = String.format("%s where %s = ?;",
+            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+            DatabaseHelper.COLUMN_PODCAST_URL);
+
     @Override
     public Podcast getPodcastByUrl(String url) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String[] projection = {
-                    DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
-                    DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
-                    DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
-                    DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
-                    DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH
-            };
 
-            String selection = DatabaseHelper.COLUMN_PODCAST_URL + " = ?";
             String[] selectionArgs = {
                     String.valueOf(url)
             };
 
-            Cursor c = db.query(DatabaseHelper.TABLE_PODCAST, projection, selection, selectionArgs,
-                    null, null, null);
+            Cursor c = db.rawQuery(QUERY_PODCAST_BY_URL, selectionArgs);
 
             Podcast p = null;
             if (c.moveToFirst()) {
@@ -363,5 +378,132 @@ public final class PodcastDAOImpl implements PodcastDAO {
             }
         }
         return numOfDeletedPocasts;
+    }
+
+    @Override
+    public boolean localDeletePodcast(Podcast podcast) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            if (podcast.isLocalAdd()) {
+                return deletePodcast(podcast) > 0;
+            }
+
+            SQLiteDatabase db = null;
+            try {
+                db = dbHelper.getWritableDatabase();
+
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_PODCAST_DEL_ID, podcast.getId());
+
+                if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, null, values) == -1) {
+                    throw new SQLiteException("Failed to insert podcast into local del table");
+                }
+
+                podcast.setLocalDel(true);
+                hashMapPodcast.put(podcast.getId(), podcast);
+                notifyListenersDeleted(podcast);
+
+                return true;
+            } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean setRemotePodcast(Podcast podcast) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            SQLiteDatabase db = null;
+            try {
+
+                db = dbHelper.getWritableDatabase();
+                db.beginTransaction();
+
+                String selection = DatabaseHelper.COLUMN_PODCAST_ADD_ID + " = ?";
+                String[] selectionArgs = {
+                        String.valueOf(podcast.getId())
+                };
+
+                db.delete(DatabaseHelper.TABLE_PODCAST_LOCAL_ADD, selection, selectionArgs);
+
+                selection = DatabaseHelper.COLUMN_PODCAST_DEL_ID + " = ?";
+                selectionArgs[0] = String.valueOf(podcast.getId());
+
+                db.delete(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, selection, selectionArgs);
+
+                Podcast newPodcast = hashMapPodcast.get(podcast.getId());
+                if (newPodcast != null) {
+                    newPodcast.setLocalAdd(false);
+                    newPodcast.setLocalDel(false);
+                }
+                notifyListenersChanged(podcast);
+                
+                db.setTransactionSuccessful();
+                
+                return true;
+            } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.endTransaction();
+                    db.close();
+                }
+            }
+
+            return false;
+        }
+    }
+
+    private List<Podcast> getPodcastsForQuery(String query) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            List<Podcast> podcasts = new ArrayList<Podcast>();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+            Cursor c = db.rawQuery(query, null);
+
+            if (c.moveToFirst()) {
+                do {
+                    Podcast p = getPodcast(c);
+                    podcasts.add(p);
+                } while (c.moveToNext());
+            }
+            c.close();
+            db.close();
+            return podcasts;
+        }
+    }
+
+    private static final String QUERY_NON_DELETED_PODCASTS = String.format(
+            "%s where %s is null;",
+            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+            QUERY_COLUMN_PODCAST_LOCAL_DEL);
+
+    public List<Podcast> getNonDeletedPodcasts() {
+        return getPodcastsForQuery(QUERY_NON_DELETED_PODCASTS);
+    }
+
+    private static final String QUERY_LOCALLY_ADDED_PODCASTS = String.format(
+            "%s where %s not null;",
+            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+            QUERY_COLUMN_PODCAST_LOCAL_ADD);
+
+    @Override
+    public List<Podcast> getLocallyAddedPodcasts() {
+        return getPodcastsForQuery(QUERY_LOCALLY_ADDED_PODCASTS);
+    }
+
+    private static final String QUERY_LOCALLY_DELETED_PODCASTS = String.format(
+            "%s where %s not null;",
+            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+            QUERY_COLUMN_PODCAST_LOCAL_DEL);
+
+    @Override
+    public List<Podcast> getLocallyDeletedPodcasts() {
+        return getPodcastsForQuery(QUERY_LOCALLY_DELETED_PODCASTS);
     }
 }
