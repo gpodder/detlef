@@ -80,7 +80,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
         PodcastDAOImpl dao = PodcastDAOImpl.i();
         dao.addPodcastChangedListener(this);
 
-        List<Podcast> podlist = dao.getAllPodcasts();
+        List<Podcast> podlist = dao.getNonDeletedPodcasts();
 
         model = new PodListModel<Podcast>(podlist);
 
@@ -172,7 +172,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
         Log.v(TAG, String.format("onDeleteFeedClicked %d", pos));
         Podcast podcast = model.get(pos);
         PodcastDAO dao = PodcastDAOImpl.i();
-        dao.deletePodcast(podcast);
+        dao.localDeletePodcast(podcast);
     }
 
     @Override

@@ -20,6 +20,7 @@
 package at.ac.tuwien.detlef.activities;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,7 +51,10 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.callbacks.CallbackContainer;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
+import at.ac.tuwien.detlef.db.PodcastDAO;
+import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
+import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
@@ -60,9 +64,14 @@ import at.ac.tuwien.detlef.fragments.SearchFragment;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.gpodder.FeedSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.GPodderException;
+import at.ac.tuwien.detlef.gpodder.GPodderSync;
+import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
+import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
+import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class MainActivity extends FragmentActivity
         implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
@@ -113,6 +122,7 @@ public class MainActivity extends FragmentActivity
         } else {
             cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
             cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
+            cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
         }
 
         // Create the adapter that will return a fragment for each of the three
@@ -308,9 +318,12 @@ public class MainActivity extends FragmentActivity
 
     private static final String KEY_PODCAST_HANDLER = "KEY_PODCAST_HANDLER";
     private static final String KEY_FEED_HANDLER = "KEY_FEED_HANDLER";
+    private static final String KEY_SUBSCRIPTION_UPDATE_HANDLER = "KEY_SUBSCRIPTION_UPDATE_HANDLER";
     private static final String KEY_NUM_POD_SYNC = "KEY_NUM_POD_SYNC";
 
     private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
+
+    private static final String KEY_SUBSCRIPTION_CHANGES = "KEY_SUBSCRIPTION_CHANGES";
 
     /**
      * if {@link #onActivityResult(int, int, Intent)} is called with an {@link Intent}
@@ -343,8 +356,7 @@ public class MainActivity extends FragmentActivity
          */
         @Override
         public void handle() {
-            PodcastDBAssistant pda = DependencyAssistant.getDependencyAssistant()
-                    .getPodcastDBAssistant();
+            PodcastDAO pDao = PodcastDAOImpl.i();
 
             final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false);
 
@@ -355,7 +367,7 @@ public class MainActivity extends FragmentActivity
             synchronized (getRcv().numPodSync) {
 
 
-                for (Podcast p : pda.getAllPodcasts(getRcv())) {
+                for (Podcast p : pDao.getNonDeletedPodcasts()) {
 
                     FeedSyncResultHandler<? extends Activity> handler = 
                            (FeedSyncResultHandler<? extends Activity>) cbCont.get(KEY_FEED_HANDLER);
@@ -386,6 +398,45 @@ public class MainActivity extends FragmentActivity
                     + e.getMessage());
         }
     };
+
+    private static class SubscriptionUpdateHandler
+    extends ReliableResultHandler<MainActivity>
+    implements PushSubscriptionChangesResultHandler<MainActivity> {
+
+        @Override
+        public void handleFailure(int errCode, final String errStr) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
+                            + errStr);
+                }
+            });
+        }
+
+        @Override
+        public void handleSuccess(long timestamp, Map<String, String> updateUrls) {
+            PodcastSyncResultHandler<? extends Activity> handler =
+                    (PodcastSyncResultHandler<? extends Activity>) cbCont.get(KEY_PODCAST_HANDLER);
+            handler.setBundle(getBundle());
+
+            Log.d(TAG, "bundle: " + getBundle());
+            Log.d(TAG, "handler: " + handler);
+
+            EnhancedSubscriptionChanges changes = getBundle().getParcelable(
+                    KEY_SUBSCRIPTION_CHANGES);
+
+            DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant()
+            .applySubscriptionChanges(getRcv(), changes);
+
+            DependencyAssistant.getDependencyAssistant().getGpodderSettings(getRcv())
+            .setLastUpdate(timestamp);
+
+            refreshBg.execute(new PullSubscriptionsAsyncTask(handler));
+            getRcv().startService(new Intent().setClass(getRcv(),
+                    PullSubscriptionsAsyncTask.class));
+        }
+    }
 
     /**
      * The Handler for receiving PullFeedAsyncTask's results.
@@ -456,16 +507,28 @@ public class MainActivity extends FragmentActivity
             curPodSync.set(0);
         }
 
-        PodcastSyncResultHandler<? extends Activity> handler = 
-                (PodcastSyncResultHandler<? extends Activity>) cbCont.get(KEY_PODCAST_HANDLER);
+        GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+                .getGpodderSettings(this);
+
+        PodcastDAO pDao = PodcastDAOImpl.i();
+        EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(
+                pDao.getLocallyAddedPodcasts(), pDao.getLocallyDeletedPodcasts(),
+                settings.getLastUpdate());
+        pBundle.putParcelable(KEY_SUBSCRIPTION_CHANGES, changes);
+
+        SubscriptionUpdateHandler handler = (SubscriptionUpdateHandler)
+                cbCont.get(KEY_SUBSCRIPTION_UPDATE_HANDLER);
         handler.setBundle(pBundle);
 
         Log.d(TAG, "bundle: " + pBundle);
         Log.d(TAG, "handler: " + handler);
 
-        refreshBg.execute(new PullSubscriptionsAsyncTask(handler));
-        startService(new Intent().setClass(this,
-                PullSubscriptionsAsyncTask.class));
+        GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+        gps.setDeviceName(settings.getDeviceId().toString());
+        gps.setUsername(settings.getUsername());
+        gps.setPassword(settings.getPassword());
+        gps.addUpdateSubscriptionsJob(handler, changes);
+
         progressDialog.show();
     }
 
