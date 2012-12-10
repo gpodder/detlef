@@ -18,6 +18,7 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
+import android.os.Bundle;
 import at.ac.tuwien.detlef.callbacks.Callback;
 
 /**
@@ -58,4 +59,19 @@ public interface ResultHandler<Receiver> extends Callback<Receiver> {
             cb.handleFailure(errCode, errString);
         }
     }
+
+    /**
+     * This can be used to pass a {@link Bundle} with some extra data to this result handler.
+     * This is useful if to pass a state to the receiver so it can perform different
+     * actions when the handle is called.
+     * @param pBundle
+     * @return Fluent Interface.
+     */
+    ResultHandler<Receiver> setBundle(Bundle pBundle);
+
+    /**
+     * @return The {@link Bundle} that was set via {@link #setBundle(Bundle)} or an empty Bundle
+     *     if nothing was set.
+     */
+    Bundle getBundle();
 }

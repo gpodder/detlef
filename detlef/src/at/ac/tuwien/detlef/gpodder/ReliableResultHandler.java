@@ -1,10 +1,14 @@
 package at.ac.tuwien.detlef.gpodder;
 
+import android.os.Bundle;
 import at.ac.tuwien.detlef.callbacks.ReliableCallback;
 
 public abstract class ReliableResultHandler<Receiver> extends ReliableCallback<Receiver,
 ResultHandler.ResultEvent> implements ResultHandler<Receiver> {
-    private Receiver rcv;
+    private Receiver rcv = null;
+
+    /** A bundle to pass extra data. */
+    private Bundle bundle = new Bundle();
 
     /**
      * Returns the currently registered receiver or null.
@@ -69,4 +73,12 @@ ResultHandler.ResultEvent> implements ResultHandler<Receiver> {
         e.deliver();
     }
 
+    public ReliableResultHandler<Receiver> setBundle(Bundle pBundle) {
+        bundle = pBundle;
+        return this;
+    }
+
+    public Bundle getBundle() {
+        return bundle;
+    }
 }
