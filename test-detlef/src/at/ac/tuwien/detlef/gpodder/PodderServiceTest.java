@@ -212,7 +212,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         }
 
         @Override
-        public void updateSubscriptionsSucceeded(int reqId) throws RemoteException {
+        public void updateSubscriptionsSucceeded(int reqId, long timestamp) throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_SUBSCRIPTION_UPDATE;
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
