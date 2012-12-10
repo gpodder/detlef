@@ -32,7 +32,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 7;
+    static final int VERSION = 8;
 
     static final Object BIG_FRIGGIN_LOCK = new Object();
 
@@ -71,6 +71,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PLAYLIST_ID = "_ID";
     public static final String COLUMN_PLAYLIST_EPISODE = "episode";
     public static final String COLUMN_PLAYLIST_POSITION = "position";
+
+    /* Locally deleted Podcasts
+     * These are still on the gpodder service but have been removed locally.
+     */
+    public static final String TABLE_PODCAST_LOCAL_DEL = "Podcast_local_del";
+    public static final String COLUMN_PODCAST_DEL_ID = "_ID";
+
+    /* Locally added Podcasts
+     * These have been added locally but have not yet been synchronized to the gpodder service.
+     */
+    public static final String TABLE_PODCAST_LOCAL_ADD = "Podcast_local_add";
+    public static final String COLUMN_PODCAST_ADD_ID = "_ID";
 
     /* Create statement for the podcast table. */
     static final String CREATE_PODCAST_TABLE =
@@ -112,7 +124,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION, COLUMN_EPISODE_ACTIONSTATE,
                     COLUMN_EPISODE_PODCAST, TABLE_PODCAST, COLUMN_PODCAST_ID);
 
-    /* Create statement for the podcast table. */
+    /* Create statement for the playlist table. */
     static final String CREATE_PLAYLIST_TABLE =
             String.format("create table %s ("
                     + "%s integer primary key autoincrement, "
@@ -122,6 +134,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_PLAYLIST_POSITION, COLUMN_PLAYLIST_EPISODE, TABLE_EPISODE,
                     COLUMN_EPISODE_ID); // no foreign key! we handle this
                                         // ourselves.
+
+    /* Create statement for the Podcast local delete table. */
+    static final String CREATE_PODCAST_LOCAL_DEL_TABLE =
+            String.format("create table %s ("
+                    + "%s integer primary key,"
+                    + "foreign key (%s) references %s (%s) on delete cascade);",
+                    TABLE_PODCAST_LOCAL_DEL, COLUMN_PODCAST_DEL_ID, COLUMN_PODCAST_DEL_ID,
+                    TABLE_PODCAST, COLUMN_PODCAST_ID);
+
+    /* Create statement for the Podcast local add table. */
+    static final String CREATE_PODCAST_LOCAL_ADD_TABLE =
+            String.format("create table %s ("
+                    + "%s integer primary key,"
+                    + "foreign key (%s) references %s (%s) on delete cascade);",
+                    TABLE_PODCAST_LOCAL_ADD, COLUMN_PODCAST_ADD_ID, COLUMN_PODCAST_ADD_ID,
+                    TABLE_PODCAST, COLUMN_PODCAST_ID);
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
@@ -133,6 +161,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_EPISODE_TABLE);
         Log.d(getClass().getName(), "Creating playlist table");
         db.execSQL(CREATE_PLAYLIST_TABLE);
+        db.execSQL(CREATE_PODCAST_LOCAL_DEL_TABLE);
+        db.execSQL(CREATE_PODCAST_LOCAL_ADD_TABLE);
     }
 
     @Override
@@ -148,6 +178,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO: What should we do on upgrade? For now, drop and recreate all
         // tables.
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_DEL);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_ADD);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
