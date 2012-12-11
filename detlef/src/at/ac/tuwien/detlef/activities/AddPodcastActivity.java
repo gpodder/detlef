@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.NavUtils;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,7 +39,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -285,8 +283,7 @@ public class AddPodcastActivity extends Activity {
 
     /**
      * Handles search results. On failure, notifies the user; on success,
-     * displays the results. TODO: Note that this does not safely handle cases
-     * in which the activity has been exchanged during an ongoing search.
+     * displays the results.
      */
     private static class SearchResultHandler extends ReliableResultHandler<AddPodcastActivity>
     implements PodcastListResultHandler<AddPodcastActivity> {
@@ -319,9 +316,7 @@ public class AddPodcastActivity extends Activity {
     }
 
     /**
-     * Handles subscription update results and notifies the user. TODO: Note
-     * that this does not safely handle cases in which the activity has been
-     * exchanged during an ongoing search.
+     * Handles subscription update results and notifies the user.
      */
     private static class SubscriptionUpdateResultHandler
     extends ReliableResultHandler<AddPodcastActivity>
