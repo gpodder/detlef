@@ -67,6 +67,8 @@ public class AddPodcastActivity extends Activity {
     private PodcastListAdapter toplistAdapter;
 
     private static final SearchResultHandler srh = new SearchResultHandler();
+    private static final ToplistResultHandler trh = new ToplistResultHandler();
+    private static final SuggestionResultHandler urh = new SuggestionResultHandler();
     private static final SubscriptionUpdateResultHandler surh =
             new SubscriptionUpdateResultHandler();
 
@@ -115,21 +117,19 @@ public class AddPodcastActivity extends Activity {
          */
 
         if (savedInstanceState == null) {
-            fillAdapterWithDummies(suggestionsAdapter);
-            fillAdapterWithDummies(toplistAdapter);
+            GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+            gps.addGetToplistJob(trh);
+            gps.addGetSuggestionsJob(urh);
         }
         podcastsAdded = 0;
     }
-    
-    @Override
-    protected void onStart() {
-        super.onStart();
-    };
 
     @Override
     protected void onPause() {
         srh.unregisterReceiver();
         surh.unregisterReceiver();
+        trh.unregisterReceiver();
+        urh.unregisterReceiver();
 
         super.onPause();
     }
@@ -140,6 +140,8 @@ public class AddPodcastActivity extends Activity {
 
         srh.registerReceiver(this);
         surh.registerReceiver(this);
+        trh.registerReceiver(this);
+        urh.registerReceiver(this);
     }
 
     @Override
@@ -172,8 +174,7 @@ public class AddPodcastActivity extends Activity {
         }
 
         resultAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SEARCH_RESULTS));
-        suggestionsAdapter
-                .addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SUGGESTIONS));
+        suggestionsAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SUGGESTIONS));
         toplistAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_TOPLIST));
     }
 
@@ -200,32 +201,7 @@ public class AddPodcastActivity extends Activity {
 
         super.onSaveInstanceState(outState);
     }
-
-    /* TODO: Remove me. */
-    private void fillAdapterWithDummies(PodcastListAdapter adapter) {
-        Podcast p = new Podcast();
-        p.setTitle("Bestest podcast evar");
-        p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar");
-        adapter.add(p);
-
-        p = new Podcast();
-        p.setTitle("Somebody set me up the bomb");
-        p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar");
-        adapter.add(p);
-
-        p = new Podcast();
-        p.setTitle("Somebody set me up the bomb: Somebody set me up the bomb: Somebody set me up the bomb");
-        p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar");
-        adapter.add(p);
-
-        p = new Podcast();
-        p.setTitle("Dancing babies");
-        p.setDescription("This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar "
-                + "This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar "
-                + "This is the bestest bestest bestest bestest bestest bestest bestest bestest podcast evar.");
-        adapter.add(p);
-    }
-
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -313,6 +289,58 @@ public class AddPodcastActivity extends Activity {
                 }
             });
         }
+    }
+    
+    private static class ToplistResultHandler extends ReliableResultHandler<AddPodcastActivity>
+    implements PodcastListResultHandler<AddPodcastActivity> {
+
+        @Override
+        public void handleFailure(int errCode, String errStr) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getRcv(), "Toplist retrieval failed", Toast.LENGTH_SHORT);
+                }
+            });
+        }
+
+        @Override
+        public void handleSuccess(final List<Podcast> result) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getRcv().toplistAdapter.clear();
+                    getRcv().toplistAdapter.addAll(result);
+                }
+            });
+        }
+        
+    }
+    
+    private static class SuggestionResultHandler extends ReliableResultHandler<AddPodcastActivity>
+    implements PodcastListResultHandler<AddPodcastActivity> {
+
+        @Override
+        public void handleFailure(int errCode, String errStr) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getRcv(), "Suggestion retrieval failed", Toast.LENGTH_SHORT);
+                }
+            });
+        }
+
+        @Override
+        public void handleSuccess(final List<Podcast> result) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getRcv().suggestionsAdapter.clear();
+                    getRcv().suggestionsAdapter.addAll(result);
+                }
+            });
+        }
+        
     }
 
     /**
