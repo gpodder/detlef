@@ -134,6 +134,15 @@ public final class PodcastDAOImpl implements PodcastDAO {
         }
     }
 
+    private void deleteEpisodesForPodcast(Podcast podcast) {
+        // delete podcasts manually because of refreshing
+        // the episodeListFragment
+        EpisodeDAOImpl epDao = EpisodeDAOImpl.i();
+        List<Episode> epList = epDao.getEpisodes(podcast);
+        for (Episode ep : epList) {
+            epDao.deleteEpisode(ep);
+        }
+    }
     /**
      * @see at.ac.tuwien.detlef.db.PodcastDAO#deletePodcast(at.ac.tuwien.detlef.domain
      *      .Podcast)
@@ -144,13 +153,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             int ret = 0;
             SQLiteDatabase db = null;
             try {
-                // delete podcasts manually because of refreshing
-                // the episodeListFragment
-                EpisodeDAOImpl epDao = EpisodeDAOImpl.i();
-                List<Episode> epList = epDao.getEpisodes(podcast);
-                for (Episode ep : epList) {
-                    epDao.deleteEpisode(ep);
-                }
+                deleteEpisodesForPodcast(podcast);
 
                 db = dbHelper.getWritableDatabase();
                 String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
@@ -389,6 +392,8 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
             SQLiteDatabase db = null;
             try {
+                deleteEpisodesForPodcast(podcast);
+
                 db = dbHelper.getWritableDatabase();
 
                 ContentValues values = new ContentValues();

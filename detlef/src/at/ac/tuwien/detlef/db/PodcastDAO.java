@@ -110,7 +110,7 @@ public interface PodcastDAO {
     Podcast getPodcastById(long podcastId);
 
     /**
-     * Deletes the podcast locally.
+     * Deletes the podcast locally and removes all its episodes.
      * 
      * If the podcast has only been added locally but was never uploaded it is completely
      * removed, otherwise it is marked as deleted in the database. Once this delete action has
