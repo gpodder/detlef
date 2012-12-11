@@ -69,6 +69,8 @@ public class MainActivity extends FragmentActivity
         EpisodeListFragment.OnEpisodeSelectedListener {
 
     private static final String TAG = MainActivity.class.getName();
+    
+    private static final int PODCAST_ADD_REQUEST_CODE = 997;
         
     public enum RefreshDoneNotification {
         TOAST, DIALOG
@@ -317,6 +319,13 @@ public class MainActivity extends FragmentActivity
      * automatically after the user entered his user credentials.
      */
     public static final String EXTRA_REFRESH_FEED_LIST = "REFRESH_FEED_LIST";
+    
+    /**
+     * if {@link #onActivityResult(int, int, Intent)} is called with an {@link Intent}
+     * that has a boolean extra with this key, then the podcast list will
+     * be refreshed. This is used after adding new podcasts.
+     */
+    public static final String PODCAST_ADD_REFRESH_FEED_LIST = "PODCAST_ADD_REFRESH_FEED_LIST";
 
     /** Number of feeds to sync, -1 if no refresh is in progress. */
     private AtomicInteger numPodSync = new AtomicInteger(-1);
@@ -348,7 +357,8 @@ public class MainActivity extends FragmentActivity
 
                 for (Podcast p : pda.getAllPodcasts(getRcv())) {
 
-                    FeedSyncResultHandler<? extends Activity> handler = (FeedSyncResultHandler<? extends Activity>) cbCont.get(KEY_FEED_HANDLER);
+                    FeedSyncResultHandler<? extends Activity> handler = 
+                           (FeedSyncResultHandler<? extends Activity>) cbCont.get(KEY_FEED_HANDLER);
                     handler.setBundle(getBundle());
                     refreshBg.execute(new PullFeedAsyncTask(handler, p));
                     getRcv().numPodSync.incrementAndGet();
@@ -359,7 +369,8 @@ public class MainActivity extends FragmentActivity
 
 
                     if (showDialog) {
-                        getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished), RefreshDoneNotification.DIALOG);
+                        getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished), 
+                                RefreshDoneNotification.DIALOG);
                     } else {
                         getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
                     }
@@ -445,7 +456,8 @@ public class MainActivity extends FragmentActivity
             curPodSync.set(0);
         }
 
-        PodcastSyncResultHandler<? extends Activity> handler = (PodcastSyncResultHandler<? extends Activity>) cbCont.get(KEY_PODCAST_HANDLER);
+        PodcastSyncResultHandler<? extends Activity> handler = 
+                (PodcastSyncResultHandler<? extends Activity>) cbCont.get(KEY_PODCAST_HANDLER);
         handler.setBundle(pBundle);
 
         Log.d(TAG, "bundle: " + pBundle);
@@ -621,7 +633,7 @@ public class MainActivity extends FragmentActivity
                 break;
             case R.id.add_new_podcast:
                 intent = new Intent(this, AddPodcastActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, PODCAST_ADD_REQUEST_CODE);
                 break;
             default:
                 break;
@@ -672,24 +684,31 @@ public class MainActivity extends FragmentActivity
         playlistDAO.addEpisodeToEndOfPlaylist((Episode) v.getTag());
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode,
             Intent data) {
 
         Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
 
-        if (!data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
-            return;
-        }
-
-        if (resultCode == Activity.RESULT_OK) {
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(EXTRA_REFRESH_FEED_LIST, true);
-            onRefreshPressed(bundle);
-        } else {
-            Toast.makeText(
-                this, getString(R.string.you_can_refresh_your_podcasts_later),
-                Toast.LENGTH_LONG
-            ).show();
+        if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false) 
+                || data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
+    
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle bundle = new Bundle();
+                if (data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
+                    bundle.putBoolean(PODCAST_ADD_REFRESH_FEED_LIST, true);
+                } else {
+                    bundle.putBoolean(EXTRA_REFRESH_FEED_LIST, true);
+                }
+                onRefreshPressed(bundle);
+            } else {
+                if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
+                    Toast.makeText(
+                        this, getString(R.string.you_can_refresh_your_podcasts_later),
+                        Toast.LENGTH_LONG
+                    ).show();
+                }
+            }
         }
 
 

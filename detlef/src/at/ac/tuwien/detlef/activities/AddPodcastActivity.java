@@ -24,6 +24,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.NavUtils;
@@ -39,6 +40,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -58,6 +60,8 @@ public class AddPodcastActivity extends Activity {
     private static final String BUNDLE_SEARCH_RESULTS = "BUNDLE_SEARCH_RESULTS";
     private static final String BUNDLE_SUGGESTIONS = "BUNDLE_SUGGESTIONS";
     private static final String BUNDLE_TOPLIST = "BUNDLE_TOPLIST";
+    
+    private static int podcastsAdded = 0;
 
     private final MergeAdapter mergeAdapter = new MergeAdapter();
     private PodcastListAdapter resultAdapter;
@@ -116,7 +120,13 @@ public class AddPodcastActivity extends Activity {
             fillAdapterWithDummies(suggestionsAdapter);
             fillAdapterWithDummies(toplistAdapter);
         }
+        podcastsAdded = 0;
     }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+    };
 
     @Override
     protected void onPause() {
@@ -133,6 +143,27 @@ public class AddPodcastActivity extends Activity {
         srh.registerReceiver(this);
         surh.registerReceiver(this);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (podcastsAdded > 0) {
+            Intent data = new Intent().putExtra(MainActivity.PODCAST_ADD_REFRESH_FEED_LIST, true);
+            if (getParent() == null) {
+                setResult(Activity.RESULT_OK, data);
+            } else {
+                getParent().setResult(Activity.RESULT_OK, data);
+            }
+            podcastsAdded = 0;
+        } else {
+            Intent data = new Intent().putExtra(MainActivity.PODCAST_ADD_REFRESH_FEED_LIST, true);
+            if (getParent() == null) {
+                setResult(Activity.RESULT_CANCELED, data);
+            } else {
+                getParent().setResult(Activity.RESULT_CANCELED, data);
+            }
+        }
+        super.onBackPressed();
+    };
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -201,14 +232,9 @@ public class AddPodcastActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // This ID represents the Home or Up button. In the case of this
-                // activity, the Up button is shown. Use NavUtils to allow users
-                // to navigate up one level in the application structure. For
-                // more details, see the Navigation pattern on Android Design:
-                //
-                // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-                //
-                NavUtils.navigateUpFromSameTask(this);
+                // call the onbackpressed functionality for 
+                // refresh feed handling
+                onBackPressed();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -255,7 +281,6 @@ public class AddPodcastActivity extends Activity {
         gps.setPassword(settings.getPassword());
         gps.addUpdateSubscriptionsJob(surh, changes);
 
-        /* TODO: Automatically refresh the podcast list on success. */
     }
 
     /**
@@ -320,6 +345,7 @@ public class AddPodcastActivity extends Activity {
                     Toast.makeText(getRcv(),
                             "Subscription update succeeded",
                             Toast.LENGTH_SHORT).show();
+                    podcastsAdded++;
                 }
             });
         }
