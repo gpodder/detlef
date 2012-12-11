@@ -246,6 +246,7 @@ public class AddPodcastActivity extends Activity {
         }
 
         Toast.makeText(this, "Subscription update succeeded", Toast.LENGTH_SHORT).show();
+        podcastsAdded++;
 
     }
 
