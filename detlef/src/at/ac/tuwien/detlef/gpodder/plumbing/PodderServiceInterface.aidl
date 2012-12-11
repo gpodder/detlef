@@ -76,6 +76,22 @@ oneway interface PodderServiceInterface
      * "electronic+music".
      */
     void searchPodcasts(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo, String query);
+    
+    /**
+     * Retrieve the list of the most popular podcasts.
+     * @param cb Callback object to send responses to.
+     * @param reqId The ID of the request; will be passed to the callback unchanged.
+     * @param cinfo The information about the client. Must contain deviceName.
+     */
+    void getToplist(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo);
+    
+    /**
+     * Retrieve a list of podcast suggestions.
+     * @param cb Callback object to send responses to.
+     * @param reqId The ID of the request; will be passed to the callback unchanged.
+     * @param cinfo The information about the client. Must contain username, password, hostname, and deviceName.
+     */
+    void getSuggestions(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo);
 
     /**
      * Update a user's subscriptions on a gpodder.net-compatible service.

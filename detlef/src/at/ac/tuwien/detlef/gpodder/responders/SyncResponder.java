@@ -109,7 +109,18 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
         handleGenericFailure(reqId, errCode, errStr);
     }
 
+    @Override
     public void searchPodcastsFailed(int reqId, int errCode, String errStr) throws RemoteException {
+        handleGenericFailure(reqId, errCode, errStr);
+    }
+
+    @Override
+    public void getToplistFailed(int reqId, int errCode, String errStr) throws RemoteException {
+        handleGenericFailure(reqId, errCode, errStr);
+    }
+
+    @Override
+    public void getSuggestionsFailed(int reqId, int errCode, String errStr) throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
 

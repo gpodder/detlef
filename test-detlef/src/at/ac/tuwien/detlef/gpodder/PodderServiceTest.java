@@ -61,6 +61,8 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
     private static final int RESPONDED_DOWNLOAD_CHANGES = 5;
     private static final int RESPONDED_PODCAST_SEARCH = 6;
     private static final int RESPONDED_SUBSCRIPTION_UPDATE = 7;
+    private static final int RESPONDED_GET_SUGGESTIONS = 8;
+    private static final int RESPONDED_GET_TOPLIST = 9;
 
     /** Handles responses from the service. */
     private static class IncomingHandler extends PodderServiceCallback.Stub {
@@ -171,6 +173,40 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         public void searchPodcastsFailed(int reqId, int errCode, String errStr)
                 throws RemoteException {
             fail("podcast search failed: " + errStr);
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void getToplistSucceeded(int reqId, List<Podcast> results)
+                throws RemoteException {
+            wrpst.get().podcasts = results;
+            wrpst.get().msgWhat = RESPONDED_GET_TOPLIST;
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void getToplistFailed(int reqId, int errCode, String errStr)
+                throws RemoteException {
+            fail("toplist retrieval failed: " + errStr);
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void getSuggestionsSucceeded(int reqId, List<Podcast> results)
+                throws RemoteException {
+            wrpst.get().podcasts = results;
+            wrpst.get().msgWhat = RESPONDED_GET_SUGGESTIONS;
+            wrpst.get().reqId = reqId;
+            wrpst.get().stoplight.release();
+        }
+
+        @Override
+        public void getSuggestionsFailed(int reqId, int errCode, String errStr)
+                throws RemoteException {
+            fail("suggestion retrieval failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
@@ -378,6 +414,48 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         }
 
         assertTrue("Search results do not contain expected podcast", containsPodcast);
+    }
+
+    /**
+     * Test whether the toplist retrieval returns results successfully.
+     * @throws RemoteException
+     */
+    @SmallTest
+    public final void testToplistRetrieval() throws RemoteException {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testToplistRetrieval()");
+
+        PodderServiceInterface psi = performBind();
+        GpoNetClientInfo ci = getClientInfo();
+
+        int rid = rng.nextInt();
+        psi.getToplist(handler, rid, ci);
+
+        stoplight.acquireUninterruptibly();
+
+        assertEquals(RESPONDED_GET_TOPLIST, msgWhat);
+        assertEquals(rid, reqId);
+        assertTrue(!podcasts.isEmpty());
+    }
+
+    /**
+     * Test whether the suggestion retrieval returns results successfully.
+     * @throws RemoteException
+     */
+    @SmallTest
+    public final void testSuggestionRetrieval() throws RemoteException {
+        Log.d("PodderServiceTest@" + this.hashCode(), "testSuggestionRetrieval()");
+
+        PodderServiceInterface psi = performBind();
+        GpoNetClientInfo ci = getClientInfo();
+
+        int rid = rng.nextInt();
+        psi.getSuggestions(handler, rid, ci);
+
+        stoplight.acquireUninterruptibly();
+
+        assertEquals(RESPONDED_GET_SUGGESTIONS, msgWhat);
+        assertEquals(rid, reqId);
+        assertTrue(!podcasts.isEmpty());
     }
 
     /**

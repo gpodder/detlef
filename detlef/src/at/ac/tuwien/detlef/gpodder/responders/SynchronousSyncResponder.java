@@ -140,6 +140,24 @@ public class SynchronousSyncResponder extends SyncResponder {
     }
 
     @Override
+    public void getToplistSucceeded(int reqId, List<Podcast> results) throws RemoteException {
+        final PodcastListResultHandler<?> plrh =
+                (PodcastListResultHandler<?>) getGps().getReq(reqId);
+        plrh.sendEvent(new PodcastListResultHandler.PodcastListSuccessEvent(plrh, results));
+        getGps().removeReq(reqId);
+        stoplight.release();
+    }
+
+    @Override
+    public void getSuggestionsSucceeded(int reqId, List<Podcast> results) throws RemoteException {
+        final PodcastListResultHandler<?> plrh =
+                (PodcastListResultHandler<?>) getGps().getReq(reqId);
+        plrh.sendEvent(new PodcastListResultHandler.PodcastListSuccessEvent(plrh, results));
+        getGps().removeReq(reqId);
+        stoplight.release();
+    }
+
+    @Override
     public void updateSubscriptionsSucceeded(int reqId) throws RemoteException {
         final NoDataResultHandler<?> ndrh = (NoDataResultHandler<?>) getGps().getReq(reqId);
         ndrh.sendEvent(new NoDataResultHandler.NoDataSuccessEvent(ndrh));

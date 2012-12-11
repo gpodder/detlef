@@ -288,6 +288,8 @@ public class PodderService extends Service {
     protected static class IpcHandler extends PodderServiceInterface.Stub {
         private static final String TAG = "PodderService.IpcHandler";
 
+        private static final int DEFAULT_SUGGESTIONS_COUNT = 15;
+
         /** Caches calls. */
         private CachingCallbackProxy theMagicalProxy;
 
@@ -489,6 +491,64 @@ public class PodderService extends Service {
             } catch (IOException e) {
                 Log.w(TAG, "searchPodcasts IOException: " + e.getMessage());
                 theMagicalProxy.searchPodcastsFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
+            }
+        }
+
+        @Override
+        public void getToplist(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
+                throws RemoteException {
+            Log.d(TAG, "getToplist() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
+
+            PublicClient pc = new PublicClient(cinfo.getHostname());
+
+            try {
+                List<IPodcast> ipodcasts = pc.getToplist();
+
+                /* Convert the list into podcasts. */
+
+                List<Podcast> podcasts = new ArrayList<Podcast>(ipodcasts.size());
+                for (IPodcast ip : ipodcasts) {
+                    podcasts.add(new Podcast(ip));
+                }
+
+                theMagicalProxy.getToplistSucceeded(reqId, podcasts);
+            } catch (IOException e) {
+                Log.w(TAG, "getToplist IOException: " + e.getMessage());
+                theMagicalProxy.getToplistFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
+            }
+        }
+
+        @Override
+        public void getSuggestions(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
+                throws RemoteException {
+            Log.d(TAG, "getSuggestions() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
+
+            MygPodderClient mpc = new MygPodderClient(
+                    cinfo.getUsername(),
+                    cinfo.getPassword(),
+                    cinfo.getHostname());
+
+            try {
+                List<? extends IPodcast> ipodcasts = mpc.getSuggestions(DEFAULT_SUGGESTIONS_COUNT);
+
+                /* Convert the list into podcasts. */
+
+                List<Podcast> podcasts = new ArrayList<Podcast>(ipodcasts.size());
+                for (IPodcast ip : ipodcasts) {
+                    podcasts.add(new Podcast(ip));
+                }
+
+                theMagicalProxy.getSuggestionsSucceeded(reqId, podcasts);
+            } catch (IOException e) {
+                Log.w(TAG, "getSuggestions IOException: " + e.getMessage());
+                theMagicalProxy.getSuggestionsFailed(reqId, ErrorCode.IO_PROBLEM,
+                        e.getMessage());
+            } catch (AuthenticationException e) {
+                theMagicalProxy.getSuggestionsFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
+                        e.getMessage());
+                return;
             }
         }
 

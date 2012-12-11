@@ -267,6 +267,48 @@ public class CachingActivitySyncResponder extends SyncResponder {
     }
 
     @Override
+    public void getToplistSucceeded(int reqId, final List<Podcast> results) throws RemoteException {
+        final PodcastListResultHandler<?> plrh =
+                (PodcastListResultHandler<?>) getGps().getReq(reqId);
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                plrh.handleSuccess(results);
+            }
+        };
+
+        if (act.get() == null) {
+            waitings.add(r);
+        } else {
+            act.get().runOnUiThread(r);
+        }
+
+        getGps().removeReq(reqId);        
+    }
+
+    @Override
+    public void getSuggestionsSucceeded(int reqId, final List<Podcast> results) throws RemoteException {
+        final PodcastListResultHandler<?> plrh =
+                (PodcastListResultHandler<?>) getGps().getReq(reqId);
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                plrh.handleSuccess(results);
+            }
+        };
+
+        if (act.get() == null) {
+            waitings.add(r);
+        } else {
+            act.get().runOnUiThread(r);
+        }
+
+        getGps().removeReq(reqId);
+    }
+
+    @Override
     public void updateSubscriptionsSucceeded(int reqId) throws RemoteException {
         final NoDataResultHandler<?> ndrh = (NoDataResultHandler<?>) getGps().getReq(reqId);
 
