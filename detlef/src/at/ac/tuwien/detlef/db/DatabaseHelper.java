@@ -32,7 +32,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 8;
+    static final int VERSION = 9;
 
     static final Object BIG_FRIGGIN_LOCK = new Object();
 
@@ -84,6 +84,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_PODCAST_LOCAL_ADD = "Podcast_local_add";
     public static final String COLUMN_PODCAST_ADD_ID = "_ID";
 
+    public static final String EPISODE_RELEASED_INDEX = "Episode_Released_Index";
+    
     /* Create statement for the podcast table. */
     static final String CREATE_PODCAST_TABLE =
             String.format("create table %s ("
@@ -151,6 +153,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     TABLE_PODCAST_LOCAL_ADD, COLUMN_PODCAST_ADD_ID, COLUMN_PODCAST_ADD_ID,
                     TABLE_PODCAST, COLUMN_PODCAST_ID);
 
+    /* index on episode released column needed for sorting */
+    static final String CREATE_EPISODE_RELEASED_INDEX =
+            String.format("create index %s ON %s "
+                    + "( %s DESC );",
+                    EPISODE_RELEASED_INDEX, TABLE_EPISODE, COLUMN_EPISODE_RELEASED); 
+    
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
     }
@@ -163,6 +171,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_PLAYLIST_TABLE);
         db.execSQL(CREATE_PODCAST_LOCAL_DEL_TABLE);
         db.execSQL(CREATE_PODCAST_LOCAL_ADD_TABLE);
+        db.execSQL(CREATE_EPISODE_RELEASED_INDEX);
     }
 
     @Override
@@ -178,11 +187,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO: What should we do on upgrade? For now, drop and recreate all
         // tables.
+        db.execSQL("DROP INDEX IF EXISTS " + EPISODE_RELEASED_INDEX);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_DEL);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_ADD);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
+        
         GpodderSettings settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(Detlef.getAppContext());
         settings.setLastUpdate(0);
         DependencyAssistant.getDependencyAssistant().getGpodderSettingsDAO(Detlef.getAppContext()).writeSettings(settings);

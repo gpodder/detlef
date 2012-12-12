@@ -343,7 +343,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                             selectionArgs, // values for where clause
                             null, // group
                             null, // filter by row group
-                            null // sort order
+                            DatabaseHelper.COLUMN_EPISODE_RELEASED + " DESC" // sort order
                     );
 
             if (c.moveToFirst()) {
