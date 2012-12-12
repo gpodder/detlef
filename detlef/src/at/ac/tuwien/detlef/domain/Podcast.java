@@ -79,12 +79,13 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
     public Drawable getLogoIcon() {
         if (getLogoFilePath() != null) {
             Drawable image = Drawable.createFromPath(getLogoFilePath());
-            Bitmap d = ((BitmapDrawable) image).getBitmap();
-            Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, ICON_WIDTH, ICON_HEIGHT, false);
-            return new BitmapDrawable(Detlef.getAppContext().getResources(), bitmapOrig);
-        } else {
-            return Detlef.getAppContext().getResources().getDrawable(R.drawable.ic_launcher);
+            if (image != null) {
+                Bitmap d = ((BitmapDrawable) image).getBitmap();
+                Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, ICON_WIDTH, ICON_HEIGHT, false);
+                return new BitmapDrawable(Detlef.getAppContext().getResources(), bitmapOrig);
+            }
         }
+        return Detlef.getAppContext().getResources().getDrawable(R.drawable.ic_launcher);
     }
     
     @Override
