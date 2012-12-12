@@ -26,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.R;
 
 import com.dragontek.mygpoclient.simple.IPodcast;
 
@@ -76,10 +77,14 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
      * @return
      */
     public Drawable getLogoIcon() {
-        Drawable image = Drawable.createFromPath(getLogoFilePath());
-        Bitmap d = ((BitmapDrawable) image).getBitmap();
-        Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, ICON_WIDTH, ICON_HEIGHT, false);
-        return new BitmapDrawable(Detlef.getAppContext().getResources(), bitmapOrig);
+        if (getLogoFilePath() != null) {
+            Drawable image = Drawable.createFromPath(getLogoFilePath());
+            Bitmap d = ((BitmapDrawable) image).getBitmap();
+            Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, ICON_WIDTH, ICON_HEIGHT, false);
+            return new BitmapDrawable(Detlef.getAppContext().getResources(), bitmapOrig);
+        } else {
+            return Detlef.getAppContext().getResources().getDrawable(R.drawable.ic_launcher);
+        }
     }
     
     @Override
