@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.db;
 
 import java.util.List;
@@ -109,6 +107,26 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
     public Episode getEpisodeById(Context context, int id) {
         EpisodeDAO dao = EpisodeDAOImpl.i();
         return dao.getEpisode(id);
+    }
+
+    @Override
+    public void toggleEpisodeReadState(Episode episode) {
+        EpisodeDAO dao = EpisodeDAOImpl.i();
+        // TODO is this a sensible treatment of read/unread?
+        switch (episode.getActionState()) {
+            case DOWNLOAD: // fall-through
+            case NEW: // fall-through
+            case PLAY:
+                episode.setActionState(ActionState.DELETE);
+                dao.updateActionState(episode);
+                break;
+            case DELETE:
+                episode.setActionState(ActionState.NEW);
+                dao.updateActionState(episode);
+                break;
+            default:
+                Log.e(TAG, "Unknown action state encountered");
+        }
     }
 
 }

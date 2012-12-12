@@ -15,13 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.adapters;
 
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 
 public class EpisodeListAdapter extends ArrayAdapter<Episode> {
@@ -62,6 +63,11 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         TextView title = (TextView) v.findViewById(R.id.episodeListEpisode);
         title.setText(formatTitle(episode));
 
+        ImageButton episodeListMarkRead = (ImageButton) v.findViewById(R.id.episodeListMarkRead);
+        episodeListMarkRead.setTag(episode);
+
+        toggleEpisodeReadAppearance(episode, title, episodeListMarkRead);
+
         TextView description = (TextView) v.findViewById(R.id.episodeListDescription);
         description.setText(Html.fromHtml(episode.getDescription()));
 
@@ -75,15 +81,23 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         episodeListDownload.setTag(episode);
 
         ImageButton episodeListAddToPlaylist =
-                (ImageButton)v.findViewById(R.id.episodeListAddToPlaylist);
+                (ImageButton) v.findViewById(R.id.episodeListAddToPlaylist);
         episodeListAddToPlaylist.setTag(episode);
 
-        /* TODO: Set image according to read state. */
-        ImageButton episodeListMarkRead = (ImageButton)v.findViewById(R.id.episodeListMarkRead);
-        episodeListMarkRead.setTag(episode);
-
         return v;
+    }
 
+    private void toggleEpisodeReadAppearance(Episode episode, TextView title,
+            ImageButton markRead) {
+        if (episode.getActionState() == ActionState.DELETE) {
+            title.setTypeface(Typeface.DEFAULT);
+            title.setTextColor(Color.parseColor("#11AADD"));
+            markRead.setImageResource(android.R.drawable.ic_menu_set_as);
+        } else {
+            title.setTypeface(Typeface.DEFAULT_BOLD);
+            title.setTextColor(Color.parseColor("#0099CC"));
+            markRead.setImageResource(R.drawable.ic_menu_star);
+        }
     }
 
     private int stateToImageResource(StorageState storageState) {

@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.db;
 
 import java.util.List;
@@ -35,13 +34,9 @@ public interface EpisodeDBAssistant {
     /**
      * Delivers all episodes from one podcast.
      * 
-     * @param context
-     *            : The application context eg.
+     * @param context : The application context eg.
      *            Activity.getApplicationContext());
-     * 
-     * @param podcast
-     *            : The podcast which contains the episodes
-     * 
+     * @param podcast : The podcast which contains the episodes
      * @return returns all episodes of the given podcast
      */
     List<Episode> getEpisodes(Context context, Podcast podcast);
@@ -49,21 +44,18 @@ public interface EpisodeDBAssistant {
     /**
      * Delivers all episodes.
      * 
-     * @param context
-     *            : The application context eg.
+     * @param context : The application context eg.
      *            Activity.getApplicationContext());
-     * 
      * @return returns all episodes which are stored in the database
      */
     List<Episode> getAllEpisodes(Context context);
 
     /**
-     * applys all changes in the EpisodeActionChanges of the podcast to the database.
+     * applys all changes in the EpisodeActionChanges of the podcast to the
+     * database.
      * 
      * @param context: the application context
-     * 
      * @param podcast: the podcast
-     * 
      * @param changes: the changes made in an episode
      */
     void applyActionChanges(Context context, Podcast podcast, EpisodeActionChanges changes);
@@ -76,12 +68,18 @@ public interface EpisodeDBAssistant {
     /**
      * Gets an episode by database id.
      * 
-     * @param context
-     *            : The application context eg.
+     * @param context : The application context eg.
      *            Activity.getApplicationContext());
-     * @param id
-     *            The ID of the episode in the database.
+     * @param id The ID of the episode in the database.
      * @return The episode with the given ID, if any. Otherwise null.
      */
     Episode getEpisodeById(Context context, int id);
+
+    /**
+     * Toggle the ActionState of the episode between read and unread
+     * (new/play/download vs delete).
+     * 
+     * @param episode The episode whose state to toggle.
+     */
+    void toggleEpisodeReadState(Episode episode);
 }

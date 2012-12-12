@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.fragments;
 
 import java.io.IOException;
@@ -38,14 +36,17 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
+import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
-public class EpisodeListFragment extends ListFragment implements EpisodeDAO.OnEpisodeChangeListener {
+public class EpisodeListFragment extends ListFragment
+        implements EpisodeDAO.OnEpisodeChangeListener {
 
     private static final String TAG = EpisodeListFragment.class.getName();
     private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
@@ -55,6 +56,7 @@ public class EpisodeListFragment extends ListFragment implements EpisodeDAO.OnEp
     private EpisodeListAdapter adapter;
     private Podcast filteredByPodcast = null;
     private OnEpisodeSelectedListener listener;
+    private EpisodeDAO episodeDAO;
 
     private GUIUtils guiUtils;
 
@@ -95,6 +97,8 @@ public class EpisodeListFragment extends ListFragment implements EpisodeDAO.OnEp
         setListAdapter(adapter);
 
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
+
+        episodeDAO = EpisodeDAOImpl.i();
     }
 
     @Override
@@ -284,5 +288,12 @@ public class EpisodeListFragment extends ListFragment implements EpisodeDAO.OnEp
             default:
                 Log.e(TAG, "Unknown storage state encountered");
         }
+    }
+
+    public void onMarkReadUnreadClick(View v) {
+        Episode episode = ((Episode) v.getTag());
+        DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
+                .toggleEpisodeReadState(episode);
+        adapter.notifyDataSetChanged();
     }
 }

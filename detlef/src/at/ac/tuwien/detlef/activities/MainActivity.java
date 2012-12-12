@@ -737,6 +737,10 @@ public class MainActivity extends FragmentActivity
     public void onAddToPlaylistClick(View v) {
         playlistDAO.addEpisodeToEndOfPlaylist((Episode) v.getTag());
     }
+    
+    public void onMarkReadUnreadClick(View v) {
+        getEpisodeListFragment().onMarkReadUnreadClick(v);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode,

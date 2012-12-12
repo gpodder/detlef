@@ -34,6 +34,7 @@ import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 
 /**
@@ -187,6 +188,11 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             Log.d(getClass().getName(), "Setting play position to " + playPosition);
             if ((playPosition < mediaPlayer.getDuration()) && (playPosition > 0)) {
                 mediaPlayer.seekTo(playPosition);
+            }
+            if (activeEpisode.getActionState() == ActionState.NEW
+                    || activeEpisode.getActionState() == ActionState.DOWNLOAD) {
+                activeEpisode.setActionState(ActionState.PLAY);
+                episodeDAO.updateActionState(activeEpisode);
             }
         }
         mediaPlayer.start();
@@ -540,6 +546,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         }
         activeEpisode.setPlayPosition(0);
         episodeDAO.updatePlayPosition(activeEpisode);
+        activeEpisode.setActionState(ActionState.DELETE);
+        episodeDAO.updateActionState(activeEpisode);
     }
 
     private void updateEpisodePlayState() {
