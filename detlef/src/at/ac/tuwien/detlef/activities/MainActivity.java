@@ -53,19 +53,16 @@ import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
-import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
-import at.ac.tuwien.detlef.fragments.SearchFragment;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.gpodder.FeedSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.GPodderException;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
-import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
@@ -246,9 +243,6 @@ public class MainActivity extends FragmentActivity
                 break;
             case SectionsPagerAdapter.POSITION_PLAYER:
                 actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_EPISODES));
-                break;
-            case SectionsPagerAdapter.POSITION_SEARCH:
-                actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_PLAYER));
                 break;
             default:
                 super.onBackPressed();
@@ -625,8 +619,7 @@ public class MainActivity extends FragmentActivity
         public static final int POSITION_PODCASTS = 0;
         public static final int POSITION_EPISODES = 1;
         public static final int POSITION_PLAYER = 2;
-        public static final int POSITION_SEARCH = 3;
-        public static final int TABCOUNT = POSITION_SEARCH + 1;
+        public static final int TABCOUNT = POSITION_PLAYER + 1;
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -650,8 +643,6 @@ public class MainActivity extends FragmentActivity
                     return new EpisodeListFragment();
                 case POSITION_PLAYER:
                     return new PlayerFragment();
-                case POSITION_SEARCH:
-                    return new SearchFragment();
                 default:
                     throw new IndexOutOfBoundsException();
             }
@@ -671,8 +662,6 @@ public class MainActivity extends FragmentActivity
                     return getString(R.string.episodes).toUpperCase(Locale.getDefault());
                 case POSITION_PLAYER:
                     return getString(R.string.player).toUpperCase(Locale.getDefault());
-                case POSITION_SEARCH:
-                    return getString(R.string.search).toUpperCase(Locale.getDefault());
                 default:
                     return null;
             }
@@ -733,8 +722,6 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onEpisodeSelected(Episode episode) {
-        // TODO @Joshi start playing only if episode is downloaded or
-        // downloading
         getPlayerFragment().setManualEpisode(episode);
         getActionBar().setSelectedNavigationItem(SectionsPagerAdapter.POSITION_PLAYER);
     }
