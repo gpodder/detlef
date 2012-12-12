@@ -20,8 +20,12 @@ package at.ac.tuwien.detlef.domain;
 
 import java.io.Serializable;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import at.ac.tuwien.detlef.Detlef;
 
 import com.dragontek.mygpoclient.simple.IPodcast;
 
@@ -35,6 +39,9 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
      * default serialUID added.
      */
     private static final long serialVersionUID = 1L;
+    
+    private static int ICON_WIDTH = 80;
+    private static int ICON_HEIGHT = 80;
 
     private long id;
 
@@ -63,6 +70,18 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         setLogoUrl(p.getLogoUrl());
     }
 
+    /**
+     * returns the icon for the podcast.
+     * null if no icon is available
+     * @return
+     */
+    public Drawable getLogoIcon() {
+        Drawable image = Drawable.createFromPath(getLogoFilePath());
+        Bitmap d = ((BitmapDrawable) image).getBitmap();
+        Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, ICON_WIDTH, ICON_HEIGHT, false);
+        return new BitmapDrawable(Detlef.getAppContext().getResources(), bitmapOrig);
+    }
+    
     @Override
     public String getTitle() {
         return title;

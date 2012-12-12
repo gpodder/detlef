@@ -38,6 +38,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -71,6 +72,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     private TextView remainingTime;
     private ImageButton buttonFF;
     private ImageButton buttonRew;
+    private ImageView podcastIcon;
 
     /**
      * Handles the connection to the MediaPlayerService that plays music.
@@ -360,6 +362,9 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 R.id.playerEpisodeDescription);
         TextView podcast = (TextView) getView().findViewById(R.id.playerPodcast);
         TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
+        
+        podcastIcon = (ImageView) getView().findViewById(R.id.imageView1);
+        
 
         if ((ep == null) && (service != null)) {
             ep = service.getNextEpisode();
@@ -371,6 +376,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                             .toString());
             podcast.setText("");
             episodeDescription.loadData("", "text/html; charset=UTF-8", null);
+            podcastIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
         } else {
             episodeDescription.loadData(ep.getDescription() == null ? "" : ep.getDescription(),
                     "text/html; charset=UTF-8", null);
@@ -378,6 +384,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                     .getTitle());
             episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
             setNotPlayingSeekBarAndTime(ep);
+            podcastIcon.setImageDrawable(activeEpisode.getPodcast().getLogoIcon());
         }
         return this;
     }

@@ -19,6 +19,7 @@
 
 package at.ac.tuwien.detlef.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 
 public final class PodcastDAOImpl implements PodcastDAO {
 
@@ -151,6 +153,18 @@ public final class PodcastDAOImpl implements PodcastDAO {
     public int deletePodcast(Podcast podcast) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             int ret = 0;
+            try {
+                if (podcast.getLogoFilePath() != null && !podcast.getLogoFilePath().equals("")) {
+                    File file = new File(podcast.getLogoFilePath());
+                    file.delete();
+                    Log.i(TAG, "file deleted: " + podcast.getLogoFilePath());
+                }
+            } catch (Exception ex) {
+                Log.e(TAG,
+                        "delete Podcast icon: " + ex.getMessage() != null ? ex.getMessage()
+                                : ex.toString());
+            }
+            
             SQLiteDatabase db = null;
             try {
                 deleteEpisodesForPodcast(podcast);

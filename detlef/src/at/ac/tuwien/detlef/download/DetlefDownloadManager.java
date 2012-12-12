@@ -34,6 +34,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
+import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -48,16 +49,50 @@ public class DetlefDownloadManager {
     private static final String TAG = DetlefDownloadManager.class.getName();
 
     private final Map<Long, Episode> activeDownloads = new ConcurrentHashMap<Long, Episode>();
+    private final Map<Long, Podcast> activeImgDownloads = new ConcurrentHashMap<Long, Podcast>();
     private final Context context;
     private final EpisodeDAOImpl dao;
+    private final PodcastDAOImpl pdao;
     private final DownloadManager downloadManager;
 
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
         dao = EpisodeDAOImpl.i();
+        pdao = PodcastDAOImpl.i();
     }
 
+    /**
+     * Places an Podcast in the system's download queue.
+     * For downloading the Podcast Image.
+     */
+    public void enqueue(Podcast podcast) throws IOException {        
+        if (!isExternalStorageWritable()) {
+            throw new IOException("Cannot write to external storage");
+        }
+        Uri uri = Uri.parse(podcast.getLogoUrl());
+        
+        /* We may need to change our naming policy in case of duplicates. However,
+         * let's ignore this for now since it's simplest for us and the user. */
+        String path = String.format("%s/%s", podcast.getTitle(),
+                new File(uri.toString()).getName());
+        /* Ensure the directory already exists. */
+        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), path);
+        file.getParentFile().mkdirs();
+        
+        Request request = new Request(uri);
+        request.setDestinationInExternalFilesDir(context,Environment.DIRECTORY_PICTURES, path);
+        request.setTitle(podcast.getTitle());
+        
+        long id = downloadManager.enqueue(request);
+        activeImgDownloads.put(id,  podcast);
+        
+        podcast.setLogoFilePath(file.getAbsolutePath());
+        pdao.updateLogoFilePath(podcast);
+        
+        Log.v(TAG, String.format("Enqued download for img %s", path));
+    }
+    
     /**
      * Places an episode in the system's download queue.
      * The episode's state is set to DOWNLOADING, and its path is updated.
@@ -66,7 +101,6 @@ public class DetlefDownloadManager {
         if (!isExternalStorageWritable()) {
             throw new IOException("Cannot write to external storage");
         }
-
         Podcast podcast = episode.getPodcast();
         Uri uri = Uri.parse(episode.getUrl());
 
@@ -129,6 +163,25 @@ public class DetlefDownloadManager {
         episode.setStorageState(StorageState.NOT_ON_DEVICE);
         dao.updateStorageState(episode);
     }
+    
+    /**
+     * Cancels the download of an podcast img. If the img is not currently being downloaded,
+     * no action is taken.
+     */
+    public void cancel(Podcast podcast) {
+        for (Entry<Long, Podcast> entry :activeImgDownloads.entrySet()) {
+            if (entry.getValue() != podcast) {
+                continue;
+            }
+            long id = entry.getKey();
+            activeImgDownloads.remove(id);
+            downloadManager.remove(id);
+            
+            break;
+        }
+        podcast.setLogoFilePath("");
+        pdao.updateLogoFilePath(podcast);
+    }
 
     /**
      * Cancels all active downloads.
@@ -142,7 +195,15 @@ public class DetlefDownloadManager {
             episode.setStorageState(StorageState.NOT_ON_DEVICE);
             dao.updateStorageState(episode);
         }
+        for (Entry<Long, Podcast> entry :activeImgDownloads.entrySet()) {
+            
+            downloadManager.remove(entry.getKey());
+            Podcast p = entry.getValue();
+            p.setLogoFilePath("");
+            pdao.updateLogoFilePath(p);
+        }
         activeDownloads.clear();
+        activeImgDownloads.clear();
     }
 
     /**
@@ -151,29 +212,35 @@ public class DetlefDownloadManager {
      * @param id The download id.
      */
     public void downloadComplete(long id) {
-        Episode episode = activeDownloads.remove(id);
-        if (episode == null) {
-            Log.w(TAG, String.format("No active download found for id %d", id));
-            return;
-        }
-
-        if (!isDownloadSuccessful(id)) {
-            Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
-                    id, getDownloadFailureReason(id)));
-
-            episode.setStorageState(StorageState.NOT_ON_DEVICE);
+        if (activeDownloads.containsKey(id)) {
+            Episode episode = activeDownloads.remove(id);
+            if (episode == null) {
+                Log.w(TAG, String.format("No active download found for id %d", id));
+                return;
+            }
+    
+            if (!isDownloadSuccessful(id)) {
+                Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
+                        id, getDownloadFailureReason(id)));
+    
+                episode.setStorageState(StorageState.NOT_ON_DEVICE);
+                dao.updateStorageState(episode);
+    
+                return;
+            }
+    
+            Uri uri = downloadManager.getUriForDownloadedFile(id);
+            Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
+    
+            /* Update the episode's state in the database. */
+    
+            episode.setStorageState(StorageState.DOWNLOADED);
             dao.updateStorageState(episode);
-
-            return;
+        } else {
+            if (activeImgDownloads.containsKey(id)) {
+                activeImgDownloads.remove(id);
+            }
         }
-
-        Uri uri = downloadManager.getUriForDownloadedFile(id);
-        Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
-
-        /* Update the episode's state in the database. */
-
-        episode.setStorageState(StorageState.DOWNLOADED);
-        dao.updateStorageState(episode);
     }
 
     private boolean isDownloadSuccessful(long id) {

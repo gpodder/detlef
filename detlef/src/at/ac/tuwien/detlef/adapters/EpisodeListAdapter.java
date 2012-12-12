@@ -67,6 +67,8 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
         TextView size = (TextView) v.findViewById(R.id.episodeListDlSize);
         size.setText(byteToHumanSize(episode.getFileSize()));
+        size.setCompoundDrawablesWithIntrinsicBounds(null,
+                episode.getPodcast().getLogoIcon(), null, null);
 
         ImageButton episodeListDownload = (ImageButton) v.findViewById(R.id.episodeListDownload);
         episodeListDownload.setImageResource(stateToImageResource(episode.getStorageState()));

@@ -92,6 +92,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                 try {
                     if (ep.getEnclosure() != null) {
                         Episode newEp = new Episode(ep, p);
+                        
                         dao.insertEpisode(newEp);
                     }
                 } catch (Exception ex) {
