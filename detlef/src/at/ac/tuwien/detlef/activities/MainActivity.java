@@ -492,6 +492,16 @@ public class MainActivity extends FragmentActivity
      * @param pBundle The {@link Bundle} that is passed to the {@link PodcastSyncResultHandler}.
      */
     private void onRefreshPressed(Bundle pBundle) {
+
+        GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+                .getGpodderSettings(this);
+
+        if (settings.getDeviceId() == null) {
+            Toast.makeText(this, "Please set up your account first!", Toast.LENGTH_SHORT);
+            Log.w(TAG, "Could not refresh due to missing account information");
+            return;
+        }
+
         synchronized (numPodSync) {
             if (numPodSync.get() != -1) {
                 return;
@@ -500,9 +510,6 @@ public class MainActivity extends FragmentActivity
             numPodSync.incrementAndGet();
             curPodSync.set(0);
         }
-
-        GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
-                .getGpodderSettings(this);
 
         PodcastDAO pDao = PodcastDAOImpl.i();
         EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(
