@@ -79,21 +79,21 @@ public class PodcastDBAssistantImplTest extends AndroidTestCase{
 
         podToAdd1 = new Podcast();
         podToAdd1.setDescription("description new1");
-        podToAdd1.setLogoUrl("logoUrl new1");
+        podToAdd1.setLogoUrl("");
         podToAdd1.setTitle("title new1");
         podToAdd1.setLastUpdate(444);
         podToAdd1.setUrl("url new1");
 
         podToAdd2 = new Podcast();
         podToAdd2.setDescription("description new2");
-        podToAdd2.setLogoUrl("logoUrl new2");
+        podToAdd2.setLogoUrl("");
         podToAdd2.setTitle("title new2");
         podToAdd2.setLastUpdate(555);
         podToAdd2.setUrl("url new2");
 
         podToAdd3 = new Podcast();
         podToAdd3.setDescription("description new3");
-        podToAdd3.setLogoUrl("logoUrl new3");
+        podToAdd3.setLogoUrl("");
         podToAdd3.setTitle("title new3");
         podToAdd3.setLastUpdate(666);
         podToAdd3.setUrl("url new3");

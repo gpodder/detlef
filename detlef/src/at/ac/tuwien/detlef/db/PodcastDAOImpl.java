@@ -93,6 +93,8 @@ public final class PodcastDAOImpl implements PodcastDAO {
                     values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
                             podcast.getLogoFilePath());
                 }
+                values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED, 
+                        podcast.getLogoDownloaded());
 
                 db.beginTransaction();
 
@@ -203,13 +205,16 @@ public final class PodcastDAOImpl implements PodcastDAO {
             + "p.%s,"
             + "p.%s,"
             + "p.%s,"
+            + "p.%s,"
             + "a.%s,d.%s "
             + "from %s p "
             + "left outer join (select %s as addID,'add' as %s from %s) a on %s = addID "
             + "left outer join (select %s as delID,'del' as %s from %s) d on %s = delID;",
             DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
             DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
-            DatabaseHelper.COLUMN_PODCAST_LOGO_URL, DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
+            DatabaseHelper.COLUMN_PODCAST_LOGO_URL, 
+            DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED, 
+            DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
             DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
             QUERY_COLUMN_PODCAST_LOCAL_ADD, QUERY_COLUMN_PODCAST_LOCAL_DEL,
             DatabaseHelper.TABLE_PODCAST,
@@ -244,6 +249,8 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 .getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
         p.setLocalAdd(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_ADD)));
         p.setLocalDel(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_DEL)));
+        p.setLogoDownloaded(c.getInt(c.getColumnIndex(
+                DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED)));
 
         hashMapPodcast.put(key, p);
 
@@ -315,6 +322,28 @@ public final class PodcastDAOImpl implements PodcastDAO {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
+
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(podcast.getId())
+            };
+
+            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
+            db.close();
+
+            notifyListenersChanged(podcast);
+
+            return ret;
+        }
+    }
+    
+    @Override
+    public int updateLogoDownloaded(Podcast podcast) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED, 
+                    podcast.getLogoDownloaded());
 
             String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
             String[] selectionArgs = {

@@ -50,7 +50,7 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
             if (pod != null) {
                 if (pod.isLocalAdd() || pod.isLocalDel()) {
                     dao.setRemotePodcast(pod);
-                    if (pod.getLogoUrl() != null) {
+                    if (pod.getLogoUrl() != null && !pod.getLogoUrl().equals("")) {
                         try {
                             PodcastImgPersistance.download(pod);
                         } catch (IOException e) {
@@ -65,7 +65,7 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
 
             if ((p.getTitle() != null) && (p.getUrl() != null)) {
                 
-                if (p.getLogoUrl() != null) {                
+                if (p.getLogoUrl() != null && !p.getLogoUrl().equals("")) {
                     try {
                         PodcastImgPersistance.download(p);
                     } catch (IOException e) {

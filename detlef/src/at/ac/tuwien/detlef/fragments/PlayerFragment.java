@@ -384,7 +384,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                     .getTitle());
             episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
             setNotPlayingSeekBarAndTime(ep);
-            podcastIcon.setImageDrawable(activeEpisode.getPodcast().getLogoIcon());
+            podcastIcon.setImageDrawable(ep.getPodcast().getLogoIcon());
         }
         return this;
     }

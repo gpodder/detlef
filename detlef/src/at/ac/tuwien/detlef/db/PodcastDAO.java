@@ -93,6 +93,12 @@ public interface PodcastDAO {
     int updateLastUpdate(Podcast podcast);
 
     /**
+     * Updates the logoDownloaded column of the given podcast.
+     * If podcast is downloaded it is set to 1, else != 1
+     */
+    int updateLogoDownloaded(Podcast podcast);
+    
+    /**
      * Updates the logoFilePath column of the given podcast (uses the
      * logoFilePath attribute of the podcast).
      *

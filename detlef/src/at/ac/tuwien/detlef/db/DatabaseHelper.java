@@ -32,7 +32,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 9;
+    static final int VERSION = 10;
 
     static final Object BIG_FRIGGIN_LOCK = new Object();
 
@@ -47,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PODCAST_LOGO_URL = "logoUrl";
     public static final String COLUMN_PODCAST_LAST_UPDATE = "lastUpdate";
     public static final String COLUMN_PODCAST_LOGO_FILE_PATH = "logoFilePath";
+    public static final String COLUMN_PODCAST_LOGO_FILE_DOWNLOADED = "logoFileDownloaded";
 
     /* Episode table. */
     public static final String TABLE_EPISODE = "Episode";
@@ -95,10 +96,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "%s text, "
                     + "%s text, "
                     + "%s integer, "
-                    + "%s text);",
+                    + "%s text," 
+                    + "%s integer);",
                     TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,
                     COLUMN_PODCAST_DESCRIPTION, COLUMN_PODCAST_LOGO_URL,
-                    COLUMN_PODCAST_LAST_UPDATE, COLUMN_PODCAST_LOGO_FILE_PATH);
+                    COLUMN_PODCAST_LAST_UPDATE, COLUMN_PODCAST_LOGO_FILE_PATH,
+                    COLUMN_PODCAST_LOGO_FILE_DOWNLOADED);
 
     /* Create statement for the episode table. */
     static final String CREATE_EPISODE_TABLE =

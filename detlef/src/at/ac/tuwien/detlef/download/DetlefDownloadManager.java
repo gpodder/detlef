@@ -208,7 +208,7 @@ public class DetlefDownloadManager {
 
     /**
      * Called once a download has completed. Responsible for updating the internal
-     * state and pushing episode changes to the database.
+     * state and pushing episode/podcast changes to the database.
      * @param id The download id.
      */
     public void downloadComplete(long id) {
@@ -238,7 +238,21 @@ public class DetlefDownloadManager {
             dao.updateStorageState(episode);
         } else {
             if (activeImgDownloads.containsKey(id)) {
-                activeImgDownloads.remove(id);
+                Podcast p = activeImgDownloads.remove(id);
+                if (p == null) {
+                    Log.w(TAG, String.format("No active download found for id %d", id));
+                    return;
+                }
+                if (!isDownloadSuccessful(id)) {
+                    Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
+                            id, getDownloadFailureReason(id)));
+                    return;
+                }
+                Uri uri = downloadManager.getUriForDownloadedFile(id);
+                Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
+                
+                p.setLogoDownloaded(1);
+                pdao.updateLogoDownloaded(p);
             }
         }
     }

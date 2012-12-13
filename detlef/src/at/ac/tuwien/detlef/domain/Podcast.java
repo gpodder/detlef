@@ -61,6 +61,10 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
     private boolean localAdd;
 
     private boolean localDel;
+    
+    private Drawable logoIcon;
+    
+    private int logoDownloaded = 0;
 
     public Podcast() { }
 
@@ -72,11 +76,10 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
     }
 
     /**
-     * returns the icon for the podcast.
-     * null if no icon is available
+     * Creates the logo icon.
      * @return
      */
-    public Drawable getLogoIcon() {
+    private Drawable createLogoIcon() {
         if (getLogoFilePath() != null) {
             Drawable image = Drawable.createFromPath(getLogoFilePath());
             if (image != null) {
@@ -86,6 +89,17 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
             }
         }
         return Detlef.getAppContext().getResources().getDrawable(R.drawable.ic_launcher);
+    }
+    
+    /**
+     * returns the icon for the podcast.
+     * @return
+     */
+    public Drawable getLogoIcon() {
+        if (logoIcon == null) {
+            logoIcon = createLogoIcon();
+        }
+        return logoIcon;
     }
     
     @Override
@@ -187,6 +201,16 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         dest.writeString(url);
         dest.writeLong(lastUpdate);
         dest.writeBooleanArray(new boolean[]{localAdd, localDel});
+    }
+
+    public int getLogoDownloaded() {
+        return logoDownloaded;
+    }
+
+    public Podcast setLogoDownloaded(int logoDownloadedIn) {
+        this.logoDownloaded = logoDownloadedIn;
+        logoIcon = createLogoIcon();
+        return this;
     }
 
     public static final Parcelable.Creator<Podcast> CREATOR = new Creator<Podcast>() {
