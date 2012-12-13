@@ -746,6 +746,10 @@ public class MainActivity extends FragmentActivity
             Intent data) {
 
         Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
+        
+        if (data == null) {
+            return;
+        }
 
         if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false) 
                 || data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
