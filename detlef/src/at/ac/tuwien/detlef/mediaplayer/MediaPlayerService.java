@@ -46,6 +46,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         MediaPlayer.OnCompletionListener, PlaylistDAO.OnPlaylistChangeListener,
         EpisodeDAO.OnEpisodeChangeListener {
 
+    private static final String TAG = MediaPlayerService.class.getName();
+
     public static final String EXTRA_MEDIA_CONTROL = "EXTRA_MEDIA_CONTROL";
     public static final int EXTRA_PREVIOUS = 0;
     public static final int EXTRA_PLAY_PAUSE = 1;
@@ -221,12 +223,68 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        running = true;
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setOnPreparedListener(this);
-        mediaPlayer.setOnErrorListener(this);
-        mediaPlayer.setOnCompletionListener(this);
+        if (!running) {
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setOnPreparedListener(this);
+            mediaPlayer.setOnErrorListener(this);
+            mediaPlayer.setOnCompletionListener(this);
+            running = true;
+        }
+
+        if (intent.hasExtra(EXTRA_MEDIA_CONTROL)) {
+            handleMediaControlIntent(intent.getIntExtra(EXTRA_MEDIA_CONTROL, EXTRA_PLAY_PAUSE));
+        }
+
         return Service.START_NOT_STICKY;
+    }
+
+    /**
+     * Handles an incoming media control intent (which can be sent from a
+     * notification).
+     *
+     * @param command The intent's EXTRA_MEDIA_CONTRL extra. One of
+     *            EXTRA_PLAY_PAUSE, EXTRA_PREVIOUS, EXTRA_NEXT.
+     */
+    private void handleMediaControlIntent(int command) {
+        Log.d(TAG, String.format("Incoming intent with extra %d", command));
+
+        /*
+         * The logic for PREVIOUS and NEXT is nicked from PlayerFragment and
+         * could be improved.
+         */
+
+        switch (command) {
+            case EXTRA_PREVIOUS:
+                rewind();
+
+                if ((getNextEpisode() == activeEpisode) || !isCurrentlyPlaying()) {
+                    return;
+                }
+
+                pausePlaying();
+                startPlaying();
+                break;
+            case EXTRA_PLAY_PAUSE:
+                if (isCurrentlyPlaying()) {
+                    pausePlaying();
+                } else {
+                    startPlaying();
+                }
+                break;
+            case EXTRA_NEXT:
+                fastForward();
+
+                if ((getNextEpisode() == activeEpisode) || !isCurrentlyPlaying()) {
+                    return;
+                }
+
+                pausePlaying();
+                startPlaying();
+                break;
+            default:
+                Log.w(TAG, String.format("Invalid incomind media control intent: %d", command));
+                break;
+        }
     }
 
     /*
