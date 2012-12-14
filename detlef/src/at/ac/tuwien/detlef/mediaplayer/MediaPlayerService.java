@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.mediaplayer;
 
 import java.io.File;
@@ -185,7 +183,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         if (activeEpisode != null) {
             int playPosition = activeEpisode.getPlayPosition();
             Log.d(getClass().getName(), "Setting play position to " + playPosition);
-            if (playPosition < mediaPlayer.getDuration() && playPosition > 0) {
+            if ((playPosition < mediaPlayer.getDuration()) && (playPosition > 0)) {
                 mediaPlayer.seekTo(playPosition);
             }
         }

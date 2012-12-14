@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.activities;
 
 import java.util.Locale;
@@ -76,13 +74,11 @@ public class MainActivity extends FragmentActivity
         EpisodeListFragment.OnEpisodeSelectedListener {
 
     private static final String TAG = MainActivity.class.getName();
-    
     private static final int PODCAST_ADD_REQUEST_CODE = 997;
-        
+
     public enum RefreshDoneNotification {
         TOAST, DIALOG
     }
-
 
     private Menu menu;
 
@@ -172,58 +168,56 @@ public class MainActivity extends FragmentActivity
 
     private void startSettingsActivityIfNoDeviceIdSet() {
 
-            if (DependencyAssistant
-                    .getDependencyAssistant()
-                    .getGpodderSettings(this)
-                    .getDeviceId() != null
-            ) {
-                return;
-            }
+        if (DependencyAssistant
+                .getDependencyAssistant()
+                .getGpodderSettings(this)
+                .getDeviceId() != null) {
+            return;
+        }
 
-            final AlertDialog.Builder b = new AlertDialog.Builder(this);
-            b.setTitle(R.string.detlef_says_hello);
-            b.setMessage(R.string.detlef_is_not_set_up_yet);
+        final AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle(R.string.detlef_says_hello);
+        b.setMessage(R.string.detlef_is_not_set_up_yet);
 
+        b.setPositiveButton(
+                android.R.string.yes, new OnClickListener() {
 
-            b.setPositiveButton(
-                    android.R.string.yes, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            startActivityForResult(
+                        startActivityForResult(
                                 new Intent(
-                                    getApplicationContext(),
-                                    SettingsActivity.class
+                                        getApplicationContext(),
+                                        SettingsActivity.class
                                 )
-                                .putExtra(
-                                    PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-                                    SettingsGpodderNet.class.getName()
-                                )
-                                .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
-                                .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
+                                        .putExtra(
+                                                PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+                                                SettingsGpodderNet.class.getName()
+                                        )
+                                        .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
+                                        .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
                                 0
-                            );
+                        );
 
-                        }
-                    });
-            b.setNegativeButton(
-                    android.R.string.no,
-                    new OnClickListener() {
+                    }
+                });
+        b.setNegativeButton(
+                android.R.string.no,
+                new OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(
                                 getApplicationContext(),
                                 getString(R.string.you_can_setup_your_account_later),
                                 Toast.LENGTH_LONG
-                            ).show();
+                                ).show();
 
-                        }
                     }
+                }
                 );
 
-            b.show();
+        b.show();
 
     }
 
@@ -323,17 +317,18 @@ public class MainActivity extends FragmentActivity
     private static final String KEY_SUBSCRIPTION_CHANGES = "KEY_SUBSCRIPTION_CHANGES";
 
     /**
-     * if {@link #onActivityResult(int, int, Intent)} is called with an {@link Intent}
-     * that has a boolean extra with this key, then the podcast list will
-     * be refreshed. This is used during set up mode when the list should be refreshed
-     * automatically after the user entered his user credentials.
+     * if {@link #onActivityResult(int, int, Intent)} is called with an
+     * {@link Intent} that has a boolean extra with this key, then the podcast
+     * list will be refreshed. This is used during set up mode when the list
+     * should be refreshed automatically after the user entered his user
+     * credentials.
      */
     public static final String EXTRA_REFRESH_FEED_LIST = "REFRESH_FEED_LIST";
-    
+
     /**
-     * if {@link #onActivityResult(int, int, Intent)} is called with an {@link Intent}
-     * that has a boolean extra with this key, then the podcast list will
-     * be refreshed. This is used after adding new podcasts.
+     * if {@link #onActivityResult(int, int, Intent)} is called with an
+     * {@link Intent} that has a boolean extra with this key, then the podcast
+     * list will be refreshed. This is used after adding new podcasts.
      */
     public static final String PODCAST_ADD_REFRESH_FEED_LIST = "PODCAST_ADD_REFRESH_FEED_LIST";
 
@@ -363,22 +358,20 @@ public class MainActivity extends FragmentActivity
 
             synchronized (getRcv().numPodSync) {
 
-
                 for (Podcast p : pDao.getNonDeletedPodcasts()) {
 
-                    FeedSyncResultHandler<? extends Activity> handler = 
-                           (FeedSyncResultHandler<? extends Activity>) cbCont.get(KEY_FEED_HANDLER);
+                    FeedSyncResultHandler<? extends Activity> handler =
+                            (FeedSyncResultHandler<? extends Activity>) cbCont
+                                    .get(KEY_FEED_HANDLER);
                     handler.setBundle(getBundle());
                     refreshBg.execute(new PullFeedAsyncTask(handler, p));
                     getRcv().numPodSync.incrementAndGet();
                 }
-                
 
                 if (getRcv().numPodSync.get() == 0) {
 
-
                     if (showDialog) {
-                        getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished), 
+                        getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished),
                                 RefreshDoneNotification.DIALOG);
                     } else {
                         getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
@@ -397,8 +390,8 @@ public class MainActivity extends FragmentActivity
     };
 
     private static class SubscriptionUpdateHandler
-    extends ReliableResultHandler<MainActivity>
-    implements PushSubscriptionChangesResultHandler<MainActivity> {
+            extends ReliableResultHandler<MainActivity>
+            implements PushSubscriptionChangesResultHandler<MainActivity> {
 
         @Override
         public void handleFailure(int errCode, final String errStr) {
@@ -424,10 +417,10 @@ public class MainActivity extends FragmentActivity
                     KEY_SUBSCRIPTION_CHANGES);
 
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant()
-            .applySubscriptionChanges(getRcv(), changes);
+                    .applySubscriptionChanges(getRcv(), changes);
 
             DependencyAssistant.getDependencyAssistant().getGpodderSettings(getRcv())
-            .setLastUpdate(timestamp);
+                    .setLastUpdate(timestamp);
 
             refreshBg.execute(new PullSubscriptionsAsyncTask(handler));
             getRcv().startService(new Intent().setClass(getRcv(),
@@ -466,13 +459,12 @@ public class MainActivity extends FragmentActivity
 
                     if (getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false)) {
                         getRcv().onRefreshDone(
-                            getRcv().getString(R.string.setup_finished),
-                            RefreshDoneNotification.DIALOG
-                        );
+                                getRcv().getString(R.string.setup_finished),
+                                RefreshDoneNotification.DIALOG
+                                );
                     } else {
                         getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
                     }
-
 
                 }
 
@@ -492,7 +484,9 @@ public class MainActivity extends FragmentActivity
     /**
      * Called when the refresh button is pressed. Displays a progress dialog and
      * starts the {@link PullSubscriptionsAsyncTask}.
-     * @param pBundle The {@link Bundle} that is passed to the {@link PodcastSyncResultHandler}.
+     *
+     * @param pBundle The {@link Bundle} that is passed to the
+     *            {@link PodcastSyncResultHandler}.
      */
     private void onRefreshPressed(Bundle pBundle) {
 
@@ -749,14 +743,14 @@ public class MainActivity extends FragmentActivity
             Intent data) {
 
         Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
-        
+
         if (data == null) {
             return;
         }
 
-        if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false) 
+        if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)
                 || data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
-    
+
             if (resultCode == Activity.RESULT_OK) {
                 Bundle bundle = new Bundle();
                 if (data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
@@ -768,13 +762,12 @@ public class MainActivity extends FragmentActivity
             } else {
                 if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
                     Toast.makeText(
-                        this, getString(R.string.you_can_refresh_your_podcasts_later),
-                        Toast.LENGTH_LONG
-                    ).show();
+                            this, getString(R.string.you_can_refresh_your_podcasts_later),
+                            Toast.LENGTH_LONG
+                            ).show();
                 }
             }
         }
-
 
     }
 
