@@ -102,4 +102,8 @@
     <string name="device_registered_with_id">Device registered with id %1$s.</string>
     <string name="verify_settings_first">Verify settings first!</string>
     <string name="no_podcasts">No podcasts, press \'Add New Podcast\' to get started!</string>
+    <string name="logo">logo</string>
+    <string name="previous">Previous</string>
+    <string name="play_pause">Play/Pause</string>
+    <string name="next">Next</string>
 </resources>
