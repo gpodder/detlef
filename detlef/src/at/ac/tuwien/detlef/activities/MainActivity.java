@@ -68,6 +68,7 @@ import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
+import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class MainActivity extends FragmentActivity
@@ -121,6 +122,8 @@ public class MainActivity extends FragmentActivity
             cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
             cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
         }
+
+        MediaPlayerNotification.create(this);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.

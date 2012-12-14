@@ -48,6 +48,11 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         MediaPlayer.OnCompletionListener, PlaylistDAO.OnPlaylistChangeListener,
         EpisodeDAO.OnEpisodeChangeListener {
 
+    public static final String EXTRA_MEDIA_CONTROL = "EXTRA_MEDIA_CONTROL";
+    public static final int EXTRA_PREVIOUS = 0;
+    public static final int EXTRA_PLAY_PAUSE = 1;
+    public static final int EXTRA_NEXT = 2;
+
     private PlaylistDAO playlistDAO;
     private EpisodeDAO episodeDAO;
     private ArrayList<Episode> playlistItems;

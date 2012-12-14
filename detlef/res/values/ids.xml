@@ -4,4 +4,5 @@
     <item type="id" name="settings" />
     <item type="id" name="playlist" />
     <item type="id" name="storage_settings" />
+    <item name="notification" type="id"/>
 </resources>
