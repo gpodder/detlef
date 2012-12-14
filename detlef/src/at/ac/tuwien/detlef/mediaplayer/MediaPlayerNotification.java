@@ -66,8 +66,13 @@ public class MediaPlayerNotification {
     private static PendingIntent getPendingIntent(Context context, int extra) {
         Intent intent = new Intent(context, MediaPlayerService.class);
         intent.putExtra(MediaPlayerService.EXTRA_MEDIA_CONTROL, extra);
+        intent.setAction(Integer.toString(extra));
 
-        /* Without FLAG_UPDATE_CURRENT, extras are not sent. */
+        /*
+         * Without FLAG_UPDATE_CURRENT, extras are not sent. Additionally,
+         * setAction() is required to make filterEquals() return false;
+         * otherwise the same extra is delivered on each intent.
+         */
 
         return PendingIntent.getService(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
