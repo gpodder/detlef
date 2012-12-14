@@ -173,14 +173,14 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         mediaPlayerPrepared = false;
         mp.reset();
         haveRunningEpisode = false;
-        currentlyPlaying = false;
+        setCurrentlyPlaying(false);
         return true;
     }
 
     @Override
     public void onPrepared(MediaPlayer player) {
         haveRunningEpisode = true;
-        currentlyPlaying = true;
+        setCurrentlyPlaying(true);
         mediaPlayerPrepared = true;
         if (activeEpisode != null) {
             int playPosition = activeEpisode.getPlayPosition();
@@ -196,7 +196,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     public void onCompletion(MediaPlayer mp) {
         updateEpisodeCompleted();
         haveRunningEpisode = false;
-        currentlyPlaying = false;
+        setCurrentlyPlaying(false);
         if (manual) {
             manual = false;
             manualEpisode = null;
@@ -295,7 +295,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     public IMediaPlayerService pausePlaying() {
         mediaPlayer.pause();
         updateEpisodePlayState();
-        currentlyPlaying = false;
+        setCurrentlyPlaying(false);
         return this;
     }
 
@@ -393,7 +393,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     @Override
     public IMediaPlayerService startPlaying() {
         if (haveRunningEpisode && (nextEpisode == activeEpisode)) {
-            currentlyPlaying = true;
+            setCurrentlyPlaying(true);
             mediaPlayer.start();
         } else {
             activeEpisode = getNextEpisode();
@@ -401,7 +401,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
                 prepareEpisodePlayback();
             } else {
                 haveRunningEpisode = false;
-                currentlyPlaying = false;
+                setCurrentlyPlaying(false);
                 mediaPlayerPrepared = false;
                 mediaPlayer.reset();
             }
@@ -411,7 +411,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
     private MediaPlayerService prepareEpisodePlayback() {
         haveRunningEpisode = true;
-        currentlyPlaying = true;
+        setCurrentlyPlaying(true);
         mediaPlayerPrepared = false;
         mediaPlayer.reset();
         try {
@@ -550,6 +550,10 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             activeEpisode.setPlayPosition(mediaPlayer.getCurrentPosition());
             episodeDAO.updatePlayPosition(activeEpisode);
         }
+    }
+
+    private void setCurrentlyPlaying(boolean currentlyPlaying) {
+        this.currentlyPlaying = currentlyPlaying;
     }
 
 }
