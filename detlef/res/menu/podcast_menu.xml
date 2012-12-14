@@ -11,7 +11,12 @@
         android:showAsAction="ifRoom"
         android:title="@string/playlist">
     </item>
-    <item android:id="@+id/add_new_podcast" android:showAsAction="ifRoom" android:title="@string/add_new_podcast"></item><item
+    <item
+        android:id="@+id/add_new_podcast"
+        android:showAsAction="ifRoom"
+        android:title="@string/add_new_podcast">
+    </item>
+    <item
         android:id="@+id/add_new_to_playlist"
         android:showAsAction="ifRoom"
         android:title="Add new to playlist"
