@@ -119,7 +119,7 @@ public class MainActivity extends FragmentActivity
             cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
         }
 
-        MediaPlayerNotification.create(this);
+        MediaPlayerNotification.create(this, false);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.

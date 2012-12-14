@@ -20,8 +20,19 @@ public class MediaPlayerNotification {
     /**
      * Creates and posts the notification layout containing a mini player.
      */
-    public static void create(Context context) {
+    public static void create(Context context, boolean playing) {
 
+        Notification notification = createNotification(context);
+
+        int img = (playing ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
+        notification.contentView.setImageViewResource(R.id.play, img);
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(R.id.notification, notification);
+    }
+
+    private static Notification createNotification(Context context) {
         /*
          * Begin by creating the intents to be sent when clicking notification
          * buttons. Clicking on the logo returns to the activity, and clicking
@@ -57,10 +68,7 @@ public class MediaPlayerNotification {
 
         Notification notification = builder.build();
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
-
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(R.id.notification, notification);
+        return notification;
     }
 
     private static PendingIntent getPendingIntent(Context context, int extra) {
