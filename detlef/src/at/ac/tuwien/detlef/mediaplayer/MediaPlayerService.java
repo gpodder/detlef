@@ -554,6 +554,9 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
     private void setCurrentlyPlaying(boolean currentlyPlaying) {
         this.currentlyPlaying = currentlyPlaying;
+
+        /* Update the notification. */
+        MediaPlayerNotification.create(this, currentlyPlaying);
     }
 
 }
