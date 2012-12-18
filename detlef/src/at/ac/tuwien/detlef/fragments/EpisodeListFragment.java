@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -45,6 +45,9 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
+/**
+ * The {@link Fragment} that displays a list of {@link Episode Episodes}.
+ */
 public class EpisodeListFragment extends ListFragment
         implements EpisodeDAO.OnEpisodeChangeListener {
 
@@ -85,6 +88,8 @@ public class EpisodeListFragment extends ListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.d(TAG, "onCreate()");
+
         EpisodeDAOImpl dao = EpisodeDAOImpl.i();
         dao.addEpisodeChangedListener(this);
 
@@ -105,6 +110,7 @@ public class EpisodeListFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+
         return inflater.inflate(R.layout.episode_fragment_layout, container,
                 false);
     }
@@ -330,5 +336,11 @@ public class EpisodeListFragment extends ListFragment
             default:
         }
         updateEpisodeList();
+    }
+
+    public void setKeyword(String newText) {
+        adapter.setKeyword(newText);
+        adapter.notifyDataSetChanged();
+
     }
 }

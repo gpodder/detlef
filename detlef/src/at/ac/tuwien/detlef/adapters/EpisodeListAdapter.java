@@ -17,6 +17,7 @@
 
 package at.ac.tuwien.detlef.adapters;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -41,15 +42,41 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
     private final List<Episode> episodes;
 
+    private List<Episode> episodesFull;
+
+    private String keyword = null;
+
     public EpisodeListAdapter(Context context, int textViewResourceId,
             List<Episode> episodes) {
         super(context, textViewResourceId, episodes);
         this.episodes = episodes;
+        episodesFull = new ArrayList<Episode>(episodes);
+    }
+
+    public EpisodeListAdapter setKeyword(String pKeyword) {
+        keyword = pKeyword.toLowerCase();
+
+        if (keyword == null) {
+            return this;
+        }
+       
+        episodes.clear();
+
+        for (Episode episode : episodesFull) {
+            Log.d(TAG, "keyword filter active");
+            if (episode.getTitle().toLowerCase().contains(keyword)) {
+                episodes.add(episode);
+            }
+        }
+
+        return this;
+
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
+
         Episode episode = episodes.get(position);
 
         if (v == null) {
@@ -57,6 +84,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.episode_list_layout, null);
         }
+        Log.d(TAG, "getView()");
 
         v.setTag(episode);
 

@@ -96,7 +96,6 @@
     <string name="register_device_summary">Register your device at gpodder.net</string>
     <string name="warning">Warning</string>
     <string name="you_are_changing_verified_username">You are changing the account settings of an account that already has been verified. If you change your settings you have to re-verify and syncronize your new settings afterwards.</string>
-
     <string name="account_is_verified">Account is verified.</string>
     <string name="enter_username_password_first">Enter username/password first!</string>
     <string name="device_registered_with_id">Device registered with id %1$s.</string>
@@ -117,4 +116,6 @@
     <string name="sort_Descending">Descending</string>
     <string name="no_gpodder_account_configured">No GPodder account configured.</string>
     <string name="syncing_episode_actions">Synchronizing episode actions.</string>
+</resources>
+    <string name="search_hint">Search Episodes</string>
 </resources>

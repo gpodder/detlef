@@ -29,6 +29,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -44,9 +46,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.activities.callbacks.EpisodeSearchQueryTextListener;
 import at.ac.tuwien.detlef.callbacks.CallbackContainer;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
@@ -79,7 +83,7 @@ public class MainActivity extends FragmentActivity
         EpisodeListFragment.OnEpisodeSelectedListener,
         EpisodeListSortDialogFragment.NoticeDialogListener {
 
-    private static final String TAG = MainActivity.class.getName();
+    private static final String TAG = MainActivity.class.getCanonicalName();
     private static final int PODCAST_ADD_REQUEST_CODE = 997;
 
     public enum RefreshDoneNotification {
@@ -112,6 +116,13 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
 
         startSettingsActivityIfNoDeviceIdSet();
+
+        Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            Log.d(TAG, "ACTION_SEARCH");
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Log.d(TAG, "Serach Query is: " + query);
+        }
 
         setContentView(R.layout.main_activity_layout);
 
@@ -611,8 +622,16 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        this.menu = menu;
+    public boolean onCreateOptionsMenu(Menu pMenu) {
+
+        Log.d(TAG, "onCreateOptionsMenu(" + pMenu + ")");
+        Log.d(TAG, "currentItem: " + mViewPager.getCurrentItem());
+
+        menu = pMenu;
+
+        // TODO: AFAIK onCreateOptionsMenu is called only once and
+        // mViewPager is always 0 upon creation, thus this switch probably
+        // is useless. Check and remove.
         switch (mViewPager.getCurrentItem()) {
             case SectionsPagerAdapter.POSITION_PODCASTS:
                 getMenuInflater().inflate(R.menu.podcast_menu, menu);
@@ -646,15 +665,32 @@ public class MainActivity extends FragmentActivity
                     break;
                 case 1:
                     getMenuInflater().inflate(R.menu.episode_menu, menu);
+                    setSearchManager();
                     break;
                 case 2:
                     getMenuInflater().inflate(R.menu.player_menu, menu);
                     break;
                 default:
-                    System.out.println("Non-existent tab selected! Please fix");
+                    Log.wtf(TAG, "Non-existent tab selected! Please fix");
             }
         }
         mViewPager.setCurrentItem(tab.getPosition());
+    }
+
+    /**
+     * Get the SearchView and set the searchable configuration for the episode
+     * keyword filter.
+     */
+    private void setSearchManager() {
+        if (menu.findItem(R.id.menu_search) == null) {
+            return;
+        }
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false);
+        searchView.setOnQueryTextListener(new EpisodeSearchQueryTextListener(
+                getEpisodeListFragment()));
     }
 
     @Override
