@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.db;
 
 import android.content.Context;
@@ -32,7 +30,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 10;
+    static final int VERSION = 11;
 
     static final Object BIG_FRIGGIN_LOCK = new Object();
 
@@ -67,26 +65,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_EPISODE_PLAYPOSITION = "playposition";
     public static final String COLUMN_EPISODE_ACTIONSTATE = "actionState";
 
+    /* Episode Action table. */
+    public static final String TABLE_EPISODE_ACTION = "Episode_actions";
+    public static final String COLUMN_EPISODE_ACTION_ID = "_ID";
+    public static final String COLUMN_EPISODE_ACTION_PODCAST = "podcast";
+    public static final String COLUMN_EPISODE_ACTION_EPISODE_ID = "episode";
+    public static final String COLUMN_EPISODE_ACTION_ACTION = "action";
+    public static final String COLUMN_EPISODE_ACTION_TIMESTAMP = "timestamp";
+
+    /* Episode Play Action table. */
+    public static final String TABLE_EPISODE_PLAY_ACTION = "Episode_play_actions";
+    public static final String COLUMN_EPISODE_PLAY_ACTION_ID = "action_id";
+    public static final String COLUMN_EPISODE_PLAY_ACTION_STARTED = "started";
+    public static final String COLUMN_EPISODE_PLAY_ACTION_POSITION = "position";
+    public static final String COLUMN_EPISODE_PLAY_ACTION_TOTAL = "total";
+
     /* Playlist table. */
     public static final String TABLE_PLAYLIST = "Playlist";
     public static final String COLUMN_PLAYLIST_ID = "_ID";
     public static final String COLUMN_PLAYLIST_EPISODE = "episode";
     public static final String COLUMN_PLAYLIST_POSITION = "position";
 
-    /* Locally deleted Podcasts
-     * These are still on the gpodder service but have been removed locally.
+    /*
+     * Locally deleted Podcasts These are still on the gpodder service but have
+     * been removed locally.
      */
     public static final String TABLE_PODCAST_LOCAL_DEL = "Podcast_local_del";
     public static final String COLUMN_PODCAST_DEL_ID = "_ID";
 
-    /* Locally added Podcasts
-     * These have been added locally but have not yet been synchronized to the gpodder service.
+    /*
+     * Locally added Podcasts These have been added locally but have not yet
+     * been synchronized to the gpodder service.
      */
     public static final String TABLE_PODCAST_LOCAL_ADD = "Podcast_local_add";
     public static final String COLUMN_PODCAST_ADD_ID = "_ID";
 
     public static final String EPISODE_RELEASED_INDEX = "Episode_Released_Index";
-    
+
     /* Create statement for the podcast table. */
     static final String CREATE_PODCAST_TABLE =
             String.format("create table %s ("
@@ -96,7 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "%s text, "
                     + "%s text, "
                     + "%s integer, "
-                    + "%s text," 
+                    + "%s text,"
                     + "%s integer);",
                     TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,
                     COLUMN_PODCAST_DESCRIPTION, COLUMN_PODCAST_LOGO_URL,
@@ -119,15 +134,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "%s text, " // filepath
                     + "%s text, " // state
                     + "%s integer not null, " // podcast
-                    + "%s integer, "            // playposition
-                    + "%s string, "             // action state
+                    + "%s integer, " // playposition
+                    + "%s string, " // action state
                     + "foreign key (%s) references %s (%s) on delete cascade);",
                     TABLE_EPISODE, COLUMN_EPISODE_ID, COLUMN_EPISODE_GUID, COLUMN_EPISODE_TITLE,
                     COLUMN_EPISODE_DESCRIPTION, COLUMN_EPISODE_RELEASED, COLUMN_EPISODE_LINK,
                     COLUMN_EPISODE_AUTHOR, COLUMN_EPISODE_URL, COLUMN_EPISODE_MIMETYPE,
                     COLUMN_EPISODE_FILESIZE, COLUMN_EPISODE_FILEPATH, COLUMN_EPISODE_STATE,
-                    COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION, COLUMN_EPISODE_ACTIONSTATE,
+                    COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION,
+                    COLUMN_EPISODE_ACTIONSTATE,
                     COLUMN_EPISODE_PODCAST, TABLE_PODCAST, COLUMN_PODCAST_ID);
+
+    /* Create statement for the episode action table. */
+    static final String CREATE_EPISODE_ACTION_TABLE =
+            String.format("create table %s ("
+                    + "%s integer primary key autoincrement, "
+                    + "%s integer, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "%s text, "
+                    + "foreign key (%s) references %s (%s) on delete cascade);",
+                    TABLE_EPISODE_ACTION, COLUMN_EPISODE_ACTION_ID, COLUMN_EPISODE_ACTION_PODCAST,
+                    COLUMN_EPISODE_ACTION_EPISODE_ID, COLUMN_EPISODE_ACTION_ACTION,
+                    COLUMN_EPISODE_ACTION_TIMESTAMP, COLUMN_EPISODE_ACTION_PODCAST,
+                    TABLE_PODCAST, COLUMN_PODCAST_ID);
+
+    /* Create statement for the episode play action table. */
+    static final String CREATE_EPISODE_PLAY_ACTION_TABLE =
+            String.format("create table %s ("
+                    + "%s integer primary key autoincrement, "
+                    + "%s integer, "
+                    + "%s integer, "
+                    + "%s integer, "
+                    + "foreign key (%s) references %s (%s) on delete cascade);",
+                    TABLE_EPISODE_PLAY_ACTION, COLUMN_EPISODE_PLAY_ACTION_ID,
+                    COLUMN_EPISODE_PLAY_ACTION_STARTED, COLUMN_EPISODE_PLAY_ACTION_POSITION,
+                    COLUMN_EPISODE_PLAY_ACTION_TOTAL,
+                    COLUMN_EPISODE_PLAY_ACTION_ID, TABLE_EPISODE_ACTION, COLUMN_EPISODE_ACTION_ID);
 
     /* Create statement for the playlist table. */
     static final String CREATE_PLAYLIST_TABLE =
@@ -160,8 +203,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     static final String CREATE_EPISODE_RELEASED_INDEX =
             String.format("create index %s ON %s "
                     + "( %s DESC );",
-                    EPISODE_RELEASED_INDEX, TABLE_EPISODE, COLUMN_EPISODE_RELEASED); 
-    
+                    EPISODE_RELEASED_INDEX, TABLE_EPISODE, COLUMN_EPISODE_RELEASED);
+
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
     }
@@ -170,6 +213,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_PODCAST_TABLE);
         db.execSQL(CREATE_EPISODE_TABLE);
+        db.execSQL(CREATE_EPISODE_ACTION_TABLE);
+        db.execSQL(CREATE_EPISODE_PLAY_ACTION_TABLE);
         Log.d(getClass().getName(), "Creating playlist table");
         db.execSQL(CREATE_PLAYLIST_TABLE);
         db.execSQL(CREATE_PODCAST_LOCAL_DEL_TABLE);
@@ -194,12 +239,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_DEL);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_ADD);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE_PLAY_ACTION);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE_ACTION);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
-        
-        GpodderSettings settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(Detlef.getAppContext());
+
+        GpodderSettings settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(
+                Detlef.getAppContext());
         settings.setLastUpdate(0);
-        DependencyAssistant.getDependencyAssistant().getGpodderSettingsDAO(Detlef.getAppContext()).writeSettings(settings);
+        DependencyAssistant.getDependencyAssistant().getGpodderSettingsDAO(Detlef.getAppContext())
+                .writeSettings(settings);
         onCreate(db);
     }
 }
