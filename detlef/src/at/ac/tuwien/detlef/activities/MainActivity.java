@@ -34,6 +34,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -53,8 +54,10 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
+import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
@@ -71,7 +74,8 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class MainActivity extends FragmentActivity
         implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
-        EpisodeListFragment.OnEpisodeSelectedListener {
+        EpisodeListFragment.OnEpisodeSelectedListener,
+        EpisodeListSortDialogFragment.NoticeDialogListener {
 
     private static final String TAG = MainActivity.class.getName();
     private static final int PODCAST_ADD_REQUEST_CODE = 997;
@@ -484,7 +488,7 @@ public class MainActivity extends FragmentActivity
     /**
      * Called when the refresh button is pressed. Displays a progress dialog and
      * starts the {@link PullSubscriptionsAsyncTask}.
-     *
+     * 
      * @param pBundle The {@link Bundle} that is passed to the
      *            {@link PodcastSyncResultHandler}.
      */
@@ -691,6 +695,9 @@ public class MainActivity extends FragmentActivity
                 intent = new Intent(this, AddPodcastActivity.class);
                 startActivityForResult(intent, PODCAST_ADD_REQUEST_CODE);
                 break;
+            case R.id.sort:
+                android.support.v4.app.DialogFragment dialog = new EpisodeListSortDialogFragment();
+                dialog.show(getSupportFragmentManager(), "EpisodeListSortDialogFragment");
             default:
                 break;
         }
@@ -737,7 +744,7 @@ public class MainActivity extends FragmentActivity
     public void onAddToPlaylistClick(View v) {
         playlistDAO.addEpisodeToEndOfPlaylist((Episode) v.getTag());
     }
-    
+
     public void onMarkReadUnreadClick(View v) {
         getEpisodeListFragment().onMarkReadUnreadClick(v);
     }
@@ -773,6 +780,18 @@ public class MainActivity extends FragmentActivity
             }
         }
 
+    }
+
+    @Override
+    public void onEpisodeSortDialogPositiveClick(DialogFragment dialog, boolean ascending,
+            EpisodeSortChoice choice) {
+        Log.i(TAG, String.format("sortby: %s orderby: %s ", choice.toString(), ascending));
+        this.getEpisodeListFragment().sortEpisodeList(choice, ascending);
+    }
+
+    @Override
+    public void onEpisodeSortDialogNegativeClick(DialogFragment dialog) {
+        // Nothing todo yet
     }
 
 }

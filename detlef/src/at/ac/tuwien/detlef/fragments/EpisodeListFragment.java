@@ -19,6 +19,7 @@ package at.ac.tuwien.detlef.fragments;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import android.app.Activity;
@@ -36,11 +37,10 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
-import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
+import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.util.GUIUtils;
@@ -295,5 +295,40 @@ public class EpisodeListFragment extends ListFragment
         DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
                 .toggleEpisodeReadState(episode);
         adapter.notifyDataSetChanged();
+    }
+
+    public void sortEpisodeList(EpisodeSortChoice choice, final boolean ascending) {
+        switch (choice) {
+            case Podcast:
+                adapter.sort(new Comparator<Episode>() {
+                    @Override
+                    public int compare(Episode e1, Episode e2) {
+                        if (ascending) {
+                            return Long.valueOf(e1.getPodcast().getId()).compareTo(
+                                    Long.valueOf(e2.getPodcast().getId()));
+                        } else {
+                            return Long.valueOf(e2.getPodcast().getId()).compareTo(
+                                    Long.valueOf(e1.getPodcast().getId()));
+                        }
+                    }
+                });
+                break;
+            case ReleaseDate:
+                adapter.sort(new Comparator<Episode>() {
+                    @Override
+                    public int compare(Episode e1, Episode e2) {
+                        if (ascending) {
+                            return Long.valueOf(e1.getReleased()).compareTo(
+                                    Long.valueOf(e2.getReleased()));
+                        } else {
+                            return Long.valueOf(e2.getReleased()).compareTo(
+                                    Long.valueOf(e1.getReleased()));
+                        }
+                    }
+                });
+                break;
+            default:
+        }
+        updateEpisodeList();
     }
 }

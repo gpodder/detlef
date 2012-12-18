@@ -4,5 +4,9 @@
     <item type="id" name="settings" />
     <item type="id" name="playlist" />
     <item type="id" name="storage_settings" />
+    <item type="id" name="rbDescending" />
+    <item type="id" name="rbAscending" />
+    <item type="id" name="rbReleaseDate" />
+    <item type="id" name="rbPodcast" />
     <item name="notification" type="id"/>
 </resources>

@@ -106,4 +106,13 @@
     <string name="previous">Previous</string>
     <string name="play_pause">Play/Pause</string>
     <string name="next">Next</string>
+    <string name="sort_options">Sort Options</string>
+    <string name="button_ok">OK</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="sort_by">sort by:</string>
+    <string name="sort_order">order:</string>
+    <string name="sort_ReleaseDate">Release Date</string>
+    <string name="sort_Podcast">Podcast</string>
+    <string name="sort_Ascending">Ascending</string>
+    <string name="sort_Descending">Descending</string>
 </resources>

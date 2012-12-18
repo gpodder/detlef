@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sort_by" 
+        android:textSize="16sp"
+        android:textStyle="bold" />
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <RadioButton
+            android:id="@id/rbReleaseDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/sort_ReleaseDate" />
+        <RadioButton
+            android:id="@id/rbPodcast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_Podcast" />
+    </RadioGroup>
+    <TextView
+        android:id="@+id/line2"
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:paddingTop="5dip"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sort_order" 
+        android:textSize="16sp"
+        android:textStyle="bold" />
+    <RadioGroup
+        android:id="@+id/radio_group2"
+         android:layout_width="fill_parent"
+         android:orientation="horizontal"
+        android:layout_height="fill_parent">
+        <RadioButton
+            android:id="@id/rbAscending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:text="@string/sort_Ascending" />
+        <RadioButton
+            android:id="@id/rbDescending"
+            android:layout_width="wrap_content"
+            android:checked="true"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_Descending" />
+    </RadioGroup>
+</LinearLayout>
