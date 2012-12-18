@@ -30,7 +30,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 11;
+    static final int VERSION = 12;
 
     static final Object BIG_FRIGGIN_LOCK = new Object();
 
@@ -152,7 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "%s integer, "
                     + "%s text, "
                     + "%s text, "
-                    + "%s text, "
+                    + "%s text default (datetime('now')), "
                     + "foreign key (%s) references %s (%s) on delete cascade);",
                     TABLE_EPISODE_ACTION, COLUMN_EPISODE_ACTION_ID, COLUMN_EPISODE_ACTION_PODCAST,
                     COLUMN_EPISODE_ACTION_EPISODE_ID, COLUMN_EPISODE_ACTION_ACTION,
@@ -162,7 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /* Create statement for the episode play action table. */
     static final String CREATE_EPISODE_PLAY_ACTION_TABLE =
             String.format("create table %s ("
-                    + "%s integer primary key autoincrement, "
+                    + "%s integer primary key, "
                     + "%s integer, "
                     + "%s integer, "
                     + "%s integer, "
