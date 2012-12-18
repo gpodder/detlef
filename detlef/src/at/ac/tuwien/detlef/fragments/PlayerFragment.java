@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.fragments;
 
 import java.util.concurrent.TimeUnit;
@@ -77,7 +75,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     /**
      * Handles the connection to the MediaPlayerService that plays music.
      */
-    private ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder iBinder) {
             bound = true;
@@ -119,6 +117,9 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             @Override
             public void onStopTrackingTouch(SeekBar seekBar1) {
                 service.seekTo(seekBar1.getProgress());
+                if (activeEpisode != null) {
+                    activeEpisode.setPlayPosition(seekBar1.getProgress());
+                }
                 trackingTouch = false;
             }
 
@@ -252,8 +253,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         return this;
     }
 
-    // TODO @Joshi set time once even when not playing (?), if it's possible
-
     private void updateControls() {
         if ((service.getNextEpisode() != null) && (service.getNextEpisode() != activeEpisode)) {
             setActiveEpisode(service.getNextEpisode());
@@ -262,19 +261,18 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_pause);
             setPlayingSeekBarAndTime();
-            Runnable notification = new Runnable() {
-                @Override
-                public void run() {
-                    startPlayProgressUpdater();
-                }
-            };
-            playProgressUpdateHandler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
         } else {
             buttonPlayStop
                     .setImageResource(android.R.drawable.ic_media_play);
             setNotPlayingSeekBarAndTime(activeEpisode);
-            progressUpdaterRunning = false;
         }
+        Runnable notification = new Runnable() {
+            @Override
+            public void run() {
+                startPlayProgressUpdater();
+            }
+        };
+        playProgressUpdateHandler.postDelayed(notification, PROGRESS_BAR_UPDATE_INTERVAL);
     }
 
     public PlayerFragment startPlaying() {
@@ -286,7 +284,6 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             service.setNextEpisode(activeEpisode);
             service.startPlaying();
             buttonPlayStop.setImageResource(android.R.drawable.ic_media_pause);
-            startPlayProgressUpdater();
         }
         return this;
     }
@@ -362,9 +359,8 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 R.id.playerEpisodeDescription);
         TextView podcast = (TextView) getView().findViewById(R.id.playerPodcast);
         TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
-        
+
         podcastIcon = (ImageView) getView().findViewById(R.id.imageView1);
-        
 
         if ((ep == null) && (service != null)) {
             ep = service.getNextEpisode();
@@ -393,6 +389,9 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return;
         }
+        if (trackingTouch) {
+            return;
+        }
         try {
             if (service.episodeFileOK(ep)) {
                 MediaMetadataRetriever metaData = new MediaMetadataRetriever();
@@ -402,7 +401,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 int duration = Integer.parseInt(durationString);
                 int playingPosition = ep.getPlayPosition();
                 int pos = 0;
-                if ((playingPosition) > 0 && (playingPosition < duration)) {
+                if (((playingPosition) > 0) && (playingPosition < duration)) {
                     pos = playingPosition;
                 }
                 String minutesSecondsRemaining = getRemainingTime(duration, pos);

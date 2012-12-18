@@ -349,6 +349,9 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         if (mediaPlayerPrepared) {
             int seekTo = Math.max(Math.min(progress, getDuration()), 0);
             mediaPlayer.seekTo(seekTo);
+        } else if (getNextEpisode() != null) {
+            getNextEpisode().setPlayPosition(progress);
+            episodeDAO.updatePlayPosition(getNextEpisode());
         }
         return this;
     }
