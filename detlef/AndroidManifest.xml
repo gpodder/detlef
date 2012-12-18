@@ -10,6 +10,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name="at.ac.tuwien.detlef.Detlef"
@@ -19,7 +20,8 @@
         <activity
             android:name="at.ac.tuwien.detlef.activities.MainActivity"
             android:label="@string/app_name"
-            android:uiOptions="splitActionBarWhenNarrow" android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:uiOptions="splitActionBarWhenNarrow" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -55,7 +57,8 @@
         <activity
             android:name="at.ac.tuwien.detlef.activities.AddPodcastActivity"
             android:label="@string/title_activity_add_podcast"
-            android:parentActivityName="at.ac.tuwien.detlef.activities.MainActivity" android:windowSoftInputMode="stateHidden">
+            android:parentActivityName="at.ac.tuwien.detlef.activities.MainActivity"
+            android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="at.ac.tuwien.detlef.activities.MainActivity" />

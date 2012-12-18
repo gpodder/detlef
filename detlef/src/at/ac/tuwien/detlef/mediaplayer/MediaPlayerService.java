@@ -22,13 +22,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
@@ -59,6 +63,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     private ArrayList<Episode> playlistItems;
     private boolean manual = false;
     private Episode manualEpisode;
+    private TelephonyManager telManager;
 
     /**
      * Binder that allows local classes to communicate with the service.
@@ -85,6 +90,33 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     private Episode nextEpisode;
     private int currentPlaylistPosition = 0;
     private static boolean running = false;
+    private boolean wasPlayingBeforeCall = false;
+
+    private final PhoneStateListener phoneListener = new PhoneStateListener() {
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            switch (state) {
+                case TelephonyManager.CALL_STATE_RINGING:
+                    if (isCurrentlyPlaying()) {
+                        wasPlayingBeforeCall = true;
+                        pausePlaying();
+                    } else {
+                        wasPlayingBeforeCall = false;
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    break;
+                case TelephonyManager.CALL_STATE_IDLE:
+                    if (wasPlayingBeforeCall) {
+                        startPlaying();
+                        wasPlayingBeforeCall = false;
+                    }
+                    break;
+                default:
+                    Log.d(getClass().getName(), "Unknown call state: " + state);
+            }
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -97,6 +129,9 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         if ((nextEpisode == null) && !playlistItems.isEmpty()) {
             nextEpisode = playlistItems.get(0);
         }
+        telManager = (TelephonyManager) Detlef.getAppContext().getSystemService(
+                Context.TELEPHONY_SERVICE);
+        telManager.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
     /*
@@ -189,8 +224,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             if ((playPosition < mediaPlayer.getDuration()) && (playPosition > 0)) {
                 mediaPlayer.seekTo(playPosition);
             }
-            if (activeEpisode.getActionState() == ActionState.NEW
-                    || activeEpisode.getActionState() == ActionState.DOWNLOAD) {
+            if ((activeEpisode.getActionState() == ActionState.NEW)
+                    || (activeEpisode.getActionState() == ActionState.DOWNLOAD)) {
                 activeEpisode.setActionState(ActionState.PLAY);
                 episodeDAO.updateActionState(activeEpisode);
             }
@@ -247,7 +282,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     /**
      * Handles an incoming media control intent (which can be sent from a
      * notification).
-     *
+     * 
      * @param command The intent's EXTRA_MEDIA_CONTRL extra. One of
      *            EXTRA_PLAY_PAUSE, EXTRA_PREVIOUS, EXTRA_NEXT.
      */
