@@ -42,6 +42,8 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         result.setPassword(getSharedPreferences().getString(KEY_PASSWORD, ""));
         result.setDevicename(getSharedPreferences().getString("devicename", ""));
         result.setLastUpdate(getSharedPreferences().getLong("lastUpdate", 0));
+        result.setLastEpisodeActionUpdate(getSharedPreferences()
+                .getLong("lastEpisodeActionUpdate", 0));
         result.setApiHostname(
             getSharedPreferences().getString(KEY_API_ENDPOINT, DEFAULT_API_ENDPOINT)
         );
@@ -76,6 +78,7 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
             .putString(KEY_FEED_ENDPOINT, settings.getFeedHostname())
             .putBoolean(KEY_ACCOUNT_VERIFIED, settings.isAccountVerified())
             .putLong("lastUpdate", settings.getLastUpdate())
+            .putLong("lastEpisodeActionUpdate", settings.getLastEpisodeActionUpdate())
             .commit();
         return this;
 

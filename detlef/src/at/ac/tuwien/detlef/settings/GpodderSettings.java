@@ -34,15 +34,17 @@ public class GpodderSettings {
     private String devicename;
 
     private DeviceId deviceId;
-    
+
     private String apiHostname = "gpodder.net";
-    
+
     private String feedHostname = "feeds.gpodder.net";
-    
+
     private long lastUpdate;
 
+    private long lastEpisodeActionUpdate;
+
     private boolean accountVerified = false;
-    
+
     /**
      * @return The user name
      */
@@ -84,7 +86,7 @@ public class GpodderSettings {
         devicename = pDevicename;
         return this;
     }
-    
+
     /**
      * @return The {@link DeviceId} that belongs to this account. If the device id is not set
      *     or invalid this method <strong>must</strong> return <code>null</code>.
@@ -112,12 +114,24 @@ public class GpodderSettings {
         lastUpdate = timestamp;
         return this;
     }
-    
+
     public GpodderSettings setApiHostname(String pHostname) {
         apiHostname = pHostname;
         return this;
     }
-    
+
+    /**
+     * @return The timestamp of the last episode action sync.
+     */
+    public long getLastEpisodeActionUpdate() {
+        return lastEpisodeActionUpdate;
+    }
+
+    public GpodderSettings setLastEpisodeActionUpdate(long lastEpisodeActionUpdate) {
+        this.lastEpisodeActionUpdate = lastEpisodeActionUpdate;
+        return this;
+    }
+
     public String getApiHostname() {
         return apiHostname;
     }
@@ -125,11 +139,11 @@ public class GpodderSettings {
 
     /**
      * This is used to indicate whether the value of
-     * {@link GpodderSettings#getDevicename()} has been determined automatically 
-     * from the user name. If so, the device name gets updated if the user name 
+     * {@link GpodderSettings#getDevicename()} has been determined automatically
+     * from the user name. If so, the device name gets updated if the user name
      * is updated.
      *
-     * @return true, if the value from {@link GpodderSettings#getDevicename()} 
+     * @return true, if the value from {@link GpodderSettings#getDevicename()}
      *         is the default value, false otherwise.
      */
     public boolean isDefaultDevicename() {
