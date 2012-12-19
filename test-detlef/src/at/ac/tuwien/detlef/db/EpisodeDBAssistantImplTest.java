@@ -90,7 +90,7 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase{
         EpisodeActionChanges changes = new EpisodeActionChanges(aList, (long)44444);
         
         EpisodeDBAssistantImpl epassist = new EpisodeDBAssistantImpl();
-        epassist.applyActionChanges(this.mContext, p1, changes);
+        epassist.applyActionChanges(this.mContext, changes);
         
         List<at.ac.tuwien.detlef.domain.Episode> eps = edao.getEpisodes(p1);
         assertEquals(1,eps.size());
