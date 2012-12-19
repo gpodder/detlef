@@ -115,4 +115,5 @@
     <string name="sort_Podcast">Podcast</string>
     <string name="sort_Ascending">Ascending</string>
     <string name="sort_Descending">Descending</string>
+    <string name="no_gpodder_account_configured">No GPodder account configured.</string>
 </resources>
