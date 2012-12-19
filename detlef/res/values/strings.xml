@@ -116,4 +116,5 @@
     <string name="sort_Ascending">Ascending</string>
     <string name="sort_Descending">Descending</string>
     <string name="no_gpodder_account_configured">No GPodder account configured.</string>
+    <string name="syncing_episode_actions">Synchronizing episode actions.</string>
 </resources>

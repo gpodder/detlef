@@ -64,11 +64,13 @@ import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.gpodder.FeedSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.GPodderException;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
+import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
+import at.ac.tuwien.detlef.gpodder.SyncEpisodeActionsAsyncTask;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -121,6 +123,7 @@ public class MainActivity extends FragmentActivity
             cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
             cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
             cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
+            cbCont.put(KEY_EPISODE_ACTION_HANDLER, new EpisodeActionHandler());
         }
 
         MediaPlayerNotification.create(this, false);
@@ -281,9 +284,13 @@ public class MainActivity extends FragmentActivity
         progressDialog.setTitle(R.string.refreshing);
         progressDialog.setCancelable(false);
         if (numPodSync.get() > 0) {
-            progressDialog.setMessage(String.format(
-                    getString(R.string.refreshing_feed_x_of_y),
-                    curPodSync.get() + 1, numPodSync.get()));
+            if (numPodSync.get() == curPodSync.get()) {
+                progressDialog.setMessage(getString(R.string.syncing_episode_actions));
+            } else {
+                progressDialog.setMessage(String.format(
+                        getString(R.string.refreshing_feed_x_of_y),
+                        curPodSync.get() + 1, numPodSync.get()));
+            }
         } else {
             progressDialog.setMessage(getString(R.string.refreshing_feed_list));
         }
@@ -314,6 +321,7 @@ public class MainActivity extends FragmentActivity
     private static final String KEY_PODCAST_HANDLER = "KEY_PODCAST_HANDLER";
     private static final String KEY_FEED_HANDLER = "KEY_FEED_HANDLER";
     private static final String KEY_SUBSCRIPTION_UPDATE_HANDLER = "KEY_SUBSCRIPTION_UPDATE_HANDLER";
+    private static final String KEY_EPISODE_ACTION_HANDLER = "KEY_EPISODE_ACTION_HANDLER";
     private static final String KEY_NUM_POD_SYNC = "KEY_NUM_POD_SYNC";
 
     private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
@@ -432,6 +440,39 @@ public class MainActivity extends FragmentActivity
         }
     }
 
+    private static class EpisodeActionHandler
+    extends ReliableResultHandler<MainActivity>
+    implements NoDataResultHandler<MainActivity> {
+
+        @Override
+        public void handleFailure(int errCode, final String errStr) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
+                            + errStr);
+                }
+            });
+        }
+
+        @Override
+        public void handleSuccess() {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false)) {
+                        getRcv().onRefreshDone(
+                                getRcv().getString(R.string.setup_finished),
+                                RefreshDoneNotification.DIALOG
+                                );
+                    } else {
+                        getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
+                    }
+                }
+            });
+        }
+    }
+
     /**
      * The Handler for receiving PullFeedAsyncTask's results.
      */
@@ -461,15 +502,17 @@ public class MainActivity extends FragmentActivity
 
                 if (getRcv().curPodSync.get() == getRcv().numPodSync.get()) {
 
-                    if (getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false)) {
-                        getRcv().onRefreshDone(
-                                getRcv().getString(R.string.setup_finished),
-                                RefreshDoneNotification.DIALOG
-                                );
-                    } else {
-                        getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
-                    }
+                    final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST,
+                            false);
 
+                    Log.d(TAG, "r bundle: " + getBundle());
+                    Log.d(TAG, "r bundle extra: " + showDialog);
+                    Log.d(TAG, "r handler: " + this);
+
+                    EpisodeActionHandler handler = (EpisodeActionHandler) cbCont.get(
+                            MainActivity.KEY_EPISODE_ACTION_HANDLER);
+                    handler.setBundle(getBundle());
+                    refreshBg.execute(new SyncEpisodeActionsAsyncTask(handler));
                 }
 
                 getRcv().prepareProgressDialog();
