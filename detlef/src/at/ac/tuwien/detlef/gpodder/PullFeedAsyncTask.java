@@ -60,13 +60,12 @@ public class PullFeedAsyncTask implements Runnable {
             sendError(new GPodderException(err));
         }
 
-        long since = podcast.getLastUpdate();;
+        long since = podcast.getLastUpdate();
 
         /* Retrieve settings.*/
         GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
                 .getGpodderSettings(Detlef.getAppContext());
 
-        String deviceID = gps.getDeviceId().toString();
         String username = gps.getUsername();
         String password = gps.getPassword();
 
@@ -75,11 +74,8 @@ public class PullFeedAsyncTask implements Runnable {
             username,
             password
         );
-          
-        MygPodderClient gpc = new MygPodderClient(username, password, gps.getApiHostname());
-        
+
         FeedUpdate feed = null;
-        EpisodeActionChanges changes = null;
         try {
             /* Get the feed */
             FeedServiceResponse fsr = fsc.parseFeeds(new String[] {podcast.getUrl()}, since);
@@ -94,24 +90,14 @@ public class PullFeedAsyncTask implements Runnable {
             DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
             .upsertAndDeleteEpisodes(Detlef.getAppContext(), podcast, feed);
 
-            /* Get episode actions */
-            changes = gpc.downloadEpisodeActions(since, podcast.getUrl(), deviceID);
-
-            DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
-            .applyActionChanges(Detlef.getAppContext(), podcast, changes);
-
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
             PodcastDAOImpl.i().updateLastUpdate(podcast);
-        } catch (AuthenticationException ae) {
-            sendError(new GPodderException(ae.getLocalizedMessage()));
         } catch (ClientProtocolException e) {
             sendError(new GPodderException(e.getLocalizedMessage()));
+            return;
         } catch (IOException e) {
             sendError(new GPodderException(e.getLocalizedMessage()));
-        }
-
-        if (changes == null) {
             return;
         }
 
