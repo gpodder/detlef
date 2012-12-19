@@ -47,8 +47,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
     }
 
     @Override
-    public void applyActionChanges(Context context, Podcast podcast,
-            EpisodeActionChanges changes) {
+    public void applyActionChanges(Context context, EpisodeActionChanges changes) {
         EpisodeDAO dao = EpisodeDAOImpl.i();
         for (EpisodeAction action : changes.actions) {
             // update playposition
@@ -90,11 +89,11 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                 try {
                     if (ep.getEnclosure() != null) {
                         Episode newEp = new Episode(ep, p);
-                        
+
                         dao.insertEpisode(newEp);
                     }
                 } catch (Exception ex) {
-                    Log.i(TAG, "enclosure missing, " + ex.getMessage() != null ? ex.getMessage()
+                    Log.i(TAG, ("enclosure missing, " + ex.getMessage()) != null ? ex.getMessage()
                             : ex.toString());
                 }
             }

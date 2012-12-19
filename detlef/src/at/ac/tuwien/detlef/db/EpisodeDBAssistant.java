@@ -51,14 +51,12 @@ public interface EpisodeDBAssistant {
     List<Episode> getAllEpisodes(Context context);
 
     /**
-     * applys all changes in the EpisodeActionChanges of the podcast to the
-     * database.
+     * applies all changes in the EpisodeActionChanges to the database.
      * 
      * @param context: the application context
-     * @param podcast: the podcast
      * @param changes: the changes made in an episode
      */
-    void applyActionChanges(Context context, Podcast podcast, EpisodeActionChanges changes);
+    void applyActionChanges(Context context, EpisodeActionChanges changes);
 
     /**
      * ??
