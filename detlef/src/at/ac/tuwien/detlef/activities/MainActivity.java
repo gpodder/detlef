@@ -574,6 +574,7 @@ public class MainActivity extends FragmentActivity
         gps.setPassword(settings.getPassword());
         gps.addUpdateSubscriptionsJob(handler, changes);
 
+        prepareProgressDialog();
         progressDialog.show();
     }
 
