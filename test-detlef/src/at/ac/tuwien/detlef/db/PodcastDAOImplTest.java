@@ -154,4 +154,45 @@ public class PodcastDAOImplTest extends AndroidTestCase {
         assertEquals(url, nw.getUrl());
     }
 
+    /**
+     * Tests adding a podcast locally.
+     */
+    public void testLocalAdd() {
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        p1.setLocalAdd(true);
+        pdao.insertPodcast(p1);
+        assertTrue(pdao.getNonDeletedPodcasts().contains(p1));
+        assertTrue(pdao.getLocallyAddedPodcasts().contains(p1));
+        p1.setLocalAdd(false);
+    }
+
+    /**
+     * Tests adding a podcast locally and then deleting it locally.
+     */
+    public void testLocalDeletePodcastLocalAdd() {
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        p1.setLocalAdd(true);
+        pdao.insertPodcast(p1);
+        assertTrue(pdao.localDeletePodcast(p1));
+        assertTrue(!pdao.getNonDeletedPodcasts().contains(p1));
+        assertTrue(!pdao.getLocallyDeletedPodcasts().contains(p1));
+        assertTrue(!pdao.getLocallyAddedPodcasts().contains(p1));
+        p1.setLocalAdd(false);
+    }
+
+    /**
+     * Tests adding a podcast non-locally, then deleting it locally
+     * and then deleting it completely.
+     */
+    public void testLocalDeletePodcastNonLocalAdd() {
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        p1.setLocalAdd(false);
+        pdao.insertPodcast(p1);
+        assertTrue(pdao.localDeletePodcast(p1));
+        assertTrue(!pdao.getNonDeletedPodcasts().contains(p1));
+        assertTrue(pdao.getLocallyDeletedPodcasts().contains(p1));
+        assertTrue(pdao.setRemotePodcast(p1));
+        assertTrue(!pdao.getLocallyDeletedPodcasts().contains(p1));
+    }
+
 }
