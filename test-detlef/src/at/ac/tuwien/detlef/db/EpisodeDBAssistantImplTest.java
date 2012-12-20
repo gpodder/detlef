@@ -96,7 +96,7 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase{
         assertEquals(1,eps.size());
         at.ac.tuwien.detlef.domain.Episode freshlyEpisode = eps.get(0);
         assertEquals(ActionState.PLAY,freshlyEpisode.getActionState());
-        assertEquals(34,freshlyEpisode.getPlayPosition());
+        assertEquals(34000,freshlyEpisode.getPlayPosition());
     }
 
     public void testUpsertAndDeleteEpisodes() {
