@@ -59,7 +59,8 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                     Log.i(TAG, "updating play position from: " + action.episode + " pos: "
                             + action.position + " started:" + action.started + " total: "
                             + action.total);
-                    ep.setPlayPosition(action.position);
+                    /* Episode uses milliseconds. */
+                    ep.setPlayPosition(action.position * 1000);
                     if (dao.updateStorageState(ep) != 1) {
                         Log.w(TAG, "update play position went wrong: " + ep.getLink());
                     }

@@ -258,8 +258,10 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         if (ret > 0) {
             /* TODO: no correct error handling due to db locking issues. */
             EpisodeActionDAO epDao = EpisodeActionDAOImpl.i();
+            /* Episode uses milliseconds. */
             LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
-                    episode.getUrl(), Episode.ActionState.PLAY, null, episode.getPlayPosition(),
+                    episode.getUrl(), Episode.ActionState.PLAY, null,
+                    episode.getPlayPosition() / 1000,
                     null);
             epDao.insertEpisodeAction(action);
         }

@@ -220,10 +220,19 @@ public class Episode implements IEpisode {
         return this;
     }
 
+    /**
+     * Get the playback position in milliseconds.
+     * @return
+     */
     public int getPlayPosition() {
         return playPosition;
     }
 
+    /**
+     * Set the playback position in milliseconds.
+     * @param playPosition
+     * @return
+     */
     public Episode setPlayPosition(int playPosition) {
         this.playPosition = playPosition;
         return this;
