@@ -15,33 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-package at.ac.tuwien.detlef.activities;
+/**
+ * Contains a (simple) filtering system for
+ * {@link at.ac.tuwien.detlef.domain.Episode episodes}.
+ */
+package at.ac.tuwien.detlef.filter;
 
-import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import at.ac.tuwien.detlef.R;
-
-public class SearchActivity extends Activity {
-
-    private static final String TAG = SearchActivity.class.getCanonicalName();
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Log.d(TAG, "onCreate(" + savedInstanceState + ")");
-
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            Log.d(TAG, "ACTION_SEARCH");
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.d(TAG, "Search Query is: " + query);
-        }
-
-        setContentView(R.layout.search_activity_layout);
-
-    }
-}

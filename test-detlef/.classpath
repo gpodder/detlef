@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="libs/mockito-all-1.9.5.jar"/>
 	<classpathentry kind="lib" path="libs/dexmaker-mockito-1.0.jar"/>
 	<classpathentry kind="lib" path="libs/dexmaker-1.0.jar"/>
+	<classpathentry kind="src" path="/at.ac.tuwien.detlef.activities.MainActivity"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

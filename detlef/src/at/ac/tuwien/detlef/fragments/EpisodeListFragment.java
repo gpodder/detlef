@@ -42,6 +42,12 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.filter.EpisodeFilter;
+import at.ac.tuwien.detlef.filter.FilterChain;
+import at.ac.tuwien.detlef.filter.NullFilter;
+import at.ac.tuwien.detlef.filter.PodcastFilter;
+import at.ac.tuwien.detlef.filter.KeywordFilter;
+import at.ac.tuwien.detlef.filter.NewFilter;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
@@ -57,6 +63,7 @@ public class EpisodeListFragment extends ListFragment
 
     private EpisodeListModel model;
     private EpisodeListAdapter adapter;
+    private FilterChain filter = new FilterChain();
     private Podcast filteredByPodcast = null;
     private OnEpisodeSelectedListener listener;
     private EpisodeDAO episodeDAO;
@@ -190,10 +197,11 @@ public class EpisodeListFragment extends ListFragment
     private void filterByPodcast() {
         adapter.clear();
         if (filteredByPodcast == null) {
-            adapter.addAll(model.getAll());
+            getFilter().removeEpisodeFilter(new PodcastFilter());
         } else {
-            adapter.addAll(model.getByPodcast(filteredByPodcast));
+            getFilter().putEpisodeFilter(new PodcastFilter().setPodcast(filteredByPodcast));
         }
+        refresh();
     }
 
     private void filterByPodcastOnUiThread() {
@@ -339,8 +347,37 @@ public class EpisodeListFragment extends ListFragment
     }
 
     public void setKeyword(String newText) {
-        adapter.setKeyword(newText);
-        adapter.notifyDataSetChanged();
+        filter.putEpisodeFilter(new KeywordFilter().setKeyword(newText));
+        refresh();
+    }
+    
+    public void refresh() {
+        adapter.clear();
+        
+        for (Episode e : model.getAll()) {
+            if (filter.filter(e)) {
+                continue;
+            }
+            adapter.add(e);
+        }
+        
+    }
+    
+    public FilterChain getFilter() {
+        return filter;
+    }
+    
+    public EpisodeListFragment setFilter(FilterChain pFilter) {
+        filter = pFilter;
+        return this;
+    }
 
+    public void setReadFilter(boolean checked) {
+        if (checked) {
+            getFilter().putEpisodeFilter(new NewFilter());
+        } else {
+            getFilter().removeEpisodeFilter(new NewFilter());
+        }
+        refresh();
     }
 }

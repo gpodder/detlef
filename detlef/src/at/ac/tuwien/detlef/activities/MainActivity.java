@@ -117,13 +117,6 @@ public class MainActivity extends FragmentActivity
 
         startSettingsActivityIfNoDeviceIdSet();
 
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            Log.d(TAG, "ACTION_SEARCH");
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.d(TAG, "Serach Query is: " + query);
-        }
-
         setContentView(R.layout.main_activity_layout);
 
         /* old Activity is recreated */
@@ -660,14 +653,14 @@ public class MainActivity extends FragmentActivity
         if (menu != null) {
             menu.clear();
             switch (tab.getPosition()) {
-                case 0:
+                case SectionsPagerAdapter.POSITION_PODCASTS:
                     getMenuInflater().inflate(R.menu.podcast_menu, menu);
                     break;
-                case 1:
+                case SectionsPagerAdapter.POSITION_EPISODES:
                     getMenuInflater().inflate(R.menu.episode_menu, menu);
                     setSearchManager();
                     break;
-                case 2:
+                case SectionsPagerAdapter.POSITION_PLAYER:
                     getMenuInflater().inflate(R.menu.player_menu, menu);
                     break;
                 default:
@@ -685,12 +678,15 @@ public class MainActivity extends FragmentActivity
         if (menu.findItem(R.id.menu_search) == null) {
             return;
         }
+
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false);
+        searchView.setIconifiedByDefault(true);
         searchView.setOnQueryTextListener(new EpisodeSearchQueryTextListener(
                 getEpisodeListFragment()));
+        
+        
     }
 
     @Override
@@ -774,6 +770,11 @@ public class MainActivity extends FragmentActivity
             case R.id.add_new_podcast:
                 intent = new Intent(this, AddPodcastActivity.class);
                 startActivityForResult(intent, PODCAST_ADD_REQUEST_CODE);
+                break;
+            case R.id.menu_show_only_new_episodes:
+                item.setChecked(!item.isChecked());
+                getEpisodeListFragment().setReadFilter(item.isChecked());
+                //getEpisodeListFragment().set
                 break;
             case R.id.sort:
                 android.support.v4.app.DialogFragment dialog = new EpisodeListSortDialogFragment();
@@ -872,6 +873,21 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onEpisodeSortDialogNegativeClick(DialogFragment dialog) {
         // Nothing todo yet
+    }
+    
+    @Override
+    public boolean onSearchRequested() {
+
+        if (mViewPager == null) {
+            return false;
+        }
+        
+        if (mViewPager.getCurrentItem() != SectionsPagerAdapter.POSITION_EPISODES) {
+            return false;            
+        }
+        
+        menu.findItem(R.id.menu_search).expandActionView();
+        return true;
     }
 
 }

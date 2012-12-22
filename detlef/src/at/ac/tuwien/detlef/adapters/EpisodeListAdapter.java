@@ -42,35 +42,10 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
     private final List<Episode> episodes;
 
-    private List<Episode> episodesFull;
-
-    private String keyword = null;
-
     public EpisodeListAdapter(Context context, int textViewResourceId,
             List<Episode> episodes) {
         super(context, textViewResourceId, episodes);
         this.episodes = episodes;
-        episodesFull = new ArrayList<Episode>(episodes);
-    }
-
-    public EpisodeListAdapter setKeyword(String pKeyword) {
-        keyword = pKeyword.toLowerCase();
-
-        if (keyword == null) {
-            return this;
-        }
-       
-        episodes.clear();
-
-        for (Episode episode : episodesFull) {
-            Log.d(TAG, "keyword filter active");
-            if (episode.getTitle().toLowerCase().contains(keyword)) {
-                episodes.add(episode);
-            }
-        }
-
-        return this;
-
     }
 
     @Override

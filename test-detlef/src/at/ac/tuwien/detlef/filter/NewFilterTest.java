@@ -15,42 +15,47 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-package at.ac.tuwien.detlef.activities.callbacks;
 
-import android.util.Log;
-import android.widget.SearchView.OnQueryTextListener;
-import at.ac.tuwien.detlef.filter.KeywordFilter;
-import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
+package at.ac.tuwien.detlef.filter;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+import at.ac.tuwien.detlef.domain.*;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 
 /**
- * An {@link OnQueryTextListener}.
- * 
+ * Tests the {@link NewFilter}.
  * @author moe
+ *
  */
-public class EpisodeSearchQueryTextListener
-        implements OnQueryTextListener {
+public class NewFilterTest extends TestCase {
+	
+	public void testFilter_filtersNewEpisode() {
+		
+		Episode episode = new Episode(new Podcast());
+		episode.setActionState(ActionState.NEW);
+		NewFilter filter = new NewFilter();
+		
+		Assert.assertFalse(
+			"Episode should not be filterd, because its "
+			+ "ActionState is NEW",
+			filter.filter(episode)
+		);
+		
+	}
 
-    private static final String TAG = EpisodeSearchQueryTextListener.class.getCanonicalName();
+	public void testFilter_filtersNonNewEpisode() {
+		
+		Episode episode = new Episode(new Podcast());
+		episode.setActionState(ActionState.PLAY);
+		NewFilter filter = new NewFilter();
+		
+		Assert.assertTrue(
+			"Episode should be filterd, because its "
+			+ "ActionState is not NEW",
+			filter.filter(episode)
+		);
+		
+	}
 
-    EpisodeListFragment episodeFragment;
-
-    public EpisodeSearchQueryTextListener(EpisodeListFragment pEpisodeFragment) {
-        episodeFragment = pEpisodeFragment;
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        Log.d(TAG, "onQueryTextSubmit: " + query);
-        KeywordFilter titleFilter = new KeywordFilter().setKeyword(query);
-        episodeFragment.getFilter().putEpisodeFilter(titleFilter);
-        episodeFragment.refresh();
-        return true;
-    }
-
-    @Override
-    public boolean onQueryTextChange(final String newText) {
-        Log.d(TAG, "onQueryTextChange: " + newText);
-        episodeFragment.setKeyword(newText);
-        return true;
-    }
 }

@@ -2,10 +2,24 @@ package at.ac.tuwien.detlef.filter;
 
 import at.ac.tuwien.detlef.domain.Episode;
 
+/**
+ * An {@link EpisodeFilter} that filters by a keyword.
+ * @author moe
+ */
 public class KeywordFilter implements EpisodeFilter {
 
+    /**
+     * The keyword to filter for in lower case.
+     */
     private String keyword = null;
 
+    /**
+     * Sets the keyword.
+     * @param pKeyword The keyword to set. If this parameter
+     * {@link String#isEmpty() is empty} or null, then
+     * no {@link Episode} will be filtered.
+     * @return Fluent Interface
+     */
     public KeywordFilter setKeyword(String pKeyword) {
         
         if (pKeyword.isEmpty()) {
@@ -18,6 +32,13 @@ public class KeywordFilter implements EpisodeFilter {
         return this;
     }
     
+    /**
+     * @return false, if the Episode's {@link Episode#getTitle() title}
+     *     or the {@link Episode#getDescription() description} contains
+     *     the {@link #setKeyword(String) keyword}, true else. This method
+     *     is case insensitive, i.e. it does not matter if the keyword
+     *     and the actual title and description have the same cases. 
+     */
     @Override
     public boolean filter(Episode episode) {
         
@@ -25,7 +46,18 @@ public class KeywordFilter implements EpisodeFilter {
             return false;
         }
             
-        return !(episode.getTitle().toLowerCase().contains(keyword) || episode.getDescription().toLowerCase().contains(keyword));
+        String index = String.format(
+            "%s %s",
+            episode.getTitle() != null ? episode.getTitle() : "",
+            episode.getDescription() != null ? episode.getDescription() : ""
+        );
+        
+        return !(index.toLowerCase().contains(keyword));
+    }
+
+    @Override
+    public String getFilterName() {
+        return getClass().getCanonicalName();
     }
 
 }

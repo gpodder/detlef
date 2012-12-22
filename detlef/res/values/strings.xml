@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Detlef</string>
     <string name="player">Player</string>
     <string name="episodes">Episodes</string>
@@ -116,6 +115,6 @@
     <string name="sort_Descending">Descending</string>
     <string name="no_gpodder_account_configured">No GPodder account configured.</string>
     <string name="syncing_episode_actions">Synchronizing episode actions.</string>
-</resources>
     <string name="search_hint">Search Episodes</string>
+    <string name="show_only_new_episodes">Show only new episodes</string>
 </resources>
