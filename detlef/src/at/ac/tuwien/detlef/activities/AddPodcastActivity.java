@@ -217,10 +217,18 @@ public class AddPodcastActivity extends Activity {
                 Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
-        /* TODO: There is no progress (or 'I'm busy') indicator.*/
+        setBusy(true);
 
         GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
         gps.addSearchPodcastsJob(srh, tv.getText().toString());
+    }
+
+    private void setBusy(boolean busy) {
+        View v = findViewById(R.id.search_button);
+        v.setVisibility(busy ? View.GONE : View.VISIBLE);
+
+        v = findViewById(R.id.search_progress);
+        v.setVisibility(busy ? View.VISIBLE : View.GONE);
     }
 
     public void onSubscribeClick(View view) {
@@ -257,6 +265,8 @@ public class AddPodcastActivity extends Activity {
             getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    getRcv().setBusy(false);
+
                     Toast.makeText(getRcv(), "Podcast search failed", Toast.LENGTH_SHORT);
                 }
             });
@@ -269,6 +279,8 @@ public class AddPodcastActivity extends Activity {
 
                 @Override
                 public void run() {
+                    getRcv().setBusy(false);
+
                     getRcv().resultAdapter.clear();
                     getRcv().resultAdapter.addAll(filteredResult);
 
