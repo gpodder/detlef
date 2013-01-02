@@ -48,6 +48,7 @@ public class MediaPlayerNotification {
         PendingIntent prevIntent = getPendingIntent(context, MediaPlayerService.EXTRA_PREVIOUS);
         PendingIntent playIntent = getPendingIntent(context, MediaPlayerService.EXTRA_PLAY_PAUSE);
         PendingIntent nextIntent = getPendingIntent(context, MediaPlayerService.EXTRA_NEXT);
+        PendingIntent closeIntent = getPendingIntent(context, MediaPlayerService.EXTRA_CLOSE_NOTIFICATION);
 
         /* Construct the remote view to pass as the notification content. */
 
@@ -56,6 +57,7 @@ public class MediaPlayerNotification {
         v.setOnClickPendingIntent(R.id.previous, prevIntent);
         v.setOnClickPendingIntent(R.id.play, playIntent);
         v.setOnClickPendingIntent(R.id.next, nextIntent);
+        v.setOnClickPendingIntent(R.id.close, closeIntent);
 
         /*
          * Finally, build and post the notification. Note that we mark it as an
@@ -86,4 +88,9 @@ public class MediaPlayerNotification {
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    public static void cancel(Context context) {
+        NotificationManager notificationManager =
+                (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(R.id.notification);
+    }
 }

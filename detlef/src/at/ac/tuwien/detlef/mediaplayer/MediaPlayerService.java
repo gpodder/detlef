@@ -57,6 +57,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     public static final int EXTRA_PREVIOUS = 0;
     public static final int EXTRA_PLAY_PAUSE = 1;
     public static final int EXTRA_NEXT = 2;
+    public static final int EXTRA_CLOSE_NOTIFICATION = 3;
 
     private PlaylistDAO playlistDAO;
     private EpisodeDAO episodeDAO;
@@ -321,6 +322,9 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
                 pausePlaying();
                 startPlaying();
+                break;
+            case EXTRA_CLOSE_NOTIFICATION:
+                MediaPlayerNotification.cancel(this);
                 break;
             default:
                 Log.w(TAG, String.format("Invalid incomind media control intent: %d", command));
