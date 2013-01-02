@@ -32,6 +32,7 @@ import android.app.Activity;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -62,8 +63,15 @@ public class PullSubscriptionsAsyncTask implements Runnable {
         GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
                 .getGpodderSettings(Detlef.getAppContext());
 
-        String devId = gps.getDeviceId().toString();
-        
+        DeviceId id = gps.getDeviceId();
+        if (id == null) {
+            sendError(new GPodderException(Detlef.getAppContext().getString(
+                    R.string.no_gpodder_account_configured)));
+            return;
+        }
+
+        String devId = id.toString();
+
         MygPodderClient gpc = new MygPodderClient(
             gps.getUsername(),
             gps.getPassword(),
