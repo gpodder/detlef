@@ -4,40 +4,5 @@
         android:id="@+id/delete_feed"
         android:orderInCategory="1"
         android:title="@string/delete_feed"/>
-    <item
-        android:id="@+id/addNewToPlaylist"
-        android:orderInCategory="1"
-        android:title="Add new to playlist"
-        android:titleCondensed="Add new to P/L"/>
-    <item
-        android:id="@+id/addAllToPlaylist"
-        android:orderInCategory="1"
-        android:title="Add all to playlist"
-        android:titleCondensed="Add all to P/L"/>
-    <item
-        android:id="@+id/removeAllFromPlaylist"
-        android:orderInCategory="1"
-        android:title="Remove all from playlist"
-        android:titleCondensed="Remove all from P/L"/>
-    <item
-        android:id="@+id/downloadNewEpisodes"
-        android:orderInCategory="1"
-        android:title="Download new episodes"
-        android:titleCondensed="Download new ep."/>
-    <item
-        android:id="@+id/downloadAllEpisodes"
-        android:orderInCategory="1"
-        android:title="Download all epispdes"
-        android:titleCondensed="Download all ep."/>
-    <item
-        android:id="@+id/deletePlayedEpisodes"
-        android:orderInCategory="1"
-        android:title="Delete played episodes"
-        android:titleCondensed="Delete played ep."/>
-    <item
-        android:id="@+id/deleteAllEpisodes"
-        android:orderInCategory="1"
-        android:title="Delete all episodes"
-        android:titleCondensed="Delete all ep."/>
 
 </menu>

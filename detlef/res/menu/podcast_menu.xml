@@ -17,36 +17,6 @@
         android:title="@string/add_new_podcast">
     </item>
     <item
-        android:id="@+id/add_new_to_playlist"
-        android:showAsAction="ifRoom"
-        android:title="Add new to playlist"
-        android:titleCondensed="Add new to P/L">
-    </item>
-    <item
-        android:id="@+id/download_new_episodes"
-        android:showAsAction="ifRoom"
-        android:title="Download new episodes"
-        android:titleCondensed="Download new ep.">
-    </item>
-    <item
-        android:id="@+id/mark_all_read"
-        android:showAsAction="ifRoom"
-        android:title="Mark all read"
-        android:titleCondensed="All read">
-    </item>
-    <item
-        android:id="@+id/delete_played_episodes"
-        android:showAsAction="ifRoom"
-        android:title="Delete played episodes"
-        android:titleCondensed="Delete played ep.">
-    </item>
-    <item
-        android:id="@+id/delete_all_episodes"
-        android:showAsAction="ifRoom"
-        android:title="Delete all episodes"
-        android:titleCondensed="Delete all ep.">
-    </item>
-    <item
         android:id="@id/settings"
         android:showAsAction="never"
         android:title="Settings">
