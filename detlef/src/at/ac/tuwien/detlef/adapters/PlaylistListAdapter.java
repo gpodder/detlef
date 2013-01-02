@@ -22,7 +22,6 @@ package at.ac.tuwien.detlef.adapters;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +34,7 @@ import at.ac.tuwien.detlef.domain.Episode;
 
 public class PlaylistListAdapter extends ArrayAdapter<Episode> {
 
-    private ArrayList<Episode> episodes;
+    private final ArrayList<Episode> episodes;
 
     public PlaylistListAdapter(Context context, int textViewResourceId,
             ArrayList<Episode> episodes) {

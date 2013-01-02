@@ -1,7 +1,6 @@
 package at.ac.tuwien.detlef.fragments.callbacks;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -60,55 +59,55 @@ public class DeviceIdCallbackHandler
     }
 
     /**
-     * The actions that should be executed if {@link SettingsGpodderNet} is in "normal" mode, 
-     * i.e. not in {@link SettingsGpodderNet#isSetupMode() setup mode}. 
+     * The actions that should be executed if {@link SettingsGpodderNet} is in "normal" mode,
+     * i.e. not in {@link SettingsGpodderNet#isSetupMode() setup mode}.
      */
     private void normalModeAction() {
         DependencyAssistant.getDependencyAssistant().getGuiUtils().showToast(
-            getRcv().getText(R.string.device_id_registration_success),
-            getRcv().getActivity(),
-            TAG
-        );
-        
+                getRcv().getText(R.string.device_id_registration_success),
+                getRcv().getActivity(),
+                TAG
+                );
+
     }
-    
+
     /**
      * The actions that should be executed if {@link SettingsGpodderNet} is in
-     * {@link SettingsGpodderNet#isSetupMode() setup mode}. 
+     * {@link SettingsGpodderNet#isSetupMode() setup mode}.
      */
     private void setupModeAction() {
         DependencyAssistant.getDependencyAssistant().getGuiUtils().showSimpleOkDialog(
-            R.string.almost_done,
-            R.string.detlef_will_now_synchronize,
-            new SetupModeNextStepClickListener(),
-            getRcv().getActivity()
-        );
+                R.string.almost_done,
+                R.string.detlef_will_now_synchronize,
+                new SetupModeNextStepClickListener(),
+                getRcv().getActivity()
+                );
     }
 
     @Override
     public void handleFailure(GPodderException e) {
         // TODO Auto-generated method stub
-    
+
     }
-    
+
     class SetupModeNextStepClickListener implements OnClickListener {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
 
             Intent data = new Intent().putExtra(
-                MainActivity.EXTRA_REFRESH_FEED_LIST,
-                true
-            );
+                    MainActivity.EXTRA_REFRESH_FEED_LIST,
+                    true
+                    );
             if (getRcv().getActivity().getParent() == null) {
                 getRcv().getActivity().setResult(Activity.RESULT_OK, data);
             } else {
                 getRcv().getActivity().getParent().setResult(Activity.RESULT_OK, data);
-           }
+            }
 
             getRcv().getActivity().finish();
 
         }
     }
-    
+
 }

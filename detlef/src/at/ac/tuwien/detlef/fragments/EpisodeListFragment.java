@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -42,12 +43,10 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.filter.EpisodeFilter;
 import at.ac.tuwien.detlef.filter.FilterChain;
-import at.ac.tuwien.detlef.filter.NullFilter;
-import at.ac.tuwien.detlef.filter.PodcastFilter;
 import at.ac.tuwien.detlef.filter.KeywordFilter;
 import at.ac.tuwien.detlef.filter.NewFilter;
+import at.ac.tuwien.detlef.filter.PodcastFilter;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
@@ -66,7 +65,6 @@ public class EpisodeListFragment extends ListFragment
     private FilterChain filter = new FilterChain();
     private Podcast filteredByPodcast = null;
     private OnEpisodeSelectedListener listener;
-    private EpisodeDAO episodeDAO;
 
     private GUIUtils guiUtils;
 
@@ -109,8 +107,6 @@ public class EpisodeListFragment extends ListFragment
         setListAdapter(adapter);
 
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
-
-        episodeDAO = EpisodeDAOImpl.i();
     }
 
     @Override
@@ -350,23 +346,23 @@ public class EpisodeListFragment extends ListFragment
         filter.putEpisodeFilter(new KeywordFilter().setKeyword(newText));
         refresh();
     }
-    
+
     public void refresh() {
         adapter.clear();
-        
+
         for (Episode e : model.getAll()) {
             if (filter.filter(e)) {
                 continue;
             }
             adapter.add(e);
         }
-        
+
     }
-    
+
     public FilterChain getFilter() {
         return filter;
     }
-    
+
     public EpisodeListFragment setFilter(FilterChain pFilter) {
         filter = pFilter;
         return this;

@@ -20,7 +20,6 @@ package at.ac.tuwien.detlef.gpodder.plumbing;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 import android.os.IBinder;
@@ -116,13 +115,16 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         return queuedMessages.size();
     }
 
+    @Override
     public IBinder asBinder() {
         return target.asBinder();
     }
 
+    @Override
     public void httpDownloadSucceeded(final int reqId, final ParcelableByteArray data)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.httpDownloadSucceeded(reqId, data);
@@ -135,8 +137,10 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
     public void httpDownloadToFileSucceeded(final int reqId) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.httpDownloadToFileSucceeded(reqId);
@@ -149,9 +153,11 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
     public void httpDownloadFailed(final int reqId, final int errCode, final String errStr)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.httpDownloadFailed(reqId, errCode, errStr);
@@ -164,9 +170,11 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
     public void httpDownloadProgress(final int reqId, final int haveBytes, final int totalBytes)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.httpDownloadProgress(reqId, haveBytes, totalBytes);
@@ -179,8 +187,10 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
     public void heartbeatSucceeded(final int reqId) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.heartbeatSucceeded(reqId);
@@ -193,8 +203,10 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
     public void authCheckSucceeded(final int reqId) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.authCheckSucceeded(reqId);
@@ -207,9 +219,11 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
     public void gponetLoginFailed(final int reqId, final int errCode, final String errStr)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.gponetLoginFailed(reqId, errCode, errStr);
@@ -222,9 +236,11 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
     public void downloadPodcastListSucceeded(final int reqId, final List<String> podcasts)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.downloadPodcastListSucceeded(reqId, podcasts);
@@ -237,9 +253,11 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
     public void downloadPodcastListFailed(final int reqId, final int errCode, final String errStr)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.downloadPodcastListFailed(reqId, errCode, errStr);
@@ -256,6 +274,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     public void downloadChangesSucceeded(final int reqId, final EnhancedSubscriptionChanges chgs)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.downloadChangesSucceeded(reqId, chgs);
@@ -272,6 +291,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     public void downloadChangesFailed(final int reqId, final int errCode, final String errStr)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.downloadChangesFailed(reqId, errCode, errStr);
@@ -287,6 +307,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     @Override
     public void searchPodcastsSucceeded(final int reqId, final List<Podcast> results) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.searchPodcastsSucceeded(reqId, results);
@@ -302,6 +323,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     @Override
     public void searchPodcastsFailed(final int reqId, final int errCode, final String errStr) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.searchPodcastsFailed(reqId, errCode, errStr);
@@ -318,6 +340,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     @Override
     public void getToplistSucceeded(final int reqId, final List<Podcast> results) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.getToplistSucceeded(reqId, results);
@@ -333,6 +356,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     @Override
     public void getToplistFailed(final int reqId, final int errCode, final String errStr) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.getToplistFailed(reqId, errCode, errStr);
@@ -348,6 +372,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     @Override
     public void getSuggestionsSucceeded(final int reqId, final List<Podcast> results) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.getSuggestionsSucceeded(reqId, results);
@@ -363,6 +388,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     @Override
     public void getSuggestionsFailed(final int reqId, final int errCode, final String errStr) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
+            @Override
             public boolean resend(PodderServiceCallback cb) {
                 try {
                     cb.getSuggestionsFailed(reqId, errCode, errStr);

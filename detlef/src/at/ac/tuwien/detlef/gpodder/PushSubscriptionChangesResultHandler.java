@@ -18,10 +18,7 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
-import java.util.List;
 import java.util.Map;
-
-import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
  * This is the callback interface for jobs which return a list of podcasts on success.
@@ -46,6 +43,7 @@ public interface PushSubscriptionChangesResultHandler<Receiver> extends ResultHa
             this.updateUrls = updateUrls;
         }
 
+        @Override
         public void deliver() {
             cb.handleSuccess(timestamp, updateUrls);
         }

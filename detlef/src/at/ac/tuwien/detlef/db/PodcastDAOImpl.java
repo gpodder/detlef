@@ -35,7 +35,6 @@ import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.domain.Episode.StorageState;
 
 public final class PodcastDAOImpl implements PodcastDAO {
 
@@ -93,7 +92,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                     values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
                             podcast.getLogoFilePath());
                 }
-                values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED, 
+                values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
                         podcast.getLogoDownloaded());
 
                 db.beginTransaction();
@@ -166,7 +165,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                         "delete Podcast icon: " + ex.getMessage() != null ? ex.getMessage()
                                 : ex.toString());
             }
-            
+
             SQLiteDatabase db = null;
             try {
                 deleteEpisodesForPodcast(podcast);
@@ -212,8 +211,8 @@ public final class PodcastDAOImpl implements PodcastDAO {
             + "left outer join (select %s as delID,'del' as %s from %s) d on %s = delID;",
             DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
             DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
-            DatabaseHelper.COLUMN_PODCAST_LOGO_URL, 
-            DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED, 
+            DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
+            DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
             DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
             DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
             QUERY_COLUMN_PODCAST_LOCAL_ADD, QUERY_COLUMN_PODCAST_LOCAL_DEL,
@@ -336,13 +335,13 @@ public final class PodcastDAOImpl implements PodcastDAO {
             return ret;
         }
     }
-    
+
     @Override
     public int updateLogoDownloaded(Podcast podcast) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED, 
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
                     podcast.getLogoDownloaded());
 
             String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
@@ -414,9 +413,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
     @Override
     public int deleteAllPodcasts() {
-        
+
         int numOfDeletedPocasts = 0;
-        
+
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             for (Podcast podcast : getAllPodcasts()) {
                 deletePodcast(podcast);
@@ -490,9 +489,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
                     newPodcast.setLocalDel(false);
                 }
                 notifyListenersChanged(podcast);
-                
+
                 db.setTransactionSuccessful();
-                
+
                 return true;
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
@@ -531,6 +530,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
             QUERY_COLUMN_PODCAST_LOCAL_DEL);
 
+    @Override
     public List<Podcast> getNonDeletedPodcasts() {
         return getPodcastsForQuery(QUERY_NON_DELETED_PODCASTS);
     }

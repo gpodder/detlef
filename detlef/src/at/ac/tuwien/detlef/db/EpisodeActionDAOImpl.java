@@ -33,8 +33,6 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.LocalEpisodeAction;
 import at.ac.tuwien.detlef.domain.RemoteEpisodeAction;
 
-import com.dragontek.mygpoclient.api.EpisodeAction;
-
 /**
  * DAO for episode action access.
  */
@@ -195,7 +193,7 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
             try {
                 db = dbHelper.getWritableDatabase();
                 String selection = DatabaseHelper.COLUMN_EPISODE_ACTION_ID + " = ?";
-                
+
                 for (RemoteEpisodeAction a : episodeActions) {
                     String[] selectionArgs = {
                             String.valueOf(a.getId())

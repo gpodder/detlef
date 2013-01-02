@@ -21,8 +21,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
@@ -31,10 +31,7 @@ import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 
 public class EpisodeListSortDialogFragment extends DialogFragment {
 
-    private static final String TAG = EpisodeListSortDialogFragment.class.getName();
-
     private RadioButton rbAscending;
-    private RadioButton rbDescending;
     private RadioButton rbReleaseDate;
     private RadioButton rbPodcast;
 
@@ -60,7 +57,6 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
         View dialoglayout = inflater.inflate(R.layout.episode_sort_dialog_fragment, null);
 
         rbAscending = (RadioButton) dialoglayout.findViewById(R.id.rbAscending);
-        rbDescending = (RadioButton) dialoglayout.findViewById(R.id.rbDescending);
         rbReleaseDate = (RadioButton) dialoglayout.findViewById(R.id.rbReleaseDate);
         rbPodcast = (RadioButton) dialoglayout.findViewById(R.id.rbPodcast);
 

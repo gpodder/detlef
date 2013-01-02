@@ -20,7 +20,6 @@ package at.ac.tuwien.detlef.gpodder;
 
 import java.io.IOException;
 
-import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 
 import android.app.Activity;
@@ -32,8 +31,6 @@ import at.ac.tuwien.detlef.domain.FeedUpdate;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
-import com.dragontek.mygpoclient.api.EpisodeActionChanges;
-import com.dragontek.mygpoclient.api.MygPodderClient;
 import com.dragontek.mygpoclient.feeds.FeedServiceClient;
 import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
 

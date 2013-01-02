@@ -42,16 +42,12 @@ import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
-import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
-import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
-import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.commonsware.cwac.merge.MergeAdapter;
-import com.dragontek.mygpoclient.simple.IPodcast;
 
 public class AddPodcastActivity extends Activity {
 
@@ -60,7 +56,7 @@ public class AddPodcastActivity extends Activity {
     private static final String BUNDLE_SEARCH_RESULTS = "BUNDLE_SEARCH_RESULTS";
     private static final String BUNDLE_SUGGESTIONS = "BUNDLE_SUGGESTIONS";
     private static final String BUNDLE_TOPLIST = "BUNDLE_TOPLIST";
-    
+
     private static int podcastsAdded = 0;
 
     private final MergeAdapter mergeAdapter = new MergeAdapter();
@@ -199,12 +195,12 @@ public class AddPodcastActivity extends Activity {
 
         super.onSaveInstanceState(outState);
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // call the onbackpressed functionality for 
+                // call the onbackpressed functionality for
                 // refresh feed handling
                 onBackPressed();
                 return true;
@@ -223,7 +219,7 @@ public class AddPodcastActivity extends Activity {
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
         /* TODO: There is no progress (or 'I'm busy') indicator.*/
-        
+
         GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
         gps.addSearchPodcastsJob(srh, tv.getText().toString());
     }
@@ -283,7 +279,7 @@ public class AddPodcastActivity extends Activity {
             });
         }
     }
-    
+
     private static class ToplistResultHandler extends ReliableResultHandler<AddPodcastActivity>
     implements PodcastListResultHandler<AddPodcastActivity> {
 
@@ -307,9 +303,9 @@ public class AddPodcastActivity extends Activity {
                 }
             });
         }
-        
+
     }
-    
+
     private static class SuggestionResultHandler extends ReliableResultHandler<AddPodcastActivity>
     implements PodcastListResultHandler<AddPodcastActivity> {
 
@@ -333,7 +329,7 @@ public class AddPodcastActivity extends Activity {
                 }
             });
         }
-        
+
     }
 
     /**

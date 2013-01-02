@@ -24,9 +24,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.util.Log;
-import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
-import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.domain.PodcastImgPersistance;
 
@@ -64,7 +62,7 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
             }
 
             if ((p.getTitle() != null) && (p.getUrl() != null)) {
-                
+
                 if (p.getLogoUrl() != null && !p.getLogoUrl().equals("")) {
                     try {
                         PodcastImgPersistance.download(p);
