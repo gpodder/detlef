@@ -17,19 +17,31 @@
 
 package at.ac.tuwien.detlef.activities;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ExpandableListActivity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListAdapter;
+import android.widget.TextView;
+import at.ac.tuwien.detlef.R;
 
 public class LicensesActivity extends ExpandableListActivity
 {
     private ExpandableListAdapter adapter;
+    private final List<License> licenses = new ArrayList<License>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +50,14 @@ public class LicensesActivity extends ExpandableListActivity
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        adapter = new LicensesExpandableListAdapter();
+        licenses.clear();
+        licenses.add(new License("Detlef", "https://github.com/schuay/detlef", readRawText(R.raw.license_gpl2)));
+        licenses.add(new License("CWAC MergeAdapter & SackOfViewsAdapter", "TODO", "TODO"));
+        licenses.add(new License("gson", "TODO", "TODO"));
+        licenses.add(new License("mygpoclient-java", "TODO", "TODO"));
+        licenses.add(new License("drag-sort-listview", "TODO", "TODO"));
+
+        adapter = new LicensesExpandableListAdapter(this, licenses);
         setListAdapter(adapter);
     }
 
@@ -57,70 +76,157 @@ public class LicensesActivity extends ExpandableListActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private String readRawText(int id) {
+        InputStream is = null;
+        BufferedReader br = null;
+
+        try {
+            is = getResources().openRawResource(id);
+            br = new BufferedReader(new InputStreamReader(is));
+
+            StringBuilder sb = new StringBuilder();
+
+            while (true) {
+                String s = br.readLine();
+                if (s == null) {
+                    break;
+                }
+
+                sb.append(s);
+                sb.append('\n');
+            }
+
+            return sb.toString();
+        } catch (IOException e) {
+            return null;
+        } finally {
+            try { if (br != null) br.close(); } catch (IOException e) { }
+            try { if (is != null) is.close(); } catch (IOException e) { }
+        }
+    }
+
+    /**
+     * This adapter shows a general summary of each license as an overview, and
+     * can be expanded to show the full license text.
+     * 
+     * The group represents a single license overview, and each group has a single child
+     * containing the license text.
+     */
     private static class LicensesExpandableListAdapter extends BaseExpandableListAdapter {
+
+        private final Context context;
+        private final List<License> licenses;
+
+        public LicensesExpandableListAdapter(Context context, List<License> licenses) {
+            this.context = context;
+            this.licenses = licenses;
+        }
 
         @Override
         public Object getChild(int groupPosition, int childPosition) {
-            // TODO Auto-generated method stub
-            return null;
+            return getGroup(groupPosition);
         }
 
         @Override
         public long getChildId(int groupPosition, int childPosition) {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                 View convertView, ViewGroup parent) {
-            // TODO Auto-generated method stub
-            return null;
+            View v = convertView;
+
+            if (v == null) {
+                LayoutInflater vi = (LayoutInflater)context.getSystemService(
+                        Context.LAYOUT_INFLATER_SERVICE);
+                v = vi.inflate(R.layout.license_list_child_layout, null);
+            }
+
+            License l = licenses.get(groupPosition);
+
+            TextView name = (TextView)v.findViewById(R.id.license);
+            name.setText(l.getLicense());
+
+            return v;
         }
 
         @Override
         public int getChildrenCount(int groupPosition) {
-            // TODO Auto-generated method stub
-            return 0;
+            return 1;
         }
 
         @Override
         public Object getGroup(int groupPosition) {
-            // TODO Auto-generated method stub
-            return null;
+            return licenses.get(groupPosition);
         }
 
         @Override
         public int getGroupCount() {
-            // TODO Auto-generated method stub
-            return 0;
+            return licenses.size();
         }
 
         @Override
         public long getGroupId(int groupPosition) {
-            // TODO Auto-generated method stub
-            return 0;
+            return groupPosition;
         }
 
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
                 ViewGroup parent) {
-            // TODO Auto-generated method stub
-            return null;
+            View v = convertView;
+
+            if (v == null) {
+                LayoutInflater vi = (LayoutInflater)context.getSystemService(
+                        Context.LAYOUT_INFLATER_SERVICE);
+                v = vi.inflate(R.layout.license_list_group_layout, null);
+            }
+
+            License l = licenses.get(groupPosition);
+
+            TextView name = (TextView)v.findViewById(R.id.name);
+            name.setText(l.getName());
+
+            TextView url = (TextView)v.findViewById(R.id.url);
+            url.setText(l.getUrl());
+
+            return v;
         }
 
         @Override
         public boolean hasStableIds() {
-            // TODO Auto-generated method stub
-            return false;
+            return true;
         }
 
         @Override
         public boolean isChildSelectable(int groupPosition, int childPosition) {
-            // TODO Auto-generated method stub
-            return false;
+            return true;
         }
 
     }
 
+    private static class License {
+
+        private final String name;
+        private final String url;
+        private final String license;
+
+        public License(String name, String url, String license) {
+            this.name = name;
+            this.url = url;
+            this.license = license;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public String getLicense() {
+            return license;
+        }
+    }
 }
