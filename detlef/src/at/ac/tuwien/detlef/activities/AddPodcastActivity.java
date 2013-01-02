@@ -264,15 +264,16 @@ public class AddPodcastActivity extends Activity {
 
         @Override
         public void handleSuccess(final List<Podcast> result) {
+            final List<Podcast> filteredResult = filterSubscribedPodcasts(result);
             getRcv().runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
                     getRcv().resultAdapter.clear();
-                    getRcv().resultAdapter.addAll(result);
+                    getRcv().resultAdapter.addAll(filteredResult);
 
                     Toast.makeText(getRcv(),
-                            String.format("%d results found", result.size()),
+                            String.format("%d results found", filteredResult.size()),
                             Toast.LENGTH_SHORT).show();
                 }
             });
@@ -298,7 +299,7 @@ public class AddPodcastActivity extends Activity {
                 @Override
                 public void run() {
                     getRcv().toplistAdapter.clear();
-                    getRcv().toplistAdapter.addAll(result);
+                    getRcv().toplistAdapter.addAll(filterSubscribedPodcasts(result));
                 }
             });
         }
@@ -324,11 +325,27 @@ public class AddPodcastActivity extends Activity {
                 @Override
                 public void run() {
                     getRcv().suggestionsAdapter.clear();
-                    getRcv().suggestionsAdapter.addAll(result);
+                    getRcv().suggestionsAdapter.addAll(filterSubscribedPodcasts(result));
                 }
             });
         }
 
+    }
+
+    /**
+     * Removes podcasts we are already subscribed to from in and returns the resulting list.
+     */
+    private static List<Podcast> filterSubscribedPodcasts(List<Podcast> in) {
+        List<Podcast> out = new ArrayList<Podcast>(in);
+
+        PodcastDAO dao = PodcastDAOImpl.i();
+        for (int i = out.size() - 1; i >= 0; i--) {
+            if (dao.getPodcastByUrl(out.get(i).getUrl()) != null) {
+                out.remove(i);
+            }
+        }
+
+        return out;
     }
 
     /**
