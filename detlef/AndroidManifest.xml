@@ -24,12 +24,16 @@
             android:uiOptions="splitActionBarWhenNarrow" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
         <activity
             android:name="at.ac.tuwien.detlef.activities.PlaylistActivity"
@@ -62,6 +66,14 @@
             android:label="@string/title_activity_add_podcast"
             android:parentActivityName="at.ac.tuwien.detlef.activities.MainActivity"
             android:windowSoftInputMode="stateHidden" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="at.ac.tuwien.detlef.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name="at.ac.tuwien.detlef.activities.LicensesActivity"
+            android:label="@string/title_activity_licenses"
+            android:parentActivityName="at.ac.tuwien.detlef.activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="at.ac.tuwien.detlef.activities.MainActivity" />

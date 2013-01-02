@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Detlef</string>
     <string name="player">Player</string>
     <string name="episodes">Episodes</string>
@@ -71,7 +72,7 @@
     <string name="search_results">Search Results</string>
     <string name="popular_podcasts">Popular Podcasts</string>
     <string name="continue_set_up_title">Next Step</string>
-    <string name="continue_set_up_summary" >After you have successfully verified your account settings, tap here to continue setting up your account.</string>
+    <string name="continue_set_up_summary">After you have successfully verified your account settings, tap here to continue setting up your account.</string>
     <string name="register_device_title">Registering device&#8230;</string>
     <string name="register_device_summary">Your device is now registered at gpodder.net</string>
     <string name="detlef_says_hello">Detlef says hello.</string>
@@ -118,4 +119,6 @@
     <string name="search_hint">Search Episodes</string>
     <string name="show_only_new_episodes">Show only new episodes</string>
     <string name="close">Close</string>
+    <string name="title_activity_licenses">Detlef Software Licenses</string>
+
 </resources>

@@ -756,6 +756,10 @@ public class MainActivity extends FragmentActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
+            case R.id.licenses:
+                intent = new Intent(this, LicensesActivity.class);
+                startActivity(intent);
+                break;
             case R.id.settings:
                 intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
