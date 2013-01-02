@@ -20,7 +20,11 @@
 package at.ac.tuwien.detlef.download;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,12 +70,12 @@ public class DetlefDownloadManager {
      * Places an Podcast in the system's download queue.
      * For downloading the Podcast Image.
      */
-    public void enqueue(Podcast podcast) throws IOException {        
+    public void enqueue(Podcast podcast) throws IOException {
         if (!isExternalStorageWritable()) {
             throw new IOException("Cannot write to external storage");
         }
         Uri uri = Uri.parse(podcast.getLogoUrl());
-        
+
         /* We may need to change our naming policy in case of duplicates. However,
          * let's ignore this for now since it's simplest for us and the user. */
         String path = String.format("%s/%s", podcast.getTitle(),
@@ -79,20 +83,20 @@ public class DetlefDownloadManager {
         /* Ensure the directory already exists. */
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), path);
         file.getParentFile().mkdirs();
-        
+
         Request request = new Request(uri);
         request.setDestinationInExternalFilesDir(context,Environment.DIRECTORY_PICTURES, path);
         request.setTitle(podcast.getTitle());
-        
+
         long id = downloadManager.enqueue(request);
         activeImgDownloads.put(id,  podcast);
-        
+
         podcast.setLogoFilePath(file.getAbsolutePath());
         pdao.updateLogoFilePath(podcast);
-        
+
         Log.v(TAG, String.format("Enqued download for img %s", path));
     }
-    
+
     /**
      * Places an episode in the system's download queue.
      * The episode's state is set to DOWNLOADING, and its path is updated.
@@ -163,7 +167,7 @@ public class DetlefDownloadManager {
         episode.setStorageState(StorageState.NOT_ON_DEVICE);
         dao.updateStorageState(episode);
     }
-    
+
     /**
      * Cancels the download of an podcast img. If the img is not currently being downloaded,
      * no action is taken.
@@ -176,7 +180,7 @@ public class DetlefDownloadManager {
             long id = entry.getKey();
             activeImgDownloads.remove(id);
             downloadManager.remove(id);
-            
+
             break;
         }
         podcast.setLogoFilePath("");
@@ -196,7 +200,7 @@ public class DetlefDownloadManager {
             dao.updateStorageState(episode);
         }
         for (Entry<Long, Podcast> entry :activeImgDownloads.entrySet()) {
-            
+
             downloadManager.remove(entry.getKey());
             Podcast p = entry.getValue();
             p.setLogoFilePath("");
@@ -218,22 +222,22 @@ public class DetlefDownloadManager {
                 Log.w(TAG, String.format("No active download found for id %d", id));
                 return;
             }
-    
+
             if (!isDownloadSuccessful(id)) {
                 Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
                         id, getDownloadFailureReason(id)));
-    
+
                 episode.setStorageState(StorageState.NOT_ON_DEVICE);
                 dao.updateStorageState(episode);
-    
+
                 return;
             }
-    
+
             Uri uri = downloadManager.getUriForDownloadedFile(id);
             Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
-    
+
             /* Update the episode's state in the database. */
-    
+
             episode.setStorageState(StorageState.DOWNLOADED);
             dao.updateStorageState(episode);
         } else {
@@ -250,11 +254,40 @@ public class DetlefDownloadManager {
                 }
                 Uri uri = downloadManager.getUriForDownloadedFile(id);
                 Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
-                
+
+                // move the icon to internal storage
+                String path = String.format("%s/%s", p.getTitle(),
+                        new File(uri.toString()).getName());
+                File destination = new File(context.getFilesDir(), path);
+                destination.getParentFile().mkdirs();
+                File source = new File(p.getLogoFilePath());
+                try {
+                    move(source, destination);
+                    p.setLogoFilePath(destination.getAbsolutePath());
+                } catch (IOException ex) {
+                    Log.e(TAG, String.format("Error on podcast icon move: %s", ex.getMessage()));
+                }
+
                 p.setLogoDownloaded(1);
                 pdao.updateLogoDownloaded(p);
             }
         }
+    }
+
+    private void move(File src, File dst) throws IOException {
+        InputStream in = new FileInputStream(src);
+        OutputStream out = new FileOutputStream(dst);
+
+        // Transfer bytes from in to out
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        in.close();
+        out.close();
+        src.delete();
+        src.getParentFile().delete();
     }
 
     private boolean isDownloadSuccessful(long id) {

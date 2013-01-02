@@ -343,6 +343,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
                     podcast.getLogoDownloaded());
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
 
             String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
             String[] selectionArgs = {
