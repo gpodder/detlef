@@ -25,25 +25,19 @@ import java.util.List;
 import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 
-import android.app.Activity;
 import android.content.Context;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.EpisodeActionDAO;
 import at.ac.tuwien.detlef.db.EpisodeActionDAOImpl;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.DeviceId;
-import at.ac.tuwien.detlef.domain.FeedUpdate;
-import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.domain.RemoteEpisodeAction;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.dragontek.mygpoclient.api.EpisodeAction;
 import com.dragontek.mygpoclient.api.EpisodeActionChanges;
 import com.dragontek.mygpoclient.api.MygPodderClient;
-import com.dragontek.mygpoclient.feeds.FeedServiceClient;
-import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
 
 /**
  * A Runnable to sync episode actions. It should be started in its own Thread
