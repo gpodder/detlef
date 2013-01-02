@@ -107,9 +107,8 @@ public class AddPodcastActivity extends Activity {
         lv.setAdapter(mergeAdapter);
 
         /*
-         * Iff we are starting for the first time, create dummy content for
-         * suggestions and the toplist. Otherwise, saved content will be
-         * restored later on.
+         * Iff we are starting for the first time, load toplist and suggestions contents from
+         * gpodder. Otherwise, saved content will be restored later on.
          */
 
         if (savedInstanceState == null) {
