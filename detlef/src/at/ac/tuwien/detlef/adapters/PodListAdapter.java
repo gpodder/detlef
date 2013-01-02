@@ -63,9 +63,16 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
 
         TextView lastUpdate = (TextView) v.findViewById(R.id.podListLastUpdate);
         if (lastUpdate != null) {
-            Date date = new Date(podcast.getLastUpdate() * MS_PER_SEC);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            lastUpdate.setText(sdf.format(date));
+            long timestampInMs = podcast.getLastUpdate() * MS_PER_SEC;
+
+            if (timestampInMs == 0) {
+                lastUpdate.setText(""); /* No known last update. */
+            } else {
+                Date date = new Date(timestampInMs);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                lastUpdate.setText(sdf.format(date));
+            }
+
             lastUpdate.setCompoundDrawablesWithIntrinsicBounds(null,
                         podcast.getLogoIcon(), null, null);
         }
