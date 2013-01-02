@@ -117,4 +117,5 @@
     <string name="syncing_episode_actions">Synchronizing episode actions.</string>
     <string name="search_hint">Search Episodes</string>
     <string name="show_only_new_episodes">Show only new episodes</string>
+    <string name="close">Close</string>
 </resources>
