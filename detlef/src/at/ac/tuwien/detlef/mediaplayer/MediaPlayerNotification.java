@@ -20,12 +20,14 @@ public class MediaPlayerNotification {
     /**
      * Creates and posts the notification layout containing a mini player.
      */
-    public static void create(Context context, boolean playing) {
+    public static void create(Context context, boolean playing, String caption) {
 
         Notification notification = createNotification(context);
 
         int img = (playing ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
         notification.contentView.setImageViewResource(R.id.play, img);
+
+        notification.contentView.setTextViewText(R.id.caption, (caption == null) ? "" : caption);
 
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
