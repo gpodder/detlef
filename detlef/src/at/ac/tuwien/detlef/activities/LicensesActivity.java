@@ -51,11 +51,16 @@ public class LicensesActivity extends ExpandableListActivity
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         licenses.clear();
-        licenses.add(new License("Detlef", "https://github.com/schuay/detlef", readRawText(R.raw.license_gpl2)));
-        licenses.add(new License("CWAC MergeAdapter & SackOfViewsAdapter", "TODO", "TODO"));
-        licenses.add(new License("gson", "TODO", "TODO"));
-        licenses.add(new License("mygpoclient-java", "TODO", "TODO"));
-        licenses.add(new License("drag-sort-listview", "TODO", "TODO"));
+        licenses.add(new License("Detlef", "https://github.com/schuay/detlef",
+                readRawText(R.raw.license_gpl2)));
+        licenses.add(new License("CWAC MergeAdapter & SackOfViewsAdapter",
+                "https://github.com/commonsguy", readRawText(R.raw.license_apache)));
+        licenses.add(new License("google-gson", "http://code.google.com/p/google-gson/",
+                readRawText(R.raw.license_apache)));
+        licenses.add(new License("mygpoclient-java", "https://github.com/Dragontek/mygpoclient-java",
+                readRawText(R.raw.license_gpl3)));
+        licenses.add(new License("drag-sort-listview", "https://github.com/bauerca/drag-sort-listview",
+                readRawText(R.raw.license_apache)));
 
         adapter = new LicensesExpandableListAdapter(this, licenses);
         setListAdapter(adapter);
