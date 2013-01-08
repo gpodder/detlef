@@ -40,7 +40,7 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
      * default serialUID added.
      */
     private static final long serialVersionUID = 1L;
-    
+
     private static int ICON_WIDTH = 80;
     private static int ICON_HEIGHT = 80;
 
@@ -61,9 +61,9 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
     private boolean localAdd;
 
     private boolean localDel;
-    
+
     private Drawable logoIcon;
-    
+
     private int logoDownloaded = 0;
 
     public Podcast() { }
@@ -88,9 +88,9 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
                 return new BitmapDrawable(Detlef.getAppContext().getResources(), bitmapOrig);
             }
         }
-        return Detlef.getAppContext().getResources().getDrawable(R.drawable.ic_launcher);
+        return Detlef.getAppContext().getResources().getDrawable(R.drawable.ic_feed_icon);
     }
-    
+
     /**
      * returns the icon for the podcast.
      * @return
@@ -101,7 +101,7 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         }
         return logoIcon;
     }
-    
+
     @Override
     public String getTitle() {
         return title;
