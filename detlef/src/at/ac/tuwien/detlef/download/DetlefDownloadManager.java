@@ -199,7 +199,7 @@ public class DetlefDownloadManager {
             episode.setStorageState(StorageState.NOT_ON_DEVICE);
             dao.updateStorageState(episode);
         }
-        for (Entry<Long, Podcast> entry :activeImgDownloads.entrySet()) {
+        for (Entry<Long, Podcast> entry : activeImgDownloads.entrySet()) {
 
             downloadManager.remove(entry.getKey());
             Podcast p = entry.getValue();
@@ -240,37 +240,35 @@ public class DetlefDownloadManager {
 
             episode.setStorageState(StorageState.DOWNLOADED);
             dao.updateStorageState(episode);
-        } else {
-            if (activeImgDownloads.containsKey(id)) {
-                Podcast p = activeImgDownloads.remove(id);
-                if (p == null) {
-                    Log.w(TAG, String.format("No active download found for id %d", id));
-                    return;
-                }
-                if (!isDownloadSuccessful(id)) {
-                    Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
-                            id, getDownloadFailureReason(id)));
-                    return;
-                }
-                Uri uri = downloadManager.getUriForDownloadedFile(id);
-                Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
-
-                // move the icon to internal storage
-                String path = String.format("%s/%s", p.getTitle(),
-                        new File(uri.toString()).getName());
-                File destination = new File(context.getFilesDir(), path);
-                destination.getParentFile().mkdirs();
-                File source = new File(p.getLogoFilePath());
-                try {
-                    move(source, destination);
-                    p.setLogoFilePath(destination.getAbsolutePath());
-                } catch (IOException ex) {
-                    Log.e(TAG, String.format("Error on podcast icon move: %s", ex.getMessage()));
-                }
-
-                p.setLogoDownloaded(1);
-                pdao.updateLogoDownloaded(p);
+        } else if (activeImgDownloads.containsKey(id)) {
+            Podcast p = activeImgDownloads.remove(id);
+            if (p == null) {
+                Log.w(TAG, String.format("No active download found for id %d", id));
+                return;
             }
+            if (!isDownloadSuccessful(id)) {
+                Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
+                        id, getDownloadFailureReason(id)));
+                return;
+            }
+            Uri uri = downloadManager.getUriForDownloadedFile(id);
+            Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
+
+            // move the icon to internal storage
+            String path = String.format("%s/%s", p.getTitle(),
+                    new File(uri.toString()).getName());
+            File destination = new File(context.getFilesDir(), path);
+            destination.getParentFile().mkdirs();
+            File source = new File(p.getLogoFilePath());
+            try {
+                move(source, destination);
+                p.setLogoFilePath(destination.getAbsolutePath());
+            } catch (IOException ex) {
+                Log.e(TAG, String.format("Error on podcast icon move: %s", ex.getMessage()));
+            }
+
+            p.setLogoDownloaded(1);
+            pdao.updateLogoDownloaded(p);
         }
     }
 
