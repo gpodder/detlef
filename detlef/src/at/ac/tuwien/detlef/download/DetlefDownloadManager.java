@@ -37,6 +37,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -224,8 +225,12 @@ public class DetlefDownloadManager {
             }
 
             if (!isDownloadSuccessful(id)) {
+                int reason = getDownloadFailureReason(id);
+                Toast.makeText(context,
+                        String.format("Download failed with error code %d", reason),
+                        Toast.LENGTH_SHORT).show();
                 Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
-                        id, getDownloadFailureReason(id)));
+                        id, reason));
 
                 episode.setStorageState(StorageState.NOT_ON_DEVICE);
                 dao.updateStorageState(episode);
@@ -234,6 +239,10 @@ public class DetlefDownloadManager {
             }
 
             Uri uri = downloadManager.getUriForDownloadedFile(id);
+
+            Toast.makeText(context,
+                    String.format("Download complete: %s", episode.getTitle()),
+                    Toast.LENGTH_SHORT).show();
             Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
 
             /* Update the episode's state in the database. */
