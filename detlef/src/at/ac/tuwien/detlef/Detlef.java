@@ -34,16 +34,28 @@ import android.content.Context;
  */
 public class Detlef extends Application {
 
-    /** App context.     */
+    /**
+     * The user agent used by the download manager.
+     * TODO: We statically set the version, application name and url.
+     */
+    public static final String USER_AGENT = "Detlef/1 (https://github.com/schuay/detlef/";
+
+    /** App context. */
     private static Context context;
 
+    @Override
     public void onCreate() {
         super.onCreate();
         Detlef.context = getApplicationContext();
+
+        /* Append our user agent to the one used by mygpoclient-java. */
+
+        com.dragontek.mygpoclient.Global.USER_AGENT = String.format("%s %s",
+                com.dragontek.mygpoclient.Global.USER_AGENT, USER_AGENT);
     }
-    
+
     /**
-     * Provides a mean to make the application context available via a static method.
+     * Provides means to make the application context available via a static method.
      * http://stackoverflow.com/questions/2002288/static-way-to-get-context-on-android
      * @return The Application's context.
      */
