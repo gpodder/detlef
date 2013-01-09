@@ -23,6 +23,7 @@ import java.util.HashMap;
 import android.content.SharedPreferences;
 import android.util.Log;
 import at.ac.tuwien.detlef.domain.DeviceId;
+import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 
 /**
  * Implementation of {@link GpodderSettingsDAO} that uses the internal Preference Storage
@@ -35,6 +36,7 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
 
     private HashMap<String, Object> dependencies = new HashMap<String, Object>();
 
+    @Override
     public GpodderSettings getSettings() {
         GpodderSettings result = new GpodderSettings();
 
@@ -45,14 +47,22 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         result.setLastEpisodeActionUpdate(getSharedPreferences()
                 .getLong("lastEpisodeActionUpdate", 0));
         result.setApiHostname(
-            getSharedPreferences().getString(KEY_API_ENDPOINT, DEFAULT_API_ENDPOINT)
-        );
+                getSharedPreferences().getString(KEY_API_ENDPOINT, DEFAULT_API_ENDPOINT)
+                );
         result.setFeedHostname(
-            getSharedPreferences().getString(KEY_FEED_ENDPOINT, DEFAULT_FEED_ENDPOINT)
-        );
-        
+                getSharedPreferences().getString(KEY_FEED_ENDPOINT, DEFAULT_FEED_ENDPOINT)
+                );
+
         result.setAccountVerified(getSharedPreferences().getBoolean(KEY_ACCOUNT_VERIFIED, false));
-        
+
+        result.setAscending(getSharedPreferences().getBoolean(KEY_EPISODE_SORT_ORDER, false));
+        try {
+            result.setSortChoice(EpisodeSortChoice.valueOf(
+                    getSharedPreferences().getString(KEY_EPISODE_SORT_CHOICE, "ReleaseDate")));
+        } catch (Exception e) {
+            result.setSortChoice(EpisodeSortChoice.ReleaseDate);
+        }
+
         try {
             result.setDeviceId(new DeviceId(getSharedPreferences().getString(KEY_DEVICE_ID, null)));
         } catch (IllegalArgumentException e) {
@@ -62,24 +72,27 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         return result;
     }
 
+    @Override
     public GpodderSettingsDAO writeSettings(GpodderSettings settings) {
 
         String deviceId = null;
-        
+
         if (settings.getDeviceId() != null) {
             deviceId = settings.getDeviceId().toString();
         }
-        
+
         getSharedPreferences().edit()
-            .putString(KEY_USERNAME, settings.getUsername())
-            .putString(KEY_PASSWORD, settings.getPassword())
-            .putString(KEY_DEVICE_ID, deviceId)
-            .putString(KEY_API_ENDPOINT, settings.getApiHostname())
-            .putString(KEY_FEED_ENDPOINT, settings.getFeedHostname())
-            .putBoolean(KEY_ACCOUNT_VERIFIED, settings.isAccountVerified())
-            .putLong("lastUpdate", settings.getLastUpdate())
-            .putLong("lastEpisodeActionUpdate", settings.getLastEpisodeActionUpdate())
-            .commit();
+        .putString(KEY_USERNAME, settings.getUsername())
+        .putString(KEY_PASSWORD, settings.getPassword())
+        .putString(KEY_DEVICE_ID, deviceId)
+        .putString(KEY_API_ENDPOINT, settings.getApiHostname())
+        .putString(KEY_FEED_ENDPOINT, settings.getFeedHostname())
+        .putBoolean(KEY_ACCOUNT_VERIFIED, settings.isAccountVerified())
+        .putLong("lastUpdate", settings.getLastUpdate())
+        .putLong("lastEpisodeActionUpdate", settings.getLastEpisodeActionUpdate())
+        .putBoolean(KEY_EPISODE_SORT_ORDER, settings.isAscending())
+        .putString(KEY_EPISODE_SORT_CHOICE, settings.getSortChoice().toString())
+        .commit();
         return this;
 
     }
@@ -88,6 +101,7 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
      * This implementation requires an object of type
      * {@link SharedPreferences} with the key sharedPreferences.
      */
+    @Override
     public GpodderSettingsDAO setDependencies(HashMap<String, Object> pDependencies) {
         Log.d(TAG, this + "setDependencies: " + pDependencies);
         dependencies = pDependencies;

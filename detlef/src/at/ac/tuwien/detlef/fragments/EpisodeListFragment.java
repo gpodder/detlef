@@ -48,13 +48,14 @@ import at.ac.tuwien.detlef.filter.KeywordFilter;
 import at.ac.tuwien.detlef.filter.NewFilter;
 import at.ac.tuwien.detlef.filter.PodcastFilter;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
 /**
  * The {@link Fragment} that displays a list of {@link Episode Episodes}.
  */
 public class EpisodeListFragment extends ListFragment
-        implements EpisodeDAO.OnEpisodeChangeListener {
+implements EpisodeDAO.OnEpisodeChangeListener {
 
     private static final String TAG = EpisodeListFragment.class.getName();
     private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
@@ -67,6 +68,8 @@ public class EpisodeListFragment extends ListFragment
     private OnEpisodeSelectedListener listener;
 
     private GUIUtils guiUtils;
+
+    private GpodderSettings settings;
 
     /**
      * The parent activity must implement this interface in order to interact
@@ -107,6 +110,7 @@ public class EpisodeListFragment extends ListFragment
         setListAdapter(adapter);
 
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
+        restoreSortOrder();
     }
 
     @Override
@@ -133,6 +137,8 @@ public class EpisodeListFragment extends ListFragment
                 filterByPodcast();
             }
         }
+        /* restore sort order */
+        restoreSortOrder();
     }
 
     @Override
@@ -188,6 +194,14 @@ public class EpisodeListFragment extends ListFragment
         if (selectionChanged) {
             setSelection(0);
         }
+
+        /* restore sort order */
+        restoreSortOrder();
+    }
+
+    private void restoreSortOrder() {
+        settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(getActivity());
+        this.sortEpisodeList(settings.getSortChoice(), settings.isAscending());
     }
 
     private void filterByPodcast() {
@@ -303,7 +317,7 @@ public class EpisodeListFragment extends ListFragment
     public void onMarkReadUnreadClick(View v) {
         Episode episode = ((Episode) v.getTag());
         DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
-                .toggleEpisodeReadState(episode);
+        .toggleEpisodeReadState(episode);
         adapter.notifyDataSetChanged();
     }
 

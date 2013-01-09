@@ -20,6 +20,9 @@ package at.ac.tuwien.detlef.settings;
 
 import java.util.HashMap;
 
+import at.ac.tuwien.detlef.domain.DeviceId;
+
+
 /**
  * The GpodderSettingsDAO takes care that {@link GpodderSettings} are retrieved
  * from some storage.
@@ -28,31 +31,37 @@ import java.util.HashMap;
  */
 public interface GpodderSettingsDAO {
 
-    
+
     /** The key that is used to store the user name. */
     String KEY_USERNAME = "username";
-    
+
     /** The key that is used to store the password. */
     String KEY_PASSWORD = "password";
-    
+
     /** The key that is used to store the {@link DeviceId}. */
     String KEY_DEVICE_ID = "device-id";
 
     /** The key that is used to store the API end point hostname. */
     String KEY_API_ENDPOINT = "api_endpoint_hostname";
-    
+
     /** Default hostname for the API end point. */
     String DEFAULT_API_ENDPOINT = "gpodder.net";
-    
+
     /** The key that is used to store the feed end point hostname. */
     String KEY_FEED_ENDPOINT = "feed_endpoint_hostname";
-    
+
     /** Default hostname for the feed end point. */
     String DEFAULT_FEED_ENDPOINT = "feeds.gpodder.net";
-    
+
     /** Key that stores if an account has been verified. */
     String KEY_ACCOUNT_VERIFIED = "account_verified";
-    
+
+    /** Key that stores the sort choice of episodes. */
+    String KEY_EPISODE_SORT_CHOICE = "episode_sort_choice";
+
+    /** Key that stores the sort order of episodes. */
+    String KEY_EPISODE_SORT_ORDER = "episode_sort_order";
+
     /**
      * Loads the current settings form the storage engine and makes them available to the
      * application.

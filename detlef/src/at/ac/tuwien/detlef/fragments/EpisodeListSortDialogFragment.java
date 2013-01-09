@@ -26,14 +26,19 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class EpisodeListSortDialogFragment extends DialogFragment {
 
     private RadioButton rbAscending;
+    private RadioButton rbDescending;
     private RadioButton rbReleaseDate;
     private RadioButton rbPodcast;
+
+    private GpodderSettings settings;
 
     // Use this instance of the interface to deliver action events
     private NoticeDialogListener mListener;
@@ -52,44 +57,62 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+        settings = DependencyAssistant.getDependencyAssistant().
+                getGpodderSettings(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialoglayout = inflater.inflate(R.layout.episode_sort_dialog_fragment, null);
 
         rbAscending = (RadioButton) dialoglayout.findViewById(R.id.rbAscending);
+        rbDescending = (RadioButton) dialoglayout.findViewById(R.id.rbDescending);
         rbReleaseDate = (RadioButton) dialoglayout.findViewById(R.id.rbReleaseDate);
         rbPodcast = (RadioButton) dialoglayout.findViewById(R.id.rbPodcast);
+        rbAscending.setChecked(settings.isAscending());
+        rbDescending.setChecked(!settings.isAscending());
+        if (settings.getSortChoice() == EpisodeSortChoice.ReleaseDate) {
+            rbReleaseDate.setChecked(true);
+            rbPodcast.setChecked(false);
+        } else {
+            rbReleaseDate.setChecked(false);
+            rbPodcast.setChecked(true);
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(dialoglayout);
         builder.setPositiveButton(R.string.button_ok, new
                 DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        // ok
-                        EpisodeSortChoice choice = EpisodeSortChoice.ReleaseDate;
-                        if (rbPodcast.isChecked()) {
-                            choice = EpisodeSortChoice.Podcast;
-                        } else {
-                            if (rbReleaseDate.isChecked()) {
-                                choice = EpisodeSortChoice.ReleaseDate;
-                            }
-                        }
-                        mListener.onEpisodeSortDialogPositiveClick(
-                                EpisodeListSortDialogFragment.this,
-                                rbAscending.isChecked(), choice);
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                // ok
+                EpisodeSortChoice choice = EpisodeSortChoice.ReleaseDate;
+                if (rbPodcast.isChecked()) {
+                    choice = EpisodeSortChoice.Podcast;
+                } else {
+                    if (rbReleaseDate.isChecked()) {
+                        choice = EpisodeSortChoice.ReleaseDate;
                     }
-                })
-                .setNegativeButton(R.string.button_cancel, new
-                        DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                // cancel
-                                mListener
-                                        .onEpisodeSortDialogNegativeClick(EpisodeListSortDialogFragment.this);
-                            }
-                        })
-                .setTitle("Sort Options");
+                }
+                // change settings
+                settings.setSortChoice(choice).setAscending(rbAscending.isChecked());
+                // save settings
+                DependencyAssistant.getDependencyAssistant()
+                .getGpodderSettingsDAO(getActivity())
+                .writeSettings(settings);
+
+                mListener.onEpisodeSortDialogPositiveClick(
+                        EpisodeListSortDialogFragment.this,
+                        rbAscending.isChecked(), choice);
+            }
+        })
+        .setNegativeButton(R.string.button_cancel, new
+                DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                // cancel
+                mListener
+                .onEpisodeSortDialogNegativeClick(EpisodeListSortDialogFragment.this);
+            }
+        })
+        .setTitle("Sort Options");
 
         return builder.create();
     }

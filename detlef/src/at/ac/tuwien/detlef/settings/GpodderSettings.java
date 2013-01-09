@@ -19,6 +19,7 @@
 package at.ac.tuwien.detlef.settings;
 
 import at.ac.tuwien.detlef.domain.DeviceId;
+import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 
 /**
  * POJO that holds the settings for Gpodder.net.
@@ -44,6 +45,10 @@ public class GpodderSettings {
     private long lastEpisodeActionUpdate;
 
     private boolean accountVerified = false;
+
+    private EpisodeSortChoice sortChoice = EpisodeSortChoice.ReleaseDate;
+
+    private boolean ascending = false;
 
     /**
      * @return The user name
@@ -169,6 +174,24 @@ public class GpodderSettings {
 
     public GpodderSettings setAccountVerified(boolean pAccountVerified) {
         accountVerified = pAccountVerified;
+        return this;
+    }
+
+    public boolean isAscending() {
+        return ascending;
+    }
+
+    public GpodderSettings setAscending(boolean iAscending) {
+        this.ascending = iAscending;
+        return this;
+    }
+
+    public EpisodeSortChoice getSortChoice() {
+        return sortChoice;
+    }
+
+    public GpodderSettings setSortChoice(EpisodeSortChoice iSortChoice) {
+        this.sortChoice = iSortChoice;
         return this;
     }
 
