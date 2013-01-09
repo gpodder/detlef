@@ -53,6 +53,10 @@ public class DetlefDownloadManager {
 
     private static final String TAG = DetlefDownloadManager.class.getName();
 
+    /** The user agent used by the download manager. TODO: Note that mygpoclient uses its own
+     * user agent, and we statically set the version here to "1". */
+    private static final String USER_AGENT = "Detlef/1 (https://github.com/schuay/detlef/";
+
     private final Map<Long, Episode> activeDownloads = new ConcurrentHashMap<Long, Episode>();
     private final Map<Long, Podcast> activeImgDownloads = new ConcurrentHashMap<Long, Podcast>();
     private final Context context;
@@ -126,6 +130,7 @@ public class DetlefDownloadManager {
         request.setTitle(episode.getTitle());
         request.setDescription(
                 String.format("Downloading episode from podcast %s", podcast.getTitle()));
+        request.addRequestHeader("user-agent", USER_AGENT);
 
         long id = downloadManager.enqueue(request);
         activeDownloads.put(id, episode);
