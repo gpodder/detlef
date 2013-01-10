@@ -233,22 +233,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // TODO: What should we do on upgrade? For now, drop and recreate all
-        // tables.
-        db.execSQL("DROP INDEX IF EXISTS " + EPISODE_RELEASED_INDEX);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_DEL);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_ADD);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE_PLAY_ACTION);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE_ACTION);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
+        if (oldVersion < 12) {
+            db.execSQL("DROP INDEX IF EXISTS " + EPISODE_RELEASED_INDEX);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_DEL);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_ADD);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYLIST);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE_PLAY_ACTION);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE_ACTION);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
 
-        GpodderSettings settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(
-                Detlef.getAppContext());
-        settings.setLastUpdate(0);
-        DependencyAssistant.getDependencyAssistant().getGpodderSettingsDAO(Detlef.getAppContext())
-                .writeSettings(settings);
-        onCreate(db);
+            GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+                    .getGpodderSettings(
+                            Detlef.getAppContext());
+            settings.setLastUpdate(0);
+            DependencyAssistant.getDependencyAssistant()
+                    .getGpodderSettingsDAO(Detlef.getAppContext())
+                    .writeSettings(settings);
+            onCreate(db);
+        }
     }
 }
