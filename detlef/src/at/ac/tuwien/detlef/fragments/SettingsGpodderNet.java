@@ -254,6 +254,9 @@ public class SettingsGpodderNet extends PreferenceFragment {
         Preference password = findPreference("password");
         password.setSummary(maskPassword(getSettings().getPassword()));
         Preference devicename = findPreference("devicename");
+        
+        Log.d(TAG, "getDevicename(): >" + getSettings().getDevicename() + "<");
+        
         devicename.setSummary(getSettings().getDevicename());
     }
 

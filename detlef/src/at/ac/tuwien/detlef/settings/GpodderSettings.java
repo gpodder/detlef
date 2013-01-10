@@ -18,6 +18,7 @@
 
 package at.ac.tuwien.detlef.settings;
 
+import android.os.Build;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 
@@ -84,6 +85,11 @@ public class GpodderSettings {
      *
      */
     public String getDevicename() {
+        
+        if (devicename == null || devicename.isEmpty()) {
+            return getDefaultDevicename();
+        }
+        
         return devicename;
     }
 
@@ -132,8 +138,8 @@ public class GpodderSettings {
         return lastEpisodeActionUpdate;
     }
 
-    public GpodderSettings setLastEpisodeActionUpdate(long lastEpisodeActionUpdate) {
-        this.lastEpisodeActionUpdate = lastEpisodeActionUpdate;
+    public GpodderSettings setLastEpisodeActionUpdate(long pLastEpisodeActionUpdate) {
+        lastEpisodeActionUpdate = pLastEpisodeActionUpdate;
         return this;
     }
 
@@ -141,22 +147,28 @@ public class GpodderSettings {
         return apiHostname;
     }
 
-
-    /**
-     * This is used to indicate whether the value of
-     * {@link GpodderSettings#getDevicename()} has been determined automatically
-     * from the user name. If so, the device name gets updated if the user name
-     * is updated.
-     *
-     * @return true, if the value from {@link GpodderSettings#getDevicename()}
-     *         is the default value, false otherwise.
-     */
-    public boolean isDefaultDevicename() {
-        return getDevicename().equals(getDefaultDevicename());
+    private String getDefaultDevicename() {
+        return String.format(
+            "detlef%s%s",
+            getDeviceManufacturer().isEmpty() ? "" : "-",
+            getDeviceManufacturer()
+        );
     }
 
-    private String getDefaultDevicename() {
-        return String.format("%s-android", getUsername());
+    /**
+     * @return String in lowercase that identifies the device manufacturer.
+     */
+    private String getDeviceManufacturer() {
+        
+        if (Build.PRODUCT != null && Build.PRODUCT.equals("sdk")) {
+            return "emulator";
+        }
+        
+        if (Build.MANUFACTURER == null || Build.MANUFACTURER.toLowerCase().equals("unknown")) {
+            return "";
+        }
+        
+        return Build.MANUFACTURER.toLowerCase();
     }
 
     public String getFeedHostname() {

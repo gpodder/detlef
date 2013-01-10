@@ -17,9 +17,7 @@
 
 package at.ac.tuwien.detlef.fragments.callbacks;
 
-import android.content.SharedPreferences.Editor;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
@@ -48,10 +46,6 @@ public class SettingsUsernameOnPreferenceChangeListener implements OnPreferenceC
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             preference.setSummary((String) newValue);
-
-            if (getSettings().isDefaultDevicename()) {
-                updateDeviceName((String) newValue);
-            }
             
             if (!getSettings().getUsername().equals((String) newValue)) {
                 // you have been warned!!
@@ -91,21 +85,6 @@ public class SettingsUsernameOnPreferenceChangeListener implements OnPreferenceC
 
         private GpodderSettings getSettings() {
             return DependencyAssistant.getDependencyAssistant().getGpodderSettings();
-        }
-
-        private void updateDeviceName(String username) {
-            Editor edit = PreferenceManager
-                    .getDefaultSharedPreferences(sender.getActivity())
-                    .edit();
-
-            boolean writeDevicenameStatus = edit.putString(
-                    "devicename",
-                    String.format("%s-android", username)
-                    ).commit();
-
-            if (writeDevicenameStatus) {
-                sender.findPreference("devicename").setSummary(getSettings().getDevicename());
-            }
         }
 
 }

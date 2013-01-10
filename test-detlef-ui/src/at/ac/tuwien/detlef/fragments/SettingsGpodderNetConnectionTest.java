@@ -262,11 +262,6 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
             return new GpodderSettings() {
 
                 @Override
-                public boolean isDefaultDevicename() {
-                    return true;
-                }
-
-                @Override
                 public String getUsername() {
                     return "username";
                 }
