@@ -272,8 +272,10 @@ public class GPodderSync {
                 try {
                     iface.authCheck(syncResponder, reqCode, tempClientInfo);
                 } catch (RemoteException rex) {
-                    handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                    handler.handleFailure(
+                        PodderService.ErrorCode.SENDING_REQUEST_FAILED,
+                        rex.toString()
+                    );
                     iface = null;
                     return;
                 }

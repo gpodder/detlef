@@ -19,7 +19,10 @@
 package at.ac.tuwien.detlef.settings;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
@@ -29,8 +32,8 @@ import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
  * A {@link ConnectionTester} that verifies {@link GpodderSettings} data against
  * the public API of gpodder.net.
  * 
- * <p>This implementation needs a {@link Context} to be injected via {@link #setContext(Context)} in
- * order to work properly.</p>
+ * <p>This implementation needs a {@link Context} to be injected via {@link #setContext(Context)}
+ * in order to work properly.</p>
  * 
  * @author moe
  *
@@ -38,7 +41,7 @@ import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
 public class ConnectionTesterGpodderNet implements ConnectionTester {
 
     /** Tag for logging. */
-    private static final String TAG = "ConnectionTesterGpodderNet"; 
+    private static final String TAG = ConnectionTesterGpodderNet.class.getCanonicalName(); 
     
     /**    The result of the authentication against the gpodder.net service. */
     private boolean gpodderNetResult = false;
@@ -60,6 +63,11 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
         
         Log.d(TAG, "testConnection(" + settings + ")");
         
+        if (!isOnline()) {
+            Log.w(TAG, "device is offline");
+            throw new GpodderConnectionException();
+        }
+        
         SynchronousSyncResponder syncResponder = new SynchronousSyncResponder(getContext());
 
         GPodderSync gpodderSync = new GPodderSync(syncResponder);
@@ -75,23 +83,24 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
             ctrh
         );
         
-        Log.d(TAG, "wating for completion ...");
         syncResponder.waitForCompletion();
-        Log.d(TAG, "done.");
-        
-        if (is401Unauthorized()) {
-            throw new GpodderConnectionException();
-        }
         
         return gpodderNetResult;
     }
 
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) Detlef.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return (netInfo != null && netInfo.isConnectedOrConnecting());
+    }
+
     private static class ConnectionTesterResultHandler
-    extends ReliableResultHandler<ConnectionTesterGpodderNet>
-    implements NoDataResultHandler<ConnectionTesterGpodderNet> {
+        extends ReliableResultHandler<ConnectionTesterGpodderNet>
+        implements NoDataResultHandler<ConnectionTesterGpodderNet> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
+            
             Log.d(TAG, String.format("failure! errCode: %d errStr: %s", errCode, errStr));
             
             getRcv().resultErrStr = errStr;
@@ -103,14 +112,6 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
             Log.d(TAG, String.format("success!"));
             getRcv().gpodderNetResult = true;
         }
-    }
-
-    /**
-     * @return true if the response from gpodder.net was 401 UNAUTHORIZED,
-     *     false else.
-     */
-    private boolean is401Unauthorized() {
-        return !gpodderNetResult && resultErrStr.toLowerCase().contains("401 unauthorized");
     }
 
     /**

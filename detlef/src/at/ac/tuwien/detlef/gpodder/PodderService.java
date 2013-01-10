@@ -195,6 +195,7 @@ public class PodderService extends Service {
 
         SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
                 cinfo.getHostname());
+        
         boolean ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
 
         if (!ok) {
