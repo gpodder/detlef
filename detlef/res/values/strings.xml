@@ -50,7 +50,7 @@
     <string name="checking_your_account_settings_title">Checking account settings&#8230;</string>
     <string name="checking_your_account_settings_summary">Hold your breath and cross your fingers - Your account settings are being checked on gpodder.net</string>
     <string name="connectiontest_successful">Hi %1$s! Your account settings are valid.</string>
-    <string name="connectiontest_unsuccessful">Your username and/or password is not correct. Check your settings and try again.</string>
+    <string name="connectiontest_unsuccessful">Your username and/or password could not be verified.</string>
     <string name="connectiontest_error">Whoopsie - Could not connect to gpodder.net. Check your internet settings, relax a bit and try again.</string>
     <string name="operation_failed">Operation failed</string>
     <string name="refresh_successful">Refresh successful</string>

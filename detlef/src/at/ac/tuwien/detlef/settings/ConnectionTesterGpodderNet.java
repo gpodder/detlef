@@ -89,7 +89,8 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
     }
 
     private boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) Detlef.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) Detlef.getAppContext()
+            .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return (netInfo != null && netInfo.isConnectedOrConnecting());
     }
