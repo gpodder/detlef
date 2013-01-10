@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.mediaplayer;
 
 import at.ac.tuwien.detlef.domain.Episode;
@@ -124,4 +122,10 @@ public interface IMediaPlayerService {
      *         played instead of the next episode.
      */
     boolean isManual();
+
+    /**
+     * @return Gets the current download progress of an episode, if it is
+     *         currently being downloaded.
+     */
+    int getDownloadProgress();
 }

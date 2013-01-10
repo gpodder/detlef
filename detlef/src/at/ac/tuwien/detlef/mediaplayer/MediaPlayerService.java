@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
@@ -49,7 +50,9 @@ import at.ac.tuwien.detlef.domain.Episode.StorageState;
 public class MediaPlayerService extends Service implements IMediaPlayerService,
         MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, PlaylistDAO.OnPlaylistChangeListener,
-        EpisodeDAO.OnEpisodeChangeListener {
+        EpisodeDAO.OnEpisodeChangeListener, OnBufferingUpdateListener {
+
+    private static final double HUNDRED_PERCENT = 100.0d;
 
     private static final String TAG = MediaPlayerService.class.getName();
 
@@ -65,6 +68,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     private boolean manual = false;
     private Episode manualEpisode;
     private TelephonyManager telManager;
+    private int bufferState;
 
     /**
      * Binder that allows local classes to communicate with the service.
@@ -167,11 +171,12 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         if (activeEpisode == null) {
             return null;
         }
+        if (activeEpisode.getStorageState() != StorageState.DOWNLOADED) {
+            return Uri.parse(activeEpisode.getUrl());
+        }
         if (!episodeFileOK(activeEpisode)) {
-            if (activeEpisode != null) {
-                activeEpisode.setStorageState(StorageState.NOT_ON_DEVICE);
-                episodeDAO.updateStorageState(activeEpisode);
-            }
+            activeEpisode.setStorageState(StorageState.NOT_ON_DEVICE);
+            episodeDAO.updateStorageState(activeEpisode);
             return null;
         }
         return Uri.fromFile(new File(activeEpisode.getFilePath()));
@@ -270,6 +275,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnErrorListener(this);
             mediaPlayer.setOnCompletionListener(this);
+            mediaPlayer.setOnBufferingUpdateListener(this);
             running = true;
         }
 
@@ -422,7 +428,6 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             return false;
         }
         if ((ep.getFilePath() == null) || ep.getFilePath().equals("")) {
-            Log.d(getClass().getName(), "Episode " + ep.getGuid() + " has an empty file path");
             return false;
         }
         File f = new File(ep.getFilePath());
@@ -445,7 +450,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             mediaPlayer.start();
         } else {
             activeEpisode = getNextEpisode();
-            if (episodeFileOK(activeEpisode)) {
+            if (activeEpisode != null) {
                 prepareEpisodePlayback();
             } else {
                 haveRunningEpisode = false;
@@ -471,11 +476,17 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         } catch (IllegalStateException e) {
             Log.e(getClass().getCanonicalName(),
                     "Media Player startup failed!", e);
-            e.printStackTrace();
+            haveRunningEpisode = false;
+            setCurrentlyPlaying(false);
+            mediaPlayerPrepared = false;
+            mediaPlayer.reset();
         } catch (IOException e) {
             Log.e(getClass().getCanonicalName(),
                     "Media Player startup failed!", e);
-            e.printStackTrace();
+            haveRunningEpisode = false;
+            setCurrentlyPlaying(false);
+            mediaPlayerPrepared = false;
+            mediaPlayer.reset();
         }
         return this;
     }
@@ -500,9 +511,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     public Episode getNextEpisode() {
         if (manual) {
             return manualEpisode;
-        } else {
-            return nextEpisode;
         }
+        return nextEpisode;
     }
 
     @Override
@@ -608,6 +618,20 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         /* Update the notification. */
         MediaPlayerNotification.create(this, currentlyPlaying,
                 (activeEpisode == null) ? null : activeEpisode.getTitle());
+    }
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+        if (!mediaPlayerPrepared) {
+            this.bufferState = percent;
+        } else {
+            this.bufferState = (int) ((mp.getDuration() * percent) / HUNDRED_PERCENT);
+        }
+    }
+
+    @Override
+    public int getDownloadProgress() {
+        return bufferState;
     }
 
 }

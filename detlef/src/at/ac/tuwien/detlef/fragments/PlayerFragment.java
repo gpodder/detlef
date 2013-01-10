@@ -47,6 +47,7 @@ import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 
@@ -147,7 +148,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         buttonRew = (ImageButton) v.findViewById(R.id.ButtonRewind);
         buttonRew.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v1) {
                 rewind();
             }
         });
@@ -157,7 +158,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         buttonFF = (ImageButton) v.findViewById(R.id.ButtonFF);
         buttonFF.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v1) {
                 fastForward();
             }
         });
@@ -168,7 +169,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 (ImageButton) v.findViewById(R.id.ButtonPlayStop);
         buttonPlayStop.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v1) {
                 startStop();
             }
         });
@@ -266,6 +267,12 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                     .setImageResource(android.R.drawable.ic_media_play);
             setNotPlayingSeekBarAndTime(activeEpisode);
         }
+        if ((activeEpisode != null)
+                && (activeEpisode.getStorageState() != StorageState.DOWNLOADED)) {
+            seekBar.setSecondaryProgress(service.getDownloadProgress());
+        } else {
+            seekBar.setSecondaryProgress(0);
+        }
         Runnable notification = new Runnable() {
             @Override
             public void run() {
@@ -292,6 +299,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return this;
         }
+
         if (service.isCurrentlyPlaying()) {
             service.pausePlaying();
             buttonPlayStop.setImageResource(android.R.drawable.ic_media_play);
@@ -379,6 +387,11 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             podcast.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
                     .getTitle());
             episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
+            remainingTime.setText("-00:00");
+            alreadyPlayed.setText("00:00");
+            seekBar.setMax(1);
+            seekBar.setProgress(0);
+            seekBar.setSecondaryProgress(0);
             setNotPlayingSeekBarAndTime(ep);
             podcastIcon.setImageDrawable(ep.getPodcast().getLogoIcon());
         }
@@ -410,11 +423,13 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 alreadyPlayed.setText(minutesSecondsAlreadyPlayed);
                 seekBar.setMax(duration);
                 seekBar.setProgress(pos);
-            } else {
-                remainingTime.setText("-00:00");
-                alreadyPlayed.setText("00:00");
-                seekBar.setMax(1);
-                seekBar.setProgress(0);
+                seekBar.setSecondaryProgress(0);
+            } else if ((service.getNextEpisode() == ep) && service.hasRunningEpisode()) {
+                seekBar.setMax(service.getDuration());
+                seekBar.setProgress(service.getCurrentPosition());
+                alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
+                remainingTime.setText("-"
+                        + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
             }
         } catch (Exception ex) {
             Log.d(getClass().getName(),

@@ -58,7 +58,6 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.episode_list_layout, null);
         }
-        Log.d(TAG, "getView()");
 
         v.setTag(episode);
 

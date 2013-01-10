@@ -77,7 +77,8 @@
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@+id/playerRemainingTime"
             android:layout_toRightOf="@+id/playerAlreadyPlayed"
-            android:minHeight="20dp" />
+            android:minHeight="20dp"
+            android:secondaryProgress="@android:color/holo_blue_light" />
 
         <TextView
             android:id="@+id/playerRemainingTime"
