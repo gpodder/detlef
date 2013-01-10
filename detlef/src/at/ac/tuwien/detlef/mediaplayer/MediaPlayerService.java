@@ -445,7 +445,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
      */
     @Override
     public IMediaPlayerService startPlaying() {
-        if (haveRunningEpisode && (nextEpisode == activeEpisode)) {
+        if (haveRunningEpisode && (nextEpisode == activeEpisode)
+                && (activeEpisode.getStorageState() != StorageState.DOWNLOADED)) {
             setCurrentlyPlaying(true);
             mediaPlayer.start();
         } else {
