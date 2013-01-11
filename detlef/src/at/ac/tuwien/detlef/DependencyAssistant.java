@@ -125,10 +125,7 @@ public class DependencyAssistant {
      *         that provides the user name, password and device name settings.
      */
     public GpodderSettings getGpodderSettings(Context context) {
-
-
         return getGpodderSettingsDAO(context).getSettings();
-
     }
 
     /**
@@ -138,7 +135,6 @@ public class DependencyAssistant {
      * @throws IllegalArgumentException In case context is null.
      */
     public GpodderSettingsDAO getGpodderSettingsDAO(Context context) {
-
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
         }
@@ -146,10 +142,8 @@ public class DependencyAssistant {
         Log.d(TAG, "sharedPreferences:" + PreferenceManager.getDefaultSharedPreferences(context));
 
         HashMap<String, Object> dependencies = new HashMap<String, Object>();
-        dependencies.put(
-            "sharedPreferences",
-            PreferenceManager.getDefaultSharedPreferences(context)
-        );
+        dependencies.put("sharedPreferences",
+                PreferenceManager.getDefaultSharedPreferences(context));
 
         GpodderSettingsDAO gpodderSettingsDAO = new GpodderSettingsDAOAndroid();
         gpodderSettingsDAO.setDependencies(dependencies);
