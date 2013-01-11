@@ -56,19 +56,19 @@ public class DependencyAssistant {
 
     private static final String TAG = DependencyAssistant.class.getCanonicalName();
 
-    private static DependencyAssistant dependencyAssistant =
-            new DependencyAssistant();
+    private static DependencyAssistant dependencyAssistant = new DependencyAssistant();
 
-    private final EpisodeDBAssistant EPISODE_DB_ASSISTANT =
-            new EpisodeDBAssistantImpl();
-    private final PodcastDBAssistant PODCAST_DB_ASSISTANT =
-            new PodcastDBAssistantImpl();
+    private EpisodeDBAssistant episodeDBAssistant = null;
+    private PodcastDBAssistant podcastDBAssistant = null;
     private DetlefDownloadManager downloadManager = null;
-    private final GUIUtils GUI_UTILS = new GUIUtils();
+    private GUIUtils guiUtils = null;
     private GPodderSync gPodderSync = null;
 
     public GUIUtils getGuiUtils() {
-        return GUI_UTILS;
+        if (guiUtils == null) {
+            guiUtils = new GUIUtils();
+        }
+        return guiUtils;
     }
 
     /**
@@ -90,7 +90,10 @@ public class DependencyAssistant {
      *         program.
      */
     public PodcastDBAssistant getPodcastDBAssistant() {
-        return PODCAST_DB_ASSISTANT;
+        if (podcastDBAssistant == null) {
+            podcastDBAssistant = new PodcastDBAssistantImpl();
+        }
+        return podcastDBAssistant;
     }
 
     /**
@@ -98,7 +101,10 @@ public class DependencyAssistant {
      *         program.
      */
     public EpisodeDBAssistant getEpisodeDBAssistant() {
-        return EPISODE_DB_ASSISTANT;
+        if (episodeDBAssistant == null) {
+            episodeDBAssistant = new EpisodeDBAssistantImpl();
+        }
+        return episodeDBAssistant;
     }
 
     /**
@@ -177,8 +183,7 @@ public class DependencyAssistant {
      * 
      * @param pDependencyAssistant
      */
-    public static void setDependencyAssistant(
-            DependencyAssistant pDependencyAssistant) {
+    public static void setDependencyAssistant(DependencyAssistant pDependencyAssistant) {
         dependencyAssistant = pDependencyAssistant;
     }
 
