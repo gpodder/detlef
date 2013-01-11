@@ -56,7 +56,7 @@ public class DependencyAssistant {
 
     private static final String TAG = DependencyAssistant.class.getCanonicalName();
 
-    private static DependencyAssistant dependencyAssistant = new DependencyAssistant();
+    private static DependencyAssistant dependencyAssistant = null;
 
     private EpisodeDBAssistant episodeDBAssistant = null;
     private PodcastDBAssistant podcastDBAssistant = null;
@@ -173,6 +173,9 @@ public class DependencyAssistant {
     }
 
     public static DependencyAssistant getDependencyAssistant() {
+        if (dependencyAssistant == null) {
+            dependencyAssistant = new DependencyAssistant();
+        }
         return dependencyAssistant;
     }
 
