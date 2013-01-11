@@ -69,17 +69,23 @@ public class DependencyAssistant {
 
     private static final String TAG = DependencyAssistant.class.getCanonicalName();
 
-    private static final GPodderSync gPodderSync = new GPodderSync(new SynchronousSyncResponder(
-            Detlef.getAppContext()));
+    private static GPodderSync gPodderSync = null;
 
     public GUIUtils getGuiUtils() {
         return GUI_UTILS;
     }
 
     /**
+     * Lazy initialization to both improve performance and avoid issues getting the
+     * application context in unit tests.
+     *
      * @return Gets the quasi-singleton GPodderSync instance for this program.
      */
     public GPodderSync getGPodderSync() {
+        if (gPodderSync == null) {
+            gPodderSync = new GPodderSync(new SynchronousSyncResponder(
+                    Detlef.getAppContext()));
+        }
         return gPodderSync;
     }
 
