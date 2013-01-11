@@ -42,7 +42,7 @@ import com.jayway.android.robotium.solo.Solo;
 public class SettingsGpodderNetConnectionTest extends
 ActivityInstrumentationTestCase2<SettingsActivity> {
 
-    private DependcyAssistantTestSettings depencyAssistant = new DependcyAssistantTestSettings();
+    private DependencyAssistantTestSettings dependencyAssistant = new DependencyAssistantTestSettings();
 
     public enum ConnectionTestBehavior {CORRECT, INCORRECT, CONNECTIONERROR};
 
@@ -58,11 +58,9 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 
     @Override
     public void setUp() throws Exception {
-
-
         resetSettings();
 
-        DependencyAssistant.setDependencyAssistant(depencyAssistant);
+        DependencyAssistant.setDependencyAssistant(dependencyAssistant);
 
         solo = new Solo(getInstrumentation(), getActivity());
         solo.setActivityOrientation(Solo.PORTRAIT);
@@ -94,7 +92,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 
     public void testConnectIncorrectUsernamePassword() throws Exception {
 
-        depencyAssistant.connectionTestBehavior = ConnectionTestBehavior.INCORRECT;
+        dependencyAssistant.connectionTestBehavior = ConnectionTestBehavior.INCORRECT;
 
         solo.clickOnText(
                 (String) getActivity().getText(R.string.test_connection)
@@ -122,7 +120,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
      */
     public void testConnectError() throws Exception {
 
-        depencyAssistant.connectionTestBehavior = ConnectionTestBehavior.CONNECTIONERROR;
+        dependencyAssistant.connectionTestBehavior = ConnectionTestBehavior.CONNECTIONERROR;
 
         solo.clickOnText(
                 (String) getActivity().getText(R.string.test_connection)
@@ -150,7 +148,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
      */
     public void testConnectCorrectUsernamePassword() throws Exception {
 
-        depencyAssistant.connectionTestBehavior = ConnectionTestBehavior.CORRECT;
+        dependencyAssistant.connectionTestBehavior = ConnectionTestBehavior.CORRECT;
 
         solo.clickOnText(
                 (String) getActivity().getText(R.string.test_connection)
@@ -160,7 +158,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
 
         String expected = String.format(
                 getActivity().getText(R.string.connectiontest_successful).toString(),
-                depencyAssistant.getGpodderSettings(getActivity()).getUsername()
+                dependencyAssistant.getGpodderSettings(getActivity()).getUsername()
                 );
 
         assertTrue(
@@ -177,8 +175,8 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
      * the message to the new activity.
      */
     public void testRotateScreenWhileProgressBarIsShowing() {
-        depencyAssistant.connectionTestSleepTime = 5000;
-        depencyAssistant.connectionTestBehavior = ConnectionTestBehavior.INCORRECT;
+        dependencyAssistant.connectionTestSleepTime = 5000;
+        dependencyAssistant.connectionTestBehavior = ConnectionTestBehavior.INCORRECT;
 
         solo.clickOnText(
                 (String) getActivity().getText(R.string.test_connection)
@@ -213,7 +211,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
      * <ul>
      *   <li>{@link DependencyAssistant#getConnectionTester()}: Instead of a real connection test
      *   	this is replaced by a mock connection test, whose outcome can be defined via
-     *   	{@link DependcyAssistantTestSettings#connectionTestBehavior}. So the UI functionality
+     *   	{@link DependencyAssistantTestSettings#connectionTestBehavior}. So the UI functionality
      *   	can be tested without having to make a real connection.
      *   </li>
      *   <li>
@@ -226,7 +224,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
      * 
      * @author moe
      */
-    public class DependcyAssistantTestSettings extends DependencyAssistant {
+    public class DependencyAssistantTestSettings extends DependencyAssistant {
 
         public ConnectionTestBehavior connectionTestBehavior = ConnectionTestBehavior.CORRECT;
 
