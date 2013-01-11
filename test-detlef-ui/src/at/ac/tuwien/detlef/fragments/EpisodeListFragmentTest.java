@@ -19,6 +19,7 @@
 package at.ac.tuwien.detlef.fragments;
 
 import android.test.ActivityInstrumentationTestCase2;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
@@ -36,6 +37,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
 
     public EpisodeListFragmentTest() {
         super(MainActivity.class);
+        DependencyAssistant.setDependencyAssistant(new MockDependencyAssistant());
     }
 
     @Override

@@ -257,35 +257,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
         @Override
         public GpodderSettings getGpodderSettings(Context context) {
 
-            return new GpodderSettings() {
-
-                @Override
-                public String getUsername() {
-                    return "username";
-                }
-
-                @Override
-                public String getPassword() {
-                    return "password";
-                }
-
-                @Override
-                public String getDevicename() {
-                    return "username-android";
-                }
-
-                @Override
-                public long getLastUpdate() {
-                    // TODO Auto-generated method stub
-                    return 0;
-                }
-
-                @Override
-                public GpodderSettings setLastUpdate(long timestamp) {
-                    // TODO Auto-generated method stub
-                    return this;
-                }
-            };
+            return new MockGpodderSettings();
         }
 
     }
