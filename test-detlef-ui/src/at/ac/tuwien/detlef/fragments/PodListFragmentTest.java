@@ -51,6 +51,7 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
         Podcast p = new Podcast();
         uuid = java.util.UUID.randomUUID().toString();
         p.setTitle(uuid);
+        p.setLocalAdd(true);
 
         assertTrue(dao.insertPodcast(p) != null);
 
