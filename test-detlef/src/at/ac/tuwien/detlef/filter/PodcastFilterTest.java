@@ -21,7 +21,6 @@ package at.ac.tuwien.detlef.filter;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import at.ac.tuwien.detlef.domain.*;
-import at.ac.tuwien.detlef.domain.Episode.ActionState;
 
 /**
  * Tests the {@link PodcastFilter}.

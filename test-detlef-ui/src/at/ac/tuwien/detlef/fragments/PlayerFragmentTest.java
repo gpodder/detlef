@@ -19,11 +19,8 @@
 
 package at.ac.tuwien.detlef.fragments;
 
-import android.content.Context;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
-import android.view.Display;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
