@@ -26,6 +26,17 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import com.dragontek.mygpoclient.api.EpisodeActionChanges;
 import com.dragontek.mygpoclient.feeds.IFeed;
 
+/* TODO: The DB implementation is in need of some refactoring.
+ *
+ * Most of the functionality is implemented in DAOImpl classes, but
+ * some (with no reason) is in DBAssistants. Originally, it was
+ * intended to have public DBAssistant classes and to keep DAOImpl's
+ * private. This is still doable but requires some effort.
+ *
+ * DB object caching (episodes/podcasts/...) should be moved into a separate
+ * class layer (decorators).
+ */
+
 /**
  * provides database access for episodes.
  */
