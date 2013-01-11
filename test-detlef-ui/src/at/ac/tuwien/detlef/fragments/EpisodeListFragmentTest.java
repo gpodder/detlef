@@ -47,13 +47,12 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         uuid = java.util.UUID.randomUUID().toString();
     }
 
-    /**
-     * Upon adding a new episode to the DAO, it should be displayed in the episode list.
-     */
-    public void testAddEpisode() {
+    private Episode insertEpisode() {
         Podcast p = new Podcast();
         p.setTitle(uuid);
+
         PodcastDAOImpl.i().insertPodcast(p);
+
         Episode e = new Episode(p);
         e.setAuthor("author");
         e.setDescription("description");
@@ -65,7 +64,17 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         e.setTitle(uuid);
         e.setUrl("url");
         e.setStorageState(StorageState.NOT_ON_DEVICE);
+
         dao.insertEpisode(e);
+
+        return e;
+    }
+
+    /**
+     * Upon adding a new episode to the DAO, it should be displayed in the episode list.
+     */
+    public void testAddEpisode() {
+        Episode e = insertEpisode();
 
         solo.clickOnText("EPISODES");
         while (solo.scrollDown()) ;
@@ -75,10 +84,13 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
     }
 
     public void testRotation() {
+        Episode e = insertEpisode();
+
         solo.setActivityOrientation(Solo.LANDSCAPE);
         while (solo.scrollDown()) ;
 
         assertTrue(String.format("New episode %s should be displayed in list", uuid), solo.searchText(uuid));
+        assertTrue(String.format("New episode %s should be in DAO", uuid), dao.getAllEpisodes().contains(e));
     }
 
     /**

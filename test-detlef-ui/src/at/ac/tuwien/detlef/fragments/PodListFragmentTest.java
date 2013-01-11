@@ -45,15 +45,21 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
         uuid = java.util.UUID.randomUUID().toString();
     }
 
-    /**
-     * Upon adding a new podcast to the DAO, it should be displayed in the podcast list.
-     */
-    public void testAddPodcast() {
+    private Podcast insertPodcast() {
         Podcast p = new Podcast();
         uuid = java.util.UUID.randomUUID().toString();
         p.setTitle(uuid);
 
         assertTrue(dao.insertPodcast(p) != null);
+
+        return p;
+    }
+
+    /**
+     * Upon adding a new podcast to the DAO, it should be displayed in the podcast list.
+     */
+    public void testAddPodcast() {
+        Podcast p = insertPodcast();
 
         while (solo.scrollDown()) ;
 
@@ -62,14 +68,13 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
     }
 
     public void testRotation() {
+        Podcast p = insertPodcast();
+
         solo.setActivityOrientation(Solo.LANDSCAPE);
         while (solo.scrollDown()) ;
-        Podcast p = new Podcast();
-        uuid = java.util.UUID.randomUUID().toString();
-        p.setTitle(uuid);
-        dao.insertPodcast(p);
 
         assertTrue(String.format("New podcast %s should be displayed in list", uuid), solo.searchText(uuid));
+        assertTrue(String.format("New podcast %s should be in DAO", uuid), dao.getPodcastById(p.getId()) != null);
     }
 
     /**
@@ -77,17 +82,14 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
      * and should not be contained in the podcast DAO.
      */
     public void testRemovePodcast() {
+        Podcast p = insertPodcast();
+
         while (solo.scrollDown()) ;
-        Podcast p = new Podcast();
-        uuid = java.util.UUID.randomUUID().toString();
-        p.setTitle(uuid);
-        p = dao.insertPodcast(p);
 
         solo.clickLongOnText(uuid);
         solo.clickOnText(getActivity().getString(at.ac.tuwien.detlef.R.string.delete_feed));
 
         assertFalse(String.format("Deleted podcast %s should not be displayed in list", uuid), solo.searchText(uuid));
-        // Member variables don't keep their values between tests?
         assertFalse(String.format("Deleted podcast %s should not be in DAO", uuid), dao.getPodcastById(p.getId()) != null);
         
     }
