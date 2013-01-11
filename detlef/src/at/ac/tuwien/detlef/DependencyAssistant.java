@@ -54,22 +54,18 @@ import at.ac.tuwien.detlef.util.GUIUtils;
  */
 public class DependencyAssistant {
 
+    private static final String TAG = DependencyAssistant.class.getCanonicalName();
+
     private static DependencyAssistant dependencyAssistant =
             new DependencyAssistant();
 
-    private static final EpisodeDBAssistant EPISODE_DB_ASSISTANT =
+    private final EpisodeDBAssistant EPISODE_DB_ASSISTANT =
             new EpisodeDBAssistantImpl();
-
-    private static final PodcastDBAssistant PODCAST_DB_ASSISTANT =
+    private final PodcastDBAssistant PODCAST_DB_ASSISTANT =
             new PodcastDBAssistantImpl();
-
-    private static DetlefDownloadManager downloadManager = null;
-
-    private static final GUIUtils GUI_UTILS = new GUIUtils();
-
-    private static final String TAG = DependencyAssistant.class.getCanonicalName();
-
-    private static GPodderSync gPodderSync = null;
+    private DetlefDownloadManager downloadManager = null;
+    private final GUIUtils GUI_UTILS = new GUIUtils();
+    private GPodderSync gPodderSync = null;
 
     public GUIUtils getGuiUtils() {
         return GUI_UTILS;
