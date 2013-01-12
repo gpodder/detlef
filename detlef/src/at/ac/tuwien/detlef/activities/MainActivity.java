@@ -30,6 +30,7 @@ import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -60,6 +61,8 @@ import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.filter.KeywordFilter;
+import at.ac.tuwien.detlef.filter.NewFilter;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
@@ -175,6 +178,7 @@ public class MainActivity extends FragmentActivity
         }
 
         playlistDAO = PlaylistDAOImpl.i();
+
     }
 
     private void startSettingsActivityIfNoDeviceIdSet() {
@@ -367,10 +371,6 @@ public class MainActivity extends FragmentActivity
             PodcastDAO pDao = PodcastDAOImpl.i();
 
             final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false);
-
-            Log.d(TAG, "r bundle: " + getBundle());
-            Log.d(TAG, "r bundle extra: " + showDialog);
-            Log.d(TAG, "r handler: " + this);
 
             synchronized (getRcv().numPodSync) {
 
@@ -622,15 +622,19 @@ public class MainActivity extends FragmentActivity
 
         menu = pMenu;
 
-        // TODO: AFAIK onCreateOptionsMenu is called only once and
-        // mViewPager is always 0 upon creation, thus this switch probably
-        // is useless. Check and remove.
+        // on application startup, mViewPager is always 0.
+        // however, if you are in a tab and the activity is re-created,
+        // it can be <> 0. thus, you can restore the menu item's status
+        // here.
+        
         switch (mViewPager.getCurrentItem()) {
             case SectionsPagerAdapter.POSITION_PODCASTS:
                 getMenuInflater().inflate(R.menu.podcast_menu, menu);
                 break;
             case SectionsPagerAdapter.POSITION_EPISODES:
                 getMenuInflater().inflate(R.menu.episode_menu, menu);
+                setSearchManager();
+                updateEpisodeFilterUiStatus();
                 break;
             case SectionsPagerAdapter.POSITION_PLAYER:
                 getMenuInflater().inflate(R.menu.player_menu, menu);
@@ -659,6 +663,7 @@ public class MainActivity extends FragmentActivity
                 case SectionsPagerAdapter.POSITION_EPISODES:
                     getMenuInflater().inflate(R.menu.episode_menu, menu);
                     setSearchManager();
+                    updateEpisodeFilterUiStatus();
                     break;
                 case SectionsPagerAdapter.POSITION_PLAYER:
                     getMenuInflater().inflate(R.menu.player_menu, menu);
@@ -669,24 +674,44 @@ public class MainActivity extends FragmentActivity
         }
         mViewPager.setCurrentItem(tab.getPosition());
     }
+    
+    /**
+     * Updates the status of the episode filters, i.e. make all necessary UI 
+     * changes to visualize the status of the currently set filters.
+     */
+    private void updateEpisodeFilterUiStatus() {
+        
+        if (menu == null || menu.findItem(R.id.menu_show_only_new_episodes) == null) {
+            return;
+        }
+        MenuItem item = menu.findItem(R.id.menu_show_only_new_episodes);
+        
+        item.setChecked(getEpisodeListFragment().getFilter().contains(new NewFilter()));
+    }
 
     /**
-     * Get the SearchView and set the searchable configuration for the episode
-     * keyword filter.
+     * Get the {@link SearchView} and set the {@link SearchableInfo} 
+     * configuration for the
+     * {@link EpisodeListFragment#getFilter() episode keyword filter}.
      */
     private void setSearchManager() {
+        String tmptag = "searchmanager";
+        Log.d(tmptag, "setSearchManager()");
+        
         if (menu.findItem(R.id.menu_search) == null) {
+            Log.d(tmptag, "is null");
             return;
         }
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        
+        
         SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(true);
         searchView.setOnQueryTextListener(new EpisodeSearchQueryTextListener(
                 getEpisodeListFragment()));
-        
-        
     }
 
     @Override
@@ -755,6 +780,7 @@ public class MainActivity extends FragmentActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
+        
         switch (item.getItemId()) {
             case R.id.licenses:
                 intent = new Intent(this, LicensesActivity.class);
@@ -888,10 +914,11 @@ public class MainActivity extends FragmentActivity
         }
         
         if (mViewPager.getCurrentItem() != SectionsPagerAdapter.POSITION_EPISODES) {
-            return false;            
+            return false;
         }
         
         menu.findItem(R.id.menu_search).expandActionView();
+        
         return true;
     }
 

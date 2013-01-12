@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -43,6 +44,7 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.filter.EpisodeFilter;
 import at.ac.tuwien.detlef.filter.FilterChain;
 import at.ac.tuwien.detlef.filter.KeywordFilter;
 import at.ac.tuwien.detlef.filter.NewFilter;
@@ -59,6 +61,8 @@ implements EpisodeDAO.OnEpisodeChangeListener {
 
     private static final String TAG = EpisodeListFragment.class.getName();
     private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
+    private static final String BUNDLE_FILTERS = "BUNDLE_FILTERS";
+    
     private static final long ID_NONE = -1;
 
     private EpisodeListModel model;
@@ -96,7 +100,7 @@ implements EpisodeDAO.OnEpisodeChangeListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate()");
+        Log.d(TAG, "onCreate(" + savedInstanceState + ")");
 
         EpisodeDAOImpl dao = EpisodeDAOImpl.i();
         dao.addEpisodeChangedListener(this);
@@ -111,6 +115,30 @@ implements EpisodeDAO.OnEpisodeChangeListener {
 
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
         restoreSortOrder();
+        restoreFilter(savedInstanceState);
+        
+        
+    }
+    
+    /**
+     * Restores the {@link EpisodeFilter episode filters}, e.g. after the
+     * screen has been rotated.
+     * @param savedInstanceState
+     */
+    private void restoreFilter(Bundle savedInstanceState) {
+        
+        if (savedInstanceState == null) {
+            return;
+        }
+        
+        try {
+            FilterChain pFilter = (FilterChain) savedInstanceState.getSerializable(BUNDLE_FILTERS);
+            setFilter(pFilter);
+            refresh();
+        } catch (Exception e) {
+            Log.e(TAG, "Exception restoring filter chain" , e);
+        }
+        
     }
 
     @Override
@@ -149,7 +177,7 @@ implements EpisodeDAO.OnEpisodeChangeListener {
          * Save the currently selected podcast's ID in order to be able to
          * restore filter settings later on.
          */
-
+        outState.putSerializable(BUNDLE_FILTERS, getFilter());
         long id = (filteredByPodcast == null ? ID_NONE : filteredByPodcast.getId());
         outState.putLong(BUNDLE_SELECTED_PODCAST, id);
     }
@@ -174,6 +202,7 @@ implements EpisodeDAO.OnEpisodeChangeListener {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.episode_context, menu);
+        
     }
 
     /**
@@ -372,12 +401,21 @@ implements EpisodeDAO.OnEpisodeChangeListener {
         }
 
     }
-
+    
+    /**
+     * @return The FilterChain currently associated with this
+     * EpisodeListFragment. This method must not return null.
+     */
     public FilterChain getFilter() {
         return filter;
     }
 
     public EpisodeListFragment setFilter(FilterChain pFilter) {
+        
+        if (pFilter == null) {
+            throw new IllegalArgumentException("pFilter must not be null");
+        }
+        
         filter = pFilter;
         return this;
     }

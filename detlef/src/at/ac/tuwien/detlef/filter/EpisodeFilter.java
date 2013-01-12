@@ -1,5 +1,7 @@
 package at.ac.tuwien.detlef.filter;
 
+import java.io.Serializable;
+
 import at.ac.tuwien.detlef.domain.Episode;
 
 /**
@@ -7,7 +9,7 @@ import at.ac.tuwien.detlef.domain.Episode;
  * @author moe
  *
  */
-public interface EpisodeFilter {
+public interface EpisodeFilter extends Serializable {
     
     /**
      * Runs a check and returns a status that determines, if an

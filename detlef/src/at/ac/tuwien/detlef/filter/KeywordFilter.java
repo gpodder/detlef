@@ -8,6 +8,8 @@ import at.ac.tuwien.detlef.domain.Episode;
  */
 public class KeywordFilter implements EpisodeFilter {
 
+    /** serialization id. */
+    private static final long serialVersionUID = -7024572083865033288L;
     /**
      * The keyword to filter for in lower case.
      */
@@ -58,6 +60,13 @@ public class KeywordFilter implements EpisodeFilter {
     @Override
     public String getFilterName() {
         return getClass().getCanonicalName();
+    }
+
+    /**
+     * @return The current keyword or null if no keyword is set.
+     */
+    public String getKeyword() {
+        return keyword;
     }
 
 }

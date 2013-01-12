@@ -15,6 +15,8 @@ import at.ac.tuwien.detlef.domain.Episode;
  */
 public class FilterChain implements EpisodeFilter {
     
+    /** serialization id */
+    private static final long serialVersionUID = -2419542734907859360L;
     /**
      * The {@link Map} that contains the filters. The key is the
      * canonical name of the {@link EpisodeFilter}'s class. This
@@ -22,11 +24,8 @@ public class FilterChain implements EpisodeFilter {
      */
     private Map<String, EpisodeFilter> filters = new HashMap<String, EpisodeFilter>();
     
-    /** Logging tag */
-    private static final String TAG = FilterChain.class.getCanonicalName();
-    
     /**
-     * Goes through the set of provived {@link EpisodeFilters} and checks
+     * Goes through the set of provided {@link EpisodeFilters} and checks
      * for each of them, if {@link EpisodeFilter#filter(Episode)} returns
      * true. If there is only a single EpisodeFilter for which filter(Episode)
      * returns true, this method will return true. If for all filters in
@@ -34,9 +33,6 @@ public class FilterChain implements EpisodeFilter {
      */
     @Override
     public boolean filter(Episode episode) {
-        
-        Log.d(TAG, "filter(" + episode + ")");
-        Log.d(TAG, "there are " + filters.size() + " filters in the chain");
         
         for (String key : filters.keySet()) {
             if (filters.get(key).filter(episode)) {
@@ -59,6 +55,21 @@ public class FilterChain implements EpisodeFilter {
     public FilterChain putEpisodeFilter(EpisodeFilter episodeFilter) {
         filters.put(episodeFilter.getFilterName(), episodeFilter);
         return this;
+    }
+    
+    /**
+     * Gets an {@link EpisodeFilter} by passing another instance of 
+     * EpisodeFilter.
+     * @param episodeFilter
+     * @return the EpisodeFilter or null, if no filter with the given type
+     * exists in the chain. If the result is not null, the returned
+     * EpisodeFilter must be of the same type as the one passed as 
+     * parameter. 
+     */
+    public EpisodeFilter getEpisodeFilterByType(EpisodeFilter episodeFilter) {
+        
+        return filters.get(episodeFilter.getFilterName());
+        
     }
     
     /**
@@ -88,6 +99,17 @@ public class FilterChain implements EpisodeFilter {
     public FilterChain removeEpisodeFilter(String filterName) {
         filters.remove(filterName);
         return this;
+    }
+    
+    /**
+     * Returns whether the list of filters contains an {@link EpisodeFilter}
+     * of the same type as passed on via the parameter.
+     * @param filter The EpisodeFilter to check for. This needs not to be
+     * the very same instance, but only the same type.
+     * @return true if a filter of the given type is contained, false else.
+     */
+    public boolean contains(EpisodeFilter filter) {
+        return filters.containsKey(filter.getFilterName());
     }
     
     /**
