@@ -783,6 +783,7 @@ public class MainActivity extends FragmentActivity
             case R.id.sort:
                 android.support.v4.app.DialogFragment dialog = new EpisodeListSortDialogFragment();
                 dialog.show(getSupportFragmentManager(), "EpisodeListSortDialogFragment");
+                break;
             default:
                 break;
         }

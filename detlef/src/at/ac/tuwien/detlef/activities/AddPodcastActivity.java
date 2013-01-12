@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.activities;
 
 import java.util.ArrayList;
@@ -30,6 +28,7 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,9 +39,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.activities.MainActivity.SectionsPagerAdapter;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
@@ -107,8 +108,9 @@ public class AddPodcastActivity extends Activity {
         lv.setAdapter(mergeAdapter);
 
         /*
-         * Iff we are starting for the first time, load toplist and suggestions contents from
-         * gpodder. Otherwise, saved content will be restored later on.
+         * Iff we are starting for the first time, load toplist and suggestions
+         * contents from gpodder. Otherwise, saved content will be restored
+         * later on.
          */
 
         if (savedInstanceState == null) {
@@ -167,7 +169,8 @@ public class AddPodcastActivity extends Activity {
         }
 
         resultAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SEARCH_RESULTS));
-        suggestionsAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SUGGESTIONS));
+        suggestionsAdapter
+                .addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SUGGESTIONS));
         toplistAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_TOPLIST));
     }
 
@@ -203,8 +206,15 @@ public class AddPodcastActivity extends Activity {
                 // refresh feed handling
                 onBackPressed();
                 return true;
+            case R.id.add_podcast_from_url:
+                addNewPodcastFromURL();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addNewPodcastFromURL() {
+        // TODO open DialogFragment here
     }
 
     public void onSearchClick(View view) {
@@ -241,6 +251,10 @@ public class AddPodcastActivity extends Activity {
         View parent = (View) view.getParent();
         Podcast p = (Podcast) parent.getTag();
 
+        resultAdapter.remove(p);
+        suggestionsAdapter.remove(p);
+        toplistAdapter.remove(p);
+
         PodcastDAO dao = PodcastDAOImpl.i();
         p.setLocalAdd(true);
         if (dao.insertPodcast(p) == null) {
@@ -250,7 +264,6 @@ public class AddPodcastActivity extends Activity {
 
         Toast.makeText(this, "Subscription update succeeded", Toast.LENGTH_SHORT).show();
         podcastsAdded++;
-
     }
 
     /**
@@ -258,7 +271,7 @@ public class AddPodcastActivity extends Activity {
      * displays the results.
      */
     private static class SearchResultHandler extends ReliableResultHandler<AddPodcastActivity>
-    implements PodcastListResultHandler<AddPodcastActivity> {
+            implements PodcastListResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
@@ -293,7 +306,7 @@ public class AddPodcastActivity extends Activity {
     }
 
     private static class ToplistResultHandler extends ReliableResultHandler<AddPodcastActivity>
-    implements PodcastListResultHandler<AddPodcastActivity> {
+            implements PodcastListResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
@@ -319,7 +332,7 @@ public class AddPodcastActivity extends Activity {
     }
 
     private static class SuggestionResultHandler extends ReliableResultHandler<AddPodcastActivity>
-    implements PodcastListResultHandler<AddPodcastActivity> {
+            implements PodcastListResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
@@ -345,7 +358,8 @@ public class AddPodcastActivity extends Activity {
     }
 
     /**
-     * Removes podcasts we are already subscribed to from in and returns the resulting list.
+     * Removes podcasts we are already subscribed to from in and returns the
+     * resulting list.
      */
     private static List<Podcast> filterSubscribedPodcasts(List<Podcast> in) {
         List<Podcast> out = new ArrayList<Podcast>(in);
@@ -377,6 +391,11 @@ public class AddPodcastActivity extends Activity {
             return podcasts;
         }
 
+        public void removePodcast(Podcast p) {
+            podcasts.remove(p);
+            notifyDataSetChanged();
+        }
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View v = convertView;
@@ -397,7 +416,12 @@ public class AddPodcastActivity extends Activity {
             podcastDesc.setText(Html.fromHtml(podcast.getDescription()));
 
             return v;
-
         }
     }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu pMenu) {
+//        getMenuInflater().inflate(R.menu.activity_add_podcast, pMenu);
+//        return true;
+//    }
 }

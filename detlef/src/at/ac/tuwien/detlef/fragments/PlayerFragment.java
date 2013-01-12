@@ -380,7 +380,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                             .toString());
             podcast.setText("");
             episodeDescription.loadData("", "text/html; charset=UTF-8", null);
-            podcastIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
+            podcastIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_feed_icon));
         } else {
             episodeDescription.loadData(ep.getDescription() == null ? "" : ep.getDescription(),
                     "text/html; charset=UTF-8", null);
