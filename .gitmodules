@@ -1,6 +1,6 @@
 [submodule "mygpoclient-java"]
 	path = mygpoclient-java
-	url = git@github.com:schuay/mygpoclient-java.git
+	url = git://github.com/Dragontek/mygpoclient-java.git
 [submodule "drag-sort-listview"]
 	path = drag-sort-listview
 	url = git://github.com/bauerca/drag-sort-listview.git
