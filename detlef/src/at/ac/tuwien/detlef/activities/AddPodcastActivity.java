@@ -413,7 +413,10 @@ public class AddPodcastActivity extends Activity {
             podcastName.setText(podcast.getTitle());
 
             TextView podcastDesc = (TextView) v.findViewById(R.id.podcast_description);
-            podcastDesc.setText(Html.fromHtml(podcast.getDescription()));
+            
+            if (podcastDesc != null && podcast != null & podcast.getDescription() != null) {
+                podcastDesc.setText(Html.fromHtml(podcast.getDescription()));
+            }
 
             return v;
         }
