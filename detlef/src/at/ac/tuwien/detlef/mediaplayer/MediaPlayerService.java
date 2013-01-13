@@ -330,6 +330,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
                 startPlaying();
                 break;
             case EXTRA_CLOSE_NOTIFICATION:
+                mediaPlayer.reset();
+                haveRunningEpisode = false;
                 MediaPlayerNotification.cancel(this);
                 break;
             default:
@@ -623,6 +625,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
+        System.out.println("Buffering update");
         if (!mediaPlayerPrepared) {
             this.bufferState = percent;
         } else {
@@ -633,6 +636,14 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     @Override
     public int getDownloadProgress() {
         return bufferState;
+    }
+
+    @Override
+    public void stopStreamingIfPaused() {
+        if (!currentlyPlaying) {
+            mediaPlayer.reset();
+            haveRunningEpisode = false;
+        }
     }
 
 }

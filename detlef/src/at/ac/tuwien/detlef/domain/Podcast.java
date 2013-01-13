@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.domain;
 
 import java.io.Serializable;
@@ -62,11 +61,12 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
 
     private boolean localDel;
 
-    private Drawable logoIcon;
+    private transient Drawable logoIcon;
 
     private int logoDownloaded = 0;
 
-    public Podcast() { }
+    public Podcast() {
+    }
 
     public Podcast(IPodcast p) {
         setUrl(p.getUrl());
@@ -77,6 +77,7 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
 
     /**
      * Creates the logo icon.
+     * 
      * @return
      */
     private Drawable createLogoIcon() {
@@ -93,6 +94,7 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
 
     /**
      * returns the icon for the podcast.
+     * 
      * @return
      */
     public Drawable getLogoIcon() {
@@ -200,7 +202,9 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         dest.writeString(logoFilePath);
         dest.writeString(url);
         dest.writeLong(lastUpdate);
-        dest.writeBooleanArray(new boolean[]{localAdd, localDel});
+        dest.writeBooleanArray(new boolean[] {
+                localAdd, localDel
+        });
     }
 
     public int getLogoDownloaded() {

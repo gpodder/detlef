@@ -234,6 +234,9 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onPause() {
         fragmentPaused = true;
+        if (service != null) {
+            service.stopStreamingIfPaused();
+        }
         super.onPause();
     }
 

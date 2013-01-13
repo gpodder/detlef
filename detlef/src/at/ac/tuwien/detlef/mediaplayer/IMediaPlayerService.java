@@ -128,4 +128,9 @@ public interface IMediaPlayerService {
      *         currently being downloaded.
      */
     int getDownloadProgress();
+
+    /**
+     * Stops streaming from the internet if paused.
+     */
+    void stopStreamingIfPaused();
 }
