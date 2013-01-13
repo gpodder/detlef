@@ -1,5 +1,5 @@
 /* *************************************************************************
- *  Copyright 2012 The detlef developers                                   *
+ *  Copyright 2012-2013 The detlef developers                              *
  *                                                                         *
  *  This program is free software: you can redistribute it and/or modify   *
  *  it under the terms of the GNU General Public License as published by   *
@@ -15,33 +15,60 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.gpodder;
 
-import java.io.Serializable;
+import android.app.Fragment;
+import at.ac.tuwien.detlef.callbacks.Callback;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 /**
- * An Exception thrown (or sent) when something in the GPodder backend goes wrong.
+ *
  */
-public class GPodderException extends Exception implements Serializable {
+public abstract class ConnectionTestCallback<Receiver extends Fragment>
+    implements Callback<Receiver> {
+    
+    private Receiver rcv = null;
 
-    private static final long serialVersionUID = 1L;
-    private Throwable exeption;
+    @Override
+    public void init() {
+        /* nothing */
+    }
 
-    public GPodderException() {
-        super();
+    @Override
+    public void destroy() {
+        /* nothing */
     }
+
+    @Override
+    public void registerReceiver(Receiver rcv) {
+        this.rcv = rcv;
+    }
+
+    @Override
+    public void unregisterReceiver() {
+        this.rcv = null;
+    }
+
     
-    public GPodderException(String msg) {
-        super(msg);
-    }
+    /**
+     * Called if the provided settings are valid, i.e. the username/password
+     * combination is recognized as valid account.
+     * @param settings
+     */
+    public abstract void connectionIsValid(GpodderSettings settings);
     
-    public GPodderException setNestedException(Throwable pException) {
-        exeption = pException;
-        return this;
-    }
+    /**
+     * Called if the provided settings are not valid.
+     */
+    public abstract void connectionIsNotValid();
     
-    public Throwable getNestedException() {
-        return exeption;
+    /**
+     * Called if an error occurs while connecting.
+     */
+    public abstract void connectionFailed();
+
+    public Receiver getRcv() {
+        return rcv;
     }
+
 }

@@ -10,6 +10,9 @@ import at.ac.tuwien.detlef.domain.Episode.ActionState;
  */
 public class NewFilter implements EpisodeFilter {
 
+    /** serialization id. */
+    private static final long serialVersionUID = 4318458607820746610L;
+
     /**
      * @return false if the {@link Episode episode's} {@link ActionState}
      * is {@link ActionState#NEW}, true else.

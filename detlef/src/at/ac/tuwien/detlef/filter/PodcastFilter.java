@@ -11,6 +11,8 @@ import at.ac.tuwien.detlef.domain.Podcast;
  */
 public class PodcastFilter implements EpisodeFilter {
 
+    /** serialization id. */
+    private static final long serialVersionUID = 6156719201776953724L;
     /**
      * The {@link Podcast} to be filtered.
      */

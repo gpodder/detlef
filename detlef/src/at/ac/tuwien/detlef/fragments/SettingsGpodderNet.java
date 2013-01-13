@@ -22,10 +22,10 @@ package at.ac.tuwien.detlef.fragments;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -34,17 +34,20 @@ import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.activities.MainActivity;
+import at.ac.tuwien.detlef.activities.SettingsActivity;
 import at.ac.tuwien.detlef.callbacks.CallbackContainer;
+import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.fragments.callbacks.DeviceIdCallbackHandler;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceChangeListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceClickListener;
+import at.ac.tuwien.detlef.gpodder.ConnectionTestActivity;
+import at.ac.tuwien.detlef.gpodder.ConnectionTestAsyncTask;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdAsyncTask;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdResultHandler;
-import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.GpodderConnectionException;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
-import at.ac.tuwien.detlef.util.GUIUtils;
 
 /**
  * This fragment contains the UI logic for the gpodder.net account preferences
@@ -80,36 +83,18 @@ public class SettingsGpodderNet extends PreferenceFragment {
     private static Toast toast;
 
     /**
-     * The Thread that executes the user credential check. It is static so it
-     * can be accessed even if the Fragment gets recreated in the mean time.
+     * ExecutorService for asynchronous tasks.
      */
-    private static Thread connectionTestThread;
-
-    /**
-     *
-     */
-    private static final ExecutorService REGISTER_DEVICE = Executors.newSingleThreadExecutor();
+    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private static ProgressDialog checkUserCredentialsProgress;
 
     private static ProgressDialog registerDeviceProgress;
 
     /**
-     * This holds a static reference to the activity that currently is
-     * associated with this fragment. The reason for this is that if a
-     * {@link Thread} is started and the screen is rotated while the thread is
-     * running, the method {@link #getActivity()} will return null. But as the
-     * {@link Toast} needs to know the current {@link Context}, the activity
-     * needs to be stored somewhere.
-     */
-    private static Activity activity;
-
-    /**
      * A tag for the LogCat so everything this class produces can be filtered.
      */
     private static final String TAG = SettingsGpodderNet.class.getCanonicalName();
-
-    private GUIUtils guiUtils;
 
     /**
      * The name for the extra which controls the behavior of the settings activity.
@@ -136,35 +121,36 @@ public class SettingsGpodderNet extends PreferenceFragment {
      */
     private static final String KEY_DEVICE_ID_HANDLER = "device_id_handler";
 
-    /**
-     * @return The {@link ConnectionTester} that can be used to determine if the
-     *         user name and password are correct.
-     */
-    public ConnectionTester getConnectionTester() {
-        return DependencyAssistant.getDependencyAssistant().getConnectionTester();
+    private static final String KEY_CONNECTION_TEST_HANDLER = "KEY_CONNECTION_TEST_HANDLER";
+    
+    public static ConnectionTestActivity barCb = new ConnectionTestActivity();
+    
+    public static ConnectionTestAsyncTask barTask = new ConnectionTestAsyncTask(barCb);
+    
+    static {
+        barCb.init();
     }
-
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
+        
         super.onCreate(savedInstanceState);
-
+        
+        if (executorService.isShutdown() || executorService.isTerminated()) {
+            executorService = Executors.newSingleThreadExecutor();
+        }
+        
+        
         if (getActivity().getIntent().getBooleanExtra(EXTRA_SETUPMODE, false)) {
             setupMode = true;
         }
-
-        guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
-
-        activity = getActivity();
 
         restoreState(savedInstanceState);
 
         toast = Toast.makeText(getActivity(), "", 0);
 
-        Log.d(TAG, "Toast: " + toast);
-
         addPreferencesFromResource(R.xml.preferences_gpoddernet);
-
+        
 
         setUpUsernameField();
         setUpPasswordField();
@@ -174,16 +160,18 @@ public class SettingsGpodderNet extends PreferenceFragment {
         
         loadSummaries();
         setUpRegisterDeviceIdCallback();
+        setUpConnectionTestCallback();
         
 
     }
 
 
-
-
-
     private void setUpRegisterDeviceIdCallback() {
         CALLBACK_CONTAINER.put(KEY_DEVICE_ID_HANDLER, new DeviceIdCallbackHandler());
+    }
+    
+    private void setUpConnectionTestCallback() {
+        CALLBACK_CONTAINER.put(KEY_CONNECTION_TEST_HANDLER, barCb);
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -254,9 +242,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
         Preference password = findPreference("password");
         password.setSummary(maskPassword(getSettings().getPassword()));
         Preference devicename = findPreference("devicename");
-        
-        Log.d(TAG, "getDevicename(): >" + getSettings().getDevicename() + "<");
-        
         devicename.setSummary(getSettings().getDevicename());
     }
 
@@ -326,65 +311,22 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
             showProgressDialog();
             toast.cancel();
-
-            connectionTestThread = new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-
-                    try {
-                        if (getConnectionTester().testConnection(getSettings())) {
-                            
-                            guiUtils.showToast(
-                                    String.format(
-                                        activity.getText(R.string.connectiontest_successful)
-                                            .toString(),
-                                        getSettings().getUsername()
-                                    ), activity, TAG);
-                            
-                            DependencyAssistant.getDependencyAssistant()
-                                .getGpodderSettingsDAO(activity)
-                                .writeSettings(getSettings().setAccountVerified(true));
-                            
-                            enableNextStepButton();
-                            
-                            getActivity().runOnUiThread(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setUpTestConnectionButton();
-                                        setUpRegisterDeviceButton();
-                                    }
-                                }
-                            );
-
-                        } else {
-                            guiUtils.showToast(activity
-                                    .getText(R.string.connectiontest_unsuccessful),
-                                    activity, TAG);
-                        }
-                    } catch (GpodderConnectionException e) {
-                        guiUtils.showToast(activity.getText(R.string.connectiontest_error),
-                                activity, TAG);
-                    } catch (InterruptedException e) {
-                        return;
-                    }
-
-                    if ((checkUserCredentialsProgress != null)
-                            && (checkUserCredentialsProgress.isShowing())
-                    ) {
-                        checkUserCredentialsProgress.dismiss();
-                    }
-                }
-
-
-            });
-
-            connectionTestThread.start();
+            
+            executorService.execute(
+                barTask.setSettings(getSettings())
+            );
 
             return true;
         }
     }
+    
+    public void dismissDialog() {
+        if ((checkUserCredentialsProgress != null)
+                && (checkUserCredentialsProgress.isShowing())
+        ) {
+            checkUserCredentialsProgress.dismiss();
+        }
+    }    
     
     /**
      * A {@link OnPreferenceClickListener} that registers a new {@link DeviceId} at gpodder.net.
@@ -397,7 +339,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
             showRegisterDeviceProgressDialog();
 
-            REGISTER_DEVICE.execute(
+            executorService.execute(
                 new RegisterDeviceIdAsyncTask(
                     (RegisterDeviceIdResultHandler<SettingsGpodderNet>) CALLBACK_CONTAINER.get(
                         KEY_DEVICE_ID_HANDLER
@@ -458,10 +400,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
                                 String.format("%s.onCancel(%s)", checkUserCredentialsProgress,
                                         dialog)
                                 );
-                        if ((connectionTestThread != null) && connectionTestThread.isAlive()) {
-                            Log.d(TAG, "interrupting thread.");
-                            connectionTestThread.interrupt();
-                        }
+                        
+                        executorService.shutdownNow();
                     }
                 }
                 );
@@ -491,7 +431,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
     /**
      * Enables the "next step" button which is used during the set up mode.
      */
-    private void enableNextStepButton() {
+    public void enableNextStepButton() {
         getActivity().runOnUiThread(
             new Runnable() {
                 public void run() {
@@ -506,23 +446,16 @@ public class SettingsGpodderNet extends PreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        /* Register the Podcast- & FeedHandler. */
         CALLBACK_CONTAINER.registerReceiver(this);
     }
 
     @Override
     public void onPause() {
-        /* Unregister the Podcast- & FeedHandler. */
-        Log.d(TAG, "onPause()");
         CALLBACK_CONTAINER.unregisterReceiver();
-
         super.onPause();
     }
 
     public void onStop() {
-
-        Log.d(TAG, "onStop()");
         CALLBACK_CONTAINER.clear();
         super.onStop();
     }

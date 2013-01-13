@@ -24,7 +24,6 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.content.Context;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -53,8 +52,6 @@ import at.ac.tuwien.detlef.util.GUIUtils;
  * @author johannes
  */
 public class DependencyAssistant {
-
-    private static final String TAG = DependencyAssistant.class.getCanonicalName();
 
     private static DependencyAssistant dependencyAssistant = null;
 
@@ -139,8 +136,6 @@ public class DependencyAssistant {
             throw new IllegalArgumentException("context must not be null");
         }
 
-        Log.d(TAG, "sharedPreferences:" + PreferenceManager.getDefaultSharedPreferences(context));
-
         HashMap<String, Object> dependencies = new HashMap<String, Object>();
         dependencies.put("sharedPreferences",
                 PreferenceManager.getDefaultSharedPreferences(context));
@@ -163,7 +158,9 @@ public class DependencyAssistant {
      *         {@link GpodderSettings}.
      */
     public ConnectionTester getConnectionTester() {
-        return new ConnectionTesterGpodderNet().setContext(Detlef.getAppContext());
+        return new ConnectionTesterGpodderNet().setContext(
+            Detlef.getAppContext()
+        );
     }
 
     public static DependencyAssistant getDependencyAssistant() {

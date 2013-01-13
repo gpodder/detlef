@@ -3,7 +3,6 @@ package at.ac.tuwien.detlef.filter;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.util.Log;
 import at.ac.tuwien.detlef.domain.Episode;
 
 /**
