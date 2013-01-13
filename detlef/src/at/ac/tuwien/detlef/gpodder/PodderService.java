@@ -195,7 +195,7 @@ public class PodderService extends Service {
 
         SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
                 cinfo.getHostname());
-        
+
         boolean ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
 
         if (!ok) {
@@ -298,11 +298,13 @@ public class PodderService extends Service {
             theMagicalProxy = new CachingCallbackProxy(null);
         }
 
+        @Override
         public void deliverOutstandingToMe(PodderServiceCallback cb) throws RemoteException {
             theMagicalProxy.setTarget(cb);
             theMagicalProxy.resend();
         }
 
+        @Override
         public void authCheck(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
                 throws RemoteException {
             Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
@@ -316,6 +318,7 @@ public class PodderService extends Service {
             }
         }
 
+        @Override
         public void downloadPodcastList(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
                 throws RemoteException {
             Log.d(TAG, "downloadPodcastList() on " + Thread.currentThread().getId());
@@ -350,12 +353,14 @@ public class PodderService extends Service {
             }
         }
 
+        @Override
         public void heartbeat(PodderServiceCallback cb, int reqId) throws RemoteException {
             Log.d(TAG, "heartbeat() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
             theMagicalProxy.heartbeatSucceeded(reqId);
         }
 
+        @Override
         public void httpDownload(PodderServiceCallback cb, int reqId, String url)
                 throws RemoteException {
             Log.d(TAG, "httpDownload() on " + Thread.currentThread().getId());
@@ -365,10 +370,12 @@ public class PodderService extends Service {
             boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
                     new HttpDownloadHandler() {
 
+                @Override
                 public void lengthKnown(int len) {
                     // do nothing of interest
                 }
 
+                @Override
                 public boolean byteChunkDownloaded(byte[] chunk, int len) {
                     rope.append(chunk, 0, len);
                     return true;
@@ -382,6 +389,7 @@ public class PodderService extends Service {
             }
         }
 
+        @Override
         public void httpDownloadToFile(final PodderServiceCallback cb, final int reqId, String url,
                 String localfn) throws RemoteException {
             Log.d(TAG, "httpDownloadToFile() on " + Thread.currentThread().getId());
@@ -401,10 +409,12 @@ public class PodderService extends Service {
             boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
                     new HttpDownloadHandler() {
 
+                @Override
                 public void lengthKnown(int len) {
                     // do nothing of interest
                 }
 
+                @Override
                 public boolean byteChunkDownloaded(byte[] chunk, int len) throws RemoteException {
                     try {
                         fos.write(chunk, 0, len);
@@ -555,7 +565,7 @@ public class PodderService extends Service {
 
         @Override
         public void updateSubscriptions(PodderServiceCallback cb, int reqId,
-                GpoNetClientInfo cinfo, EnhancedSubscriptionChanges changes) throws RemoteException {
+                GpoNetClientInfo cinfo, EnhancedSubscriptionChanges changes) {
             Log.d(TAG, "updateSubscriptions() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
@@ -579,6 +589,11 @@ public class PodderService extends Service {
                 Log.w(TAG, "updateSubscriptions IOException: " + e.getMessage());
                 theMagicalProxy.updateSubscriptionsFailed(reqId, ErrorCode.IO_PROBLEM,
                         e.getMessage());
+            } catch (Exception e) {
+                Log.w(TAG, "updateSubscriptions Exception: " + e.getMessage());
+                theMagicalProxy.updateSubscriptionsFailed(reqId, ErrorCode.IO_PROBLEM,
+                        "Some problems occured while updating your subscription list. " +
+                        "Try later again.");
             }
         }
     }
