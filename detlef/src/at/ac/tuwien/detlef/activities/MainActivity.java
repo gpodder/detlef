@@ -61,7 +61,6 @@ import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.filter.KeywordFilter;
 import at.ac.tuwien.detlef.filter.NewFilter;
 import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
@@ -126,11 +125,6 @@ public class MainActivity extends FragmentActivity
         if (savedInstanceState != null) {
             curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
             numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
-        } else {
-            cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
-            cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
-            cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
-            cbCont.put(KEY_EPISODE_ACTION_HANDLER, new EpisodeActionHandler());
         }
 
         MediaPlayerNotification.create(this, false, null);
@@ -304,12 +298,23 @@ public class MainActivity extends FragmentActivity
         }
     }
 
+    private static final String KEY_PODCAST_HANDLER = "KEY_PODCAST_HANDLER";
+    private static final String KEY_FEED_HANDLER = "KEY_FEED_HANDLER";
+    private static final String KEY_SUBSCRIPTION_UPDATE_HANDLER = "KEY_SUBSCRIPTION_UPDATE_HANDLER";
+    private static final String KEY_EPISODE_ACTION_HANDLER = "KEY_EPISODE_ACTION_HANDLER";
+
     /**
      * All callbacks this Activity receives are stored here. This allows us to
      * manage the Activity Lifecycle more easily.
      */
     private static final CallbackContainer<MainActivity> cbCont =
             new CallbackContainer<MainActivity>();
+    static {
+        cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
+        cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
+        cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
+        cbCont.put(KEY_EPISODE_ACTION_HANDLER, new EpisodeActionHandler());
+    }
 
     /**
      * The Tasks for the refresh are run on a single thread.
@@ -326,10 +331,6 @@ public class MainActivity extends FragmentActivity
      */
     private ProgressDialog progressDialog;
 
-    private static final String KEY_PODCAST_HANDLER = "KEY_PODCAST_HANDLER";
-    private static final String KEY_FEED_HANDLER = "KEY_FEED_HANDLER";
-    private static final String KEY_SUBSCRIPTION_UPDATE_HANDLER = "KEY_SUBSCRIPTION_UPDATE_HANDLER";
-    private static final String KEY_EPISODE_ACTION_HANDLER = "KEY_EPISODE_ACTION_HANDLER";
     private static final String KEY_NUM_POD_SYNC = "KEY_NUM_POD_SYNC";
 
     private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
