@@ -625,7 +625,6 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
-        System.out.println("Buffering update");
         if (!mediaPlayerPrepared) {
             this.bufferState = percent;
         } else {
