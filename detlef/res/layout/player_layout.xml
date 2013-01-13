@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:contentDescription="@string/podcast_icon"
-                android:src="@drawable/ic_launcher" />
+                android:src="@drawable/detlef" />
 
             <TextView
                 android:id="@+id/playerPodcast"

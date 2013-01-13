@@ -68,7 +68,7 @@ public class MediaPlayerNotification {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setContent(v);
-        builder.setSmallIcon(R.drawable.ic_launcher); /* TODO: Decent icon. */
+        builder.setSmallIcon(R.drawable.detlef);
 
         Notification notification = builder.build();
         notification.flags |= Notification.FLAG_ONGOING_EVENT;

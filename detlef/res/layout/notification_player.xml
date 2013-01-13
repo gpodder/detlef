@@ -12,7 +12,7 @@
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:contentDescription="@string/logo"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/detlef" />
 
     <LinearLayout
         android:layout_width="match_parent"
