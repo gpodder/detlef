@@ -40,6 +40,10 @@ Please submit patches as github pull requests.
 Contact
 =======
 
-We can be best reached on the gpodder mailing list:
+We can be reached on the gpodder mailing list:
 
 http://wiki.gpodder.org/wiki/Mailing_List
+
+Issue reports should be created at
+
+https://github.com/gpodder/detlef/issues
