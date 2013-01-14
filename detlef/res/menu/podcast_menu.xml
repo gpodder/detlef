@@ -4,7 +4,8 @@
     <item
         android:id="@+id/refresh"
         android:showAsAction="ifRoom"
-        android:title="@string/refresh">
+        android:title="@string/refresh"
+        android:actionLayout="@layout/refresh_button">
     </item>
     <item
         android:id="@id/playlist"

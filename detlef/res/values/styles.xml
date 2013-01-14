@@ -1,5 +1,11 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppTheme" parent="android:Theme.Holo" />
+    <style name="AppTheme" parent="android:Theme.Holo">
+        <item name="android:actionButtonStyle">@style/AppActionButton</item>
+        <item name="android:actionMenuTextAppearance">@style/AppMenuText</item>
+    </style>
+
+    <style name="AppActionButton" parent="@android:style/Widget.Holo.ActionButton" />
+    <style name="AppMenuText" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Menu" />
 
 </resources>

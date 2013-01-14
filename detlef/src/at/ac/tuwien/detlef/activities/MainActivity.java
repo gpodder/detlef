@@ -121,10 +121,13 @@ public class MainActivity extends FragmentActivity
 
         setContentView(R.layout.main_activity_layout);
 
+        boolean showProgressDialog = false;
+
         /* old Activity is recreated */
         if (savedInstanceState != null) {
             curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
             numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
+            showProgressDialog = savedInstanceState.getBoolean(KEY_SHOW_PROGRESS_DIALOG, false);
         }
 
         MediaPlayerNotification.create(this, false, null);
@@ -167,7 +170,7 @@ public class MainActivity extends FragmentActivity
         /* Ready the progress dialog */
         progressDialog = new ProgressDialog(this);
         prepareProgressDialog();
-        if (numPodSync.get() != -1) {
+        if (numPodSync.get() != -1 && showProgressDialog) {
             progressDialog.show();
         }
 
@@ -271,6 +274,7 @@ public class MainActivity extends FragmentActivity
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
 
+        savedInstanceState.putBoolean(KEY_SHOW_PROGRESS_DIALOG, progressDialog.isShowing());
         savedInstanceState.putInt(KEY_NUM_POD_SYNC, numPodSync.get());
         savedInstanceState.putInt(KEY_CUR_POD_SYNC, curPodSync.get());
     }
@@ -282,9 +286,38 @@ public class MainActivity extends FragmentActivity
         super.onDestroy();
     }
 
+    private void setRefreshBtnView(int id) {
+        if (menu == null) {
+            return;
+        }
+
+        MenuItem refreshBtn = menu.findItem(R.id.refresh);
+
+        if (refreshBtn == null) {
+            return;
+        }
+
+        refreshBtn.setActionView(id);
+        refreshBtn.getActionView().setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onRefreshPressed();
+                    }
+                });
+    }
+
+    private void showRefreshProgressBar() {
+        setRefreshBtnView(R.layout.refresh_button_active);
+    }
+
+    private void hideRefreshProgressBar() {
+        setRefreshBtnView(R.layout.refresh_button);
+    }
+
     private void prepareProgressDialog() {
         progressDialog.setTitle(R.string.refreshing);
-        progressDialog.setCancelable(false);
+        progressDialog.setCancelable(true);
         if (numPodSync.get() > 0) {
             if (numPodSync.get() == curPodSync.get()) {
                 progressDialog.setMessage(getString(R.string.syncing_episode_actions));
@@ -336,6 +369,8 @@ public class MainActivity extends FragmentActivity
     private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
 
     private static final String KEY_SUBSCRIPTION_CHANGES = "KEY_SUBSCRIPTION_CHANGES";
+
+    private static final String KEY_SHOW_PROGRESS_DIALOG = "KEY_SHOW_PROGRESS_DIALOG";
 
     /**
      * if {@link #onActivityResult(int, int, Intent)} is called with an
@@ -553,6 +588,7 @@ public class MainActivity extends FragmentActivity
 
         synchronized (numPodSync) {
             if (numPodSync.get() != -1) {
+                progressDialog.show();
                 return;
             }
 
@@ -581,6 +617,7 @@ public class MainActivity extends FragmentActivity
 
         prepareProgressDialog();
         progressDialog.show();
+        showRefreshProgressBar();
     }
 
     /**
@@ -596,6 +633,7 @@ public class MainActivity extends FragmentActivity
     private void onRefreshDone(String msg, RefreshDoneNotification notificationType) {
         numPodSync.set(-1);
         progressDialog.dismiss();
+        hideRefreshProgressBar();
 
         Log.d(TAG, "notificationType: " + notificationType);
 
@@ -627,10 +665,16 @@ public class MainActivity extends FragmentActivity
         // however, if you are in a tab and the activity is re-created,
         // it can be <> 0. thus, you can restore the menu item's status
         // here.
-        
+
         switch (mViewPager.getCurrentItem()) {
             case SectionsPagerAdapter.POSITION_PODCASTS:
                 getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                if (numPodSync.get() != -1) {
+                    showRefreshProgressBar();
+                } else {
+                    // Hide progress bar explicitly because this also sets up the listener.
+                    hideRefreshProgressBar();
+                }
                 break;
             case SectionsPagerAdapter.POSITION_EPISODES:
                 getMenuInflater().inflate(R.menu.episode_menu, menu);
@@ -660,6 +704,12 @@ public class MainActivity extends FragmentActivity
             switch (tab.getPosition()) {
                 case SectionsPagerAdapter.POSITION_PODCASTS:
                     getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                    if (numPodSync.get() != -1) {
+                        showRefreshProgressBar();
+                    } else {
+                        // Hide progress bar explicitly because this also sets up the listener.
+                        hideRefreshProgressBar();
+                    }
                     break;
                 case SectionsPagerAdapter.POSITION_EPISODES:
                     getMenuInflater().inflate(R.menu.episode_menu, menu);
