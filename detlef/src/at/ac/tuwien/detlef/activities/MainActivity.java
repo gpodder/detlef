@@ -343,6 +343,9 @@ public class MainActivity extends FragmentActivity
     private static final CallbackContainer<MainActivity> cbCont =
             new CallbackContainer<MainActivity>();
     static {
+        Log.d(TAG, String.format("Static MainActivity initializer called with keys: %s, %s, %s, %s",
+                KEY_PODCAST_HANDLER, KEY_FEED_HANDLER, KEY_SUBSCRIPTION_UPDATE_HANDLER,
+                KEY_EPISODE_ACTION_HANDLER));
         cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
         cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
         cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
@@ -602,8 +605,9 @@ public class MainActivity extends FragmentActivity
                 settings.getLastUpdate());
         pBundle.putParcelable(KEY_SUBSCRIPTION_CHANGES, changes);
 
-        SubscriptionUpdateHandler handler = (SubscriptionUpdateHandler)
-                cbCont.get(KEY_SUBSCRIPTION_UPDATE_HANDLER);
+        Object o = cbCont.get(KEY_SUBSCRIPTION_UPDATE_HANDLER);
+        SubscriptionUpdateHandler handler = (SubscriptionUpdateHandler)o;
+        Log.d(TAG, String.format("Retrieved handler: %s (%h), after cast %h", o, o, handler));
         handler.setBundle(pBundle);
 
         Log.d(TAG, "bundle: " + pBundle);
