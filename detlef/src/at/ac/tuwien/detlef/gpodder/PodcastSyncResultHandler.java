@@ -55,7 +55,7 @@ public abstract class PodcastSyncResultHandler<Receiver extends Activity>
         });
     }
 
-    abstract static class PodcastSyncEvent
+    public abstract static class PodcastSyncEvent
     extends BroadcastReceiverCallback.BroadcastReceiverEvent {
         protected final PodcastSyncResultHandler<?> callback;
 

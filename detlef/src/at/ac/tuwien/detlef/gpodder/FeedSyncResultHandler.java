@@ -54,7 +54,7 @@ public abstract class FeedSyncResultHandler<Receiver extends Activity> extends
         });
     }
 
-    abstract static class FeedSyncEvent
+    public abstract static class FeedSyncEvent
     extends BroadcastReceiverCallback.BroadcastReceiverEvent {
         protected final FeedSyncResultHandler<?> callback;
 
