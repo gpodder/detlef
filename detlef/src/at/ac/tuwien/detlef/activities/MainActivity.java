@@ -81,9 +81,9 @@ import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class MainActivity extends FragmentActivity
-        implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
-        EpisodeListFragment.OnEpisodeSelectedListener,
-        EpisodeListSortDialogFragment.NoticeDialogListener {
+implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
+EpisodeListFragment.OnEpisodeSelectedListener,
+EpisodeListSortDialogFragment.NoticeDialogListener {
 
     private static final String TAG = MainActivity.class.getCanonicalName();
     private static final int PODCAST_ADD_REQUEST_CODE = 997;
@@ -123,11 +123,24 @@ public class MainActivity extends FragmentActivity
 
         boolean showProgressDialog = false;
 
-        /* old Activity is recreated */
-        if (savedInstanceState != null) {
+        /* Old Activity is recreated and the Activity has not been removed from memory.
+         * The latter part is important because if it was, we have to abort any ongoing refresh. */
+        if (savedInstanceState != null && refreshBg != null && cbCont != null) {
             curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
             numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
             showProgressDialog = savedInstanceState.getBoolean(KEY_SHOW_PROGRESS_DIALOG, false);
+        }
+
+        if (refreshBg == null) {
+            refreshBg = Executors.newSingleThreadExecutor();
+        }
+
+        if (cbCont == null) {
+            cbCont = new CallbackContainer<MainActivity>();
+            cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
+            cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
+            cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
+            cbCont.put(KEY_EPISODE_ACTION_HANDLER, new EpisodeActionHandler());
         }
 
         MediaPlayerNotification.create(this, false, null);
@@ -201,15 +214,15 @@ public class MainActivity extends FragmentActivity
                                 new Intent(
                                         getApplicationContext(),
                                         SettingsActivity.class
-                                )
-                                        .putExtra(
-                                                PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-                                                SettingsGpodderNet.class.getName()
+                                        )
+                                .putExtra(
+                                        PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+                                        SettingsGpodderNet.class.getName()
                                         )
                                         .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
                                         .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
-                                0
-                        );
+                                        0
+                                );
 
                     }
                 });
@@ -340,22 +353,12 @@ public class MainActivity extends FragmentActivity
      * All callbacks this Activity receives are stored here. This allows us to
      * manage the Activity Lifecycle more easily.
      */
-    private static final CallbackContainer<MainActivity> cbCont =
-            new CallbackContainer<MainActivity>();
-    static {
-        Log.d(TAG, String.format("Static MainActivity initializer called with keys: %s, %s, %s, %s",
-                KEY_PODCAST_HANDLER, KEY_FEED_HANDLER, KEY_SUBSCRIPTION_UPDATE_HANDLER,
-                KEY_EPISODE_ACTION_HANDLER));
-        cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
-        cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
-        cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
-        cbCont.put(KEY_EPISODE_ACTION_HANDLER, new EpisodeActionHandler());
-    }
+    private static CallbackContainer<MainActivity> cbCont = null;
 
     /**
      * The Tasks for the refresh are run on a single thread.
      */
-    private static final ExecutorService refreshBg = Executors.newSingleThreadExecutor();
+    private static ExecutorService refreshBg = null;
 
     /**
      * The Toast with the Output of the refresh operation is shown this long.
@@ -417,7 +420,7 @@ public class MainActivity extends FragmentActivity
 
                     FeedSyncResultHandler<? extends Activity> handler =
                             (FeedSyncResultHandler<? extends Activity>) cbCont
-                                    .get(KEY_FEED_HANDLER);
+                            .get(KEY_FEED_HANDLER);
                     handler.setBundle(getBundle());
                     refreshBg.execute(new PullFeedAsyncTask(handler, p));
                     getRcv().numPodSync.incrementAndGet();
@@ -445,8 +448,8 @@ public class MainActivity extends FragmentActivity
     };
 
     private static class SubscriptionUpdateHandler
-            extends ReliableResultHandler<MainActivity>
-            implements PushSubscriptionChangesResultHandler<MainActivity> {
+    extends ReliableResultHandler<MainActivity>
+    implements PushSubscriptionChangesResultHandler<MainActivity> {
 
         @Override
         public void handleFailure(int errCode, final String errStr) {
@@ -472,10 +475,10 @@ public class MainActivity extends FragmentActivity
                     KEY_SUBSCRIPTION_CHANGES);
 
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant()
-                    .applySubscriptionChanges(getRcv(), changes);
+            .applySubscriptionChanges(getRcv(), changes);
 
             DependencyAssistant.getDependencyAssistant().getGpodderSettings(getRcv())
-                    .setLastUpdate(timestamp);
+            .setLastUpdate(timestamp);
 
             refreshBg.execute(new PullSubscriptionsAsyncTask(handler));
             getRcv().startService(new Intent().setClass(getRcv(),
@@ -729,40 +732,40 @@ public class MainActivity extends FragmentActivity
         }
         mViewPager.setCurrentItem(tab.getPosition());
     }
-    
+
     /**
-     * Updates the status of the episode filters, i.e. make all necessary UI 
+     * Updates the status of the episode filters, i.e. make all necessary UI
      * changes to visualize the status of the currently set filters.
      */
     private void updateEpisodeFilterUiStatus() {
-        
+
         if (menu == null || menu.findItem(R.id.menu_show_only_new_episodes) == null) {
             return;
         }
         MenuItem item = menu.findItem(R.id.menu_show_only_new_episodes);
-        
+
         item.setChecked(getEpisodeListFragment().getFilter().contains(new NewFilter()));
     }
 
     /**
-     * Get the {@link SearchView} and set the {@link SearchableInfo} 
+     * Get the {@link SearchView} and set the {@link SearchableInfo}
      * configuration for the
      * {@link EpisodeListFragment#getFilter() episode keyword filter}.
      */
     private void setSearchManager() {
         String tmptag = "searchmanager";
         Log.d(tmptag, "setSearchManager()");
-        
+
         if (menu.findItem(R.id.menu_search) == null) {
             Log.d(tmptag, "is null");
             return;
         }
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        
-        
+
+
         SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        
+
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(true);
         searchView.setOnQueryTextListener(new EpisodeSearchQueryTextListener(
@@ -835,7 +838,7 @@ public class MainActivity extends FragmentActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
-        
+
         switch (item.getItemId()) {
             case R.id.licenses:
                 intent = new Intent(this, LicensesActivity.class);
@@ -960,20 +963,20 @@ public class MainActivity extends FragmentActivity
     public void onEpisodeSortDialogNegativeClick(DialogFragment dialog) {
         // Nothing todo yet
     }
-    
+
     @Override
     public boolean onSearchRequested() {
 
         if (mViewPager == null) {
             return false;
         }
-        
+
         if (mViewPager.getCurrentItem() != SectionsPagerAdapter.POSITION_EPISODES) {
             return false;
         }
-        
+
         menu.findItem(R.id.menu_search).expandActionView();
-        
+
         return true;
     }
 
