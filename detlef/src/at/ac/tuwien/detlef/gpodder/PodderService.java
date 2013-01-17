@@ -618,24 +618,38 @@ public class PodderService extends Service {
 
         @Override
         public void getPodcastInfo(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo,
-                String url) throws RemoteException {
+                List<String> urls) throws RemoteException {
             Log.d(TAG, "getPodcastInfo() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
             PublicClient pc = new PublicClient(cinfo.getHostname());
 
-            try {
-                com.dragontek.mygpoclient.simple.Podcast podcast = pc.getPodcastData(url);
-
-                /* Convert into a "real" podcast. */
-                Podcast ret = new Podcast(podcast);
-
-                theMagicalProxy.getPodcastInfoSucceeded(reqId, ret);
-            } catch (IOException e) {
-                Log.w(TAG, "getPodcastInfo IOException: " + e.getMessage());
-                theMagicalProxy.getPodcastInfoFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
+            if (urls.size() == 1) {
+                String url = urls.get(0);
+                try {
+                    List<Podcast> rets = new ArrayList<Podcast>();
+                    com.dragontek.mygpoclient.simple.Podcast podcast = pc.getPodcastData(url);
+                    Podcast ret = new Podcast(podcast);
+                    rets.add(ret);
+                    theMagicalProxy.getPodcastInfoSucceeded(reqId, rets);
+                } catch (IOException e) {
+                    Log.w(TAG, "getPodcastInfo IOException: " + e.getMessage());
+                    theMagicalProxy.getPodcastInfoFailed(reqId, ErrorCode.IO_PROBLEM, url);
+                }
+            } else {
+                List<Podcast> rets = new ArrayList<Podcast>();
+                for (String url : urls) {
+                    com.dragontek.mygpoclient.simple.Podcast podcast;
+                    try {
+                        podcast = pc.getPodcastData(url);
+                        Podcast ret = new Podcast(podcast);
+                        rets.add(ret);
+                    } catch (IOException e) {
+                        rets.add(null);
+                    }
+                }
+                theMagicalProxy.getPodcastInfoSucceeded(reqId, rets);
             }
-
         }
     }
 }

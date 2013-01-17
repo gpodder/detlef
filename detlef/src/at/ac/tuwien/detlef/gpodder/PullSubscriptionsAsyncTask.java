@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.gpodder;
 
 import java.io.IOException;
@@ -41,9 +39,9 @@ import com.dragontek.mygpoclient.pub.PublicClient;
 import com.dragontek.mygpoclient.simple.IPodcast;
 
 /**
- * A Runnable to fetch subscription changes. It should be started in its own Thread
- * and sends a reply via the specified callback. The user of the Task needs to implement
- * the Callback's handle & handleFailure methods.
+ * A Runnable to fetch subscription changes. It should be started in its own
+ * Thread and sends a reply via the specified callback. The user of the Task
+ * needs to implement the Callback's handle & handleFailure methods.
  */
 public class PullSubscriptionsAsyncTask implements Runnable {
 
@@ -83,21 +81,22 @@ public class PullSubscriptionsAsyncTask implements Runnable {
             /* Login and get subscription changes */
             SubscriptionChanges changes = gpc.pullSubscriptions(devId,
                     gps.getLastUpdate());
-            PodcastDetailsRetriever pdr = new PodcastDetailsRetriever();
 
             /* Get the Details for the individual URLs. */
+
+            PodcastDetailsRetriever pdr = new PodcastDetailsRetriever();
             enhanced = pdr.getPodcastDetails(changes);
 
             /* update the db here */
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant().
-            applySubscriptionChanges(Detlef.getAppContext(), enhanced);
+                    applySubscriptionChanges(Detlef.getAppContext(), enhanced);
 
             /* Update last changed timestamp. */
             gps.setLastUpdate(enhanced.getTimestamp());
 
             DependencyAssistant.getDependencyAssistant()
-            .getGpodderSettingsDAO(Detlef.getAppContext())
-            .writeSettings(gps);
+                    .getGpodderSettingsDAO(Detlef.getAppContext())
+                    .writeSettings(gps);
 
         } catch (HttpResponseException e) {
             String eMsg = e.getLocalizedMessage();
@@ -130,9 +129,9 @@ public class PullSubscriptionsAsyncTask implements Runnable {
     }
 
     /**
-     * Called when the task encounters an error. The given error code and string are sent.
-     * The Task should exit after this has been called.
-     *
+     * Called when the task encounters an error. The given error code and string
+     * are sent. The Task should exit after this has been called.
+     * 
      * @param errCode The error code.
      * @param errString The error string.
      */
@@ -152,9 +151,9 @@ public class PullSubscriptionsAsyncTask implements Runnable {
         }
 
         /**
-         * Convert changes into EnhancedSubscriptionChanges.
+         * Convert changes into EnhancedSubscriptionChanges. This accesses the
+         * Network is may be sloooooooowwwww.
          * 
-         * This accesses the Network is may be sloooooooowwwww.
          * @param changes
          * @return The converted SubscriptionChagnes.
          */
@@ -163,7 +162,7 @@ public class PullSubscriptionsAsyncTask implements Runnable {
                     getPodcastSetDetails(changes.remove), changes.timestamp);
         }
 
-        private IPodcast getPodcastDetails(String url) {
+        public IPodcast getPodcastDetails(String url) {
             try {
                 return pub.getPodcastData(url);
             } catch (ClientProtocolException e) {

@@ -75,8 +75,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                     }
                 }
                 ep.setActionState(newActionState);
-                int ret = dao.updateActionState(ep);
-                Log.i(TAG, "asdf: " + ret);
+                dao.updateActionState(ep);
             }
         }
 

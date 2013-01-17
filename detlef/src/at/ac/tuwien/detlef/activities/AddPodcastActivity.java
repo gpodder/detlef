@@ -153,6 +153,7 @@ public class AddPodcastActivity extends Activity {
         srh.unregisterReceiver();
         trh.unregisterReceiver();
         urh.unregisterReceiver();
+        prh.unregisterReceiver();
 
         super.onPause();
     }
@@ -164,6 +165,7 @@ public class AddPodcastActivity extends Activity {
         srh.registerReceiver(this);
         trh.registerReceiver(this);
         urh.registerReceiver(this);
+        prh.registerReceiver(this);
     }
 
     @Override
@@ -251,7 +253,9 @@ public class AddPodcastActivity extends Activity {
         setBusy(true);
         if (text.startsWith("http://") || text.startsWith("https://")) {
             GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
-            gps.addGetPodcastInfoJob(prh, tv.getText().toString());
+            ArrayList<String> urls = new ArrayList<String>();
+            urls.add(tv.getText().toString());
+            gps.addGetPodcastInfoJob(prh, urls);
         } else {
             GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
             gps.addSearchPodcastsJob(srh, tv.getText().toString());
@@ -386,26 +390,51 @@ public class AddPodcastActivity extends Activity {
             implements PodcastResultHandler<AddPodcastActivity> {
 
         @Override
-        public void handleFailure(int errCode, String errStr) {
+        public void handleFailure(int errCode, final String url) {
             getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getRcv(), "Could not retrieve podcast from the given URL",
-                            Toast.LENGTH_SHORT);
+                    // Toast.makeText(
+                    // getRcv(),
+                    // "GPodder must still fetch info about this podcast. "
+                    // + "Please be patient "
+                    // + "until podcast data arrives (a few days).",
+                    // Toast.LENGTH_SHORT).show();
+                    // Podcast p = new Podcast();
+                    // p.setDataVersion(Podcast.DUMMY_DATA_VERSION);
+                    // p.setTitle(url);
+                    // p.setDescription("<html>Data must still "
+                    // + "arrive from GPodder (~ a few days)</html>");
+                    //
+                    // PodcastDAO dao = PodcastDAOImpl.i();
+                    // p.setLocalAdd(true);
+                    // if (dao.insertPodcast(p) == null) {
+                    // Toast.makeText(getRcv(), "Add podcast from URL failed",
+                    // Toast.LENGTH_SHORT);
+                    // }
+                    // podcastsAdded++;
+                    // getRcv().setBusy(false);
+
+                    Toast.makeText(
+                            getRcv(),
+                            "This podcast is not known to GPodder! Please add it via web gpodder.net. It will be available on your device in a few days.",
+                            Toast.LENGTH_LONG).show();
                     getRcv().setBusy(false);
                 }
             });
         }
 
         @Override
-        public void handleSuccess(final Podcast result) {
+        public void handleSuccess(final List<Podcast> results) {
             getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     PodcastDAO dao = PodcastDAOImpl.i();
+                    Podcast result = results.get(0);
                     result.setLocalAdd(true);
                     if (dao.insertPodcast(result) == null) {
                         Toast.makeText(getRcv(), "Add podcast from URL failed", Toast.LENGTH_SHORT);
+                        getRcv().setBusy(false);
                         return;
                     }
 
@@ -456,14 +485,6 @@ public class AddPodcastActivity extends Activity {
         public void removePodcast(Podcast p) {
             podcasts.remove(p);
             notifyDataSetChanged();
-        }
-
-        public void removeByUrl(String url) {
-            for (Podcast p : podcasts) {
-                if (p.getUrl().equals(url)) {
-                    removePodcast(p);
-                }
-            }
         }
 
         @Override

@@ -106,7 +106,7 @@ oneway interface PodderServiceInterface
     /**
      * Gets a Podcast object for a podcast
      *
-     * @param url The url of the podcast to fetch
+     * @param urls The urls of the podcast to fetch
      */
-     void getPodcastInfo(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo, String query);
+     void getPodcastInfo(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo, in List<String> urls);
 }

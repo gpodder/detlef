@@ -18,6 +18,7 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -421,7 +422,7 @@ public class GPodderSync {
      * @param url The url to get the podcast info from.
      */
     public void addGetPodcastInfoJob(final PodcastResultHandler<?> handler,
-            final String url) {
+            final List<String> urls) {
         Log.d(TAG, "addGetPodcastInfoJob");
 
         requestDispatcher.execute(new Runnable() {
@@ -431,12 +432,12 @@ public class GPodderSync {
 
                 int reqCode = nextReqCode();
                 try {
-                    iface.getPodcastInfo(syncResponder, reqCode, clientInfo, url);
+                    iface.getPodcastInfo(syncResponder, reqCode, clientInfo, urls);
                     appendReq(reqCode, handler);
                 } catch (RemoteException rex) {
                     Log.d(TAG, "getPodcastInfo failure");
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                            rex.getMessage());
                     iface = null;
                 }
             }

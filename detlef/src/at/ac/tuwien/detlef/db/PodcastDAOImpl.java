@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.db;
 
 import java.io.File;
@@ -129,7 +127,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
                 return null;
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.endTransaction();
                     db.close();
                 }
@@ -146,6 +144,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             epDao.deleteEpisode(ep);
         }
     }
+
     /**
      * @see at.ac.tuwien.detlef.db.PodcastDAO#deletePodcast(at.ac.tuwien.detlef.domain
      *      .Podcast)
@@ -155,14 +154,14 @@ public final class PodcastDAOImpl implements PodcastDAO {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             int ret = 0;
             try {
-                if (podcast.getLogoFilePath() != null && !podcast.getLogoFilePath().equals("")) {
+                if ((podcast.getLogoFilePath() != null) && !podcast.getLogoFilePath().equals("")) {
                     File file = new File(podcast.getLogoFilePath());
                     file.delete();
                     Log.i(TAG, "file deleted: " + podcast.getLogoFilePath());
                 }
             } catch (Exception ex) {
                 Log.e(TAG,
-                        "delete Podcast icon: " + ex.getMessage() != null ? ex.getMessage()
+                        ("delete Podcast icon: " + ex.getMessage()) != null ? ex.getMessage()
                                 : ex.toString());
             }
 
@@ -186,7 +185,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }
@@ -454,7 +453,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.close();
                 }
             }
@@ -497,7 +496,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
             } finally {
-                if (db != null && db.isOpen()) {
+                if ((db != null) && db.isOpen()) {
                     db.endTransaction();
                     db.close();
                 }
@@ -537,9 +536,10 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     private static final String QUERY_LOCALLY_ADDED_PODCASTS = String.format(
-            "%s where %s not null;",
+            "%s where %s not null and %s != ?;",
             QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
-            QUERY_COLUMN_PODCAST_LOCAL_ADD);
+            QUERY_COLUMN_PODCAST_LOCAL_ADD, DatabaseHelper.COLUMN_PODCAST_DATA_VERSION,
+            Podcast.DUMMY_DATA_VERSION);
 
     @Override
     public List<Podcast> getLocallyAddedPodcasts() {
@@ -547,12 +547,89 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     private static final String QUERY_LOCALLY_DELETED_PODCASTS = String.format(
-            "%s where %s not null;",
+            "%s where %s not null and %s != ?;",
             QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
-            QUERY_COLUMN_PODCAST_LOCAL_DEL);
+            QUERY_COLUMN_PODCAST_LOCAL_DEL, DatabaseHelper.COLUMN_PODCAST_DATA_VERSION,
+            Podcast.DUMMY_DATA_VERSION);
 
     @Override
     public List<Podcast> getLocallyDeletedPodcasts() {
         return getPodcastsForQuery(QUERY_LOCALLY_DELETED_PODCASTS);
+    }
+
+    private static final String QUERY_PODCAST_DUMMY_DATA = String.format("%s where %s = ?;",
+            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+            DatabaseHelper.COLUMN_PODCAST_DATA_VERSION);
+
+    @Override
+    public ArrayList<Podcast> getDummyDataPodcasts() {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+            String[] selectionArgs = {
+                    String.valueOf(Podcast.DUMMY_DATA_VERSION)
+            };
+
+            Cursor c = db.rawQuery(QUERY_PODCAST_DUMMY_DATA, selectionArgs);
+
+            ArrayList<Podcast> ret = new ArrayList<Podcast>();
+            if (c.moveToFirst()) {
+                do {
+                    Podcast p = getPodcast(c);
+                    ret.add(p);
+                } while (c.moveToNext());
+            }
+            c.close();
+            db.close();
+            return ret;
+        }
+    }
+
+    @Override
+    public int updateDataVersion(Podcast podcast) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_PODCAST_DATA_VERSION,
+                    podcast.getDataVersion());
+
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(podcast.getId())
+            };
+
+            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
+            db.close();
+
+            notifyListenersChanged(podcast);
+
+            return ret;
+        }
+    }
+
+    @Override
+    public int updateTitleDescriptionLogoUrl(Podcast p) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_PODCAST_TITLE,
+                    p.getTitle());
+            values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
+                    p.getDescription());
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
+                    p.getLogoUrl());
+
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(p.getId())
+            };
+
+            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
+            db.close();
+
+            notifyListenersChanged(p);
+
+            return ret;
+        }
     }
 }

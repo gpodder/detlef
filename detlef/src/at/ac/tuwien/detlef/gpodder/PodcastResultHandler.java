@@ -17,6 +17,8 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
+import java.util.List;
+
 import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
@@ -29,13 +31,13 @@ public interface PodcastResultHandler<Receiver> extends ResultHandler<Receiver> 
      * 
      * @param result List of strings that has been successfully fetched.
      */
-    void handleSuccess(Podcast result);
+    void handleSuccess(List<Podcast> result);
 
     static class PodcastInfoSuccessEvent implements ResultEvent {
         private final PodcastResultHandler<?> cb;
-        private final Podcast result;
+        private final List<Podcast> result;
 
-        public PodcastInfoSuccessEvent(PodcastResultHandler<?> cb, Podcast result) {
+        public PodcastInfoSuccessEvent(PodcastResultHandler<?> cb, List<Podcast> result) {
             this.cb = cb;
             this.result = result;
         }

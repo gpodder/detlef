@@ -40,6 +40,9 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
      */
     private static final long serialVersionUID = 1L;
 
+    public static final int DUMMY_DATA_VERSION = 0;
+    public static final int REAL_DATA_VERSION = 1;
+
     private static int ICON_WIDTH = 80;
     private static int ICON_HEIGHT = 80;
 
@@ -64,6 +67,8 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
     private transient Drawable logoIcon;
 
     private int logoDownloaded = 0;
+
+    private int dataVersion = REAL_DATA_VERSION;
 
     public Podcast() {
     }
@@ -240,4 +245,12 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
             return ret;
         }
     };
+
+    public int getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(int dataVersion) {
+        this.dataVersion = dataVersion;
+    }
 }

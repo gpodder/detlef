@@ -30,7 +30,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 12;
+    static final int VERSION = 13;
 
     static final Object BIG_FRIGGIN_LOCK = new Object();
 
@@ -46,6 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PODCAST_LAST_UPDATE = "lastUpdate";
     public static final String COLUMN_PODCAST_LOGO_FILE_PATH = "logoFilePath";
     public static final String COLUMN_PODCAST_LOGO_FILE_DOWNLOADED = "logoFileDownloaded";
+    public static final String COLUMN_PODCAST_DATA_VERSION = "dataVersion";
 
     /* Episode table. */
     public static final String TABLE_EPISODE = "Episode";
@@ -112,11 +113,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "%s text, "
                     + "%s integer, "
                     + "%s text,"
-                    + "%s integer);",
+                    + "%s integer,"
+                    + "%s boolean);",
                     TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,
                     COLUMN_PODCAST_DESCRIPTION, COLUMN_PODCAST_LOGO_URL,
                     COLUMN_PODCAST_LAST_UPDATE, COLUMN_PODCAST_LOGO_FILE_PATH,
-                    COLUMN_PODCAST_LOGO_FILE_DOWNLOADED);
+                    COLUMN_PODCAST_LOGO_FILE_DOWNLOADED, COLUMN_PODCAST_DATA_VERSION);
 
     /* Create statement for the episode table. */
     static final String CREATE_EPISODE_TABLE =
@@ -233,7 +235,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 12) {
+        if (oldVersion < 13) {
             db.execSQL("DROP INDEX IF EXISTS " + EPISODE_RELEASED_INDEX);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_DEL);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_ADD);

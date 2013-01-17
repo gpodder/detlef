@@ -164,7 +164,7 @@ oneway interface PodderServiceCallback
      * @param reqId The request ID you passed
      * @param Podcast The podcast that was the result
      */
-    void getPodcastInfoSucceeded(int reqId, in Podcast result);
+    void getPodcastInfoSucceeded(int reqId, in List<Podcast> result);
     
     /**
      * The get podcast info has failed.

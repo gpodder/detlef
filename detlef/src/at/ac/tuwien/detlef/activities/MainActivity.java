@@ -78,9 +78,9 @@ import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class MainActivity extends FragmentActivity
-implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
-EpisodeListFragment.OnEpisodeSelectedListener,
-EpisodeListSortDialogFragment.NoticeDialogListener {
+        implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
+        EpisodeListFragment.OnEpisodeSelectedListener,
+        EpisodeListSortDialogFragment.NoticeDialogListener {
 
     private static final String TAG = MainActivity.class.getCanonicalName();
     private static final int PODCAST_ADD_REQUEST_CODE = 997;
@@ -120,9 +120,12 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
 
         boolean showProgressDialog = false;
 
-        /* Old Activity is recreated and the Activity has not been removed from memory.
-         * The latter part is important because if it was, we have to abort any ongoing refresh. */
-        if (savedInstanceState != null && refreshBg != null && cbCont != null) {
+        /*
+         * Old Activity is recreated and the Activity has not been removed from
+         * memory. The latter part is important because if it was, we have to
+         * abort any ongoing refresh.
+         */
+        if ((savedInstanceState != null) && (refreshBg != null) && (cbCont != null)) {
             curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
             numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
             showProgressDialog = savedInstanceState.getBoolean(KEY_SHOW_PROGRESS_DIALOG, false);
@@ -180,7 +183,7 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
         /* Ready the progress dialog */
         progressDialog = new ProgressDialog(this);
         prepareProgressDialog();
-        if (numPodSync.get() != -1 && showProgressDialog) {
+        if ((numPodSync.get() != -1) && showProgressDialog) {
             progressDialog.show();
         }
 
@@ -211,15 +214,15 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
                                 new Intent(
                                         getApplicationContext(),
                                         SettingsActivity.class
-                                        )
-                                .putExtra(
-                                        PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-                                        SettingsGpodderNet.class.getName()
+                                )
+                                        .putExtra(
+                                                PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+                                                SettingsGpodderNet.class.getName()
                                         )
                                         .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
                                         .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
-                                        0
-                                );
+                                0
+                        );
 
                     }
                 });
@@ -401,8 +404,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
     private static final class PodcastHandler
-    extends ReliableResultHandler<MainActivity>
-    implements NoDataResultHandler<MainActivity> {
+            extends ReliableResultHandler<MainActivity>
+            implements NoDataResultHandler<MainActivity> {
 
         /**
          * Once the Podcast list is synchronized, update all feeds.
@@ -460,8 +463,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
     };
 
     private static class SubscriptionUpdateHandler
-    extends ReliableResultHandler<MainActivity>
-    implements PushSubscriptionChangesResultHandler<MainActivity> {
+            extends ReliableResultHandler<MainActivity>
+            implements PushSubscriptionChangesResultHandler<MainActivity> {
 
         @Override
         public void handleFailure(int errCode, final String errStr) {
@@ -486,10 +489,10 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
                     KEY_SUBSCRIPTION_CHANGES);
 
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant()
-            .applySubscriptionChanges(getRcv(), changes);
+                    .applySubscriptionChanges(getRcv(), changes);
 
             DependencyAssistant.getDependencyAssistant().getGpodderSettings(getRcv())
-            .setLastUpdate(timestamp);
+                    .setLastUpdate(timestamp);
 
             refreshBg.execute(new PullSubscriptionsAsyncTask(handler));
             getRcv().startService(new Intent().setClass(getRcv(),
@@ -498,8 +501,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
     }
 
     private static class EpisodeActionHandler
-    extends ReliableResultHandler<MainActivity>
-    implements NoDataResultHandler<MainActivity> {
+            extends ReliableResultHandler<MainActivity>
+            implements NoDataResultHandler<MainActivity> {
 
         @Override
         public void handleFailure(int errCode, final String errStr) {
@@ -534,8 +537,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
      * The Handler for receiving PullFeedAsyncTask's results.
      */
     private static final class FeedHandler
-    extends ReliableResultHandler<MainActivity>
-    implements NoDataResultHandler<MainActivity> {
+            extends ReliableResultHandler<MainActivity>
+            implements NoDataResultHandler<MainActivity> {
 
         @Override
         public void handleSuccess() {
@@ -632,7 +635,7 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
         pBundle.putParcelable(KEY_SUBSCRIPTION_CHANGES, changes);
 
         Object o = cbCont.get(KEY_SUBSCRIPTION_UPDATE_HANDLER);
-        SubscriptionUpdateHandler handler = (SubscriptionUpdateHandler)o;
+        SubscriptionUpdateHandler handler = (SubscriptionUpdateHandler) o;
         Log.d(TAG, String.format("Retrieved handler: %s (%h), after cast %h", o, o, handler));
         handler.setBundle(pBundle);
 
@@ -702,7 +705,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
                 if (numPodSync.get() != -1) {
                     showRefreshProgressBar();
                 } else {
-                    // Hide progress bar explicitly because this also sets up the listener.
+                    // Hide progress bar explicitly because this also sets up
+                    // the listener.
                     hideRefreshProgressBar();
                 }
                 break;
@@ -737,7 +741,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
                     if (numPodSync.get() != -1) {
                         showRefreshProgressBar();
                     } else {
-                        // Hide progress bar explicitly because this also sets up the listener.
+                        // Hide progress bar explicitly because this also sets
+                        // up the listener.
                         hideRefreshProgressBar();
                     }
                     break;
@@ -762,7 +767,7 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
      */
     private void updateEpisodeFilterUiStatus() {
 
-        if (menu == null || menu.findItem(R.id.menu_show_only_new_episodes) == null) {
+        if ((menu == null) || (menu.findItem(R.id.menu_show_only_new_episodes) == null)) {
             return;
         }
         MenuItem item = menu.findItem(R.id.menu_show_only_new_episodes);
@@ -772,8 +777,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
 
     /**
      * Get the {@link SearchView} and set the {@link SearchableInfo}
-     * configuration for the
-     * {@link EpisodeListFragment#getFilter() episode keyword filter}.
+     * configuration for the {@link EpisodeListFragment#getFilter() episode
+     * keyword filter}.
      */
     private void setSearchManager() {
         String tmptag = "searchmanager";
@@ -785,7 +790,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
         }
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-
 
         SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
 
@@ -885,7 +889,7 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
             case R.id.menu_show_only_new_episodes:
                 item.setChecked(!item.isChecked());
                 getEpisodeListFragment().setReadFilter(item.isChecked());
-                //getEpisodeListFragment().set
+                // getEpisodeListFragment().set
                 break;
             case R.id.sort:
                 android.support.v4.app.DialogFragment dialog = new EpisodeListSortDialogFragment();
