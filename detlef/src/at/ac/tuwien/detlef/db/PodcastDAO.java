@@ -15,9 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
+
+
 package at.ac.tuwien.detlef.db;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -32,15 +33,13 @@ public interface PodcastDAO {
      */
     public interface OnPodcastChangeListener {
         void onPodcastChanged(Podcast podcast);
-
         void onPodcastAdded(Podcast podcast);
-
         void onPodcastDeleted(Podcast podcast);
     }
 
     /**
      * Inserts a podcast into the Database.
-     * 
+     *
      * @param podcast The podcast object
      * @return the inserted Podcast, null if an error occurs
      */
@@ -48,43 +47,38 @@ public interface PodcastDAO {
 
     /**
      * delivers the podcast with the given url.
-     * 
      * @param url: the url from the podcast
      * @return returns the podcast object with the given url
      */
     Podcast getPodcastByUrl(String url);
 
     /**
-     * Deletes a podcast and all episodes that are associated with this podcast
-     * from the database.
-     * 
+     * Deletes a podcast and all episodes that are associated with this podcast from the database. 
+     *
      * @param podcast The podcast which should be deleted (only the id will be
      *            used for this)
      * @return returns the number of deleted rows (if it fails then &lt1 will be
      *         returned)
      */
     int deletePodcast(Podcast podcast);
-
+    
     /**
-     * Deletes all podcasts (and therefore also all episodes) from the local
-     * database. This is useful if you want to perform a complete resync of all
-     * feeds and get rid of messed up data quickly. It is important to note that
-     * all remote data stored on gpodder.net <strong> will not be
-     * touched</strong> by calling this method. So it sounds more drastic than
-     * it actually is, because all data can be restored by simply refreshing the
-     * feed list.
-     * <p>
-     * This is also useful if you change the user account and want to wipe all
-     * data with one handy function.
-     * </p>
+     * Deletes all podcasts (and therefore also all episodes) from the local database. This is 
+     * useful if you want to perform a complete resync of all feeds and get rid of messed up 
+     * data quickly. It is important to note that all remote data stored on gpodder.net <strong>
+     * will not be touched</strong> by calling this method. So it sounds more drastic than it 
+     * actually is, because all data can be restored by simply refreshing the feed list.
+     *  
+     * <p>This is also useful if you change the user account and want to wipe all data with one 
+     * handy function.</p> 
      * 
      * @return The number of deleted podcasts.
      */
     int deleteAllPodcasts();
-
+    
     /**
      * Delivers all podcast from the database.
-     * 
+     *
      * @return A list of podcast objects
      */
     List<Podcast> getAllPodcasts();
@@ -92,22 +86,22 @@ public interface PodcastDAO {
     /**
      * Updates the lastUpdate column of the given podcast (uses the lastUpdate
      * attribute of the podcast).
-     * 
+     *
      * @param podcast the podcast which should be updated
      * @return the number of updated rows
      */
     int updateLastUpdate(Podcast podcast);
 
     /**
-     * Updates the logoDownloaded column of the given podcast. If podcast is
-     * downloaded it is set to 1, else != 1
+     * Updates the logoDownloaded column of the given podcast.
+     * If podcast is downloaded it is set to 1, else != 1
      */
     int updateLogoDownloaded(Podcast podcast);
-
+    
     /**
      * Updates the logoFilePath column of the given podcast (uses the
      * logoFilePath attribute of the podcast).
-     * 
+     *
      * @param podcast the podcast which should be updated
      * @return the number of updated rows
      */
@@ -115,19 +109,20 @@ public interface PodcastDAO {
 
     /**
      * Delivers the podcast with the given id.
-     * 
+     *
      * @param podcastId the id from the podcast which will be returned
      * @return the podcast with the given id
      */
     Podcast getPodcastById(long podcastId);
 
     /**
-     * Deletes the podcast locally and removes all its episodes. If the podcast
-     * has only been added locally but was never uploaded it is completely
-     * removed, otherwise it is marked as deleted in the database. Once this
-     * delete action has been pushed to the gpodder service the podcast should
-     * be completely deleted (with deletePodcast()).
+     * Deletes the podcast locally and removes all its episodes.
      * 
+     * If the podcast has only been added locally but was never uploaded it is completely
+     * removed, otherwise it is marked as deleted in the database. Once this delete action has
+     * been pushed to the gpodder service the podcast should be completely deleted (with
+     * deletePodcast()).
+     *
      * @param podcast The podcast to delete.
      * @return True on success, false otherwise.
      */
@@ -135,7 +130,7 @@ public interface PodcastDAO {
 
     /**
      * Removes the podcast from both the local add and the local delete list.
-     * 
+     *
      * @param podcast The podcast to remove from the local add and delete lists.
      * @return True on success, false otherwise.
      */
@@ -161,25 +156,4 @@ public interface PodcastDAO {
      * @return A list of podcast objects.
      */
     List<Podcast> getLocallyDeletedPodcasts();
-
-    /**
-     * Gets a list of podcasts that still have dummy data in them.
-     */
-    ArrayList<Podcast> getDummyDataPodcasts();
-
-    /**
-     * Updates the data version of a specific podcast
-     * 
-     * @param podcast The podcast to update.
-     * @return The number of podcasts affected (should be 1).
-     */
-    int updateDataVersion(Podcast podcast);
-
-    /**
-     * Updates the title, description and logo url of a podcast
-     * 
-     * @param p The podcast to update
-     * @return the number of updated rows (should be 1)
-     */
-    int updateTitleDescriptionLogoUrl(Podcast p);
 }
