@@ -67,11 +67,8 @@ import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
-import at.ac.tuwien.detlef.gpodder.FeedSyncResultHandler;
-import at.ac.tuwien.detlef.gpodder.GPodderException;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
-import at.ac.tuwien.detlef.gpodder.PodcastSyncResultHandler;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
@@ -403,13 +400,15 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
     /**
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
-    private static final class PodcastHandler extends PodcastSyncResultHandler<MainActivity> {
+    private static final class PodcastHandler
+    extends ReliableResultHandler<MainActivity>
+    implements NoDataResultHandler<MainActivity> {
 
         /**
          * Once the Podcast list is synchronized, update all feeds.
          */
         @Override
-        public void handle() {
+        public void handleSuccess() {
             PodcastDAO pDao = PodcastDAOImpl.i();
 
             final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false);
@@ -418,32 +417,45 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
 
                 for (Podcast p : pDao.getNonDeletedPodcasts()) {
 
-                    FeedSyncResultHandler<? extends Activity> handler =
-                            (FeedSyncResultHandler<? extends Activity>) cbCont
-                            .get(KEY_FEED_HANDLER);
+                    FeedHandler handler = (FeedHandler) cbCont.get(KEY_FEED_HANDLER);
                     handler.setBundle(getBundle());
                     refreshBg.execute(new PullFeedAsyncTask(handler, p));
                     getRcv().numPodSync.incrementAndGet();
                 }
 
                 if (getRcv().numPodSync.get() == 0) {
-
-                    if (showDialog) {
-                        getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished),
-                                RefreshDoneNotification.DIALOG);
-                    } else {
-                        getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
-                    }
+                    getRcv().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (showDialog) {
+                                getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished),
+                                        RefreshDoneNotification.DIALOG);
+                            } else {
+                                getRcv().onRefreshDone(getRcv().getString(
+                                        R.string.refresh_successful));
+                            }
+                        }
+                    });
                 }
 
-                getRcv().prepareProgressDialog();
+                getRcv().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getRcv().prepareProgressDialog();
+                    }
+                });
             }
         }
 
         @Override
-        public void handleFailure(GPodderException e) {
-            getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
-                    + e.getMessage());
+        public void handleFailure(int errCode, final String errString) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
+                            + errString);
+                }
+            });
         }
     };
 
@@ -464,8 +476,7 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
 
         @Override
         public void handleSuccess(long timestamp, Map<String, String> updateUrls) {
-            PodcastSyncResultHandler<? extends Activity> handler =
-                    (PodcastSyncResultHandler<? extends Activity>) cbCont.get(KEY_PODCAST_HANDLER);
+            PodcastHandler handler = (PodcastHandler) cbCont.get(KEY_PODCAST_HANDLER);
             handler.setBundle(getBundle());
 
             Log.d(TAG, "bundle: " + getBundle());
@@ -522,20 +533,32 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
     /**
      * The Handler for receiving PullFeedAsyncTask's results.
      */
-    private static final class FeedHandler extends FeedSyncResultHandler<MainActivity> {
+    private static final class FeedHandler
+    extends ReliableResultHandler<MainActivity>
+    implements NoDataResultHandler<MainActivity> {
 
         @Override
-        public void handle() {
-            synchronized (getRcv().numPodSync) {
-                checkDone();
-            }
+        public void handleSuccess() {
+            getRcv().runOnUiThread(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            checkDone();
+                        }
+                    });
         }
 
         @Override
-        public void handleFailure(GPodderException e) {
-            Toast.makeText(getRcv(), e.getMessage(), REFRESH_MSG_DURATION_MS).show();
+        public void handleFailure(int errCode, final String errString) {
+            getRcv().runOnUiThread(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getRcv(), errString, REFRESH_MSG_DURATION_MS).show();
 
-            checkDone();
+                            checkDone();
+                        }
+                    });
         }
 
         /**

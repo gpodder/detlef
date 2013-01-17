@@ -28,7 +28,6 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 
-import android.app.Activity;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
@@ -50,10 +49,11 @@ public class PullSubscriptionsAsyncTask implements Runnable {
 
     private static final int HTTP_STATUS_FORBIDDEN = 401;
     private static final int HTTP_STATUS_NOT_FOUND = 404;
+    private static final int GENERIC_ERROR = -1;
 
-    private final PodcastSyncResultHandler<? extends Activity> callback;
+    private final NoDataResultHandler<?> callback;
 
-    public PullSubscriptionsAsyncTask(PodcastSyncResultHandler<? extends Activity> callback) {
+    public PullSubscriptionsAsyncTask(NoDataResultHandler<?> callback) {
         this.callback = callback;
     }
 
@@ -65,18 +65,18 @@ public class PullSubscriptionsAsyncTask implements Runnable {
 
         DeviceId id = gps.getDeviceId();
         if (id == null) {
-            sendError(new GPodderException(Detlef.getAppContext().getString(
-                    R.string.no_gpodder_account_configured)));
+            sendError(GENERIC_ERROR, Detlef.getAppContext().getString(
+                    R.string.no_gpodder_account_configured));
             return;
         }
 
         String devId = id.toString();
 
         MygPodderClient gpc = new MygPodderClient(
-            gps.getUsername(),
-            gps.getPassword(),
-            gps.getApiHostname()
-        );
+                gps.getUsername(),
+                gps.getPassword(),
+                gps.getApiHostname()
+                );
 
         EnhancedSubscriptionChanges enhanced = null;
         try {
@@ -90,14 +90,14 @@ public class PullSubscriptionsAsyncTask implements Runnable {
 
             /* update the db here */
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant().
-                    applySubscriptionChanges(Detlef.getAppContext(), enhanced);
+            applySubscriptionChanges(Detlef.getAppContext(), enhanced);
 
             /* Update last changed timestamp. */
             gps.setLastUpdate(enhanced.getTimestamp());
 
             DependencyAssistant.getDependencyAssistant()
-                .getGpodderSettingsDAO(Detlef.getAppContext())
-                .writeSettings(gps);
+            .getGpodderSettingsDAO(Detlef.getAppContext())
+            .writeSettings(gps);
 
         } catch (HttpResponseException e) {
             String eMsg = e.getLocalizedMessage();
@@ -112,13 +112,13 @@ public class PullSubscriptionsAsyncTask implements Runnable {
                 default:
                     break;
             }
-            sendError(new GPodderException(eMsg));
+            sendError(e.getStatusCode(), eMsg);
         } catch (AuthenticationException ae) {
-            sendError(new GPodderException(ae.getLocalizedMessage()));
+            sendError(GENERIC_ERROR, ae.getLocalizedMessage());
         } catch (ClientProtocolException e) {
-            sendError(new GPodderException(e.getLocalizedMessage()));
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
         } catch (IOException e) {
-            sendError(new GPodderException(e.getLocalizedMessage()));
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
         }
 
         if (enhanced == null) {
@@ -126,17 +126,18 @@ public class PullSubscriptionsAsyncTask implements Runnable {
         }
 
         /* Send the result. */
-        callback.sendEvent(new PodcastSyncResultHandler.PodcastSyncEventSuccess(callback));
+        callback.sendEvent(new NoDataResultHandler.NoDataSuccessEvent(callback));
     }
 
     /**
-     * Called when the task encounters an error. The given Exception is sent.
+     * Called when the task encounters an error. The given error code and string are sent.
      * The Task should exit after this has been called.
      *
-     * @param e An Exception describing the error.
+     * @param errCode The error code.
+     * @param errString The error string.
      */
-    private void sendError(GPodderException e) {
-        callback.sendEvent(new PodcastSyncResultHandler.PodcastSyncEventError(callback, e));
+    private void sendError(int errCode, String errString) {
+        callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, errCode, errString));
     }
 
     /**

@@ -26,8 +26,8 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
-import at.ac.tuwien.detlef.gpodder.GPodderException;
-import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdResultHandler;
+import at.ac.tuwien.detlef.gpodder.DeviceIdResultHandler;
+import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 /**
@@ -37,35 +37,35 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  * @author moe
  */
 public class DeviceIdCallbackHandler
-    extends RegisterDeviceIdResultHandler<SettingsGpodderNet> {
+extends ReliableResultHandler<SettingsGpodderNet>
+implements DeviceIdResultHandler<SettingsGpodderNet> {
 
     /** Logging tag. */
     private static final String TAG = DeviceIdCallbackHandler.class.getCanonicalName();
 
     @Override
-    public void handle() {
-    
-    
+    public void handleSuccess(DeviceId deviceId) {
+
+
         GpodderSettings settings = DependencyAssistant
-            .getDependencyAssistant()
-            .getGpodderSettings(getRcv().getActivity());
-        settings.setDeviceId(getDeviceId());
+                .getDependencyAssistant()
+                .getGpodderSettings(getRcv().getActivity());
+        settings.setDeviceId(deviceId);
         DependencyAssistant.getDependencyAssistant()
-            .getGpodderSettingsDAO(getRcv().getActivity())
-            .writeSettings(settings);
-    
-        getRcv().dismissRegisterDeviceDialog();
-        
+        .getGpodderSettingsDAO(getRcv().getActivity())
+        .writeSettings(settings);
+
         getRcv().getActivity().runOnUiThread(
                 new Runnable() {
                     @Override
                     public void run() {
+                        getRcv().dismissRegisterDeviceDialog();
                         getRcv().setUpTestConnectionButton();
                         getRcv().setUpRegisterDeviceButton();
                     }
                 }
-            );
-        
+                );
+
         if (getRcv().isSetupMode()) {
             setupModeAction();
         } else {
@@ -100,7 +100,7 @@ public class DeviceIdCallbackHandler
     }
 
     @Override
-    public void handleFailure(GPodderException e) {
+    public void handleFailure(int errCode, String errString) {
     }
 
     class SetupModeNextStepClickListener implements OnClickListener {

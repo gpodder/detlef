@@ -1,7 +1,6 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
-import android.app.Fragment;
 import android.util.Log;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.domain.DeviceId;
@@ -14,15 +13,14 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
     /** Logging tag. */
     private static final String TAG = RegisterDeviceIdAsyncTask.class.getCanonicalName();
 
-    private final RegisterDeviceIdResultHandler<? extends Fragment> callback;
+    private final DeviceIdResultHandler<?> callback;
 
-    private DeviceId deviceId;
+    private final DeviceId deviceId;
 
-    public RegisterDeviceIdAsyncTask(RegisterDeviceIdResultHandler<? extends Fragment> callback,
+    public RegisterDeviceIdAsyncTask(DeviceIdResultHandler<?> callback,
             DeviceId pDeviceId) {
-            deviceId = pDeviceId;
-            callback.setDeviceId(pDeviceId);
-            this.callback = callback;
+        deviceId = pDeviceId;
+        this.callback = callback;
     }
 
     @Override
@@ -33,16 +31,17 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
         try {
             Log.d(TAG, "Registering new Device with id " + deviceId);
             DependencyAssistant.getDependencyAssistant()
-                .getDeviceRegistrator()
-                .registerNewDeviceId(deviceId);
+            .getDeviceRegistrator()
+            .registerNewDeviceId(deviceId);
             Log.d(TAG, "Registering new Device: Done");
         } catch (DeviceRegistratorException e) {
             Log.e(TAG, "DeviceRegistratorException", e);
+            callback.handleFailure(-1, e.getLocalizedMessage());
         }
 
         Log.d(TAG, "RegisterDeviceIdAsyncTask.run(): Done");
 
-        callback.handle();
+        callback.handleSuccess(deviceId);
     }
 
 }

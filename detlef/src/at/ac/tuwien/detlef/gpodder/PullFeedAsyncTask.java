@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
 
-import android.app.Activity;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
@@ -41,10 +40,12 @@ import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
  */
 public class PullFeedAsyncTask implements Runnable {
 
-    private final FeedSyncResultHandler<? extends Activity> callback;
+    private static final int GENERIC_ERROR = -1;
+
+    private final NoDataResultHandler<?> callback;
     private final Podcast podcast;
 
-    public PullFeedAsyncTask(FeedSyncResultHandler<? extends Activity> callback, Podcast podcast) {
+    public PullFeedAsyncTask(NoDataResultHandler<?> callback, Podcast podcast) {
         this.callback = callback;
         this.podcast = podcast;
     }
@@ -54,7 +55,7 @@ public class PullFeedAsyncTask implements Runnable {
         String err = Detlef.getAppContext().getString(R.string.no_podcast_specified);
 
         if (podcast == null) {
-            sendError(new GPodderException(err));
+            sendError(GENERIC_ERROR, err);
         }
 
         long since = podcast.getLastUpdate();
@@ -67,10 +68,10 @@ public class PullFeedAsyncTask implements Runnable {
         String password = gps.getPassword();
 
         FeedServiceClient fsc = new FeedServiceClient(
-            "http://" + gps.getFeedHostname(),
-            username,
-            password
-        );
+                "http://" + gps.getFeedHostname(),
+                username,
+                password
+                );
 
         FeedUpdate feed = null;
         try {
@@ -78,7 +79,7 @@ public class PullFeedAsyncTask implements Runnable {
             FeedServiceResponse fsr = fsc.parseFeeds(new String[] {podcast.getUrl()}, since);
             if (fsr == null || fsr.size() == 0) {
                 String e = Detlef.getAppContext().getString(R.string.failed_to_download_feed);
-                sendError(new GPodderException(String.format("%s: %s", podcast.getTitle(), e)));
+                sendError(GENERIC_ERROR, String.format("%s: %s", podcast.getTitle(), e));
                 return;
             }
 
@@ -91,23 +92,25 @@ public class PullFeedAsyncTask implements Runnable {
             podcast.setLastUpdate(feed.getLastReleaseTime());
             PodcastDAOImpl.i().updateLastUpdate(podcast);
         } catch (ClientProtocolException e) {
-            sendError(new GPodderException(e.getLocalizedMessage()));
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
             return;
         } catch (IOException e) {
-            sendError(new GPodderException(e.getLocalizedMessage()));
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
             return;
         }
 
         /* Tell receiver we're done.. */
-        callback.sendEvent(new FeedSyncResultHandler.FeedSyncEventSuccess(callback));
+        callback.sendEvent(new NoDataResultHandler.NoDataSuccessEvent(callback));
     }
 
     /**
-     * Called when the task encounters an error.
-     * The given Exception is sent. The Task should exit after this has been called.
-     * @param e An Exception describing the error.
+     * Called when the task encounters an error. The given error code and string are sent.
+     * The Task should exit after this has been called.
+     *
+     * @param errCode The error code.
+     * @param errString The error string.
      */
-    private void sendError(GPodderException e) {
-        callback.sendEvent(new FeedSyncResultHandler.FeedSyncEventError(callback, e));
+    private void sendError(int errCode, String errString) {
+        callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, errCode, errString));
     }
 }
