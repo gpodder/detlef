@@ -179,7 +179,7 @@ public class SynchronousSyncResponder extends SyncResponder {
     }
 
     @Override
-    public void getPodcastInfoSucceeded(int reqId, List<Podcast> result) throws RemoteException {
+    public void getPodcastInfoSucceeded(int reqId, Podcast result) throws RemoteException {
         final PodcastResultHandler<?> prh =
                 (PodcastResultHandler<?>) getGps().getReq(reqId);
         prh.sendEvent(new PodcastResultHandler.PodcastInfoSuccessEvent(prh, result));

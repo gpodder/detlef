@@ -442,7 +442,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void getPodcastInfoSucceeded(final int reqId, final List<Podcast> result)
+    public void getPodcastInfoSucceeded(final int reqId, final Podcast result)
             throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override

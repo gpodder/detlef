@@ -332,7 +332,7 @@ public class CachingActivitySyncResponder extends SyncResponder {
     }
 
     @Override
-    public void getPodcastInfoSucceeded(int reqId, final List<Podcast> result)
+    public void getPodcastInfoSucceeded(int reqId, final Podcast result)
             throws RemoteException {
         final PodcastResultHandler<?> prh =
                 (PodcastResultHandler<?>) getGps().getReq(reqId);

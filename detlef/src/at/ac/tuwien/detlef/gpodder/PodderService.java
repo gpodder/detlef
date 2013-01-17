@@ -623,32 +623,14 @@ public class PodderService extends Service {
             theMagicalProxy.setTarget(cb);
 
             PublicClient pc = new PublicClient(cinfo.getHostname());
-
-            if (urls.size() == 1) {
-                String url = urls.get(0);
-                try {
-                    List<Podcast> rets = new ArrayList<Podcast>();
-                    com.dragontek.mygpoclient.simple.Podcast podcast = pc.getPodcastData(url);
-                    Podcast ret = new Podcast(podcast);
-                    rets.add(ret);
-                    theMagicalProxy.getPodcastInfoSucceeded(reqId, rets);
-                } catch (IOException e) {
-                    Log.w(TAG, "getPodcastInfo IOException: " + e.getMessage());
-                    theMagicalProxy.getPodcastInfoFailed(reqId, ErrorCode.IO_PROBLEM, url);
-                }
-            } else {
-                List<Podcast> rets = new ArrayList<Podcast>();
-                for (String url : urls) {
-                    com.dragontek.mygpoclient.simple.Podcast podcast;
-                    try {
-                        podcast = pc.getPodcastData(url);
-                        Podcast ret = new Podcast(podcast);
-                        rets.add(ret);
-                    } catch (IOException e) {
-                        rets.add(null);
-                    }
-                }
-                theMagicalProxy.getPodcastInfoSucceeded(reqId, rets);
+            String url = urls.get(0);
+            try {
+                com.dragontek.mygpoclient.simple.Podcast podcast = pc.getPodcastData(url);
+                Podcast ret = new Podcast(podcast);
+                theMagicalProxy.getPodcastInfoSucceeded(reqId, ret);
+            } catch (IOException e) {
+                Log.w(TAG, "getPodcastInfo IOException: " + e.getMessage());
+                theMagicalProxy.getPodcastInfoFailed(reqId, ErrorCode.IO_PROBLEM, url);
             }
         }
     }

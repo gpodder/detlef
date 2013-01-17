@@ -30,7 +30,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    static final int VERSION = 12;
+    static final int VERSION = 14;
 
     static final Object BIG_FRIGGIN_LOCK = new Object();
 
@@ -233,7 +233,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 12) {
+        if (oldVersion < 14) {
             db.execSQL("DROP INDEX IF EXISTS " + EPISODE_RELEASED_INDEX);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_DEL);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST_LOCAL_ADD);

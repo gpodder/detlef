@@ -426,12 +426,11 @@ public class AddPodcastActivity extends Activity {
         }
 
         @Override
-        public void handleSuccess(final List<Podcast> results) {
+        public void handleSuccess(final Podcast result) {
             getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     PodcastDAO dao = PodcastDAOImpl.i();
-                    Podcast result = results.get(0);
                     for (Podcast p : dao.getAllPodcasts()) {
                         if (p.getUrl().equals(result.getUrl())) {
                             Toast.makeText(getRcv(),
