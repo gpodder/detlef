@@ -52,7 +52,6 @@ import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.callbacks.EpisodeSearchQueryTextListener;
-import at.ac.tuwien.detlef.callbacks.CallbackContainer;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -78,9 +77,9 @@ import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class MainActivity extends FragmentActivity
-        implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
-        EpisodeListFragment.OnEpisodeSelectedListener,
-        EpisodeListSortDialogFragment.NoticeDialogListener {
+implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
+EpisodeListFragment.OnEpisodeSelectedListener,
+EpisodeListSortDialogFragment.NoticeDialogListener {
 
     private static final String TAG = MainActivity.class.getCanonicalName();
     private static final int PODCAST_ADD_REQUEST_CODE = 997;
@@ -125,22 +124,19 @@ public class MainActivity extends FragmentActivity
          * memory. The latter part is important because if it was, we have to
          * abort any ongoing refresh.
          */
-        if ((savedInstanceState != null) && (refreshBg != null) && (cbCont != null)) {
+        if ((savedInstanceState != null) && (refreshBg != null)) {
             curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
             numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
             showProgressDialog = savedInstanceState.getBoolean(KEY_SHOW_PROGRESS_DIALOG, false);
+        } else {
+            podcastHandler = new PodcastHandler();
+            feedHandler = new FeedHandler();
+            subscriptionUpdateHandler = new SubscriptionUpdateHandler();
+            episodeActionHandler = new EpisodeActionHandler();
         }
 
         if (refreshBg == null) {
             refreshBg = Executors.newSingleThreadExecutor();
-        }
-
-        if (cbCont == null) {
-            cbCont = new CallbackContainer<MainActivity>();
-            cbCont.put(KEY_PODCAST_HANDLER, new PodcastHandler());
-            cbCont.put(KEY_FEED_HANDLER, new FeedHandler());
-            cbCont.put(KEY_SUBSCRIPTION_UPDATE_HANDLER, new SubscriptionUpdateHandler());
-            cbCont.put(KEY_EPISODE_ACTION_HANDLER, new EpisodeActionHandler());
         }
 
         MediaPlayerNotification.create(this, false, null);
@@ -214,15 +210,15 @@ public class MainActivity extends FragmentActivity
                                 new Intent(
                                         getApplicationContext(),
                                         SettingsActivity.class
-                                )
-                                        .putExtra(
-                                                PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-                                                SettingsGpodderNet.class.getName()
+                                        )
+                                .putExtra(
+                                        PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+                                        SettingsGpodderNet.class.getName()
                                         )
                                         .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
                                         .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
-                                0
-                        );
+                                        0
+                                );
 
                     }
                 });
@@ -251,7 +247,10 @@ public class MainActivity extends FragmentActivity
         super.onResume();
 
         /* Register the Podcast- & FeedHandler. */
-        cbCont.registerReceiver(this);
+        podcastHandler.registerReceiver(this);
+        feedHandler.registerReceiver(this);
+        subscriptionUpdateHandler.registerReceiver(this);
+        episodeActionHandler.registerReceiver(this);
     }
 
     @Override
@@ -274,11 +273,10 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onPause() {
         /* Unregister the Podcast- & FeedHandler. */
-        cbCont.unregisterReceiver();
-
-        if (isFinishing()) {
-            cbCont.clear();
-        }
+        podcastHandler.unregisterReceiver();
+        feedHandler.unregisterReceiver();
+        subscriptionUpdateHandler.unregisterReceiver();
+        episodeActionHandler.unregisterReceiver();
 
         super.onPause();
     }
@@ -344,16 +342,10 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    private static final String KEY_PODCAST_HANDLER = "KEY_PODCAST_HANDLER";
-    private static final String KEY_FEED_HANDLER = "KEY_FEED_HANDLER";
-    private static final String KEY_SUBSCRIPTION_UPDATE_HANDLER = "KEY_SUBSCRIPTION_UPDATE_HANDLER";
-    private static final String KEY_EPISODE_ACTION_HANDLER = "KEY_EPISODE_ACTION_HANDLER";
-
-    /**
-     * All callbacks this Activity receives are stored here. This allows us to
-     * manage the Activity Lifecycle more easily.
-     */
-    private static CallbackContainer<MainActivity> cbCont = null;
+    private static PodcastHandler podcastHandler = null;
+    private static FeedHandler feedHandler = null;
+    private static SubscriptionUpdateHandler subscriptionUpdateHandler = null;
+    private static EpisodeActionHandler episodeActionHandler = null;
 
     /**
      * The Tasks for the refresh are run on a single thread.
@@ -404,8 +396,8 @@ public class MainActivity extends FragmentActivity
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
     private static final class PodcastHandler
-            extends ReliableResultHandler<MainActivity>
-            implements NoDataResultHandler<MainActivity> {
+    extends ReliableResultHandler<MainActivity>
+    implements NoDataResultHandler<MainActivity> {
 
         /**
          * Once the Podcast list is synchronized, update all feeds.
@@ -420,9 +412,8 @@ public class MainActivity extends FragmentActivity
 
                 for (Podcast p : pDao.getNonDeletedPodcasts()) {
 
-                    FeedHandler handler = (FeedHandler) cbCont.get(KEY_FEED_HANDLER);
-                    handler.setBundle(getBundle());
-                    refreshBg.execute(new PullFeedAsyncTask(handler, p));
+                    feedHandler.setBundle(getBundle());
+                    refreshBg.execute(new PullFeedAsyncTask(feedHandler, p));
                     getRcv().numPodSync.incrementAndGet();
                 }
 
@@ -463,8 +454,8 @@ public class MainActivity extends FragmentActivity
     };
 
     private static class SubscriptionUpdateHandler
-            extends ReliableResultHandler<MainActivity>
-            implements PushSubscriptionChangesResultHandler<MainActivity> {
+    extends ReliableResultHandler<MainActivity>
+    implements PushSubscriptionChangesResultHandler<MainActivity> {
 
         @Override
         public void handleFailure(int errCode, final String errStr) {
@@ -479,30 +470,29 @@ public class MainActivity extends FragmentActivity
 
         @Override
         public void handleSuccess(long timestamp, Map<String, String> updateUrls) {
-            PodcastHandler handler = (PodcastHandler) cbCont.get(KEY_PODCAST_HANDLER);
-            handler.setBundle(getBundle());
+            podcastHandler.setBundle(getBundle());
 
             Log.d(TAG, "bundle: " + getBundle());
-            Log.d(TAG, "handler: " + handler);
+            Log.d(TAG, "handler: " + podcastHandler);
 
             EnhancedSubscriptionChanges changes = getBundle().getParcelable(
                     KEY_SUBSCRIPTION_CHANGES);
 
             DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant()
-                    .applySubscriptionChanges(getRcv(), changes);
+            .applySubscriptionChanges(getRcv(), changes);
 
             DependencyAssistant.getDependencyAssistant().getGpodderSettings(getRcv())
-                    .setLastUpdate(timestamp);
+            .setLastUpdate(timestamp);
 
-            refreshBg.execute(new PullSubscriptionsAsyncTask(handler));
+            refreshBg.execute(new PullSubscriptionsAsyncTask(podcastHandler));
             getRcv().startService(new Intent().setClass(getRcv(),
                     PullSubscriptionsAsyncTask.class));
         }
     }
 
     private static class EpisodeActionHandler
-            extends ReliableResultHandler<MainActivity>
-            implements NoDataResultHandler<MainActivity> {
+    extends ReliableResultHandler<MainActivity>
+    implements NoDataResultHandler<MainActivity> {
 
         @Override
         public void handleFailure(int errCode, final String errStr) {
@@ -537,8 +527,8 @@ public class MainActivity extends FragmentActivity
      * The Handler for receiving PullFeedAsyncTask's results.
      */
     private static final class FeedHandler
-            extends ReliableResultHandler<MainActivity>
-            implements NoDataResultHandler<MainActivity> {
+    extends ReliableResultHandler<MainActivity>
+    implements NoDataResultHandler<MainActivity> {
 
         @Override
         public void handleSuccess() {
@@ -581,10 +571,8 @@ public class MainActivity extends FragmentActivity
                     Log.d(TAG, "r bundle extra: " + showDialog);
                     Log.d(TAG, "r handler: " + this);
 
-                    EpisodeActionHandler handler = (EpisodeActionHandler) cbCont.get(
-                            MainActivity.KEY_EPISODE_ACTION_HANDLER);
-                    handler.setBundle(getBundle());
-                    refreshBg.execute(new SyncEpisodeActionsAsyncTask(handler));
+                    episodeActionHandler.setBundle(getBundle());
+                    refreshBg.execute(new SyncEpisodeActionsAsyncTask(episodeActionHandler));
                 }
 
                 getRcv().prepareProgressDialog();
@@ -634,19 +622,16 @@ public class MainActivity extends FragmentActivity
                 settings.getLastUpdate());
         pBundle.putParcelable(KEY_SUBSCRIPTION_CHANGES, changes);
 
-        Object o = cbCont.get(KEY_SUBSCRIPTION_UPDATE_HANDLER);
-        SubscriptionUpdateHandler handler = (SubscriptionUpdateHandler) o;
-        Log.d(TAG, String.format("Retrieved handler: %s (%h), after cast %h", o, o, handler));
-        handler.setBundle(pBundle);
+        subscriptionUpdateHandler.setBundle(pBundle);
 
         Log.d(TAG, "bundle: " + pBundle);
-        Log.d(TAG, "handler: " + handler);
+        Log.d(TAG, "handler: " + subscriptionUpdateHandler);
 
         GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
         gps.setDeviceName(settings.getDeviceId().toString());
         gps.setUsername(settings.getUsername());
         gps.setPassword(settings.getPassword());
-        gps.addUpdateSubscriptionsJob(handler, changes);
+        gps.addUpdateSubscriptionsJob(subscriptionUpdateHandler, changes);
 
         prepareProgressDialog();
         progressDialog.show();
