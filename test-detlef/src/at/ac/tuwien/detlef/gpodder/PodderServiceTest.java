@@ -225,6 +225,17 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
         }
+
+        @Override
+        public void getPodcastInfoSucceeded(int reqId, List<Podcast> result) throws RemoteException {
+            /* Unused. */
+        }
+
+        @Override
+        public void getPodcastInfoFailed(int reqId, int ioProblem, String message)
+                throws RemoteException {
+            /* Unused. */
+        }
     }
 
     /** Semaphore to pause test execution while waiting for an answer. */
