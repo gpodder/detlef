@@ -158,5 +158,21 @@ oneway interface PodderServiceCallback
      * @param errStr Error message describing the error that occurred.
      */
     void updateSubscriptionsFailed(int reqId, int ioProblem, in String message);
+    
+    /**
+     * The get podcast info call has succeeded
+     * @param reqId The request ID you passed
+     * @param Podcast The podcast that was the result
+     */
+    void getPodcastInfoSucceeded(int reqId, in Podcast result);
+    
+    /**
+     * The get podcast info has failed.
+     * @param reqId The request ID you passed.
+     * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
+     * error that occurred.
+     * @param errStr Error message describing the error that occurred.
+     */
+    void getPodcastInfoFailed(int reqId, int ioProblem, in String message);
 
 }

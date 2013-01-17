@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.gpodder;
 
 import java.lang.ref.WeakReference;
@@ -37,6 +36,7 @@ import at.ac.tuwien.detlef.gpodder.responders.SyncResponder;
 
 /**
  * This class facilitates background HTTP and gpodder.net transactions.
+ * 
  * @author ondra
  */
 public class GPodderSync {
@@ -56,26 +56,27 @@ public class GPodderSync {
     private int nextReqCode;
 
     /** Maps request codes to handlers. */
-    private SparseArray<ResultHandler<?> > reqs;
+    private SparseArray<ResultHandler<?>> reqs;
 
     /** Pauses while the service is being bound. */
     private Semaphore stoplight;
 
     /** Information about this client of the gpodder.net-compatible service. */
     private GpoNetClientInfo clientInfo;
-    
+
     /**
      * Each request has to be launched in a thread other than the main thread.
-     * Otherwise the application would deadlock in assureBind() as the thread receiving the
-     * ServiceConnection callback would be blocked.
-     * 
-     * Thus each request to the PodderService is started on this dispatcher.
+     * Otherwise the application would deadlock in assureBind() as the thread
+     * receiving the ServiceConnection callback would be blocked. Thus each
+     * request to the PodderService is started on this dispatcher.
      */
     private final ExecutorService requestDispatcher;
 
     /**
      * Constructs a GPodderSync instance.
-     * @param sr The handler which will take care of any threading/synchronization concerns.
+     * 
+     * @param sr The handler which will take care of any
+     *            threading/synchronization concerns.
      */
     public GPodderSync(SyncResponder sr) {
         Log.d(TAG, "GPodderSync");
@@ -84,17 +85,18 @@ public class GPodderSync {
         syncResponder = sr;
         syncResponder.setGpoSync(this);
         nextReqCode = 0;
-        reqs = new SparseArray<ResultHandler<?> >();
+        reqs = new SparseArray<ResultHandler<?>>();
         stoplight = new Semaphore(1);
         clientInfo = new GpoNetClientInfo();
         clientInfo.setHostname(
-            DependencyAssistant.getDependencyAssistant().getGpodderSettings().getApiHostname()
-        );
+                DependencyAssistant.getDependencyAssistant().getGpodderSettings().getApiHostname()
+                );
         requestDispatcher = Executors.newSingleThreadExecutor();
     }
 
     /**
      * Returns the next request code in sequence.
+     * 
      * @return The next request code in sequence.
      */
     private int nextReqCode() {
@@ -105,6 +107,7 @@ public class GPodderSync {
 
     /**
      * Sets the username used for access to gpodder.net-compatible services.
+     * 
      * @param newUsername The new username.
      */
     public void setUsername(String newUsername) {
@@ -113,6 +116,7 @@ public class GPodderSync {
 
     /**
      * Sets the password used for access to gpodder.net-compatible services.
+     * 
      * @param newPassword The new password.
      */
     public void setPassword(String newPassword) {
@@ -121,7 +125,9 @@ public class GPodderSync {
 
     /**
      * Sets the hostname of the gpodder.net-compatible service to use.
-     * @param newHostname The hostname of the gpodder.net-compatible service to use.
+     * 
+     * @param newHostname The hostname of the gpodder.net-compatible service to
+     *            use.
      */
     public void setHostname(String newHostname) {
         clientInfo.setHostname(newHostname);
@@ -129,6 +135,7 @@ public class GPodderSync {
 
     /**
      * Sets the device name used for access to gpodder.net-compatible services.
+     * 
      * @param newDeviceName The new device name.
      */
     public void setDeviceName(String newDeviceName) {
@@ -136,8 +143,8 @@ public class GPodderSync {
     }
 
     /**
-     * Remove the request with id reqId.
-     * Synchronized against reqs.
+     * Remove the request with id reqId. Synchronized against reqs.
+     * 
      * @param reqId
      */
     public void removeReq(int reqId) {
@@ -147,8 +154,8 @@ public class GPodderSync {
     }
 
     /**
-     * Return the ResultHandler for reqId.
-     * Synchronized against reqs.
+     * Return the ResultHandler for reqId. Synchronized against reqs.
+     * 
      * @param reqId
      * @return
      */
@@ -159,8 +166,8 @@ public class GPodderSync {
     }
 
     /**
-     * Inserts the handler into reqs at reqCode.
-     * Synchronized against reqs.
+     * Inserts the handler into reqs at reqCode. Synchronized against reqs.
+     * 
      * @param reqCode
      * @param handler
      */
@@ -171,14 +178,12 @@ public class GPodderSync {
     }
 
     /**
-     * Requests that the service perform an HTTP download job.
-     *
-     * The service will perform an HTTP GET request on the given URL.
-     *
-     * This type of HTTP download passes the downloaded data as a byte array to the callback. For
-     * moderately huge files, you should use {@link #addHttpDownloadToFileJob(String, String,
-     * NoDataResultHandler)}.
-     *
+     * Requests that the service perform an HTTP download job. The service will
+     * perform an HTTP GET request on the given URL. This type of HTTP download
+     * passes the downloaded data as a byte array to the callback. For
+     * moderately huge files, you should use
+     * {@link #addHttpDownloadToFileJob(String, String, NoDataResultHandler)}.
+     * 
      * @param url The URL of the file to download.
      * @param handler A handler for callbacks.
      */
@@ -206,17 +211,16 @@ public class GPodderSync {
     }
 
     /**
-     * Requests that the service perform an HTTP download-to-file job.
-     *
-     * The service will perform an HTTP GET request on the given URL and store the result into the
-     * file at the given path. The file will be created if it doesn't exist and overwritten if it
-     * does.
-     *
-     * To download small files without storing them in the file system first, you should use {@link
-     * #addHttpDownloadJob(String, HttpDownloadResultHandler)}.
-     *
+     * Requests that the service perform an HTTP download-to-file job. The
+     * service will perform an HTTP GET request on the given URL and store the
+     * result into the file at the given path. The file will be created if it
+     * doesn't exist and overwritten if it does. To download small files without
+     * storing them in the file system first, you should use
+     * {@link #addHttpDownloadJob(String, HttpDownloadResultHandler)}.
+     * 
      * @param url The URL of the file to download.
-     * @param localfn The local file name into which to store the downloaded file.
+     * @param localfn The local file name into which to store the downloaded
+     *            file.
      * @param handler A handler for callbacks.
      */
     public void addHttpDownloadToFileJob(final String url, final String localfn,
@@ -243,13 +247,13 @@ public class GPodderSync {
     }
 
     /**
-     * Requests that the service perform an authentication check job.
-     *
-     * The service will attempt to log into the given gpodder.net-compatible web service using the
-     * specified username and password and calls back whether this was successful or not. Since this
-     * is not a day-to-day operation, the stored credentials are neither used nor modified by this
-     * method; the hostname, however, is.
-     *
+     * Requests that the service perform an authentication check job. The
+     * service will attempt to log into the given gpodder.net-compatible web
+     * service using the specified username and password and calls back whether
+     * this was successful or not. Since this is not a day-to-day operation, the
+     * stored credentials are neither used nor modified by this method; the
+     * hostname, however, is.
+     * 
      * @param authUsername User name to use for authentication check.
      * @param authPassword Password to use for authentication check.
      * @param handler A handler for callbacks.
@@ -273,9 +277,9 @@ public class GPodderSync {
                     iface.authCheck(syncResponder, reqCode, tempClientInfo);
                 } catch (RemoteException rex) {
                     handler.handleFailure(
-                        PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                        rex.toString()
-                    );
+                            PodderService.ErrorCode.SENDING_REQUEST_FAILED,
+                            rex.toString()
+                            );
                     iface = null;
                     return;
                 }
@@ -285,11 +289,10 @@ public class GPodderSync {
     }
 
     /**
-     * Requests that the service perform a podcast list download job.
-     *
-     * The service will log in using the credentials previously set by calls to {@link
-     * #setUsername(String)} and {@link #setPassword(String)}.
-     *
+     * Requests that the service perform a podcast list download job. The
+     * service will log in using the credentials previously set by calls to
+     * {@link #setUsername(String)} and {@link #setPassword(String)}.
+     * 
      * @param handler A handler for callbacks.
      */
     public void addDownloadPodcastListJob(final StringListResultHandler<?> handler) {
@@ -316,7 +319,7 @@ public class GPodderSync {
 
     /**
      * Requests that the service performs a podcast search job.
-     *
+     * 
      * @param handler A handler for callbacks.
      * @param query The search query.
      */
@@ -386,7 +389,7 @@ public class GPodderSync {
 
     /**
      * Requests that the service performs a subscription update job.
-     *
+     * 
      * @param handler A handler for callbacks.
      * @param changes The changes to submit to the service.
      */
@@ -404,6 +407,34 @@ public class GPodderSync {
                     iface.updateSubscriptions(syncResponder, reqCode, clientInfo, changes);
                     appendReq(reqCode, handler);
                 } catch (RemoteException rex) {
+                    handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
+                            rex.toString());
+                    iface = null;
+                }
+            }
+        });
+    }
+
+    /**
+     * Adds a "get podcast info" job for a specific URL.
+     * 
+     * @param url The url to get the podcast info from.
+     */
+    public void addGetPodcastInfoJob(final PodcastResultHandler<?> handler,
+            final String url) {
+        Log.d(TAG, "addGetPodcastInfoJob");
+
+        requestDispatcher.execute(new Runnable() {
+            @Override
+            public void run() {
+                assureBind();
+
+                int reqCode = nextReqCode();
+                try {
+                    iface.getPodcastInfo(syncResponder, reqCode, clientInfo, url);
+                    appendReq(reqCode, handler);
+                } catch (RemoteException rex) {
+                    Log.d(TAG, "getPodcastInfo failure");
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
                             rex.toString());
                     iface = null;
@@ -435,6 +466,7 @@ public class GPodderSync {
 
     /**
      * Handles the connection the the service.
+     * 
      * @author ondra
      */
     protected static class ConMan implements ServiceConnection {
@@ -443,18 +475,22 @@ public class GPodderSync {
 
         /**
          * Constructs an instance of ConMan.
-         * @param gposync {@link GPodderSync} to whom this connection manager belongs.
+         * 
+         * @param gposync {@link GPodderSync} to whom this connection manager
+         *            belongs.
          */
         public ConMan(GPodderSync gposync) {
             gps = new WeakReference<GPodderSync>(gposync);
         }
 
+        @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // freakin' finally
             gps.get().iface = PodderServiceInterface.Stub.asInterface(service);
             gps.get().stoplight.release();
         }
 
+        @Override
         public void onServiceDisconnected(ComponentName name) {
             // hmm, this is not good
             gps.get().iface = null;

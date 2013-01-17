@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.gpodder.responders;
 
 import java.util.List;
@@ -30,6 +29,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.HttpDownloadResultHandler;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
+import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderService;
 import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
 import at.ac.tuwien.detlef.gpodder.ResultHandler;
@@ -38,8 +38,10 @@ import at.ac.tuwien.detlef.gpodder.SubscriptionChangesResultHandler;
 import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 
 /**
- * Responds to callbacks from the {@link PodderService} by simply executing them on any thread,
- * pausing the execution of another thread until such a callback is processed.
+ * Responds to callbacks from the {@link PodderService} by simply executing them
+ * on any thread, pausing the execution of another thread until such a callback
+ * is processed.
+ * 
  * @author ondra
  */
 public class SynchronousSyncResponder extends SyncResponder {
@@ -51,7 +53,9 @@ public class SynchronousSyncResponder extends SyncResponder {
 
     /**
      * Constructs a synchronous responder.
-     * @param context The context in which the service should be started/stopped.
+     * 
+     * @param context The context in which the service should be
+     *            started/stopped.
      */
     public SynchronousSyncResponder(Context context) {
         stoplight = new Semaphore(0);
@@ -67,12 +71,15 @@ public class SynchronousSyncResponder extends SyncResponder {
 
     /**
      * Blocks until the service has responded or the thread is interrupted.
-     * @throws InterruptedException The thread has been interrupted while waiting.
+     * 
+     * @throws InterruptedException The thread has been interrupted while
+     *             waiting.
      */
     public void waitInterruptiblyForCompletion() throws InterruptedException {
         stoplight.acquire();
     }
 
+    @Override
     public void httpDownloadSucceeded(int reqId, ParcelableByteArray data) throws RemoteException {
         final HttpDownloadResultHandler<?> hdrh =
                 (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
@@ -81,6 +88,7 @@ public class SynchronousSyncResponder extends SyncResponder {
         stoplight.release();
     }
 
+    @Override
     public void httpDownloadProgress(int reqId, int haveBytes, int totalBytes)
             throws RemoteException {
         final HttpDownloadResultHandler<?> hdrh =
@@ -91,10 +99,12 @@ public class SynchronousSyncResponder extends SyncResponder {
         stoplight.release();
     }
 
+    @Override
     public void heartbeatSucceeded(int reqId) throws RemoteException {
         // FIXME: currently no external callback
     }
 
+    @Override
     public void downloadPodcastListSucceeded(int reqId, List<String> podcasts)
             throws RemoteException {
         final StringListResultHandler<?> slrh =
@@ -164,6 +174,15 @@ public class SynchronousSyncResponder extends SyncResponder {
                 (PushSubscriptionChangesResultHandler<?>) getGps().getReq(reqId);
         pscrh.sendEvent(new PushSubscriptionChangesResultHandler
                 .PushSubscriptionChangesSuccessEvent(pscrh, timestamp, null));
+        getGps().removeReq(reqId);
+        stoplight.release();
+    }
+
+    @Override
+    public void getPodcastInfoSucceeded(int reqId, Podcast result) throws RemoteException {
+        final PodcastResultHandler<?> prh =
+                (PodcastResultHandler<?>) getGps().getReq(reqId);
+        prh.sendEvent(new PodcastResultHandler.PodcastInfoSuccessEvent(prh, result));
         getGps().removeReq(reqId);
         stoplight.release();
     }

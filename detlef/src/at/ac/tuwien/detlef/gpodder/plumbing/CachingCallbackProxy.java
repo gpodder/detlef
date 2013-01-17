@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.gpodder.plumbing;
 
 import java.util.LinkedList;
@@ -24,17 +23,18 @@ import java.util.Queue;
 
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
- * Caches calls to a callback object. If the call fails, the call is cached and can be re-sent,
- * optionally to a different callback object, on request.
- *
- * Note that no immediate delivery is attempted; the call is always placed in the queue. Right after
- * placing a call in the queue, an attempt is made to process the queue (as if {@link #resend()}
- * were called); this behavior can be changed using {@link #setPassive(boolean)}. (In passive mode,
- * the queue is only processed after explicit calls to {@link #resend()}).
+ * Caches calls to a callback object. If the call fails, the call is cached and
+ * can be re-sent, optionally to a different callback object, on request. Note
+ * that no immediate delivery is attempted; the call is always placed in the
+ * queue. Right after placing a call in the queue, an attempt is made to process
+ * the queue (as if {@link #resend()} were called); this behavior can be changed
+ * using {@link #setPassive(boolean)}. (In passive mode, the queue is only
+ * processed after explicit calls to {@link #resend()}).
  */
 public class CachingCallbackProxy implements PodderServiceCallback {
     /** The target to proxy calls to. */
@@ -48,6 +48,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     /**
      * Construct a caching callback proxy.
+     * 
      * @param cb The callback to which to forward requests.
      */
     public CachingCallbackProxy(PodderServiceCallback cb) {
@@ -84,15 +85,15 @@ public class CachingCallbackProxy implements PodderServiceCallback {
      * Try re-sending queued messages if passive is false.
      */
     private void resendUnlessPassive() {
-        if (!passive && target != null) {
+        if (!passive && (target != null)) {
             resend();
         }
     }
 
     /**
-     * Sets whether the proxy should not attempt processing queued messages until {@link #resend()}
-     * is called, even if a new message is added.
-     *
+     * Sets whether the proxy should not attempt processing queued messages
+     * until {@link #resend()} is called, even if a new message is added.
+     * 
      * @param shouldBePassive Whether the proxy should be passive.
      */
     public void setPassive(boolean shouldBePassive) {
@@ -100,8 +101,9 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     /**
-     * Whether the proxy should not attempt processing queued messages until {@link #resend()} is
-     * called, even if a new message is added.
+     * Whether the proxy should not attempt processing queued messages until
+     * {@link #resend()} is called, even if a new message is added.
+     * 
      * @return Whether the proxy should be passive.
      */
     public boolean isPassive() {
@@ -305,7 +307,8 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void searchPodcastsSucceeded(final int reqId, final List<Podcast> results) throws RemoteException {
+    public void searchPodcastsSucceeded(final int reqId, final List<Podcast> results)
+            throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -321,7 +324,8 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void searchPodcastsFailed(final int reqId, final int errCode, final String errStr) throws RemoteException {
+    public void searchPodcastsFailed(final int reqId, final int errCode, final String errStr)
+            throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -338,7 +342,8 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void getToplistSucceeded(final int reqId, final List<Podcast> results) throws RemoteException {
+    public void getToplistSucceeded(final int reqId, final List<Podcast> results)
+            throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -354,7 +359,8 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void getToplistFailed(final int reqId, final int errCode, final String errStr) throws RemoteException {
+    public void getToplistFailed(final int reqId, final int errCode, final String errStr)
+            throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -370,7 +376,8 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void getSuggestionsSucceeded(final int reqId, final List<Podcast> results) throws RemoteException {
+    public void getSuggestionsSucceeded(final int reqId, final List<Podcast> results)
+            throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -386,7 +393,8 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void getSuggestionsFailed(final int reqId, final int errCode, final String errStr) throws RemoteException {
+    public void getSuggestionsFailed(final int reqId, final int errCode, final String errStr)
+            throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -433,13 +441,50 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         resendUnlessPassive();
     }
 
+    @Override
+    public void getPodcastInfoSucceeded(final int reqId, final Podcast result)
+            throws RemoteException {
+        queuedMessages.add(new CachedCallback() {
+            @Override
+            public boolean resend(PodderServiceCallback cb) {
+                try {
+                    cb.getPodcastInfoSucceeded(reqId, result);
+                } catch (RemoteException rex) {
+                    return false;
+                }
+                return true;
+            }
+        });
+        resendUnlessPassive();
+    }
+
+    @Override
+    public void getPodcastInfoFailed(final int reqId, final int errCode, final String errStr)
+            throws RemoteException {
+        queuedMessages.add(new CachedCallback() {
+            @Override
+            public boolean resend(PodderServiceCallback cb) {
+                try {
+                    Log.w(getClass().getName(), "getPodcastInfoFailed");
+                    cb.getPodcastInfoFailed(reqId, errCode, errStr);
+                } catch (RemoteException rex) {
+                    return false;
+                }
+                return true;
+            }
+        });
+        resendUnlessPassive();
+    }
+
     /**
      * A callback cached for later processing.
+     * 
      * @author ondra
      */
     protected interface CachedCallback {
         /**
          * Try to re-send this call to the given callback object.
+         * 
          * @param cb The callback object to which to re-send the call.
          * @return Whether the re-sending was successfull
          */

@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.gpodder.responders;
 
 import java.lang.ref.WeakReference;
@@ -27,8 +26,9 @@ import at.ac.tuwien.detlef.gpodder.PodderService;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 
 /**
- * A prototype of a responder to answers from the {@link PodderService} and how they should be
- * forwarded to the user of {@link GPodderSync}.
+ * A prototype of a responder to answers from the {@link PodderService} and how
+ * they should be forwarded to the user of {@link GPodderSync}.
+ * 
  * @author ondra
  */
 public abstract class SyncResponder extends PodderServiceCallback.Stub {
@@ -47,8 +47,9 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
     }
 
     /**
-     * Sets the {@link GPodderSync} object which is used to manage the service connection.
-     * Called by {@link GPodderSync} itself.
+     * Sets the {@link GPodderSync} object which is used to manage the service
+     * connection. Called by {@link GPodderSync} itself.
+     * 
      * @param gpos The GPodderSync object to use.
      */
     public void setGpoSync(GPodderSync gpos) {
@@ -57,6 +58,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     /**
      * Handles the case that an operation, any operation, failed.
+     * 
      * @param reqId The request ID as passed by {@link GPodderSync}.
      * @param errCode The error code returned by the service.
      * @param errStr The error message returned by the service.
@@ -66,6 +68,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     /**
      * Handles the case that an operation that returns no data succeeded.
+     * 
      * @param reqId The request ID as passed by {@link GPodderSync}.
      */
     public abstract void handleNoDataSuccess(int reqId)
@@ -73,7 +76,9 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     /**
      * Starts the service and initiates a bind to it.
-     * @param sconn Service connection manager object, supplied by {@link GPodderSync}.
+     * 
+     * @param sconn Service connection manager object, supplied by
+     *            {@link GPodderSync}.
      */
     public abstract void startAndBindService(ServiceConnection sconn);
 
@@ -82,23 +87,28 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
      */
     public abstract void stopService();
 
+    @Override
     public void downloadPodcastListFailed(int reqId, int errCode, String errStr)
             throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
 
+    @Override
     public void httpDownloadFailed(int reqId, int errCode, String errStr) throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
 
+    @Override
     public void authCheckSucceeded(int reqId) throws RemoteException {
         handleNoDataSuccess(reqId);
     }
 
+    @Override
     public void httpDownloadToFileSucceeded(int reqId) throws RemoteException {
         handleNoDataSuccess(reqId);
     }
 
+    @Override
     public void gponetLoginFailed(int reqId, int errCode, String errStr) throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
@@ -126,6 +136,12 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     @Override
     public void updateSubscriptionsFailed(int reqId, int errCode, String errStr)
+            throws RemoteException {
+        handleGenericFailure(reqId, errCode, errStr);
+    }
+
+    @Override
+    public void getPodcastInfoFailed(int reqId, int errCode, String errStr)
             throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }

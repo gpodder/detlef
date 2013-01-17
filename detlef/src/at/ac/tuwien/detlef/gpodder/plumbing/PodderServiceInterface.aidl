@@ -102,4 +102,11 @@ oneway interface PodderServiceInterface
      */
     void updateSubscriptions(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo,
         in EnhancedSubscriptionChanges changes);
+        
+    /**
+     * Gets a Podcast object for a podcast
+     *
+     * @param url The url of the podcast to fetch
+     */
+     void getPodcastInfo(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo, String query);
 }

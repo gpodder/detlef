@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.gpodder;
 
 import java.io.FileNotFoundException;
@@ -53,20 +52,23 @@ import com.dragontek.mygpoclient.simple.IPodcast;
 import com.dragontek.mygpoclient.simple.SimpleClient;
 
 /**
- * GPodder download service; performs gpodder.net requests and HTTP downloads in the background.
- *
- * When bound, returns an {@link android.os.IBinder IBinder} which can be turned into a {@link
- * android.os.Messenger Messenger}. This messenger accepts the <tt>DO_</tt> message codes from
- * {@link MessageType} and responds with the respective <tt>_DONE</tt> or <tt>_FAILED</tt> message
- * codes. Messages without a {@link android.os.Message#replyTo replyTo} attribute are ignored.
- *
+ * GPodder download service; performs gpodder.net requests and HTTP downloads in
+ * the background. When bound, returns an {@link android.os.IBinder IBinder}
+ * which can be turned into a {@link android.os.Messenger Messenger}. This
+ * messenger accepts the <tt>DO_</tt> message codes from {@link MessageType} and
+ * responds with the respective <tt>_DONE</tt> or <tt>_FAILED</tt> message
+ * codes. Messages without a {@link android.os.Message#replyTo replyTo}
+ * attribute are ignored.
+ * 
  * @author ondra
  */
 public class PodderService extends Service {
     private static final String TAG = "PodderService";
 
     /** Lists the allowed URI schemes. */
-    private static final String[] ALLOWED_SCHEMES = { "http", "https" };
+    private static final String[] ALLOWED_SCHEMES = {
+            "http", "https"
+    };
 
     /** Block size for the byte array when downloading data. */
     private static final int BLOCK_SIZE = 4096;
@@ -89,6 +91,7 @@ public class PodderService extends Service {
 
     /**
      * Checks whether the given scheme is allowed.
+     * 
      * @param sch The scheme to check.
      * @return Whether the given scheme is allowed.
      */
@@ -114,6 +117,7 @@ public class PodderService extends Service {
 
     /**
      * Performs an HTTP download.
+     * 
      * @param cb HTTP callback for error cases.
      * @param reqId Request ID as passed by the remote caller.
      * @param url URL of the file to download.
@@ -185,9 +189,11 @@ public class PodderService extends Service {
 
     /**
      * Performs a login to a gpodder.net-compatible service.
+     * 
      * @param cb Callback for error cases.
      * @param reqId Request ID as passed by the remote caller.
-     * @param cinfo Information about the client of the gpodder.net-compatible service.
+     * @param cinfo Information about the client of the gpodder.net-compatible
+     *            service.
      * @return The gpodder.net client, or <tt>null</tt> if the login failed.
      */
     protected static SimpleClient performGpoLogin(PodderServiceCallback cb, int reqId,
@@ -207,6 +213,7 @@ public class PodderService extends Service {
 
     /**
      * Fetches details about podcasts specified by the given URLs.
+     * 
      * @param pc The gpodder.net-compatible public API client.
      * @param urls URLs to fetch.
      * @return
@@ -226,7 +233,10 @@ public class PodderService extends Service {
         return ret;
     }
 
-    /** Contains the error codes for failures reported by the {@link PodderService}. */
+    /**
+     * Contains the error codes for failures reported by the
+     * {@link PodderService}.
+     */
     public static class ErrorCode {
         /** Error code raised if authentication fails. */
         public static final int AUTHENTICATION_FAILED = 6;
@@ -244,16 +254,19 @@ public class PodderService extends Service {
         public static final int MALFORMED_URL = 2;
 
         /**
-         * Error code raised if sending the request failed. This code is not sent by the service,
-         * but may be sent by the plumbing layer (e.g. {@link GPodderSync}) if the message to the
-         * service cannot be sent.
+         * Error code raised if sending the request failed. This code is not
+         * sent by the service, but may be sent by the plumbing layer (e.g.
+         * {@link GPodderSync}) if the message to the service cannot be sent.
          */
         public static final int SENDING_REQUEST_FAILED = 5;
 
         /** Error code raised if sending the result failed. */
         public static final int SENDING_RESULT_FAILED = 4;
 
-        /** Error code raised if an HTTP response with an unexpected code has been received. */
+        /**
+         * Error code raised if an HTTP response with an unexpected code has
+         * been received.
+         */
         public static final int UNEXPECTED_HTTP_RESPONSE = 9;
 
         /** Error code raised if the error is unknown. */
@@ -261,13 +274,15 @@ public class PodderService extends Service {
     }
 
     /**
-     * Acts upon the whims of {@link PodderService#performHttpDownload(PodderServiceCallback,
-     * String, HttpDownloadHandler)}.
+     * Acts upon the whims of
+     * {@link PodderService#performHttpDownload(PodderServiceCallback, String, HttpDownloadHandler)}
+     * .
      */
     protected interface HttpDownloadHandler {
         /**
-         * Called either when the length of the file becomes known, or when it can only be
-         * determined by the end of the stream.
+         * Called either when the length of the file becomes known, or when it
+         * can only be determined by the end of the stream.
+         * 
          * @param len The length of the stream if known, or -1 if unknowable.
          * @throws RemoteException May be thrown if/when a callback fails.
          */
@@ -275,11 +290,14 @@ public class PodderService extends Service {
 
         /**
          * Called when a chunk of bytes has been downloaded successfully.
+         * 
          * @param chunk Chunk of bytes downloaded.
-         * @param len Number of bytes downloaded (chunk might be larger for efficiency reasons).
-         * @return Whether to continue downloading. If you return false, no further callback will
-         * be sent and {@link PodderService#performHttpDownload(PodderServiceCallback, int, String,
-         * HttpDownloadHandler)} will return false.
+         * @param len Number of bytes downloaded (chunk might be larger for
+         *            efficiency reasons).
+         * @return Whether to continue downloading. If you return false, no
+         *         further callback will be sent and
+         *         {@link PodderService#performHttpDownload(PodderServiceCallback, int, String, HttpDownloadHandler)}
+         *         will return false.
          * @throws RemoteException May be thrown if/when a callback fails.
          */
         boolean byteChunkDownloaded(byte[] chunk, int len) throws RemoteException;
@@ -370,17 +388,17 @@ public class PodderService extends Service {
             boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
                     new HttpDownloadHandler() {
 
-                @Override
-                public void lengthKnown(int len) {
-                    // do nothing of interest
-                }
+                        @Override
+                        public void lengthKnown(int len) {
+                            // do nothing of interest
+                        }
 
-                @Override
-                public boolean byteChunkDownloaded(byte[] chunk, int len) {
-                    rope.append(chunk, 0, len);
-                    return true;
-                }
-            });
+                        @Override
+                        public boolean byteChunkDownloaded(byte[] chunk, int len) {
+                            rope.append(chunk, 0, len);
+                            return true;
+                        }
+                    });
 
             if (ok) {
                 // good news, everyone!
@@ -409,24 +427,25 @@ public class PodderService extends Service {
             boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
                     new HttpDownloadHandler() {
 
-                @Override
-                public void lengthKnown(int len) {
-                    // do nothing of interest
-                }
+                        @Override
+                        public void lengthKnown(int len) {
+                            // do nothing of interest
+                        }
 
-                @Override
-                public boolean byteChunkDownloaded(byte[] chunk, int len) throws RemoteException {
-                    try {
-                        fos.write(chunk, 0, len);
-                    } catch (IOException e) {
-                        Log.w(TAG, "FileOutputStream write IOException: " + e.getMessage());
-                        theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
-                                e.getMessage());
-                        return false;
-                    }
-                    return true;
-                }
-            });
+                        @Override
+                        public boolean byteChunkDownloaded(byte[] chunk, int len)
+                                throws RemoteException {
+                            try {
+                                fos.write(chunk, 0, len);
+                            } catch (IOException e) {
+                                Log.w(TAG, "FileOutputStream write IOException: " + e.getMessage());
+                                theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
+                                        e.getMessage());
+                                return false;
+                            }
+                            return true;
+                        }
+                    });
 
             // cease fire
             try {
@@ -593,8 +612,30 @@ public class PodderService extends Service {
                 Log.w(TAG, "updateSubscriptions Exception: " + e.getMessage());
                 theMagicalProxy.updateSubscriptionsFailed(reqId, ErrorCode.IO_PROBLEM,
                         "Some problems occured while updating your subscription list. " +
-                        "Try later again.");
+                                "Try later again.");
             }
+        }
+
+        @Override
+        public void getPodcastInfo(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo,
+                String url) throws RemoteException {
+            Log.d(TAG, "getPodcastInfo() on " + Thread.currentThread().getId());
+            theMagicalProxy.setTarget(cb);
+
+            PublicClient pc = new PublicClient(cinfo.getHostname());
+
+            try {
+                com.dragontek.mygpoclient.simple.Podcast podcast = pc.getPodcastData(url);
+
+                /* Convert into a "real" podcast. */
+                Podcast ret = new Podcast(podcast);
+
+                theMagicalProxy.getPodcastInfoSucceeded(reqId, ret);
+            } catch (IOException e) {
+                Log.w(TAG, "getPodcastInfo IOException: " + e.getMessage());
+                theMagicalProxy.getPodcastInfoFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
+            }
+
         }
     }
 }

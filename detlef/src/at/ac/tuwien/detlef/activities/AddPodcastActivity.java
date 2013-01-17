@@ -25,7 +25,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -33,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +46,7 @@ import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
+import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 
 import com.commonsware.cwac.merge.MergeAdapter;
@@ -65,6 +69,7 @@ public class AddPodcastActivity extends Activity {
     private static final SearchResultHandler srh = new SearchResultHandler();
     private static final ToplistResultHandler trh = new ToplistResultHandler();
     private static final SuggestionResultHandler urh = new SuggestionResultHandler();
+    private static final AddPodcastResultHandler prh = new AddPodcastResultHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +108,31 @@ public class AddPodcastActivity extends Activity {
 
         ListView lv = (ListView) findViewById(R.id.result_list);
         lv.setAdapter(mergeAdapter);
+
+        final TextView searchBox = (TextView) findViewById(R.id.search_textbox);
+        final ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+        searchBox.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = searchBox.getText().toString();
+                if (text.startsWith("http://") || text.startsWith("https://")) {
+                    searchButton.setImageDrawable(getResources().getDrawable(
+                            android.R.drawable.ic_menu_add));
+                } else {
+                    searchButton.setImageDrawable(getResources().getDrawable(
+                            R.drawable.ic_action_search));
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         /*
          * Iff we are starting for the first time, load toplist and suggestions
@@ -217,10 +247,15 @@ public class AddPodcastActivity extends Activity {
                 Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
+        String text = tv.getText().toString();
         setBusy(true);
-
-        GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
-        gps.addSearchPodcastsJob(srh, tv.getText().toString());
+        if (text.startsWith("http://") || text.startsWith("https://")) {
+            GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+            gps.addGetPodcastInfoJob(prh, tv.getText().toString());
+        } else {
+            GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+            gps.addSearchPodcastsJob(srh, tv.getText().toString());
+        }
     }
 
     private void setBusy(boolean busy) {
@@ -241,9 +276,9 @@ public class AddPodcastActivity extends Activity {
         View parent = (View) view.getParent();
         Podcast p = (Podcast) parent.getTag();
 
-        resultAdapter.remove(p);
-        suggestionsAdapter.remove(p);
-        toplistAdapter.remove(p);
+        resultAdapter.removePodcast(p);
+        suggestionsAdapter.removePodcast(p);
+        toplistAdapter.removePodcast(p);
 
         PodcastDAO dao = PodcastDAOImpl.i();
         p.setLocalAdd(true);
@@ -347,6 +382,43 @@ public class AddPodcastActivity extends Activity {
 
     }
 
+    private static class AddPodcastResultHandler extends ReliableResultHandler<AddPodcastActivity>
+            implements PodcastResultHandler<AddPodcastActivity> {
+
+        @Override
+        public void handleFailure(int errCode, String errStr) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getRcv(), "Could not retrieve podcast from the given URL",
+                            Toast.LENGTH_SHORT);
+                    getRcv().setBusy(false);
+                }
+            });
+        }
+
+        @Override
+        public void handleSuccess(final Podcast result) {
+            getRcv().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    PodcastDAO dao = PodcastDAOImpl.i();
+                    result.setLocalAdd(true);
+                    if (dao.insertPodcast(result) == null) {
+                        Toast.makeText(getRcv(), "Add podcast from URL failed", Toast.LENGTH_SHORT);
+                        return;
+                    }
+
+                    Toast.makeText(getRcv(), "Add podcast from URL succeeded", Toast.LENGTH_SHORT)
+                            .show();
+                    podcastsAdded++;
+                    getRcv().setBusy(false);
+                }
+            });
+        }
+
+    }
+
     /**
      * Removes podcasts we are already subscribed to from in and returns the
      * resulting list.
@@ -384,6 +456,14 @@ public class AddPodcastActivity extends Activity {
         public void removePodcast(Podcast p) {
             podcasts.remove(p);
             notifyDataSetChanged();
+        }
+
+        public void removeByUrl(String url) {
+            for (Podcast p : podcasts) {
+                if (p.getUrl().equals(url)) {
+                    removePodcast(p);
+                }
+            }
         }
 
         @Override

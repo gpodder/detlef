@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.gpodder.responders;
 
 import java.lang.ref.WeakReference;
@@ -34,6 +32,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.HttpDownloadResultHandler;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
+import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderService;
 import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
 import at.ac.tuwien.detlef.gpodder.ResultHandler;
@@ -45,7 +44,7 @@ import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
  * Responds to callbacks from the {@link PodderService} by performing the
  * specified actions on an activity's main thread. Allows re-linking to a new
  * activity if the previous one disappears unexpectedly.
- *
+ * 
  * @author ondra
  */
 public class CachingActivitySyncResponder extends SyncResponder {
@@ -66,7 +65,7 @@ public class CachingActivitySyncResponder extends SyncResponder {
 
     /**
      * Create a new caching, Activity-based responder.
-     *
+     * 
      * @param ctx The context in which to start and stop the service. The
      *            general application context is recommended here.
      * @param act The activity on whose main thread the callbacks will be
@@ -88,7 +87,7 @@ public class CachingActivitySyncResponder extends SyncResponder {
 
     /**
      * Register a new activity to receive callbacks.
-     *
+     * 
      * @param a The activity on whose main thread the callbacks will be executed
      *            from now on.
      */
@@ -285,11 +284,12 @@ public class CachingActivitySyncResponder extends SyncResponder {
             act.get().runOnUiThread(r);
         }
 
-        getGps().removeReq(reqId);        
+        getGps().removeReq(reqId);
     }
 
     @Override
-    public void getSuggestionsSucceeded(int reqId, final List<Podcast> results) throws RemoteException {
+    public void getSuggestionsSucceeded(int reqId, final List<Podcast> results)
+            throws RemoteException {
         final PodcastListResultHandler<?> plrh =
                 (PodcastListResultHandler<?>) getGps().getReq(reqId);
 
@@ -319,6 +319,28 @@ public class CachingActivitySyncResponder extends SyncResponder {
             @Override
             public void run() {
                 pscrh.handleSuccess(timestamp, null);
+            }
+        };
+
+        if (act.get() == null) {
+            waitings.add(r);
+        } else {
+            act.get().runOnUiThread(r);
+        }
+
+        getGps().removeReq(reqId);
+    }
+
+    @Override
+    public void getPodcastInfoSucceeded(int reqId, final Podcast result)
+            throws RemoteException {
+        final PodcastResultHandler<?> prh =
+                (PodcastResultHandler<?>) getGps().getReq(reqId);
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                prh.handleSuccess(result);
             }
         };
 
