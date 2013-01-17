@@ -18,6 +18,7 @@
 package at.ac.tuwien.detlef.activities;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import android.app.Activity;
@@ -111,6 +112,15 @@ public class AddPodcastActivity extends Activity {
 
         final TextView searchBox = (TextView) findViewById(R.id.search_textbox);
         final ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+        String text = searchBox.getText().toString();
+        if (text.startsWith("http://") || text.startsWith("https://")) {
+            searchButton.setImageDrawable(getResources().getDrawable(
+                    android.R.drawable.ic_menu_add));
+        } else {
+            searchButton.setImageDrawable(getResources().getDrawable(
+                    R.drawable.ic_action_search));
+        }
+
         searchBox.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -252,6 +262,17 @@ public class AddPodcastActivity extends Activity {
         String text = tv.getText().toString();
         setBusy(true);
         if (text.startsWith("http://") || text.startsWith("https://")) {
+            PodcastDAO dao = PodcastDAOImpl.i();
+            for (Podcast p : dao.getAllPodcasts()) {
+                if (p.getUrl().equals(text)) {
+                    Toast.makeText(this,
+                            "This podcast is already in your podcast list!",
+                            Toast.LENGTH_LONG).show();
+                    setBusy(false);
+                    return;
+                }
+            }
+
             GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
             ArrayList<String> urls = new ArrayList<String>();
             urls.add(tv.getText().toString());
@@ -394,30 +415,10 @@ public class AddPodcastActivity extends Activity {
             getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    // Toast.makeText(
-                    // getRcv(),
-                    // "GPodder must still fetch info about this podcast. "
-                    // + "Please be patient "
-                    // + "until podcast data arrives (a few days).",
-                    // Toast.LENGTH_SHORT).show();
-                    // Podcast p = new Podcast();
-                    // p.setDataVersion(Podcast.DUMMY_DATA_VERSION);
-                    // p.setTitle(url);
-                    // p.setDescription("<html>Data must still "
-                    // + "arrive from GPodder (~ a few days)</html>");
-                    //
-                    // PodcastDAO dao = PodcastDAOImpl.i();
-                    // p.setLocalAdd(true);
-                    // if (dao.insertPodcast(p) == null) {
-                    // Toast.makeText(getRcv(), "Add podcast from URL failed",
-                    // Toast.LENGTH_SHORT);
-                    // }
-                    // podcastsAdded++;
-                    // getRcv().setBusy(false);
-
                     Toast.makeText(
                             getRcv(),
-                            "This podcast is not known to GPodder! Please add it via web gpodder.net. It will be available on your device in a few days.",
+                            "This podcast is not known to GPodder! "
+                                    + "Please add it via web gpodder.net. It will be available on your device in a few days.",
                             Toast.LENGTH_LONG).show();
                     getRcv().setBusy(false);
                 }
@@ -431,6 +432,15 @@ public class AddPodcastActivity extends Activity {
                 public void run() {
                     PodcastDAO dao = PodcastDAOImpl.i();
                     Podcast result = results.get(0);
+                    for (Podcast p : dao.getAllPodcasts()) {
+                        if (p.getUrl().equals(result.getUrl())) {
+                            Toast.makeText(getRcv(),
+                                    "This podcast is already in your podcast list!",
+                                    Toast.LENGTH_LONG).show();
+                            getRcv().setBusy(false);
+                            return;
+                        }
+                    }
                     result.setLocalAdd(true);
                     if (dao.insertPodcast(result) == null) {
                         Toast.makeText(getRcv(), "Add podcast from URL failed", Toast.LENGTH_SHORT);
@@ -438,6 +448,9 @@ public class AddPodcastActivity extends Activity {
                         return;
                     }
 
+                    getRcv().resultAdapter.removeWithUrl(result);
+                    getRcv().suggestionsAdapter.removeWithUrl(result);
+                    getRcv().toplistAdapter.removeWithUrl(result);
                     Toast.makeText(getRcv(), "Add podcast from URL succeeded", Toast.LENGTH_SHORT)
                             .show();
                     podcastsAdded++;
@@ -445,7 +458,6 @@ public class AddPodcastActivity extends Activity {
                 }
             });
         }
-
     }
 
     /**
@@ -480,6 +492,17 @@ public class AddPodcastActivity extends Activity {
 
         public ArrayList<Podcast> getList() {
             return podcasts;
+        }
+
+        public void removeWithUrl(Podcast p) {
+            Iterator<Podcast> it = podcasts.iterator();
+            while (it.hasNext()) {
+                Podcast p2 = it.next();
+                if (p2.getUrl().equals(p.getUrl())) {
+                    it.remove();
+                }
+            }
+            notifyDataSetChanged();
         }
 
         public void removePodcast(Podcast p) {
