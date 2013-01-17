@@ -28,7 +28,6 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,11 +38,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.activities.MainActivity.SectionsPagerAdapter;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
@@ -206,15 +203,8 @@ public class AddPodcastActivity extends Activity {
                 // refresh feed handling
                 onBackPressed();
                 return true;
-            case R.id.add_podcast_from_url:
-                addNewPodcastFromURL();
-                break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void addNewPodcastFromURL() {
-        // TODO open DialogFragment here
     }
 
     public void onSearchClick(View view) {
@@ -413,8 +403,8 @@ public class AddPodcastActivity extends Activity {
             podcastName.setText(podcast.getTitle());
 
             TextView podcastDesc = (TextView) v.findViewById(R.id.podcast_description);
-            
-            if (podcastDesc != null && podcast != null & podcast.getDescription() != null) {
+
+            if ((podcastDesc != null) && ((podcast != null) & (podcast.getDescription() != null))) {
                 podcastDesc.setText(Html.fromHtml(podcast.getDescription()));
             }
 
@@ -422,9 +412,9 @@ public class AddPodcastActivity extends Activity {
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu pMenu) {
-//        getMenuInflater().inflate(R.menu.activity_add_podcast, pMenu);
-//        return true;
-//    }
+    // @Override
+    // public boolean onCreateOptionsMenu(Menu pMenu) {
+    // getMenuInflater().inflate(R.menu.activity_add_podcast, pMenu);
+    // return true;
+    // }
 }

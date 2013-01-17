@@ -58,7 +58,7 @@
     <string name="refreshing">Refreshing</string>
     <string name="no_podcast_specified">No podcast specified</string>
     <string name="refreshing_feed_x_of_y">Refreshing feed %1$d of %2$d…</string>
-    <string name="all_podcasts">All Podcasts</string>
+    <string name="all_podcasts">All Episodes</string>
     <string name="no_episode_selected">No episode selected!</string>
     <string name="failed_to_download_feed">failed to download feed</string>
     <string name="player_sample_already_played">00:00</string>
