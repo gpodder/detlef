@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
 package at.ac.tuwien.detlef.fragments;
 
 import java.util.List;
@@ -47,7 +46,6 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
     private PodListAdapter adapter;
     private PodListModel<Podcast> model;
     private OnPodcastSelectedListener listener;
-
 
     private View allPodcasts;
 
@@ -92,7 +90,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
         /* Then create the 'All Podcasts' header. */
 
         allPodcasts = createHeader();
-        
+
     }
 
     @Override
@@ -106,7 +104,8 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
 
         ListView listView = (ListView) view.findViewById(android.R.id.list);
         listView.addHeaderView(allPodcasts);
-        listView.setEmptyView(getLayoutInflater(getArguments()).inflate(R.layout.pod_list_empty, null));
+        listView.setEmptyView(getLayoutInflater(getArguments()).inflate(R.layout.pod_list_empty,
+                null));
 
         return view;
     }
@@ -128,8 +127,8 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
     private View createHeader() {
         View v = getLayoutInflater(getArguments()).inflate(R.layout.pod_list_header, null);
 
-        TextView tv = (TextView)v.findViewById(R.id.podListPodcastName);
-        tv.setText(R.string.all_podcasts);
+        TextView tv = (TextView) v.findViewById(R.id.podListPodcastName);
+        tv.setText(R.string.all_episodes);
 
         v.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,12 +152,15 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
-        case R.id.delete_feed:
-            /* Apparently, the header is counted as a position, so we need to subtract one. */
-            onDeleteFeedClicked(info.position - 1);
-            return true;
-        default:
-            return super.onContextItemSelected(item);
+            case R.id.delete_feed:
+                /*
+                 * Apparently, the header is counted as a position, so we need
+                 * to subtract one.
+                 */
+                onDeleteFeedClicked(info.position - 1);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
     }
 
@@ -195,7 +197,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
                 model.addPodcast(podcast);
             }
         });
-        
+
         updatePodcastList();
     }
 
@@ -217,8 +219,8 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
     }
 
     /**
-     * Updates the displayed list based on the current model contents.
-     * Ensures that UI methods are called on the UI thread.
+     * Updates the displayed list based on the current model contents. Ensures
+     * that UI methods are called on the UI thread.
      */
     private void updatePodcastList() {
         Activity activity = getActivity();
