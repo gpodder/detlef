@@ -100,6 +100,7 @@
                     android:id="@+id/ButtonRewind"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
                     android:minHeight="80dp"
                     android:src="@android:drawable/ic_media_rew" />
 
@@ -107,6 +108,7 @@
                     android:id="@+id/ButtonPlayStop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
                     android:minHeight="80dp"
                     android:src="@android:drawable/ic_media_play" />
 
@@ -114,8 +116,10 @@
                     android:id="@+id/ButtonFF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
                     android:minHeight="80dp"
                     android:src="@android:drawable/ic_media_ff" />
+
             </TableRow>
         </TableLayout>
     </RelativeLayout>
