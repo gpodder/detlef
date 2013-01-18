@@ -11,7 +11,7 @@
         android:layout_margin="10dp"
         android:layout_weight="6" >
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/playerNames"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
@@ -24,28 +24,33 @@
                 android:contentDescription="@string/podcast_icon"
                 android:src="@drawable/detlef" />
 
-            <TextView
-                android:id="@+id/playerPodcast"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/imageView1"
-                android:ellipsize="marquee"
-                android:maxLines="2"
-                android:scrollHorizontally="true"
-                android:text="@string/sample_podcast_name" />
+                android:layout_gravity="center"
+                android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/playerEpisode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/playerPodcast"
-                android:layout_toRightOf="@+id/imageView1"
-                android:ellipsize="marquee"
-                android:maxLines="3"
-                android:text="@string/sample_episode_name"
-                android:textColor="#0099CC"
-                android:textStyle="bold" />
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/playerPodcast"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:maxLines="2"
+                    android:scrollHorizontally="true"
+                    android:text="@string/sample_podcast_name" />
+
+                <TextView
+                    android:id="@+id/playerEpisode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:maxLines="3"
+                    android:text="@string/sample_episode_name"
+                    android:textColor="#0099CC"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </LinearLayout>
 
         <WebView
             android:id="@+id/playerEpisodeDescription"
@@ -119,7 +124,6 @@
                     android:background="@android:color/transparent"
                     android:minHeight="80dp"
                     android:src="@android:drawable/ic_media_ff" />
-
             </TableRow>
         </TableLayout>
     </RelativeLayout>
