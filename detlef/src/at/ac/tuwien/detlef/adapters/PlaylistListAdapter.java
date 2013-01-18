@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
@@ -65,7 +64,7 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
             }
         }
 
-        Button removeButton = (Button) v.findViewById(R.id.playListRemoveFromPlaylist);
+        ImageButton removeButton = (ImageButton) v.findViewById(R.id.playListRemoveFromPlaylist);
         removeButton.setTag(position);
 
         ImageButton downloadButton = (ImageButton) v.findViewById(R.id.playListDownload);

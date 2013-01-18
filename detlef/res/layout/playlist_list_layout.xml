@@ -67,18 +67,25 @@
                 android:id="@+id/playListDownload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_toLeftOf="@+id/playListRemoveFromPlaylist"
+                android:background="@android:color/transparent"
                 android:focusable="false"
                 android:onClick="downloadEpisode" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/playListRemoveFromPlaylist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@android:color/transparent"
                 android:focusable="false"
                 android:onClick="removeFromPlaylist"
-                android:text="@string/remove_from_playlist_abbreviation" />
+                android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
         </RelativeLayout>
     </LinearLayout>
 
