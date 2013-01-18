@@ -27,8 +27,11 @@ import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
+import at.ac.tuwien.detlef.gpodder.GPodderSync;
+import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
+import at.ac.tuwien.detlef.gpodder.PodderService;
+import at.ac.tuwien.detlef.gpodder.ResultHandler;
 import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.GpodderConnectionException;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.jayway.android.robotium.solo.Solo;
@@ -234,22 +237,35 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
         @Override
         public ConnectionTester getConnectionTester() {
             return new ConnectionTester() {
-
                 @Override
-                public boolean testConnection(GpodderSettings pSettings)
-                        throws GpodderConnectionException, InterruptedException {
+                public void testConnection(GPodderSync gpodderSync, GpodderSettings settings,
+                        final NoDataResultHandler<?> callback) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            solo.sleep(connectionTestSleepTime);
 
-                    solo.sleep(connectionTestSleepTime);
-
-                    switch (connectionTestBehavior) {
-                        case CORRECT:
-                            return true;
-                        case INCORRECT:
-                            return false;
-                        case CONNECTIONERROR:
-                        default:
-                            throw new GpodderConnectionException();
-                    }
+                            switch (connectionTestBehavior) {
+                                case CORRECT:
+                                    callback.sendEvent(new NoDataResultHandler
+                                            .NoDataSuccessEvent(callback));
+                                    return;
+                                case INCORRECT:
+                                    callback.sendEvent(new ResultHandler.GenericFailureEvent(
+                                            callback,
+                                            PodderService.ErrorCode.AUTHENTICATION_FAILED,
+                                            "authentication failed"));
+                                    return;
+                                case CONNECTIONERROR:
+                                default:
+                                    callback.sendEvent(new ResultHandler.GenericFailureEvent(
+                                            callback,
+                                            PodderService.ErrorCode.OFFLINE,
+                                            "device is offline"));
+                            }
+                        }
+                        
+                    }).start();
                 }
             };
         }

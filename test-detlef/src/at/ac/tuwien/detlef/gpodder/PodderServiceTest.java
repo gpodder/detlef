@@ -227,13 +227,13 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         }
 
         @Override
-        public void getPodcastInfoSucceeded(int reqId, List<Podcast> result) throws RemoteException {
+        public void getPodcastInfoFailed(int reqId, int ioProblem, String message)
+                throws RemoteException {
             /* Unused. */
         }
 
         @Override
-        public void getPodcastInfoFailed(int reqId, int ioProblem, String message)
-                throws RemoteException {
+        public void getPodcastInfoSucceeded(int reqId, Podcast result) throws RemoteException {
             /* Unused. */
         }
     }
