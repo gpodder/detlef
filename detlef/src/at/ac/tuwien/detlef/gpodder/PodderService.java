@@ -31,11 +31,15 @@ import java.util.List;
 import org.apache.http.auth.AuthenticationException;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.plumbing.CachingCallbackProxy;
@@ -67,7 +71,7 @@ public class PodderService extends Service {
 
     /** Lists the allowed URI schemes. */
     private static final String[] ALLOWED_SCHEMES = {
-            "http", "https"
+        "http", "https"
     };
 
     /** Block size for the byte array when downloading data. */
@@ -199,6 +203,12 @@ public class PodderService extends Service {
     protected static SimpleClient performGpoLogin(PodderServiceCallback cb, int reqId,
             GpoNetClientInfo cinfo) throws RemoteException {
 
+        if (!isOnline()) {
+            Log.w(TAG, "device is offline");
+            cb.gponetLoginFailed(reqId, ErrorCode.OFFLINE, "device is offline");
+            return null;
+        }
+
         SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
                 cinfo.getHostname());
 
@@ -209,6 +219,13 @@ public class PodderService extends Service {
         }
 
         return sc;
+    }
+
+    private static boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) Detlef.getAppContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return (netInfo != null && netInfo.isConnectedOrConnecting());
     }
 
     /**
@@ -269,6 +286,11 @@ public class PodderService extends Service {
          */
         public static final int UNEXPECTED_HTTP_RESPONSE = 9;
 
+        /**
+         * Error code raised if the device is currently offline.
+         */
+        public static final int OFFLINE = 10;
+
         /** Error code raised if the error is unknown. */
         public static final int UNKNOWN_ERROR = 8;
     }
@@ -310,7 +332,7 @@ public class PodderService extends Service {
         private static final int DEFAULT_SUGGESTIONS_COUNT = 15;
 
         /** Caches calls. */
-        private CachingCallbackProxy theMagicalProxy;
+        private final CachingCallbackProxy theMagicalProxy;
 
         public IpcHandler() {
             theMagicalProxy = new CachingCallbackProxy(null);
@@ -388,17 +410,17 @@ public class PodderService extends Service {
             boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
                     new HttpDownloadHandler() {
 
-                        @Override
-                        public void lengthKnown(int len) {
-                            // do nothing of interest
-                        }
+                @Override
+                public void lengthKnown(int len) {
+                    // do nothing of interest
+                }
 
-                        @Override
-                        public boolean byteChunkDownloaded(byte[] chunk, int len) {
-                            rope.append(chunk, 0, len);
-                            return true;
-                        }
-                    });
+                @Override
+                public boolean byteChunkDownloaded(byte[] chunk, int len) {
+                    rope.append(chunk, 0, len);
+                    return true;
+                }
+            });
 
             if (ok) {
                 // good news, everyone!
@@ -427,25 +449,25 @@ public class PodderService extends Service {
             boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
                     new HttpDownloadHandler() {
 
-                        @Override
-                        public void lengthKnown(int len) {
-                            // do nothing of interest
-                        }
+                @Override
+                public void lengthKnown(int len) {
+                    // do nothing of interest
+                }
 
-                        @Override
-                        public boolean byteChunkDownloaded(byte[] chunk, int len)
-                                throws RemoteException {
-                            try {
-                                fos.write(chunk, 0, len);
-                            } catch (IOException e) {
-                                Log.w(TAG, "FileOutputStream write IOException: " + e.getMessage());
-                                theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
-                                        e.getMessage());
-                                return false;
-                            }
-                            return true;
-                        }
-                    });
+                @Override
+                public boolean byteChunkDownloaded(byte[] chunk, int len)
+                        throws RemoteException {
+                    try {
+                        fos.write(chunk, 0, len);
+                    } catch (IOException e) {
+                        Log.w(TAG, "FileOutputStream write IOException: " + e.getMessage());
+                        theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
+                                e.getMessage());
+                        return false;
+                    }
+                    return true;
+                }
+            });
 
             // cease fire
             try {
@@ -612,7 +634,7 @@ public class PodderService extends Service {
                 Log.w(TAG, "updateSubscriptions Exception: " + e.getMessage());
                 theMagicalProxy.updateSubscriptionsFailed(reqId, ErrorCode.IO_PROBLEM,
                         "Some problems occured while updating your subscription list. " +
-                                "Try later again.");
+                        "Try later again.");
             }
         }
 
