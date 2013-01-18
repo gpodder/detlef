@@ -34,9 +34,6 @@ import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
  */
 public class ConnectionTesterGpodderNet implements ConnectionTester {
 
-    /** Tag for logging. */
-    private static final String TAG = ConnectionTesterGpodderNet.class.getCanonicalName();
-
     @Override
     public void testConnection(GPodderSync gpodderSync, GpodderSettings settings,
             NoDataResultHandler<?> callback) {
