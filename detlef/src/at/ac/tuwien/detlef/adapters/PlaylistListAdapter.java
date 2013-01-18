@@ -52,15 +52,20 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
 
         Episode episode = episodes.get(position);
         if (episode != null) {
-            TextView podcastName = (TextView) v
-                    .findViewById(R.id.playListPodcast);
-            TextView episodeName = (TextView) v
-                    .findViewById(R.id.playListEpisode);
+            TextView podcastName = (TextView)v.findViewById(R.id.playListPodcast);
             if (podcastName != null) {
                 podcastName.setText(episode.getPodcast().getTitle());
             }
+
+            TextView episodeName = (TextView)v.findViewById(R.id.playListEpisode);
             if (episode != null) {
                 episodeName.setText(episode.getTitle());
+            }
+
+            TextView dragHandle = (TextView)v.findViewById(R.id.drag_handle);
+            if (episode != null) {
+                dragHandle.setCompoundDrawablesWithIntrinsicBounds(null,
+                        episode.getPodcast().getLogoIcon(), null, null);
             }
         }
 
