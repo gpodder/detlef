@@ -18,22 +18,22 @@
 
 package at.ac.tuwien.detlef.settings;
 
+import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
+import at.ac.tuwien.detlef.gpodder.GPodderSync;
+import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
+
 /**
  * The connection tester is responsible for the verification of user credentials.
- * It is used by the "Test Connection" button by the {@link SettingsGpodderNet} fragment. 
+ * It is used by the "Test Connection" button by the {@link SettingsGpodderNet} fragment.
  * @author moe
  */
 public interface ConnectionTester {
     /**
      * Verifies if the provided user credentials are correct.
+     * @param gpodderSync The GPodderSync to use.
      * @param settings The settings that are used to connect to the service.
-     * @return true if the credentials provided in {@link GpodderSettings} 
-     *     are valid, false otherwise.
-     * @throws GpodderConnectionException If no connection to the server could 
-     *     be established.
-     * @throws InterruptedException If the worker thread gets interrupted while
-     *     executing the operation.
+     * @param callback The callback gpodderSync has to report to.
      */
-    boolean testConnection(GpodderSettings settings)
-        throws InterruptedException, GpodderConnectionException;
+    public void testConnection(GPodderSync gpodderSync, GpodderSettings settings,
+            NoDataResultHandler<?> callback);
 }

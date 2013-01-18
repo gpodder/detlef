@@ -19,14 +19,8 @@
 package at.ac.tuwien.detlef.settings;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.util.Log;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
-import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
-import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
 
 /**
  * A {@link ConnectionTester} that verifies {@link GpodderSettings} data against
@@ -43,86 +37,16 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
     /** Tag for logging. */
     private static final String TAG = ConnectionTesterGpodderNet.class.getCanonicalName();
 
-    /** The result of the authentication against the gpodder.net service. */
-    private boolean gpodderNetResult = false;
-
-    /**
-     * This implementation relies on {@link SynchronousSyncResponder}. Therefore we need
-     * the application context for this to work.
-     */
-    private Context context;
-
-
     @Override
-    public boolean testConnection(GpodderSettings settings)
-            throws InterruptedException, GpodderConnectionException {
-
-        Log.d(TAG, "testConnection(" + settings + ")");
-
-        if (!isOnline()) {
-            Log.w(TAG, "device is offline");
-            throw new GpodderConnectionException();
-        }
-
-        SynchronousSyncResponder syncResponder = new SynchronousSyncResponder(getContext());
-
-        GPodderSync gpodderSync = new GPodderSync(syncResponder);
+    public void testConnection(GPodderSync gpodderSync, GpodderSettings settings,
+            NoDataResultHandler<?> callback) {
 
         gpodderSync.setHostname(settings.getApiHostname());
-
-        ConnectionTesterResultHandler ctrh = new ConnectionTesterResultHandler();
-        ctrh.registerReceiver(this);
 
         gpodderSync.addAuthCheckJob(
                 settings.getUsername(),
                 settings.getPassword(),
-                ctrh);
-
-        syncResponder.waitForCompletion();
-
-        return gpodderNetResult;
-    }
-
-    private boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) Detlef.getAppContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return (netInfo != null && netInfo.isConnectedOrConnecting());
-    }
-
-    private static class ConnectionTesterResultHandler
-    extends ReliableResultHandler<ConnectionTesterGpodderNet>
-    implements NoDataResultHandler<ConnectionTesterGpodderNet> {
-
-        @Override
-        public void handleFailure(int errCode, String errStr) {
-            Log.d(TAG, String.format("failure! errCode: %d errStr: %s", errCode, errStr));
-            getRcv().gpodderNetResult = false;
-        }
-
-        @Override
-        public void handleSuccess() {
-            Log.d(TAG, String.format("success!"));
-            getRcv().gpodderNetResult = true;
-        }
-    }
-
-    /**
-     * @return The context set by#{@link ConnectionTesterGpodderNet#setContext(Context)} or null
-     *     if no context has been set.
-     */
-    public Context getContext() {
-        return context;
-    }
-
-    /**
-     * Sets the {@link Context} which is necessary for the authentication check.
-     * @param pContext
-     * @return Fluent Interface
-     */
-    public ConnectionTesterGpodderNet setContext(Context pContext) {
-        context = pContext;
-        return this;
+                callback);
     }
 
 }

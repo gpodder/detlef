@@ -158,9 +158,7 @@ public class DependencyAssistant {
      *         {@link GpodderSettings}.
      */
     public ConnectionTester getConnectionTester() {
-        return new ConnectionTesterGpodderNet().setContext(
-            Detlef.getAppContext()
-        );
+        return new ConnectionTesterGpodderNet();
     }
 
     public static DependencyAssistant getDependencyAssistant() {

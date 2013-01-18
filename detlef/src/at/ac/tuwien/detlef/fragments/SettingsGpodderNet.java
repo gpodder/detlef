@@ -38,14 +38,12 @@ import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
-import at.ac.tuwien.detlef.callbacks.CallbackContainer;
 import at.ac.tuwien.detlef.domain.DeviceId;
+import at.ac.tuwien.detlef.fragments.callbacks.ConnectionTestCallback;
 import at.ac.tuwien.detlef.fragments.callbacks.DeviceIdCallbackHandler;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceChangeListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceClickListener;
-import at.ac.tuwien.detlef.gpodder.ConnectionTestActivity;
-import at.ac.tuwien.detlef.gpodder.ConnectionTestAsyncTask;
-import at.ac.tuwien.detlef.gpodder.DeviceIdResultHandler;
+import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdAsyncTask;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -76,6 +74,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
      */
     private static final String STATEVAR_PROGRESSDIALOG = "ProgressDialogShowing";
 
+    private static final String STATEVAR_REGISTER_PROGRESSDIALOG = "RegisterProgressDialogShowing";
+
     /**
      * Holds a static reference to all {@link Toast} messages emitted by this
      * fragment so that the can be canceled at any time.
@@ -85,7 +85,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
     /**
      * ExecutorService for asynchronous tasks.
      */
-    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static ExecutorService executorService = null;
 
     private static ProgressDialog checkUserCredentialsProgress;
 
@@ -108,35 +108,15 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
     private boolean setupMode = false;
 
-    /**
-     * All callbacks this Activity receives are stored here.
-     *
-     * This allows us to manage the Activity Lifecycle more easily.
-     */
-    private static final CallbackContainer<SettingsGpodderNet> CALLBACK_CONTAINER =
-            new CallbackContainer<SettingsGpodderNet>();
-
-    /**
-     *
-     */
-    private static final String KEY_DEVICE_ID_HANDLER = "device_id_handler";
-
-    private static final String KEY_CONNECTION_TEST_HANDLER = "KEY_CONNECTION_TEST_HANDLER";
-
-    public static ConnectionTestActivity barCb = new ConnectionTestActivity();
-
-    public static ConnectionTestAsyncTask barTask = new ConnectionTestAsyncTask(barCb);
-
-    static {
-        barCb.init();
-    }
+    private static ConnectionTestCallback barCb = null;
+    private static DeviceIdCallbackHandler devIdCb = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        if (executorService.isShutdown() || executorService.isTerminated()) {
+        if (executorService == null) {
             executorService = Executors.newSingleThreadExecutor();
         }
 
@@ -161,17 +141,26 @@ public class SettingsGpodderNet extends PreferenceFragment {
         loadSummaries();
         setUpRegisterDeviceIdCallback();
         setUpConnectionTestCallback();
-
-
     }
 
+    @Override
+    public void onDestroy() {
+        dismissDialog();
+        dismissRegisterDeviceDialog();
+
+        super.onDestroy();
+    }
 
     private void setUpRegisterDeviceIdCallback() {
-        CALLBACK_CONTAINER.put(KEY_DEVICE_ID_HANDLER, new DeviceIdCallbackHandler());
+        if (devIdCb == null) {
+            devIdCb = new DeviceIdCallbackHandler();
+        }
     }
 
     private void setUpConnectionTestCallback() {
-        CALLBACK_CONTAINER.put(KEY_CONNECTION_TEST_HANDLER, barCb);
+        if (barCb == null) {
+            barCb = new ConnectionTestCallback();
+        }
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -180,10 +169,14 @@ public class SettingsGpodderNet extends PreferenceFragment {
             return;
         }
 
-        if (savedInstanceState.getBoolean(STATEVAR_PROGRESSDIALOG)) {
+        /* Don't restore the dialog if we lost the callback for some reason; */
+        if (savedInstanceState.getBoolean(STATEVAR_PROGRESSDIALOG) && barCb != null) {
             showProgressDialog();
         }
 
+        if (savedInstanceState.getBoolean(STATEVAR_REGISTER_PROGRESSDIALOG) && devIdCb != null) {
+            showRegisterDeviceProgressDialog();
+        }
     }
 
     private void setUpDeviceNameButton() {
@@ -312,9 +305,12 @@ public class SettingsGpodderNet extends PreferenceFragment {
             showProgressDialog();
             toast.cancel();
 
-            executorService.execute(
-                    barTask.setSettings(getSettings())
-                    );
+            GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+            GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+                    .getGpodderSettings();
+
+            DependencyAssistant.getDependencyAssistant().getConnectionTester()
+            .testConnection(gps, settings, barCb);
 
             return true;
         }
@@ -341,11 +337,9 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
             executorService.execute(
                     new RegisterDeviceIdAsyncTask(
-                            (DeviceIdResultHandler<SettingsGpodderNet>) CALLBACK_CONTAINER.get(
-                                    KEY_DEVICE_ID_HANDLER
-                                    ),
-                                    DependencyAssistant.getDependencyAssistant()
-                                    .getDeviceIdGenerator().generate()
+                            devIdCb,
+                            DependencyAssistant.getDependencyAssistant()
+                            .getDeviceIdGenerator().generate()
                             )
                     );
 
@@ -380,6 +374,11 @@ public class SettingsGpodderNet extends PreferenceFragment {
                 (checkUserCredentialsProgress != null)
                 && (checkUserCredentialsProgress.isShowing())
                 );
+        savedInstanceState.putBoolean(
+                STATEVAR_REGISTER_PROGRESSDIALOG,
+                (registerDeviceProgress != null)
+                && (registerDeviceProgress.isShowing())
+                );
     }
 
     /**
@@ -402,7 +401,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
                                         dialog)
                                 );
 
-                        executorService.shutdownNow();
+                        barCb.unregisterReceiver();
+                        barCb = new ConnectionTestCallback();
                     }
                 }
                 );
@@ -426,7 +426,11 @@ public class SettingsGpodderNet extends PreferenceFragment {
     }
 
     public void dismissRegisterDeviceDialog() {
-        registerDeviceProgress.dismiss();
+        if ((registerDeviceProgress != null)
+                && (registerDeviceProgress.isShowing())
+                ) {
+            registerDeviceProgress.dismiss();
+        }
     }
 
     /**
@@ -448,19 +452,17 @@ public class SettingsGpodderNet extends PreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-        CALLBACK_CONTAINER.registerReceiver(this);
+
+        barCb.registerReceiver(this);
+        devIdCb.registerReceiver(this);
     }
 
     @Override
     public void onPause() {
-        CALLBACK_CONTAINER.unregisterReceiver();
-        super.onPause();
-    }
+        barCb.unregisterReceiver();
+        devIdCb.unregisterReceiver();
 
-    @Override
-    public void onStop() {
-        CALLBACK_CONTAINER.clear();
-        super.onStop();
+        super.onPause();
     }
 
     public boolean isSetupMode() {
