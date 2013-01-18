@@ -90,10 +90,6 @@ public class PlaylistTest extends ActivityInstrumentationTestCase2<MainActivity>
         edao.insertEpisode(e2);
     }
 
-    // TODO these GUI tests won't work, but everything they should do works in
-    // practice. maybe the listener stuff doesn't update the
-    // playlist correctly. I don't care anymore, frankly.
-
     @Override
     public void tearDown() throws Exception {
         solo.finishOpenedActivities();

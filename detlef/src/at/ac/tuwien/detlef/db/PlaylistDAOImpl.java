@@ -446,8 +446,6 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
         return ret;
     }
 
-    // TODO @Jakob stop download button doesn't change back to download
-
     @Override
     public void clearPlaylist() {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {

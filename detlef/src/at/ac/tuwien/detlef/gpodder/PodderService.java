@@ -621,9 +621,6 @@ public class PodderService extends Service {
                         changes.getAddUrls(),
                         changes.getRemoveUrls());
 
-                /* TODO: Remove debug output. */
-                Log.v(TAG, String.format("UpdateResult: timestamp %d%n", result.timestamp));
-
                 /* TODO: copy the updateUrls too */
                 theMagicalProxy.updateSubscriptionsSucceeded(reqId, result.timestamp);
             } catch (IOException e) {

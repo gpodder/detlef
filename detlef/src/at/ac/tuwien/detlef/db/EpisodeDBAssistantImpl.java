@@ -112,7 +112,6 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
     @Override
     public void toggleEpisodeReadState(Episode episode) {
         EpisodeDAO dao = EpisodeDAOImpl.i();
-        // TODO is this a sensible treatment of read/unread?
         switch (episode.getActionState()) {
             case DOWNLOAD: // fall-through
             case NEW: // fall-through
