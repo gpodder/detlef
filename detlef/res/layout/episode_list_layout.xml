@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="6dp"
-            android:drawableTop="@drawable/detlef"
+            android:drawableTop="@drawable/ic_feed_icon"
             android:text="@string/sample_download_size"
             android:textSize="12dp" />
 
