@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -62,10 +63,9 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
                 episodeName.setText(episode.getTitle());
             }
 
-            TextView dragHandle = (TextView)v.findViewById(R.id.drag_handle);
+            ImageView logo = (ImageView)v.findViewById(R.id.logo);
             if (episode != null) {
-                dragHandle.setCompoundDrawablesWithIntrinsicBounds(null,
-                        episode.getPodcast().getLogoIcon(), null, null);
+                logo.setImageDrawable(episode.getPodcast().getLogoIcon());
             }
         }
 

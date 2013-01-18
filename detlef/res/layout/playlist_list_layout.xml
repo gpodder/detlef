@@ -1,92 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="left|top"
+    android:paddingBottom="5dp"
+    android:paddingLeft="5dp"
+    android:paddingTop="5dp" >
+
+    <ImageView
+        android:id="@id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="6dp"
+        android:src="@drawable/ic_feed_icon" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="15"
-        android:descendantFocusability="blocksDescendants"
-        android:gravity="left|top"
-        android:paddingBottom="5dp"
-        android:paddingLeft="5dp"
-        android:paddingTop="5dp" >
+        android:id="@+id/LinearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
 
         <LinearLayout
+            android:id="@+id/playlistNames"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center|left"
-            android:gravity="right|center"
+            android:layout_gravity="center"
+            android:layout_weight="1"
             android:orientation="vertical" >
 
             <TextView
-                android:id="@id/drag_handle"
+                android:id="@+id/playListPodcast"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="6dp"
-                android:drawableTop="@drawable/ic_feed_icon"
-                android:textSize="12dp" />
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="@string/sample_podcast_name" />
+
+            <TextView
+                android:id="@+id/playListEpisode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="@string/sample_episode_name_2"
+                android:textColor="#0099CC"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal" >
+        <ImageButton
+            android:id="@+id/playListDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@android:color/transparent"
+            android:focusable="false"
+            android:onClick="downloadEpisode" />
 
-            <RelativeLayout
-                android:id="@+id/playlistNames"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/playListDownload" >
+        <ImageButton
+            android:id="@+id/playListRemoveFromPlaylist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@android:color/transparent"
+            android:focusable="false"
+            android:onClick="removeFromPlaylist"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
-                <TextView
-                    android:id="@+id/playListPodcast"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:text="@string/sample_podcast_name" />
-
-                <TextView
-                    android:id="@+id/playListEpisode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/playListPodcast"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:text="@string/sample_episode_name_2"
-                    android:textColor="#0099CC"
-                    android:textStyle="bold" />
-            </RelativeLayout>
-
-            <ImageButton
-                android:id="@+id/playListDownload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@+id/playListRemoveFromPlaylist"
-                android:background="@android:color/transparent"
-                android:focusable="false"
-                android:onClick="downloadEpisode" />
-
-            <ImageButton
-                android:id="@+id/playListRemoveFromPlaylist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="@android:color/transparent"
-                android:focusable="false"
-                android:onClick="removeFromPlaylist"
-                android:src="@android:drawable/ic_menu_close_clear_cancel" />
-
-        </RelativeLayout>
     </LinearLayout>
 
 </LinearLayout>

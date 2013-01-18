@@ -12,7 +12,7 @@
         android:layout_centerHorizontal="true"
         dslv:collapsed_height="2dp"
         dslv:drag_enabled="true"
-        dslv:drag_handle_id="@id/drag_handle"
+        dslv:drag_handle_id="@id/logo"
         dslv:drag_scroll_start="0.33"
         dslv:drag_start_mode="onDown"
         dslv:float_alpha="0.6"
