@@ -35,56 +35,57 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  * @author moe
  *
  */
-public class SettingsUsernameOnPreferenceChangeListener implements OnPreferenceChangeListener {
+public class SettingsUsernameOnPreferenceChangeListener
+    extends SettingsGpodderNetExternalListener
+    implements OnPreferenceChangeListener
+{
     
-        private SettingsGpodderNet sender;
+    public SettingsUsernameOnPreferenceChangeListener(SettingsGpodderNet pSender) {
+        super(pSender);
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        preference.setSummary((String) newValue);
         
-        public SettingsUsernameOnPreferenceChangeListener(SettingsGpodderNet pSender) {
-            sender = pSender;
+        if (!getSettings().getUsername().equals((String) newValue)) {
+            // you have been warned!!
+            updateSettings((String) newValue);
+            deletePocasts();
         }
-    
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
-            preference.setSummary((String) newValue);
-            
-            if (!getSettings().getUsername().equals((String) newValue)) {
-                // you have been warned!!
-                updateSettings((String) newValue);
-                deletePocasts();
-            }
-            
-            sender.getActivity().runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        sender.setUpTestConnectionButton();
-                        sender.setUpRegisterDeviceButton();
-                    }
+        
+        getSender().getActivity().runOnUiThread(
+            new Runnable() {
+                @Override
+                public void run() {
+                    getSender().setUpTestConnectionButton();
+                    getSender().setUpRegisterDeviceButton();
                 }
-            );
-            
-            return true;
-        }
+            }
+        );
+        
+        return true;
+    }
 
-        private void deletePocasts() {
-            DependencyAssistant.getDependencyAssistant()
-                .getPodcastDAO()
-                .deleteAllPodcasts();
-        }
+    private void deletePocasts() {
+        DependencyAssistant.getDependencyAssistant()
+            .getPodcastDAO()
+            .deleteAllPodcasts();
+    }
 
-        private void updateSettings(String newUsername) {
-            DependencyAssistant.getDependencyAssistant()
-            .getGpodderSettingsDAO(sender.getActivity())
-            .writeSettings(
-                getSettings()
-                    .setUsername(newUsername)
-                    .setAccountVerified(false)
-                    .setDeviceId(null)
-            );
-        }
+    private void updateSettings(String newUsername) {
+        DependencyAssistant.getDependencyAssistant()
+        .getGpodderSettingsDAO(getSender().getActivity())
+        .writeSettings(
+            getSettings()
+                .setUsername(newUsername)
+                .setAccountVerified(false)
+                .setDeviceId(null)
+        );
+    }
 
-        private GpodderSettings getSettings() {
-            return DependencyAssistant.getDependencyAssistant().getGpodderSettings();
-        }
+    private GpodderSettings getSettings() {
+        return DependencyAssistant.getDependencyAssistant().getGpodderSettings();
+    }
 
 }

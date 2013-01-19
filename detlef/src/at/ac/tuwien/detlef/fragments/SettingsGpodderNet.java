@@ -41,6 +41,7 @@ import at.ac.tuwien.detlef.activities.SettingsActivity;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.fragments.callbacks.ConnectionTestCallback;
 import at.ac.tuwien.detlef.fragments.callbacks.DeviceIdCallbackHandler;
+import at.ac.tuwien.detlef.fragments.callbacks.SettingsRegisterOnPreferenceClickListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceChangeListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceClickListener;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
@@ -104,8 +105,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
      */
     public static final String EXTRA_SETUPMODE = "setupmode";
 
-
-
     private boolean setupMode = false;
 
     private static ConnectionTestCallback barCb = null;
@@ -137,10 +136,16 @@ public class SettingsGpodderNet extends PreferenceFragment {
         setUpDeviceNameButton();
         setUpTestConnectionButton();
         setUpRegisterDeviceButton();
-
+        setUpRegisterOnGpodderNetButton();
         loadSummaries();
         setUpRegisterDeviceIdCallback();
         setUpConnectionTestCallback();
+    }
+
+    private void setUpRegisterOnGpodderNetButton() {
+        findPreference("button_register_account").setOnPreferenceClickListener(
+            new SettingsRegisterOnPreferenceClickListener(this)
+        );
     }
 
     @Override
@@ -188,7 +193,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
                         return true;
                     }
                 }
-                );
+        );
     }
 
     private void setUpPasswordField() {
@@ -217,12 +222,12 @@ public class SettingsGpodderNet extends PreferenceFragment {
     private void setUpUsernameField() {
 
         findPreference("username").setOnPreferenceClickListener(
-                new SettingsUsernameOnPreferenceClickListener()
-                );
+            new SettingsUsernameOnPreferenceClickListener(this)
+        );
 
         findPreference("username").setOnPreferenceChangeListener(
-                new SettingsUsernameOnPreferenceChangeListener(this)
-                );
+            new SettingsUsernameOnPreferenceChangeListener(this)
+        );
     }
 
     /**

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-        <EditTextPreference android:title="@string/username" android:key="username" android:inputType="textNoSuggestions"/>
+        
+        <Preference
+            android:id="@+id/button_register_account"
+            android:key="button_register_account"
+            android:title="@string/register_gpodder_net_acccount"
+            android:summary="@string/tap_here_to_go_to_gpodder_net_registration"
+        />
+    
+        <EditTextPreference android:title="@string/gpodder_username" android:key="username" android:inputType="textNoSuggestions"/>
         <EditTextPreference android:title="@string/password" android:key="password" android:inputType="textPassword" />
         <EditTextPreference android:title="@string/device_name" android:key="devicename" android:inputType="textNoSuggestions"/>
 

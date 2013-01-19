@@ -358,8 +358,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
 
     private static final String KEY_CUR_POD_SYNC = "KEY_CUR_POD_SYNC";
 
-    private static final String KEY_SUBSCRIPTION_CHANGES = "KEY_SUBSCRIPTION_CHANGES";
-
     private static final String KEY_SHOW_PROGRESS_DIALOG = "KEY_SHOW_PROGRESS_DIALOG";
 
     /**

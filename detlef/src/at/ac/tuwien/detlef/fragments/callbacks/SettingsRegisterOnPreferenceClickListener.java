@@ -17,50 +17,37 @@
 
 package at.ac.tuwien.detlef.fragments.callbacks;
 
-import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
-import at.ac.tuwien.detlef.DependencyAssistant;
-import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
-import at.ac.tuwien.detlef.settings.GpodderSettings;
 /**
- * This {@link OnPreferenceClickListener} will pop up a warning if a user tries to change
- * a username that already has been verified. Because in this case all user data is
- * wiped and has to be synchronized again.
+ * This {@link OnPreferenceClickListener} will open up the browser and call
+ * the registration site of gpodder.net so that the user can register a 
+ * new username.
  * 
  * @author moe
  *
  */
-public class SettingsUsernameOnPreferenceClickListener
+public class SettingsRegisterOnPreferenceClickListener
     extends SettingsGpodderNetExternalListener
-    implements OnPreferenceClickListener 
+    implements OnPreferenceClickListener
 {
 
-        public SettingsUsernameOnPreferenceClickListener(SettingsGpodderNet pSender) {
+    public SettingsRegisterOnPreferenceClickListener(SettingsGpodderNet pSender) {
         super(pSender);
     }
 
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-            
-            if (!getSettings().isAccountVerified()) {
-                return true;
-            }
-            
-            final AlertDialog.Builder b = new AlertDialog.Builder(preference.getContext());
-            
-            b.setTitle(R.string.warning);
-            b.setMessage(R.string.you_are_changing_verified_username);
-            
-            b.setPositiveButton(android.R.string.ok, null);
-            b.show();
-            
-            return true;
-        }
-
-        private GpodderSettings getSettings() {
-            return DependencyAssistant.getDependencyAssistant().getGpodderSettings();
-        }
-
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        
+        Intent browserIntent = new Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("https://gpodder.net/register")
+        );
+        getSender().startActivity(browserIntent);
+        
+        return true;
+    }
 }

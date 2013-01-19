@@ -41,7 +41,7 @@
     <string name="placeholder">Placeholder</string>
     <string name="gpodder_net_account_settings">Account Settings</string>
     <string name="connection_settings_for_gpodder_net">Connection settings for gpodder.net</string>
-    <string name="username">Username</string>
+    <string name="gpodder_username">gpodder.net Username</string>
     <string name="password">Password</string>
     <string name="password_mask_char">&#183;</string>
     <string name="device_name">Device name</string>
@@ -121,5 +121,6 @@
     <string name="close">Close</string>
     <string name="title_activity_licenses">Detlef Software Licenses</string>
     <string name="add_podcast_from_url">Add podcast from URL</string>
-
+    <string name="register_gpodder_net_acccount">Register at gpodder.net</string>
+    <string name="tap_here_to_go_to_gpodder_net_registration">Go to https://gpodder.net/register/ and register a new account.</string>
 </resources>
