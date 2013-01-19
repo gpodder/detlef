@@ -138,12 +138,6 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                 }
             }
 
-            /* TODO: no correct error handling due to db locking issues. */
-            EpisodeActionDAO epDao = EpisodeActionDAOImpl.i();
-            LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
-                    episode.getUrl(), Episode.ActionState.NEW, null, null, null);
-            epDao.insertEpisodeAction(action);
-
             return episode;
         }
     }
