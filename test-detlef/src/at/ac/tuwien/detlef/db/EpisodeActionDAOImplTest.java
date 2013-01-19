@@ -23,10 +23,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.test.AndroidTestCase;
+import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.LocalEpisodeAction;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.domain.RemoteEpisodeAction;
+import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 /**
  * Testcases for EpisodeActionDAOImpl.
@@ -53,6 +56,14 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
         lea1 = new LocalEpisodeAction(p1, "ep1", Episode.ActionState.DOWNLOAD, null, null, null);
         lea2 = new LocalEpisodeAction(p1, "ep1", Episode.ActionState.PLAY, 0, 7, 42);
 
+        // write deviceId (needed for EpisodeActionsDAO - getAllEpisodeActions)
+        GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+                .getGpodderSettings();
+        DeviceId devId = new DeviceId("mydevice");
+        settings.setDeviceId(devId);
+        DependencyAssistant.getDependencyAssistant()
+            .getGpodderSettingsDAO(mContext).writeSettings(settings);
+        
         super.setUp();
     }
 
