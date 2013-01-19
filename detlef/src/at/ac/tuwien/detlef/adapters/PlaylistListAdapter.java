@@ -84,11 +84,11 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
         switch (episode.getStorageState()) {
             case NOT_ON_DEVICE:
                 downloadButton.setVisibility(ImageButton.VISIBLE);
-                downloadButton.setImageResource(android.R.drawable.ic_menu_upload);
+                downloadButton.setImageResource(R.drawable.ic_download);
                 break;
             case DOWNLOADING:
                 downloadButton.setVisibility(ImageButton.VISIBLE);
-                downloadButton.setImageResource(R.drawable.ic_media_stop);
+                downloadButton.setImageResource(R.drawable.ic_stop);
                 break;
             default:
                 downloadButton.setVisibility(ImageButton.INVISIBLE);

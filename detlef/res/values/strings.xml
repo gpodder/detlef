@@ -93,7 +93,7 @@
     <string name="api_endpoint_hostname">API Endpoint Hostname</string>
     <string name="feed_endpoint_hostname">Feed Endpoint Hostname</string>
     <string name="register_device">Register Device</string>
-    <string name="register_device_summary">Register your device at gpodder.net</string>
+    <string name="register_device_summary">Registering your device at gpodder.net</string>
     <string name="warning">Warning</string>
     <string name="you_are_changing_verified_username">You are changing the account settings of an account that already has been verified. If you change your settings you have to re-verify and syncronize your new settings afterwards.</string>
     <string name="account_is_verified">Account is verified.</string>
@@ -123,4 +123,8 @@
     <string name="add_podcast_from_url">Add podcast from URL</string>
     <string name="register_gpodder_net_acccount">Register at gpodder.net</string>
     <string name="tap_here_to_go_to_gpodder_net_registration">Go to https://gpodder.net/register/ and register a new account.</string>
+    <string name="download_episode">Download Episode</string>
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="remove_from_playlist">Remove from playlist</string>
+    <string name="mark_as_read">Mark as read</string>
 </resources>

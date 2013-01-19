@@ -84,7 +84,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         ImageButton episodeListAddToPlaylist =
                 (ImageButton) v.findViewById(R.id.episodeListAddToPlaylist);
         episodeListAddToPlaylist.setTag(episode);
-
+        
         return v;
     }
 
@@ -93,22 +93,22 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         if (episode.getActionState() == ActionState.DELETE) {
             title.setTypeface(Typeface.DEFAULT);
             title.setTextColor(Color.parseColor("#11AADD"));
-            markRead.setImageResource(android.R.drawable.ic_menu_set_as);
+            markRead.setImageResource(R.drawable.ic_cross);
         } else {
             title.setTypeface(Typeface.DEFAULT_BOLD);
             title.setTextColor(Color.parseColor("#0099CC"));
-            markRead.setImageResource(R.drawable.ic_menu_star);
+            markRead.setImageResource(R.drawable.ic_read);
         }
     }
 
     private int stateToImageResource(StorageState storageState) {
         switch (storageState) {
             case NOT_ON_DEVICE:
-                return android.R.drawable.ic_menu_upload;
+                return R.drawable.ic_download;
             case DOWNLOADING:
-                return R.drawable.ic_media_stop;
+                return R.drawable.ic_stop;
             case DOWNLOADED:
-                return android.R.drawable.ic_menu_delete;
+                return R.drawable.ic_trash;
             default:
                 Log.e(TAG, "Unknown storage state encountered");
                 return 0;

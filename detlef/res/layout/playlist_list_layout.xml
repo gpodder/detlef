@@ -60,7 +60,8 @@
             android:layout_marginRight="10dp"
             android:background="@android:color/transparent"
             android:focusable="false"
-            android:onClick="downloadEpisode" />
+            android:onClick="downloadEpisode"
+            android:contentDescription="@string/download_episode" />
 
         <ImageButton
             android:id="@+id/playListRemoveFromPlaylist"
@@ -72,7 +73,8 @@
             android:background="@android:color/transparent"
             android:focusable="false"
             android:onClick="removeFromPlaylist"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+            android:src="@drawable/ic_pl_remove"
+            android:contentDescription="@string/remove_from_playlist" />
 
     </LinearLayout>
 
