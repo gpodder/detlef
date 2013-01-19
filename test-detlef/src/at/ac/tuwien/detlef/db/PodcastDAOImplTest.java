@@ -95,6 +95,18 @@ public class PodcastDAOImplTest extends AndroidTestCase {
     }
 
     /**
+     * tests the updateUrl functionality
+     */
+    public void testUpdateUrl() {
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        p1 = pdao.insertPodcast(p1);
+        p1.setUrl("newUrl");
+        assertEquals(1, pdao.updateUrl(p1));
+        Podcast pod = pdao.getPodcastById(p1.getId());
+        assertEquals("newUrl", pod.getUrl());
+    }
+
+    /**
      * tests the updateLastUpdate functionality
      */
     public void testUpdateLastUpdate() {
