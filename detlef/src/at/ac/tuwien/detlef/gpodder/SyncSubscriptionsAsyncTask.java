@@ -29,12 +29,17 @@ import org.apache.http.client.HttpResponseException;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.db.PodcastDAO;
+import at.ac.tuwien.detlef.db.PodcastDAOImpl;
+import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
+import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.dragontek.mygpoclient.api.MygPodderClient;
 import com.dragontek.mygpoclient.api.SubscriptionChanges;
+import com.dragontek.mygpoclient.api.UpdateResult;
 import com.dragontek.mygpoclient.pub.PublicClient;
 import com.dragontek.mygpoclient.simple.IPodcast;
 
@@ -43,7 +48,7 @@ import com.dragontek.mygpoclient.simple.IPodcast;
  * Thread and sends a reply via the specified callback. The user of the Task
  * needs to implement the Callback's handle & handleFailure methods.
  */
-public class PullSubscriptionsAsyncTask implements Runnable {
+public class SyncSubscriptionsAsyncTask implements Runnable {
 
     private static final int HTTP_STATUS_FORBIDDEN = 401;
     private static final int HTTP_STATUS_NOT_FOUND = 404;
@@ -51,12 +56,14 @@ public class PullSubscriptionsAsyncTask implements Runnable {
 
     private final NoDataResultHandler<?> callback;
 
-    public PullSubscriptionsAsyncTask(NoDataResultHandler<?> callback) {
+    public SyncSubscriptionsAsyncTask(NoDataResultHandler<?> callback) {
         this.callback = callback;
     }
 
     @Override
     public void run() {
+        boolean success = false;
+
         /* Retrieve settings. */
         GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
                 .getGpodderSettings(Detlef.getAppContext());
@@ -68,7 +75,11 @@ public class PullSubscriptionsAsyncTask implements Runnable {
             return;
         }
 
+        PodcastDAO pDao = PodcastDAOImpl.i();
+
         String devId = id.toString();
+
+        long lastUpdate = gps.getLastUpdate();
 
         MygPodderClient gpc = new MygPodderClient(
                 gps.getUsername(),
@@ -76,28 +87,57 @@ public class PullSubscriptionsAsyncTask implements Runnable {
                 gps.getApiHostname()
                 );
 
-        EnhancedSubscriptionChanges enhanced = null;
         try {
+            EnhancedSubscriptionChanges localChanges = new EnhancedSubscriptionChanges(
+                    pDao.getLocallyAddedPodcasts(), pDao.getLocallyDeletedPodcasts(),
+                    lastUpdate);
+
+            UpdateResult result = gpc.updateSubscriptions(
+                    devId,
+                    localChanges.getAddUrls(),
+                    localChanges.getRemoveUrls());
+
             /* Login and get subscription changes */
             SubscriptionChanges changes = gpc.pullSubscriptions(devId,
-                    gps.getLastUpdate());
+                    lastUpdate);
 
             /* Get the Details for the individual URLs. */
 
             PodcastDetailsRetriever pdr = new PodcastDetailsRetriever();
-            enhanced = pdr.getPodcastDetails(changes);
+            EnhancedSubscriptionChanges remoteChanges = pdr.getPodcastDetails(changes);
 
             /* update the db here */
-            DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant().
-                    applySubscriptionChanges(Detlef.getAppContext(), enhanced);
+            PodcastDBAssistant dba = DependencyAssistant.getDependencyAssistant()
+                    .getPodcastDBAssistant();
+            dba.applySubscriptionChanges(Detlef.getAppContext(), localChanges);
+            dba.applySubscriptionChanges(Detlef.getAppContext(), remoteChanges);
+
+            /* apply the changed URLs */
+            if (result.updateUrls != null && result.updateUrls.size() > 0) {
+                for (String oldUrl : result.updateUrls.keySet()) {
+                    Podcast p = pDao.getPodcastByUrl(oldUrl);
+                    if (p == null) {
+                        continue;
+                    }
+
+                    String newUrl = result.updateUrls.get(oldUrl);
+                    if (newUrl == null) {
+                        newUrl = "";
+                    }
+
+                    p.setUrl(newUrl);
+                    pDao.updateUrl(p);
+                }
+            }
 
             /* Update last changed timestamp. */
-            gps.setLastUpdate(enhanced.getTimestamp());
+            gps.setLastUpdate(remoteChanges.getTimestamp());
 
             DependencyAssistant.getDependencyAssistant()
-                    .getGpodderSettingsDAO(Detlef.getAppContext())
-                    .writeSettings(gps);
+            .getGpodderSettingsDAO(Detlef.getAppContext())
+            .writeSettings(gps);
 
+            success = true;
         } catch (HttpResponseException e) {
             String eMsg = e.getLocalizedMessage();
             switch (e.getStatusCode()) {
@@ -112,15 +152,17 @@ public class PullSubscriptionsAsyncTask implements Runnable {
                     break;
             }
             sendError(e.getStatusCode(), eMsg);
-        } catch (AuthenticationException ae) {
-            sendError(GENERIC_ERROR, ae.getLocalizedMessage());
+        } catch (AuthenticationException e) {
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
         } catch (ClientProtocolException e) {
             sendError(GENERIC_ERROR, e.getLocalizedMessage());
         } catch (IOException e) {
             sendError(GENERIC_ERROR, e.getLocalizedMessage());
+        } catch (Exception e) {
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
         }
 
-        if (enhanced == null) {
+        if (!success) {
             return;
         }
 

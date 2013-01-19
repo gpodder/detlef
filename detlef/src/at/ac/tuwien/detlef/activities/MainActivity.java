@@ -18,7 +18,6 @@
 package at.ac.tuwien.detlef.activities;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,7 +55,6 @@ import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
-import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -66,11 +64,9 @@ import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
-import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
-import at.ac.tuwien.detlef.gpodder.PullSubscriptionsAsyncTask;
-import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
+import at.ac.tuwien.detlef.gpodder.SyncSubscriptionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 import at.ac.tuwien.detlef.gpodder.SyncEpisodeActionsAsyncTask;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
@@ -131,7 +127,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
         } else {
             podcastHandler = new PodcastHandler();
             feedHandler = new FeedHandler();
-            subscriptionUpdateHandler = new SubscriptionUpdateHandler();
             episodeActionHandler = new EpisodeActionHandler();
         }
 
@@ -249,7 +244,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
         /* Register the Podcast- & FeedHandler. */
         podcastHandler.registerReceiver(this);
         feedHandler.registerReceiver(this);
-        subscriptionUpdateHandler.registerReceiver(this);
         episodeActionHandler.registerReceiver(this);
     }
 
@@ -275,7 +269,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
         /* Unregister the Podcast- & FeedHandler. */
         podcastHandler.unregisterReceiver();
         feedHandler.unregisterReceiver();
-        subscriptionUpdateHandler.unregisterReceiver();
         episodeActionHandler.unregisterReceiver();
 
         super.onPause();
@@ -344,7 +337,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
 
     private static PodcastHandler podcastHandler = null;
     private static FeedHandler feedHandler = null;
-    private static SubscriptionUpdateHandler subscriptionUpdateHandler = null;
     private static EpisodeActionHandler episodeActionHandler = null;
 
     /**
@@ -453,43 +445,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
         }
     };
 
-    private static class SubscriptionUpdateHandler
-    extends ReliableResultHandler<MainActivity>
-    implements PushSubscriptionChangesResultHandler<MainActivity> {
-
-        @Override
-        public void handleFailure(int errCode, final String errStr) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
-                            + errStr);
-                }
-            });
-        }
-
-        @Override
-        public void handleSuccess(long timestamp, Map<String, String> updateUrls) {
-            podcastHandler.setBundle(getBundle());
-
-            Log.d(TAG, "bundle: " + getBundle());
-            Log.d(TAG, "handler: " + podcastHandler);
-
-            EnhancedSubscriptionChanges changes = getBundle().getParcelable(
-                    KEY_SUBSCRIPTION_CHANGES);
-
-            DependencyAssistant.getDependencyAssistant().getPodcastDBAssistant()
-            .applySubscriptionChanges(getRcv(), changes);
-
-            DependencyAssistant.getDependencyAssistant().getGpodderSettings(getRcv())
-            .setLastUpdate(timestamp);
-
-            refreshBg.execute(new PullSubscriptionsAsyncTask(podcastHandler));
-            getRcv().startService(new Intent().setClass(getRcv(),
-                    PullSubscriptionsAsyncTask.class));
-        }
-    }
-
     private static class EpisodeActionHandler
     extends ReliableResultHandler<MainActivity>
     implements NoDataResultHandler<MainActivity> {
@@ -590,7 +545,7 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
 
     /**
      * Called when the refresh button is pressed. Displays a progress dialog and
-     * starts the {@link PullSubscriptionsAsyncTask}.
+     * starts the {@link SyncSubscriptionsAsyncTask}.
      * 
      * @param pBundle The {@link Bundle} that is passed to the
      *            {@link PodcastSyncResultHandler}.
@@ -616,22 +571,13 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
             curPodSync.set(0);
         }
 
-        PodcastDAO pDao = PodcastDAOImpl.i();
-        EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(
-                pDao.getLocallyAddedPodcasts(), pDao.getLocallyDeletedPodcasts(),
-                settings.getLastUpdate());
-        pBundle.putParcelable(KEY_SUBSCRIPTION_CHANGES, changes);
-
-        subscriptionUpdateHandler.setBundle(pBundle);
+        podcastHandler.setBundle(pBundle);
 
         Log.d(TAG, "bundle: " + pBundle);
-        Log.d(TAG, "handler: " + subscriptionUpdateHandler);
+        Log.d(TAG, "handler: " + podcastHandler);
 
-        GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
-        gps.setDeviceName(settings.getDeviceId().toString());
-        gps.setUsername(settings.getUsername());
-        gps.setPassword(settings.getPassword());
-        gps.addUpdateSubscriptionsJob(subscriptionUpdateHandler, changes);
+        refreshBg.execute(new SyncSubscriptionsAsyncTask(podcastHandler));
+        startService(new Intent().setClass(this, SyncSubscriptionsAsyncTask.class));
 
         prepareProgressDialog();
         progressDialog.show();
