@@ -256,6 +256,26 @@ public final class PodcastDAOImpl implements PodcastDAO {
         return p;
     }
 
+    @Override
+    public int updateUrl(Podcast podcast) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
+
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                    String.valueOf(podcast.getId())
+            };
+
+            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
+            db.close();
+
+            notifyListenersChanged(podcast);
+            return ret;
+        }
+    }
+
     /**
      * @see at.ac.tuwien.detlef.db.PodcastDAO#updateLastUpdate(at.ac.tuwien.detlef
      *      .domain.Podcast)

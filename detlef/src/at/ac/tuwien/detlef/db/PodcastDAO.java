@@ -53,7 +53,7 @@ public interface PodcastDAO {
     Podcast getPodcastByUrl(String url);
 
     /**
-     * Deletes a podcast and all episodes that are associated with this podcast from the database. 
+     * Deletes a podcast and all episodes that are associated with this podcast from the database.
      *
      * @param podcast The podcast which should be deleted (only the id will be
      *            used for this)
@@ -61,27 +61,35 @@ public interface PodcastDAO {
      *         returned)
      */
     int deletePodcast(Podcast podcast);
-    
+
     /**
-     * Deletes all podcasts (and therefore also all episodes) from the local database. This is 
-     * useful if you want to perform a complete resync of all feeds and get rid of messed up 
+     * Deletes all podcasts (and therefore also all episodes) from the local database. This is
+     * useful if you want to perform a complete resync of all feeds and get rid of messed up
      * data quickly. It is important to note that all remote data stored on gpodder.net <strong>
-     * will not be touched</strong> by calling this method. So it sounds more drastic than it 
+     * will not be touched</strong> by calling this method. So it sounds more drastic than it
      * actually is, because all data can be restored by simply refreshing the feed list.
-     *  
-     * <p>This is also useful if you change the user account and want to wipe all data with one 
-     * handy function.</p> 
+     * 
+     * <p>This is also useful if you change the user account and want to wipe all data with one
+     * handy function.</p>
      * 
      * @return The number of deleted podcasts.
      */
     int deleteAllPodcasts();
-    
+
     /**
      * Delivers all podcast from the database.
      *
      * @return A list of podcast objects
      */
     List<Podcast> getAllPodcasts();
+
+    /**
+     * Updates the URL column of the given podcast.
+     *
+     * @param podcast the podcast which should be updated
+     * @return the number of updated rows
+     */
+    int updateUrl(Podcast podcast);
 
     /**
      * Updates the lastUpdate column of the given podcast (uses the lastUpdate
@@ -97,7 +105,7 @@ public interface PodcastDAO {
      * If podcast is downloaded it is set to 1, else != 1
      */
     int updateLogoDownloaded(Podcast podcast);
-    
+
     /**
      * Updates the logoFilePath column of the given podcast (uses the
      * logoFilePath attribute of the podcast).
