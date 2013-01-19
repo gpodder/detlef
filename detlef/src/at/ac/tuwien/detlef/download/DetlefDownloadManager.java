@@ -120,8 +120,13 @@ public class DetlefDownloadManager {
 
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), path);
         file.getParentFile().mkdirs();
-
-        Request request = new Request(uri);
+        Request request; 
+        try {
+            request = new Request(uri);
+        } catch (Exception e) {
+            throw new IOException(e.getMessage());
+        }
+        
         request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_MUSIC, path);
         request.allowScanningByMediaScanner();
         request.setTitle(episode.getTitle());
