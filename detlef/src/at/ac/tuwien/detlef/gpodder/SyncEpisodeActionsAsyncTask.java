@@ -65,7 +65,6 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
             sendError(context.getString(R.string.no_gpodder_account_configured));
             return;
         }
-        String deviceID = gps.getDeviceId().toString();
         String username = gps.getUsername();
         String password = gps.getPassword();
 
@@ -76,22 +75,27 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
             /* Send our episode actions */
             EpisodeActionDAO eaDao = EpisodeActionDAOImpl.i();
             List<RemoteEpisodeAction> localChanges = eaDao.getAllEpisodeActions();
-            
+
             List<EpisodeAction> sndLocalChanges = new ArrayList<EpisodeAction>(localChanges.size());
             for (EpisodeAction a : localChanges) {
                 sndLocalChanges.add(a);
             }
 
-            /* Sadly, this returns always 0, hence we can't use it to fetch new episode actions. */
-            gpc.uploadEpisodeActions(sndLocalChanges);
+            long since = gpc.uploadEpisodeActions(sndLocalChanges);
 
-            /* Get episode actions */
-            changes = gpc.downloadEpisodeActions(gps.getLastEpisodeActionUpdate(), deviceID);
+            /* Get episode actions. */
+            changes = gpc.downloadEpisodeActions(gps.getLastEpisodeActionUpdate());
 
             DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
-                .applyActionChanges(Detlef.getAppContext(), changes);
-            
-            gps.setLastEpisodeActionUpdate(changes.since);
+            .applyActionChanges(Detlef.getAppContext(), changes);
+
+            /* Sadly, changes.since is always 0, hence we can't use it to fetch new
+             * episode actions. So we use the timestamp returned by the upload. */
+            gps.setLastEpisodeActionUpdate(since);
+
+            DependencyAssistant.getDependencyAssistant()
+            .getGpodderSettingsDAO(Detlef.getAppContext())
+            .writeSettings(gps);
 
         } catch (AuthenticationException e) {
             sendError(e.getLocalizedMessage());
