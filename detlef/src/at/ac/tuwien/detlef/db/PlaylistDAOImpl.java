@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
@@ -461,6 +459,22 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
                 if ((db != null) && db.isOpen()) {
                     db.close();
                 }
+            }
+        }
+    }
+
+    @Override
+    public void removeEpisodesById(long id) {
+        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
+            List<Episode> currentEpisodes = getNonCachedEpisodes();
+            List<Integer> positionsToRemove = new ArrayList<Integer>();
+            for (int i = 0; i < currentEpisodes.size(); i++) {
+                if (currentEpisodes.get(i).getId() == id) {
+                    positionsToRemove.add(i);
+                }
+            }
+            for (int i = 0; i < positionsToRemove.size(); i++) {
+                removeEpisode(positionsToRemove.get(i) - i);
             }
         }
     }

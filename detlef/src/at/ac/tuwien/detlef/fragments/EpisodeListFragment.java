@@ -38,6 +38,8 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
+import at.ac.tuwien.detlef.db.PlaylistDAO;
+import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
@@ -56,12 +58,12 @@ import at.ac.tuwien.detlef.util.GUIUtils;
  * The {@link Fragment} that displays a list of {@link Episode Episodes}.
  */
 public class EpisodeListFragment extends ListFragment
-implements EpisodeDAO.OnEpisodeChangeListener {
+        implements EpisodeDAO.OnEpisodeChangeListener, PlaylistDAO.OnPlaylistChangeListener {
 
     private static final String TAG = EpisodeListFragment.class.getName();
     private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
     private static final String BUNDLE_FILTERS = "BUNDLE_FILTERS";
-    
+
     private static final long ID_NONE = -1;
 
     private EpisodeListModel model;
@@ -69,6 +71,7 @@ implements EpisodeDAO.OnEpisodeChangeListener {
     private FilterChain filter = new FilterChain();
     private Podcast filteredByPodcast = null;
     private OnEpisodeSelectedListener listener;
+    private PlaylistDAO playlistDAO;
 
     private GUIUtils guiUtils;
 
@@ -103,6 +106,8 @@ implements EpisodeDAO.OnEpisodeChangeListener {
 
         EpisodeDAOImpl dao = EpisodeDAOImpl.i();
         dao.addEpisodeChangedListener(this);
+        playlistDAO = PlaylistDAOImpl.i();
+        playlistDAO.addPlaylistChangedListener(this);
 
         List<Episode> eplist = dao.getAllEpisodes();
         model = new EpisodeListModel(eplist);
@@ -115,29 +120,28 @@ implements EpisodeDAO.OnEpisodeChangeListener {
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
         restoreSortOrder();
         restoreFilter(savedInstanceState);
-        
-        
     }
-    
+
     /**
-     * Restores the {@link EpisodeFilter episode filters}, e.g. after the
-     * screen has been rotated.
+     * Restores the {@link EpisodeFilter episode filters}, e.g. after the screen
+     * has been rotated.
+     * 
      * @param savedInstanceState
      */
     private void restoreFilter(Bundle savedInstanceState) {
-        
+
         if (savedInstanceState == null) {
             return;
         }
-        
+
         try {
             FilterChain pFilter = (FilterChain) savedInstanceState.getSerializable(BUNDLE_FILTERS);
             setFilter(pFilter);
             refresh();
         } catch (Exception e) {
-            Log.e(TAG, "Exception restoring filter chain" , e);
+            Log.e(TAG, "Exception restoring filter chain", e);
         }
-        
+
     }
 
     @Override
@@ -185,6 +189,7 @@ implements EpisodeDAO.OnEpisodeChangeListener {
     public void onDestroy() {
         EpisodeDAOImpl dao = EpisodeDAOImpl.i();
         dao.removeEpisodeChangedListener(this);
+        playlistDAO.removePlaylistChangeListener(this);
 
         super.onDestroy();
     }
@@ -201,7 +206,7 @@ implements EpisodeDAO.OnEpisodeChangeListener {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.episode_context, menu);
-        
+
     }
 
     /**
@@ -342,13 +347,24 @@ implements EpisodeDAO.OnEpisodeChangeListener {
         }
     }
 
+    /**
+     * Handles clicks on the mark read/unread button
+     * 
+     * @param v The view of the button
+     */
     public void onMarkReadUnreadClick(View v) {
         Episode episode = ((Episode) v.getTag());
         DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
-        .toggleEpisodeReadState(episode);
+                .toggleEpisodeReadState(episode);
         adapter.notifyDataSetChanged();
     }
 
+    /**
+     * Sorts the episode list by a specific choice.
+     * 
+     * @param choice The sort choice
+     * @param ascending Whether to sort ascending/descending
+     */
     public void sortEpisodeList(EpisodeSortChoice choice, final boolean ascending) {
         switch (choice) {
             case Podcast:
@@ -358,10 +374,9 @@ implements EpisodeDAO.OnEpisodeChangeListener {
                         if (ascending) {
                             return Long.valueOf(e1.getPodcast().getId()).compareTo(
                                     Long.valueOf(e2.getPodcast().getId()));
-                        } else {
-                            return Long.valueOf(e2.getPodcast().getId()).compareTo(
-                                    Long.valueOf(e1.getPodcast().getId()));
                         }
+                        return Long.valueOf(e2.getPodcast().getId()).compareTo(
+                                Long.valueOf(e1.getPodcast().getId()));
                     }
                 });
                 break;
@@ -372,10 +387,9 @@ implements EpisodeDAO.OnEpisodeChangeListener {
                         if (ascending) {
                             return Long.valueOf(e1.getReleased()).compareTo(
                                     Long.valueOf(e2.getReleased()));
-                        } else {
-                            return Long.valueOf(e2.getReleased()).compareTo(
-                                    Long.valueOf(e1.getReleased()));
                         }
+                        return Long.valueOf(e2.getReleased()).compareTo(
+                                Long.valueOf(e1.getReleased()));
                     }
                 });
                 break;
@@ -384,11 +398,19 @@ implements EpisodeDAO.OnEpisodeChangeListener {
         updateEpisodeList();
     }
 
+    /**
+     * Sets a keyword for the episode search.
+     * 
+     * @param newText The keyword to search for.
+     */
     public void setKeyword(String newText) {
         filter.putEpisodeFilter(new KeywordFilter().setKeyword(newText));
         refresh();
     }
 
+    /**
+     * Refreshes the episode list view.
+     */
     public void refresh() {
         adapter.clear();
 
@@ -400,21 +422,27 @@ implements EpisodeDAO.OnEpisodeChangeListener {
         }
 
     }
-    
+
     /**
      * @return The FilterChain currently associated with this
-     * EpisodeListFragment. This method must not return null.
+     *         EpisodeListFragment. This method must not return null.
      */
     public FilterChain getFilter() {
         return filter;
     }
 
+    /**
+     * Sets a filter for filtering the episodes.
+     * 
+     * @param pFilter The filter to set.
+     * @return this
+     */
     public EpisodeListFragment setFilter(FilterChain pFilter) {
-        
+
         if (pFilter == null) {
             throw new IllegalArgumentException("pFilter must not be null");
         }
-        
+
         filter = pFilter;
         return this;
     }
@@ -426,5 +454,20 @@ implements EpisodeDAO.OnEpisodeChangeListener {
             getFilter().removeEpisodeFilter(new NewFilter());
         }
         refresh();
+    }
+
+    @Override
+    public void onPlaylistEpisodeAdded(int position, Episode episode) {
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition) {
+        // not of interest here
+    }
+
+    @Override
+    public void onPlaylistEpisodeRemoved(int position) {
+        adapter.notifyDataSetChanged();
     }
 }

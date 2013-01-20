@@ -300,4 +300,62 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         assertTrue(ldao.checkNoGaps());
         assertTrue(ldao.getNonCachedEpisodes().size() == 0);
     }
+    
+    public void testRemoveEpisodesById() {
+        clearDatabase();
+
+        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
+        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        p1 = pdao.insertPodcast(p1);
+        e0 = edao.insertEpisode(e0);
+        e1 = edao.insertEpisode(e1);
+        e2 = edao.insertEpisode(e2);
+
+        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
+        ldao.addEpisodeToEndOfPlaylist(e0);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToEndOfPlaylist(e1);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToEndOfPlaylist(e2);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToBeginningOfPlaylist(e2);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToBeginningOfPlaylist(e1);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToBeginningOfPlaylist(e1);
+        assertTrue(ldao.checkNoGaps());
+        ldao.addEpisodeToEndOfPlaylist(e1);
+        assertTrue(ldao.checkNoGaps());
+        List<Episode> playlist = ldao.getNonCachedEpisodes();
+        assertTrue(playlist.size() == 7);
+        assertTrue(playlist.get(0) == e1);
+        assertTrue(playlist.get(1) == e1);
+        assertTrue(playlist.get(2) == e2);
+        assertTrue(playlist.get(3) == e0);
+        assertTrue(playlist.get(4) == e1);
+        assertTrue(playlist.get(5) == e2);
+        assertTrue(playlist.get(6) == e1);
+        
+        ldao.removeEpisodesById(e2.getId());
+        playlist = ldao.getNonCachedEpisodes();
+        assertTrue(playlist.size() == 5);
+        assertTrue(playlist.get(0) == e1);
+        assertTrue(playlist.get(1) == e1);
+        assertTrue(playlist.get(2) == e0);
+        assertTrue(playlist.get(3) == e1);
+        assertTrue(playlist.get(4) == e1);
+        assertTrue(ldao.checkNoGaps());
+
+        ldao.removeEpisodesById(e1.getId());
+        playlist = ldao.getNonCachedEpisodes();
+        playlist = ldao.getNonCachedEpisodes();
+        assertTrue(playlist.size() == 1);
+        assertTrue(playlist.get(0) == e0);
+        assertTrue(ldao.checkNoGaps());
+
+        ldao.removeEpisodesById(e0.getId());
+        playlist = ldao.getNonCachedEpisodes();
+        assertTrue(playlist.size() == 0);
+        assertTrue(ldao.checkNoGaps());
+    }
 }

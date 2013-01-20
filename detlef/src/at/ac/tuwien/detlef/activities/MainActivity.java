@@ -71,12 +71,11 @@ import at.ac.tuwien.detlef.gpodder.SyncEpisodeActionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.SyncSubscriptionsAsyncTask;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
-import at.ac.tuwien.detlef.util.GUIUtils;
 
 public class MainActivity extends FragmentActivity
-implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
-EpisodeListFragment.OnEpisodeSelectedListener,
-EpisodeListSortDialogFragment.NoticeDialogListener {
+        implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
+        EpisodeListFragment.OnEpisodeSelectedListener,
+        EpisodeListSortDialogFragment.NoticeDialogListener {
 
     private static final String TAG = MainActivity.class.getCanonicalName();
     private static final int PODCAST_ADD_REQUEST_CODE = 997;
@@ -103,8 +102,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
-    private PlaylistDAO playlistDAO;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -180,7 +177,6 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
         }
 
         playlistDAO = PlaylistDAOImpl.i();
-
     }
 
     private void startSettingsActivityIfNoDeviceIdSet() {
@@ -206,15 +202,15 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
                                 new Intent(
                                         getApplicationContext(),
                                         SettingsActivity.class
-                                        )
-                                .putExtra(
-                                        PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-                                        SettingsGpodderNet.class.getName()
+                                )
+                                        .putExtra(
+                                                PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+                                                SettingsGpodderNet.class.getName()
                                         )
                                         .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
                                         .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
-                                        0
-                                );
+                                0
+                        );
 
                     }
                 });
@@ -383,12 +379,14 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
     /** Number of feeds already synchronized. */
     private AtomicInteger curPodSync = new AtomicInteger(0);
 
+    private PlaylistDAO playlistDAO;
+
     /**
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
     private static final class PodcastHandler
-    extends ReliableResultHandler<MainActivity>
-    implements NoDataResultHandler<MainActivity> {
+            extends ReliableResultHandler<MainActivity>
+            implements NoDataResultHandler<MainActivity> {
 
         /**
          * Once the Podcast list is synchronized, update all feeds.
@@ -445,8 +443,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
     };
 
     private static class EpisodeActionHandler
-    extends ReliableResultHandler<MainActivity>
-    implements NoDataResultHandler<MainActivity> {
+            extends ReliableResultHandler<MainActivity>
+            implements NoDataResultHandler<MainActivity> {
 
         @Override
         public void handleFailure(int errCode, final String errStr) {
@@ -481,8 +479,8 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
      * The Handler for receiving PullFeedAsyncTask's results.
      */
     private static final class FeedHandler
-    extends ReliableResultHandler<MainActivity>
-    implements NoDataResultHandler<MainActivity> {
+            extends ReliableResultHandler<MainActivity>
+            implements NoDataResultHandler<MainActivity> {
 
         @Override
         public void handleSuccess() {
@@ -869,37 +867,40 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
     }
 
     public void onAddToPlaylistClick(View v) {
-        
         int text;
-        
+
         if (v == null) {
             Log.wtf(TAG, "onAddToPlaylistClick(): View is null");
             return;
         }
-        
+
         Episode episode = (Episode) v.getTag();
-        
+
         if (episode == null) {
             Log.wtf(TAG, "onAddToPlaylistClick(): episode is null");
             return;
         }
-        
-        if (playlistDAO.addEpisodeToEndOfPlaylist(episode)) {
-            text = R.string.episode_added_to_playlist;
+
+        if (playlistDAO.getNonCachedEpisodes().contains(v.getTag())) {
+            playlistDAO.removeEpisodesById(((Episode) v.getTag()).getId());
+            text = R.string.episode_removed_from_playlist;
         } else {
-            text = R.string.could_not_add_to_playlist;
+            if (playlistDAO.addEpisodeToEndOfPlaylist(episode)) {
+                text = R.string.episode_added_to_playlist;
+            } else {
+                text = R.string.could_not_add_to_playlist;
+            }
         }
-        
+
         Toast.makeText(
-            this,
-            String.format(
-                getText(text).toString(),
-                episode.getTitle(),
+                this,
+                String.format(
+                        getText(text).toString(),
+                        episode.getTitle(),
+                        Toast.LENGTH_SHORT
+                        ),
                 Toast.LENGTH_SHORT
-            ),
-            Toast.LENGTH_SHORT
-        ).show();
-        
+                ).show();
     }
 
     public void onMarkReadUnreadClick(View v) {

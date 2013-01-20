@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
@@ -116,4 +114,11 @@ public interface PlaylistDAO {
      * Removes all episodes from the playlist.
      */
     void clearPlaylist();
+
+    /**
+     * Removes all episodes with the given ID from the playlist.
+     * 
+     * @param id The id of the episodes to remove.
+     */
+    void removeEpisodesById(long id);
 }

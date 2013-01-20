@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.adapters;
 
 import java.util.ArrayList;
@@ -53,20 +51,16 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
 
         Episode episode = episodes.get(position);
         if (episode != null) {
-            TextView podcastName = (TextView)v.findViewById(R.id.playListPodcast);
+            TextView podcastName = (TextView) v.findViewById(R.id.playListPodcast);
             if (podcastName != null) {
                 podcastName.setText(episode.getPodcast().getTitle());
             }
 
-            TextView episodeName = (TextView)v.findViewById(R.id.playListEpisode);
-            if (episode != null) {
-                episodeName.setText(episode.getTitle());
-            }
+            TextView episodeName = (TextView) v.findViewById(R.id.playListEpisode);
+            episodeName.setText(episode.getTitle());
 
-            ImageView logo = (ImageView)v.findViewById(R.id.logo);
-            if (episode != null) {
-                logo.setImageDrawable(episode.getPodcast().getLogoIcon());
-            }
+            ImageView logo = (ImageView) v.findViewById(R.id.logo);
+            logo.setImageDrawable(episode.getPodcast().getLogoIcon());
         }
 
         ImageButton removeButton = (ImageButton) v.findViewById(R.id.playListRemoveFromPlaylist);
