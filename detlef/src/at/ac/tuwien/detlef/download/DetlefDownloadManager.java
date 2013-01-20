@@ -62,7 +62,7 @@ public class DetlefDownloadManager {
     private final DownloadManager downloadManager;
 
     /**
-     * A list of chars that must not appear in file names.
+     * A list of chars that must not appear in file and directory names.
      */
     private static final char[] UNWANTED_CHARS = { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' };
     
@@ -85,8 +85,13 @@ public class DetlefDownloadManager {
 
         /* We may need to change our naming policy in case of duplicates. However,
          * let's ignore this for now since it's simplest for us and the user. */
-        String path = String.format("%s/%s", podcast.getTitle(),
-                new File(uri.toString()).getName());
+
+        String path = String.format(
+            "%s/%s",
+            removeUnwantedCharactes(podcast.getTitle()),
+            removeUnwantedCharactes(new File(uri.toString()).getName())
+        );
+
         /* Ensure the directory already exists. */
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), path);
         file.getParentFile().mkdirs();
@@ -118,8 +123,11 @@ public class DetlefDownloadManager {
         /* We may need to change our naming policy in case of duplicates. However,
          * let's ignore this for now since it's simplest for us and the user. */
 
-        String path = String.format("%s/%s", podcast.getTitle(),
-                removeUnwantedCharactes(new File(uri.toString()).getName()));
+        String path = String.format(
+            "%s/%s",
+            removeUnwantedCharactes(podcast.getTitle()),
+            removeUnwantedCharactes(new File(uri.toString()).getName())
+        );
        
         Log.d(TAG, "path is " + path);
         
