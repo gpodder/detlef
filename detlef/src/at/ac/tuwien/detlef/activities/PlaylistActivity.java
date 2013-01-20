@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  ************************************************************************* */
 
-
-
 package at.ac.tuwien.detlef.activities;
 
 import java.io.IOException;
@@ -45,8 +43,8 @@ import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
+import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
@@ -219,11 +217,12 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         for (int i = 0; i < playlistItems.size(); i++) {
             try {
                 Episode ep = playlistItems.get(i);
-                downloadManager.cancel(ep);
+                if (ep.getStorageState() == StorageState.DOWNLOADING) {
+                    downloadManager.cancel(ep);
+                }
             } catch (Exception e) {
-                // TODO @Joshi show that episodes are being downloaded somehow?
-                Log.d(getClass().getName(), "Could not add episode " + i
-                        + " on playlist to download manager");
+                Log.d(getClass().getName(), "Could not cancel episode download " + i
+                        + " on playlist");
             }
         }
     }
