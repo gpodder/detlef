@@ -376,16 +376,19 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if ((ep == null) && (service != null)) {
             ep = service.getNextEpisode();
         }
-
+        // reset episodeDescription in any case, otherwise there will
+        // be problems if html text is refreshed.
+        episodeDescription.loadData("", "text/html; charset=UTF-8", null);
+        
         if (ep == null) {
             episode.setText(
                     getActivity().getText(R.string.no_episode_selected)
                             .toString());
             podcast.setText("");
-            episodeDescription.loadData("", "text/html; charset=UTF-8", null);
             podcastIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_feed_icon));
         } else {
-            episodeDescription.loadData(ep.getDescription() == null ? "" : ep.getDescription(),
+            episodeDescription.loadData("", "text/html; charset=UTF-8", null);
+            episodeDescription.loadData(ep.getDescription() == null ? "" : makeWhite(ep.getDescription()),
                     "text/html; charset=UTF-8", null);
             podcast.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
                     .getTitle());
@@ -398,7 +401,17 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             setNotPlayingSeekBarAndTime(ep);
             podcastIcon.setImageDrawable(ep.getPodcast().getLogoIcon());
         }
+        episodeDescription.setBackgroundColor(0x00000000);
+        
         return this;
+    }
+
+    private String makeWhite(String description) {
+        
+        return String.format(
+            "<div style=\"color:#FFFFFF;\">%s</div>",
+            description
+        );
     }
 
     private void setNotPlayingSeekBarAndTime(Episode ep) {
