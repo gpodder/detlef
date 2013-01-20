@@ -134,4 +134,5 @@
     <string name="episode_marked_as_read">Episode marked as read: %s</string>
     <string name="episode_marked_as_new">Episode marked as new: %s</string>
     <string name="episode_marked_failure">Could not change status for episode %s</string>
+    <string name="error_occured">An Error occured.</string>
 </resources>

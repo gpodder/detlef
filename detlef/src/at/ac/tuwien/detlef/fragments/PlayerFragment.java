@@ -38,6 +38,7 @@ import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.Detlef;
@@ -72,7 +73,10 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     private ImageButton buttonFF;
     private ImageButton buttonRew;
     private ImageView podcastIcon;
-
+    
+    /** Logging Tag */
+    private static final String TAG = PlayerFragment.class.getCanonicalName();
+    
     /**
      * Handles the connection to the MediaPlayerService that plays music.
      */
@@ -289,13 +293,32 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return this;
         }
-
-        if (!service.isCurrentlyPlaying()) {
-            service.setNextEpisode(activeEpisode);
-            service.startPlaying();
-            buttonPlayStop.setImageResource(android.R.drawable.ic_media_pause);
+        
+        try {
+            if (!service.isCurrentlyPlaying()) {
+                service.setNextEpisode(activeEpisode);
+                service.startPlaying();
+                buttonPlayStop.setImageResource(android.R.drawable.ic_media_pause);
+            }
+        } catch (Exception e) {
+            showGenericError();
+            Log.e(TAG, "startPlaying() Exception", e);
         }
         return this;
+    }
+
+    /**
+     * Shows a generic error message as Toast.
+     */
+    private void showGenericError() {
+        try {
+            Toast.makeText(
+                this.getActivity(),
+                R.string.error_occured,
+                Toast.LENGTH_SHORT
+            ).show();
+        } catch (Exception e) {
+        }
     }
 
     public PlayerFragment stopPlaying() {
@@ -303,9 +326,14 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             return this;
         }
 
-        if (service.isCurrentlyPlaying()) {
-            service.pausePlaying();
-            buttonPlayStop.setImageResource(android.R.drawable.ic_media_play);
+        try {
+            if (service.isCurrentlyPlaying()) {
+                service.pausePlaying();
+                buttonPlayStop.setImageResource(android.R.drawable.ic_media_play);
+            }
+        } catch (Exception e) {
+            showGenericError();
+            Log.e(TAG, "stopPlaying() Exception", e);
         }
         return this;
     }
@@ -317,11 +345,17 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return this;
         }
-        if (service.isCurrentlyPlaying()) {
-            stopPlaying();
-        } else {
-            startPlaying();
+        try {
+            if (service.isCurrentlyPlaying()) {
+                stopPlaying();
+            } else {
+                startPlaying();
+            }
+        } catch (Exception e) {
+            showGenericError();
+            Log.e(TAG, "startStop() Exception", e);
         }
+        
         return this;
     }
 
@@ -332,14 +366,20 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return this;
         }
-        service.fastForward();
-        if (service.getNextEpisode() != activeEpisode) {
-            setActiveEpisode(service.getNextEpisode());
-            if (service.isCurrentlyPlaying()) {
-                stopPlaying();
-                startPlaying();
+        try {
+            service.fastForward();
+            if (service.getNextEpisode() != activeEpisode) {
+                setActiveEpisode(service.getNextEpisode());
+                if (service.isCurrentlyPlaying()) {
+                    stopPlaying();
+                    startPlaying();
+                }
             }
+        } catch (Exception e) {
+            showGenericError();
+            Log.e(TAG, "fastForward() Exception", e);
         }
+        
         return this;
     }
 
@@ -350,14 +390,21 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return this;
         }
-        service.rewind();
-        if (service.getNextEpisode() != activeEpisode) {
-            setActiveEpisode(service.getNextEpisode());
-            if (service.isCurrentlyPlaying()) {
-                stopPlaying();
-                startPlaying();
+        
+        try {
+            service.rewind();
+            if (service.getNextEpisode() != activeEpisode) {
+                setActiveEpisode(service.getNextEpisode());
+                if (service.isCurrentlyPlaying()) {
+                    stopPlaying();
+                    startPlaying();
+                }
             }
+        } catch (Exception e) {
+            showGenericError();
+            Log.e(TAG, "fastForward() Exception", e);
         }
+        
         return this;
     }
 

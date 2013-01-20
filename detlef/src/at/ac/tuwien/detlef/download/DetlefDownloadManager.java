@@ -61,6 +61,11 @@ public class DetlefDownloadManager {
     private final PodcastDAOImpl pdao;
     private final DownloadManager downloadManager;
 
+    /**
+     * A list of chars that must not appear in file names.
+     */
+    private static final char[] UNWANTED_CHARS = { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' };
+    
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -114,8 +119,10 @@ public class DetlefDownloadManager {
          * let's ignore this for now since it's simplest for us and the user. */
 
         String path = String.format("%s/%s", podcast.getTitle(),
-                new File(uri.toString()).getName());
-
+                removeUnwantedCharactes(new File(uri.toString()).getName()));
+       
+        Log.d(TAG, "path is " + path);
+        
         /* Ensure the directory already exists. */
 
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), path);
@@ -146,6 +153,20 @@ public class DetlefDownloadManager {
         dao.updateStorageState(episode);
 
         Log.v(TAG, String.format("Enqueued download task %s", path));
+    }
+
+    /**
+     * Removes unwanted chars from file name descriptors. 
+     * @param path
+     * @return The beautified string.
+     */
+    private String removeUnwantedCharactes(String path) {
+        
+        for (char unwantedChar : UNWANTED_CHARS) {
+            path = path.replace(unwantedChar, '_');
+        }
+        
+        return path;
     }
 
     private boolean isExternalStorageWritable() {

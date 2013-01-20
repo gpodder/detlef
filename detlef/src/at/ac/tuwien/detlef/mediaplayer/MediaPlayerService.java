@@ -179,6 +179,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             episodeDAO.updateStorageState(activeEpisode);
             return null;
         }
+        
         return Uri.fromFile(new File(activeEpisode.getFilePath()));
     }
 
