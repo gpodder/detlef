@@ -58,9 +58,10 @@ public interface PlaylistDAO {
     }
 
     /**
-     * Adds an episode to the end of the playlist.
+     * Adds an {@link Episode} to the end of the playlist.
      * 
      * @param podcast The episode to be added
+     * @return true if episode was added, false otherwise.
      */
     boolean addEpisodeToEndOfPlaylist(Episode episode);
 

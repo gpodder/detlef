@@ -66,11 +66,12 @@ import at.ac.tuwien.detlef.fragments.PodListFragment;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
-import at.ac.tuwien.detlef.gpodder.SyncSubscriptionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 import at.ac.tuwien.detlef.gpodder.SyncEpisodeActionsAsyncTask;
+import at.ac.tuwien.detlef.gpodder.SyncSubscriptionsAsyncTask;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
+import at.ac.tuwien.detlef.util.GUIUtils;
 
 public class MainActivity extends FragmentActivity
 implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
@@ -554,7 +555,7 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
                 .getGpodderSettings(this);
 
         if (settings.getDeviceId() == null) {
-            Toast.makeText(this, "Please set up your account first!", Toast.LENGTH_SHORT);
+            Toast.makeText(this, R.string.set_up_account_first, Toast.LENGTH_SHORT);
             Log.w(TAG, "Could not refresh due to missing account information");
             return;
         }
@@ -868,7 +869,37 @@ EpisodeListSortDialogFragment.NoticeDialogListener {
     }
 
     public void onAddToPlaylistClick(View v) {
-        playlistDAO.addEpisodeToEndOfPlaylist((Episode) v.getTag());
+        
+        int text;
+        
+        if (v == null) {
+            Log.wtf(TAG, "onAddToPlaylistClick(): View is null");
+            return;
+        }
+        
+        Episode episode = (Episode) v.getTag();
+        
+        if (episode == null) {
+            Log.wtf(TAG, "onAddToPlaylistClick(): episode is null");
+            return;
+        }
+        
+        if (playlistDAO.addEpisodeToEndOfPlaylist(episode)) {
+            text = R.string.episode_added_to_playlist;
+        } else {
+            text = R.string.could_not_add_to_playlist;
+        }
+        
+        Toast.makeText(
+            this,
+            String.format(
+                getText(text).toString(),
+                episode.getTitle(),
+                Toast.LENGTH_SHORT
+            ),
+            Toast.LENGTH_SHORT
+        ).show();
+        
     }
 
     public void onMarkReadUnreadClick(View v) {
