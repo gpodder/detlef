@@ -486,6 +486,9 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     }
 
     private String getRemainingTime(int duration, int progress) {
+        if (duration < progress) {
+            return "00:00";
+        }
         return String.format(
                 "%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(duration - progress),
