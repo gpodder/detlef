@@ -65,7 +65,7 @@ public class DetlefDownloadManager {
      * A list of chars that must not appear in file and directory names.
      */
     private static final char[] UNWANTED_CHARS = { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' };
-    
+
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -87,10 +87,10 @@ public class DetlefDownloadManager {
          * let's ignore this for now since it's simplest for us and the user. */
 
         String path = String.format(
-            "%s/%s",
-            removeUnwantedCharactes(podcast.getTitle()),
-            removeUnwantedCharactes(new File(uri.toString()).getName())
-        );
+                "%s/%s",
+                removeUnwantedCharactes(podcast.getTitle()),
+                removeUnwantedCharactes(new File(uri.toString()).getName())
+                );
 
         /* Ensure the directory already exists. */
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), path);
@@ -99,6 +99,10 @@ public class DetlefDownloadManager {
         Request request = new Request(uri);
         request.setDestinationInExternalFilesDir(context,Environment.DIRECTORY_PICTURES, path);
         request.setTitle(podcast.getTitle());
+        request.setDescription(
+                String.format("Downloading podcast icon from podcast %s", podcast.getTitle()));
+        request.addRequestHeader("user-agent", Detlef.USER_AGENT);
+
 
         long id = downloadManager.enqueue(request);
         activeImgDownloads.put(id,  podcast);
@@ -124,24 +128,24 @@ public class DetlefDownloadManager {
          * let's ignore this for now since it's simplest for us and the user. */
 
         String path = String.format(
-            "%s/%s",
-            removeUnwantedCharactes(podcast.getTitle()),
-            removeUnwantedCharactes(new File(uri.toString()).getName())
-        );
-       
+                "%s/%s",
+                removeUnwantedCharactes(podcast.getTitle()),
+                removeUnwantedCharactes(new File(uri.toString()).getName())
+                );
+
         Log.d(TAG, "path is " + path);
-        
+
         /* Ensure the directory already exists. */
 
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), path);
         file.getParentFile().mkdirs();
-        Request request; 
+        Request request;
         try {
             request = new Request(uri);
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
-        
+
         request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_MUSIC, path);
         request.allowScanningByMediaScanner();
         request.setTitle(episode.getTitle());
@@ -164,16 +168,16 @@ public class DetlefDownloadManager {
     }
 
     /**
-     * Removes unwanted chars from file name descriptors. 
+     * Removes unwanted chars from file name descriptors.
      * @param path
      * @return The beautified string.
      */
     private String removeUnwantedCharactes(String path) {
-        
+
         for (char unwantedChar : UNWANTED_CHARS) {
             path = path.replace(unwantedChar, '_');
         }
-        
+
         return path;
     }
 
