@@ -232,7 +232,6 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
             @Override
             public void run() {
                 adapter.notifyDataSetChanged();
-                getListView().requestLayout();
             }
         });
     }
