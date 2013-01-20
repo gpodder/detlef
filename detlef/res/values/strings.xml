@@ -131,4 +131,7 @@
     <string name="episode_added_to_playlist">Added %s to playlist</string>
     <string name="could_not_add_to_playlist">Could not add %s to playlist</string>
     <string name="episode_removed_from_playlist">Removed %s from playlist</string>
+    <string name="episode_marked_as_read">Episode marked as read: %s</string>
+    <string name="episode_marked_as_new">Episode marked as new: %s</string>
+    <string name="episode_marked_failure">Could not change status for episode %s</string>
 </resources>

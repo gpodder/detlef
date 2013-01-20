@@ -869,27 +869,21 @@ public class MainActivity extends FragmentActivity
     public void onAddToPlaylistClick(View v) {
         int text;
 
-        if (v == null) {
-            Log.wtf(TAG, "onAddToPlaylistClick(): View is null");
-            return;
-        }
-
-        Episode episode = (Episode) v.getTag();
-
-        if (episode == null) {
-            Log.wtf(TAG, "onAddToPlaylistClick(): episode is null");
-            return;
-        }
-
-        if (playlistDAO.getNonCachedEpisodes().contains(v.getTag())) {
-            playlistDAO.removeEpisodesById(((Episode) v.getTag()).getId());
-            text = R.string.episode_removed_from_playlist;
-        } else {
-            if (playlistDAO.addEpisodeToEndOfPlaylist(episode)) {
-                text = R.string.episode_added_to_playlist;
+        Episode episode = getEpisodeFromView(v);
+        
+        if (episode != null) {
+            if (playlistDAO.getNonCachedEpisodes().contains(v.getTag())) {
+                playlistDAO.removeEpisodesById(((Episode) v.getTag()).getId());
+                text = R.string.episode_removed_from_playlist;
             } else {
-                text = R.string.could_not_add_to_playlist;
+                if (playlistDAO.addEpisodeToEndOfPlaylist(episode)) {
+                    text = R.string.episode_added_to_playlist;
+                } else {
+                    text = R.string.could_not_add_to_playlist;
+                }
             }
+        } else {
+            text = R.string.could_not_add_to_playlist;
         }
 
         Toast.makeText(
@@ -900,11 +894,59 @@ public class MainActivity extends FragmentActivity
                         Toast.LENGTH_SHORT
                         ),
                 Toast.LENGTH_SHORT
-                ).show();
+         ).show();
     }
 
     public void onMarkReadUnreadClick(View v) {
+        
+        int text;
+        
+        Episode episode = getEpisodeFromView(v);
+        
         getEpisodeListFragment().onMarkReadUnreadClick(v);
+        
+        if (episode != null) {
+            if (episode.getActionState().equals(Episode.ActionState.DELETE)) {
+                text = R.string.episode_marked_as_read;
+            } else {
+                text = R.string.episode_marked_as_new;
+            }
+        } else {
+            text = R.string.episode_marked_failure;
+        }
+        
+        Toast.makeText(
+            this,
+            String.format(
+                    getText(text).toString(),
+                    episode.getTitle(),
+                    Toast.LENGTH_SHORT
+                    ),
+            Toast.LENGTH_SHORT
+        ).show();
+        
+        
+    }
+    
+    /**
+     * Retrieves an episode from a view and checks for null value.s
+     * @param v
+     * @return The episode or null, if it could not be extracted.
+     */
+    private Episode getEpisodeFromView(View v) {
+        if (v == null) {
+            Log.wtf(TAG, "onAddToPlaylistClick(): View is null");
+            return null;
+        }
+
+        Episode episode = (Episode) v.getTag();
+
+        if (episode == null) {
+            Log.wtf(TAG, "onAddToPlaylistClick(): episode is null");
+            return null;
+        }
+        
+        return episode;
     }
 
     @Override
