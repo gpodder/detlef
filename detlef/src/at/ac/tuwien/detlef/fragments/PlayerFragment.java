@@ -19,6 +19,7 @@ package at.ac.tuwien.detlef.fragments;
 
 import java.util.concurrent.TimeUnit;
 
+import android.R.color;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -426,6 +427,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         // reset episodeDescription in any case, otherwise there will
         // be problems if html text is refreshed.
         episodeDescription.loadData("", "text/html; charset=UTF-8", null);
+
         
         if (ep == null) {
             episode.setText(
@@ -435,7 +437,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             podcastIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_feed_icon));
         } else {
             episodeDescription.loadData("", "text/html; charset=UTF-8", null);
-            episodeDescription.loadData(ep.getDescription() == null ? "" : makeWhite(ep.getDescription()),
+            episodeDescription.loadData(ep.getDescription() == null ? "" : ep.getDescription(),
                     "text/html; charset=UTF-8", null);
             podcast.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
                     .getTitle());
@@ -448,17 +450,8 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             setNotPlayingSeekBarAndTime(ep);
             podcastIcon.setImageDrawable(ep.getPodcast().getLogoIcon());
         }
-        episodeDescription.setBackgroundColor(0x00000000);
-        
-        return this;
-    }
 
-    private String makeWhite(String description) {
-        
-        return String.format(
-            "<div style=\"color:#FFFFFF;\">%s</div>",
-            description
-        );
+        return this;
     }
 
     private void setNotPlayingSeekBarAndTime(Episode ep) {
