@@ -51,7 +51,7 @@ public class LicensesActivity extends ExpandableListActivity
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         licenses.clear();
-        licenses.add(new License("Detlef", "https://github.com/schuay/detlef",
+        licenses.add(new License("Detlef", "https://github.com/gpodder/detlef",
                 readRawText(R.raw.license_gpl2)));
         licenses.add(new License("CWAC MergeAdapter & SackOfViewsAdapter",
                 "https://github.com/commonsguy", readRawText(R.raw.license_apache)));
