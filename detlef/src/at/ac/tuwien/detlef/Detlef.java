@@ -38,7 +38,7 @@ public class Detlef extends Application {
      * The user agent used by the download manager.
      * TODO: We statically set the version, application name and url.
      */
-    public static final String USER_AGENT = "Detlef/1 (https://github.com/schuay/detlef/";
+    public static final String USER_AGENT = "Detlef/1 (https://github.com/gpodder/detlef/";
 
     /** App context. */
     private static Context context;
