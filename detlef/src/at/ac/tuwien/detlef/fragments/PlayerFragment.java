@@ -19,7 +19,6 @@ package at.ac.tuwien.detlef.fragments;
 
 import java.util.concurrent.TimeUnit;
 
-import android.R.color;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
