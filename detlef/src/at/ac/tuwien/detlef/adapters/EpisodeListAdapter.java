@@ -22,7 +22,10 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.Html;
+import android.text.Html.ImageGetter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,7 +78,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         toggleEpisodeReadAppearance(episode, title, episodeListMarkRead);
 
         TextView description = (TextView) v.findViewById(R.id.episodeListDescription);
-        description.setText(Html.fromHtml(episode.getDescription()));
+        description.setText(Html.fromHtml(episode.getDescription(), new DummyImageGetter(), null));
 
         TextView size = (TextView) v.findViewById(R.id.episodeListDlSize);
         size.setText(byteToHumanSize(episode.getFileSize()));
@@ -156,5 +159,20 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         }
 
         return String.format("%.2f %s", value, units[unitIndex]);
+    }
+
+    /**
+     * This image getter returns an invisible image, effectively stripping
+     * the html of images.
+     */
+    private static class DummyImageGetter implements ImageGetter {
+
+        private static final Drawable NOTHING = new ColorDrawable(android.R.color.transparent);
+
+        @Override
+        public Drawable getDrawable(String source) {
+            return NOTHING;
+        }
+
     }
 }
