@@ -64,8 +64,8 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
             listener = (OnPodcastSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(String.format("%s must implement %s",
-                    activity.toString(),
-                    OnPodcastSelectedListener.class.getName()));
+                                         activity.toString(),
+                                         OnPodcastSelectedListener.class.getName()));
         }
     }
 
@@ -95,7 +95,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View view = inflater.inflate(R.layout.pod_fragment_layout, container, false);
@@ -105,7 +105,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
         ListView listView = (ListView) view.findViewById(android.R.id.list);
         listView.addHeaderView(allPodcasts);
         listView.setEmptyView(getLayoutInflater(getArguments()).inflate(R.layout.pod_list_empty,
-                null));
+                              null));
 
         return view;
     }
@@ -142,7 +142,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
+                                    ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.podcast_context, menu);
@@ -152,15 +152,15 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
-            case R.id.delete_feed:
-                /*
-                 * Apparently, the header is counted as a position, so we need
-                 * to subtract one.
-                 */
-                onDeleteFeedClicked(info.position - 1);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+        case R.id.delete_feed:
+            /*
+             * Apparently, the header is counted as a position, so we need
+             * to subtract one.
+             */
+            onDeleteFeedClicked(info.position - 1);
+            return true;
+        default:
+            return super.onContextItemSelected(item);
         }
     }
 

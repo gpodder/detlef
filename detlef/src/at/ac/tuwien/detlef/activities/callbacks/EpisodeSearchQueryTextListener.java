@@ -28,7 +28,7 @@ import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
  * @author moe
  */
 public class EpisodeSearchQueryTextListener
-        implements OnQueryTextListener {
+    implements OnQueryTextListener {
 
     private static final String TAG = EpisodeSearchQueryTextListener.class.getCanonicalName();
 

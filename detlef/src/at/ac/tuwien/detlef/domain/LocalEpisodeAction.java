@@ -41,7 +41,7 @@ public class LocalEpisodeAction {
      * @param total The total length of the episode file (in seconds).
      */
     public LocalEpisodeAction(Podcast podcast, String episode, Episode.ActionState action,
-            Integer started, Integer position, Integer total) {
+                              Integer started, Integer position, Integer total) {
         this.podcast = podcast;
         this.episode = episode;
         this.action = action;

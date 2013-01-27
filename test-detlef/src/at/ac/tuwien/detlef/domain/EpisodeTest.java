@@ -49,16 +49,23 @@ public class EpisodeTest extends TestCase {
                  * backing store. */
                 String ret = author;
                 author = "Wizard";
-                return ret; }
+                return ret;
+            }
             @Override
-            public String getDescription() { return "Needed for invocation ritual."; }
+            public String getDescription() {
+                return "Needed for invocation ritual.";
+            }
             @Override
             public IEnclosure getEnclosure() {
                 return new IEnclosure() {
                     @Override
-                    public long getFilesize() { return 666; }
+                    public long getFilesize() {
+                        return 666;
+                    }
                     @Override
-                    public String getMimetype() { return "text/invocation"; }
+                    public String getMimetype() {
+                        return "text/invocation";
+                    }
                     @Override
                     public String getUrl() {
                         return "!= getLink()";
@@ -66,13 +73,21 @@ public class EpisodeTest extends TestCase {
                 };
             }
             @Override
-            public String getGuid() { return "DafuqIsAGuid?"; }
+            public String getGuid() {
+                return "DafuqIsAGuid?";
+            }
             @Override
-            public String getLink() { return "http://nethack.wikia.com/wiki/Book_of_the_Dead"; }
+            public String getLink() {
+                return "http://nethack.wikia.com/wiki/Book_of_the_Dead";
+            }
             @Override
-            public long getReleased() { return -1; }
+            public long getReleased() {
+                return -1;
+            }
             @Override
-            public String getTitle() { return "Book of the Dead"; }
+            public String getTitle() {
+                return "Book of the Dead";
+            }
         };
 
         Episode e = new Episode(ie, new Podcast());

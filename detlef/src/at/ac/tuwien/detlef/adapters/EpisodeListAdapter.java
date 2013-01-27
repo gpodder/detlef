@@ -46,7 +46,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
     private final PlaylistDAO playlistDAO;
 
     public EpisodeListAdapter(Context context, int textViewResourceId,
-            List<Episode> episodes) {
+                              List<Episode> episodes) {
         super(context, textViewResourceId, episodes);
         this.episodes = episodes;
         playlistDAO = PlaylistDAOImpl.i();
@@ -60,7 +60,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext()
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.episode_list_layout, null);
         }
 
@@ -87,7 +87,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         episodeListDownload.setTag(episode);
 
         ImageButton episodeListAddToPlaylist =
-                (ImageButton) v.findViewById(R.id.episodeListAddToPlaylist);
+            (ImageButton) v.findViewById(R.id.episodeListAddToPlaylist);
         episodeListAddToPlaylist.setTag(episode);
         if (playlistDAO.getNonCachedEpisodes().contains(episode)) {
             episodeListAddToPlaylist.setImageResource(R.drawable.ic_pl_remove);
@@ -112,15 +112,15 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
     private int stateToImageResource(StorageState storageState) {
         switch (storageState) {
-            case NOT_ON_DEVICE:
-                return R.drawable.ic_download;
-            case DOWNLOADING:
-                return R.drawable.ic_stop;
-            case DOWNLOADED:
-                return R.drawable.ic_trash;
-            default:
-                Log.e(TAG, "Unknown storage state encountered");
-                return 0;
+        case NOT_ON_DEVICE:
+            return R.drawable.ic_download;
+        case DOWNLOADING:
+            return R.drawable.ic_stop;
+        case DOWNLOADED:
+            return R.drawable.ic_trash;
+        default:
+            Log.e(TAG, "Unknown storage state encountered");
+            return 0;
         }
     }
 
@@ -131,8 +131,8 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         String podcastTitle = episode.getPodcast().getTitle();
         if (podcastTitle.length() > MAX_TITLE_LENGTH) {
             podcastTitle = String.format("%s%s",
-                    podcastTitle.substring(0, MAX_TITLE_LENGTH - ELLIPSIS.length()),
-                    ELLIPSIS);
+                                         podcastTitle.substring(0, MAX_TITLE_LENGTH - ELLIPSIS.length()),
+                                         ELLIPSIS);
         }
         return String.format("%s: %s", podcastTitle, episode.getTitle());
     }
@@ -142,7 +142,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
 
     private CharSequence byteToHumanSize(long fileSize) {
         final String[] units = {
-                "B", "KB", "MB", "GB", "TB"
+            "B", "KB", "MB", "GB", "TB"
         };
 
         double value = fileSize;

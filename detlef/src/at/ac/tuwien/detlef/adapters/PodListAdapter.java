@@ -38,7 +38,7 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
     private final List<Podcast> podcasts;
 
     public PodListAdapter(Context context, int textViewResourceId,
-            List<Podcast> podcasts) {
+                          List<Podcast> podcasts) {
         super(context, textViewResourceId, podcasts);
         this.podcasts = podcasts;
     }
@@ -50,7 +50,7 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
 
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext()
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.pod_list_layout, null);
         }
 
@@ -73,7 +73,7 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
         }
 
         TextView podcastName = (TextView) v
-                .findViewById(R.id.podListPodcastName);
+                               .findViewById(R.id.podListPodcastName);
         if (podcast != null) {
             podcastName.setText(podcast.getTitle());
         }

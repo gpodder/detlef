@@ -30,96 +30,96 @@ import at.ac.tuwien.detlef.domain.Podcast;
  */
 public class PodcastFilterTest extends TestCase {
 
-	public void testFilter_positive() {
+    public void testFilter_positive() {
 
-		Episode episode = new Episode(new Podcast().setId(1));
-		PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast().setId(1));
+        Episode episode = new Episode(new Podcast().setId(1));
+        PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast().setId(1));
 
-		Assert.assertFalse(
-			"Episode should not be filterd, because the"
-			+ "filter's Podcast id matches the episode's podcast id",
-			filter.filter(episode)
-		);
+        Assert.assertFalse(
+            "Episode should not be filterd, because the"
+            + "filter's Podcast id matches the episode's podcast id",
+            filter.filter(episode)
+        );
 
-	}
+    }
 
-	public void testFilter_negative() {
+    public void testFilter_negative() {
 
-		Episode episode = new Episode(new Podcast().setId(1));
-		PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast().setId(2));
+        Episode episode = new Episode(new Podcast().setId(1));
+        PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast().setId(2));
 
-		Assert.assertTrue(
-			"Episode should be filterd, because the filter's Podcast id "
-			+ "does not match the episode's podcast id",
-			filter.filter(episode)
-		);
+        Assert.assertTrue(
+            "Episode should be filterd, because the filter's Podcast id "
+            + "does not match the episode's podcast id",
+            filter.filter(episode)
+        );
 
-	}
+    }
 
-	public void testFilter_doesNotFilterIfPodcastIdIsNull() {
+    public void testFilter_doesNotFilterIfPodcastIdIsNull() {
 
-		Episode episode = new Episode(new Podcast().setId(1));
-		PodcastFilter filter = new PodcastFilter().setPodcast(null);
+        Episode episode = new Episode(new Podcast().setId(1));
+        PodcastFilter filter = new PodcastFilter().setPodcast(null);
 
-		Assert.assertFalse(
-			"Episode should not be filterd, because the filter's Podcast id "
-			+ "is null",
-			filter.filter(episode)
-		);
+        Assert.assertFalse(
+            "Episode should not be filterd, because the filter's Podcast id "
+            + "is null",
+            filter.filter(episode)
+        );
 
-	}
+    }
 
-	public void testFilter_doesFilterIfEpisodePodcastIdIsNull() {
+    public void testFilter_doesFilterIfEpisodePodcastIdIsNull() {
 
-		Episode episode = new Episode(new Podcast());
-		PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast().setId(3));
+        Episode episode = new Episode(new Podcast());
+        PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast().setId(3));
 
-		Assert.assertTrue(
-			"Episode should be filterd, because the episode's Podcast id "
-			+ "is null, but the filter's podcast id is not",
-			filter.filter(episode)
-		);
+        Assert.assertTrue(
+            "Episode should be filterd, because the episode's Podcast id "
+            + "is null, but the filter's podcast id is not",
+            filter.filter(episode)
+        );
 
-	}
+    }
 
-	public void testFilter_doesNotFilterIfAllPodcastIdsAreNull() {
+    public void testFilter_doesNotFilterIfAllPodcastIdsAreNull() {
 
-		Episode episode = new Episode(new Podcast());
-		PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast());
+        Episode episode = new Episode(new Podcast());
+        PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast());
 
-		Assert.assertFalse(
-			"Episode should not be filterd, because the both the "
-			+ "episode's podcast id  and the filter's podcast id are null.",
-			filter.filter(episode)
-		);
+        Assert.assertFalse(
+            "Episode should not be filterd, because the both the "
+            + "episode's podcast id  and the filter's podcast id are null.",
+            filter.filter(episode)
+        );
 
-	}
+    }
 
-	public void testFilter_doesNotFilterIfAllPodcastsAreNull() {
+    public void testFilter_doesNotFilterIfAllPodcastsAreNull() {
 
-		Episode episode = new Episode(null);
-		PodcastFilter filter = new PodcastFilter().setPodcast(null);
+        Episode episode = new Episode(null);
+        PodcastFilter filter = new PodcastFilter().setPodcast(null);
 
-		Assert.assertFalse(
-			"Episode should not be filterd, because the both the "
-			+ "episode's podcast and the filter's podcast are null.",
-			filter.filter(episode)
-		);
+        Assert.assertFalse(
+            "Episode should not be filterd, because the both the "
+            + "episode's podcast and the filter's podcast are null.",
+            filter.filter(episode)
+        );
 
-	}
+    }
 
-	public void testFilter_doesFilterIfEpisodePodcastIsNull() {
+    public void testFilter_doesFilterIfEpisodePodcastIsNull() {
 
-		Episode episode = new Episode(null);
-		PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast().setId(2));
+        Episode episode = new Episode(null);
+        PodcastFilter filter = new PodcastFilter().setPodcast(new Podcast().setId(2));
 
-		Assert.assertTrue(
-			"Episode should be filterd, because the the "
-			+ "episode's podcast id is null, but the filter's podcast is not.",
-			filter.filter(episode)
-		);
+        Assert.assertTrue(
+            "Episode should be filterd, because the the "
+            + "episode's podcast id is null, but the filter's podcast is not.",
+            filter.filter(episode)
+        );
 
-	}
+    }
 
 
 }

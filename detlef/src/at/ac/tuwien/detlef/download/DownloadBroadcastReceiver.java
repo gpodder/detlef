@@ -43,7 +43,7 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
         long id = getId(intent);
 
         Log.v(TAG, String.format("Received broadcast intent: action = %s, id = %d",
-                intent.getAction(), id));
+                                 intent.getAction(), id));
 
         /* TODO: Implementation. */
 
@@ -53,11 +53,11 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
         long id = getId(intent);
 
         Log.v(TAG, String.format("Received broadcast intent: action = %s, id = %d",
-                intent.getAction(), id));
+                                 intent.getAction(), id));
 
         DetlefDownloadManager ddm = DependencyAssistant
-                .getDependencyAssistant()
-                .getDownloadManager(context);
+                                    .getDependencyAssistant()
+                                    .getDownloadManager(context);
         ddm.downloadComplete(id);
     }
 

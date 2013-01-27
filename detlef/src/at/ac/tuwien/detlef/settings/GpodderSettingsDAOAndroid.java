@@ -45,20 +45,20 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
         result.setDevicename(getSharedPreferences().getString("devicename", ""));
         result.setLastUpdate(getSharedPreferences().getLong("lastUpdate", 0));
         result.setLastEpisodeActionUpdate(getSharedPreferences()
-                .getLong("lastEpisodeActionUpdate", 0));
+                                          .getLong("lastEpisodeActionUpdate", 0));
         result.setApiHostname(
-                getSharedPreferences().getString(KEY_API_ENDPOINT, DEFAULT_API_ENDPOINT)
-                );
+            getSharedPreferences().getString(KEY_API_ENDPOINT, DEFAULT_API_ENDPOINT)
+        );
         result.setFeedHostname(
-                getSharedPreferences().getString(KEY_FEED_ENDPOINT, DEFAULT_FEED_ENDPOINT)
-                );
+            getSharedPreferences().getString(KEY_FEED_ENDPOINT, DEFAULT_FEED_ENDPOINT)
+        );
 
         result.setAccountVerified(getSharedPreferences().getBoolean(KEY_ACCOUNT_VERIFIED, false));
 
         result.setAscending(getSharedPreferences().getBoolean(KEY_EPISODE_SORT_ORDER, false));
         try {
             result.setSortChoice(EpisodeSortChoice.valueOf(
-                    getSharedPreferences().getString(KEY_EPISODE_SORT_CHOICE, "ReleaseDate")));
+                                     getSharedPreferences().getString(KEY_EPISODE_SORT_CHOICE, "ReleaseDate")));
         } catch (Exception e) {
             result.setSortChoice(EpisodeSortChoice.ReleaseDate);
         }

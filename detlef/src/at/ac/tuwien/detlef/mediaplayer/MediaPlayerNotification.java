@@ -30,7 +30,7 @@ public class MediaPlayerNotification {
         notification.contentView.setTextViewText(R.id.caption, (caption == null) ? "" : caption);
 
         NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(R.id.notification, notification);
     }
 
@@ -45,7 +45,7 @@ public class MediaPlayerNotification {
         Intent i = new Intent(context, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent logoIntent = PendingIntent.getActivity(context, 0, i,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                                   PendingIntent.FLAG_UPDATE_CURRENT);
 
         PendingIntent prevIntent = getPendingIntent(context, MediaPlayerService.EXTRA_PREVIOUS);
         PendingIntent playIntent = getPendingIntent(context, MediaPlayerService.EXTRA_PLAY_PAUSE);
@@ -87,12 +87,12 @@ public class MediaPlayerNotification {
          */
 
         return PendingIntent.getService(context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                                        PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public static void cancel(Context context) {
         NotificationManager notificationManager =
-                (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+            (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(R.id.notification);
     }
 }

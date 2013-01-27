@@ -77,7 +77,7 @@ public class DependencyAssistant {
     public GPodderSync getGPodderSync() {
         if (gPodderSync == null) {
             gPodderSync = new GPodderSync(new SynchronousSyncResponder(
-                    Detlef.getAppContext()));
+                                              Detlef.getAppContext()));
         }
         return gPodderSync;
     }
@@ -138,7 +138,7 @@ public class DependencyAssistant {
 
         HashMap<String, Object> dependencies = new HashMap<String, Object>();
         dependencies.put("sharedPreferences",
-                PreferenceManager.getDefaultSharedPreferences(context));
+                         PreferenceManager.getDefaultSharedPreferences(context));
 
         GpodderSettingsDAO gpodderSettingsDAO = new GpodderSettingsDAOAndroid();
         gpodderSettingsDAO.setDependencies(dependencies);

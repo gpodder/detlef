@@ -66,12 +66,12 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
 
         /* Retrieve settings. */
         GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
-                .getGpodderSettings(Detlef.getAppContext());
+                              .getGpodderSettings(Detlef.getAppContext());
 
         DeviceId id = gps.getDeviceId();
         if (id == null) {
             sendError(GENERIC_ERROR, Detlef.getAppContext().getString(
-                    R.string.no_gpodder_account_configured));
+                          R.string.no_gpodder_account_configured));
             return;
         }
 
@@ -82,24 +82,24 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         long lastUpdate = gps.getLastUpdate();
 
         MygPodderClient gpc = new MygPodderClient(
-                gps.getUsername(),
-                gps.getPassword(),
-                gps.getApiHostname()
-                );
+            gps.getUsername(),
+            gps.getPassword(),
+            gps.getApiHostname()
+        );
 
         try {
             EnhancedSubscriptionChanges localChanges = new EnhancedSubscriptionChanges(
-                    pDao.getLocallyAddedPodcasts(), pDao.getLocallyDeletedPodcasts(),
-                    lastUpdate);
+                pDao.getLocallyAddedPodcasts(), pDao.getLocallyDeletedPodcasts(),
+                lastUpdate);
 
             UpdateResult result = gpc.updateSubscriptions(
-                    devId,
-                    localChanges.getAddUrls(),
-                    localChanges.getRemoveUrls());
+                                      devId,
+                                      localChanges.getAddUrls(),
+                                      localChanges.getRemoveUrls());
 
             /* Login and get subscription changes */
             SubscriptionChanges changes = gpc.pullSubscriptions(devId,
-                    lastUpdate);
+                                          lastUpdate);
 
             /* Get the Details for the individual URLs. */
 
@@ -108,7 +108,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
 
             /* update the db here */
             PodcastDBAssistant dba = DependencyAssistant.getDependencyAssistant()
-                    .getPodcastDBAssistant();
+                                     .getPodcastDBAssistant();
             dba.applySubscriptionChanges(Detlef.getAppContext(), localChanges);
             dba.applySubscriptionChanges(Detlef.getAppContext(), remoteChanges);
 
@@ -141,15 +141,15 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         } catch (HttpResponseException e) {
             String eMsg = e.getLocalizedMessage();
             switch (e.getStatusCode()) {
-                case HTTP_STATUS_FORBIDDEN:
-                    eMsg = Detlef.getAppContext().getString(R.string.connectiontest_unsuccessful);
-                    break;
-                case HTTP_STATUS_NOT_FOUND:
-                    eMsg = String.format(Detlef.getAppContext()
-                            .getString(R.string.device_doesnt_exist_fmt), devId);
-                    break;
-                default:
-                    break;
+            case HTTP_STATUS_FORBIDDEN:
+                eMsg = Detlef.getAppContext().getString(R.string.connectiontest_unsuccessful);
+                break;
+            case HTTP_STATUS_NOT_FOUND:
+                eMsg = String.format(Detlef.getAppContext()
+                                     .getString(R.string.device_doesnt_exist_fmt), devId);
+                break;
+            default:
+                break;
             }
             sendError(e.getStatusCode(), eMsg);
         } catch (AuthenticationException e) {
@@ -201,7 +201,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
          */
         public EnhancedSubscriptionChanges getPodcastDetails(SubscriptionChanges changes) {
             return new EnhancedSubscriptionChanges(getPodcastSetDetails(changes.add),
-                    getPodcastSetDetails(changes.remove), changes.timestamp);
+                                                   getPodcastSetDetails(changes.remove), changes.timestamp);
         }
 
         public IPodcast getPodcastDetails(String url) {

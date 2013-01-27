@@ -49,7 +49,7 @@ public interface ResultHandler<Receiver> extends Callback<Receiver> {
         private final String errString;
 
         public GenericFailureEvent(ResultHandler<?> cb, int errCode,
-                String errString) {
+                                   String errString) {
             this.cb = cb;
             this.errCode = errCode;
             this.errString = errString;

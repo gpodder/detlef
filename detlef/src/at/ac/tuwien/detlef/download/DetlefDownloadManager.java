@@ -87,20 +87,20 @@ public class DetlefDownloadManager {
          * let's ignore this for now since it's simplest for us and the user. */
 
         String path = String.format(
-                "%s/%s",
-                removeUnwantedCharactes(podcast.getTitle()),
-                removeUnwantedCharactes(new File(uri.toString()).getName())
-                );
+                          "%s/%s",
+                          removeUnwantedCharactes(podcast.getTitle()),
+                          removeUnwantedCharactes(new File(uri.toString()).getName())
+                      );
 
         /* Ensure the directory already exists. */
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), path);
         file.getParentFile().mkdirs();
 
         Request request = new Request(uri);
-        request.setDestinationInExternalFilesDir(context,Environment.DIRECTORY_PICTURES, path);
+        request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_PICTURES, path);
         request.setTitle(podcast.getTitle());
         request.setDescription(
-                String.format("Downloading podcast icon from podcast %s", podcast.getTitle()));
+            String.format("Downloading podcast icon from podcast %s", podcast.getTitle()));
         request.addRequestHeader("user-agent", Detlef.USER_AGENT);
 
 
@@ -128,10 +128,10 @@ public class DetlefDownloadManager {
          * let's ignore this for now since it's simplest for us and the user. */
 
         String path = String.format(
-                "%s/%s",
-                removeUnwantedCharactes(podcast.getTitle()),
-                removeUnwantedCharactes(new File(uri.toString()).getName())
-                );
+                          "%s/%s",
+                          removeUnwantedCharactes(podcast.getTitle()),
+                          removeUnwantedCharactes(new File(uri.toString()).getName())
+                      );
 
         Log.d(TAG, "path is " + path);
 
@@ -150,7 +150,7 @@ public class DetlefDownloadManager {
         request.allowScanningByMediaScanner();
         request.setTitle(episode.getTitle());
         request.setDescription(
-                String.format("Downloading episode from podcast %s", podcast.getTitle()));
+            String.format("Downloading episode from podcast %s", podcast.getTitle()));
         request.addRequestHeader("user-agent", Detlef.USER_AGENT);
 
         long id = downloadManager.enqueue(request);
@@ -214,7 +214,7 @@ public class DetlefDownloadManager {
      * no action is taken.
      */
     public void cancel(Podcast podcast) {
-        for (Entry<Long, Podcast> entry :activeImgDownloads.entrySet()) {
+        for (Entry<Long, Podcast> entry : activeImgDownloads.entrySet()) {
             if (entry.getValue() != podcast) {
                 continue;
             }
@@ -267,10 +267,10 @@ public class DetlefDownloadManager {
             if (!isDownloadSuccessful(id)) {
                 int reason = getDownloadFailureReason(id);
                 Toast.makeText(context,
-                        String.format("Download failed with error code %d", reason),
-                        Toast.LENGTH_SHORT).show();
+                               String.format("Download failed with error code %d", reason),
+                               Toast.LENGTH_SHORT).show();
                 Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
-                        id, reason));
+                                         id, reason));
 
                 episode.setStorageState(StorageState.NOT_ON_DEVICE);
                 dao.updateStorageState(episode);
@@ -281,8 +281,8 @@ public class DetlefDownloadManager {
             Uri uri = downloadManager.getUriForDownloadedFile(id);
 
             Toast.makeText(context,
-                    String.format("Download complete: %s", episode.getTitle()),
-                    Toast.LENGTH_SHORT).show();
+                           String.format("Download complete: %s", episode.getTitle()),
+                           Toast.LENGTH_SHORT).show();
             Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
 
             /* Update the episode's state in the database. */
@@ -297,7 +297,7 @@ public class DetlefDownloadManager {
             }
             if (!isDownloadSuccessful(id)) {
                 Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
-                        id, getDownloadFailureReason(id)));
+                                         id, getDownloadFailureReason(id)));
                 return;
             }
             Uri uri = downloadManager.getUriForDownloadedFile(id);
@@ -305,7 +305,7 @@ public class DetlefDownloadManager {
 
             // move the icon to internal storage
             String path = String.format("%s/%s", p.getTitle(),
-                    new File(uri.toString()).getName());
+                                        new File(uri.toString()).getName());
             File destination = new File(context.getFilesDir(), path);
             destination.getParentFile().mkdirs();
             File source = new File(p.getLogoFilePath());

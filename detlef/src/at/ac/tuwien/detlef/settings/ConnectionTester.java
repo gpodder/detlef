@@ -35,5 +35,5 @@ public interface ConnectionTester {
      * @param callback The callback gpodderSync has to report to.
      */
     public void testConnection(GPodderSync gpodderSync, GpodderSettings settings,
-            NoDataResultHandler<?> callback);
+                               NoDataResultHandler<?> callback);
 }

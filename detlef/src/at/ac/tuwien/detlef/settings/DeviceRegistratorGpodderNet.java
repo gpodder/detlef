@@ -16,12 +16,12 @@ public class DeviceRegistratorGpodderNet
 
     @Override
     public DeviceRegistratorGpodderNet registerNewDeviceId(DeviceId deviceId)
-        throws DeviceRegistratorException {
+    throws DeviceRegistratorException {
 
         try {
             GpodderSettings gpodderSettings = DependencyAssistant
-                .getDependencyAssistant()
-                .getGpodderSettings();
+                                              .getDependencyAssistant()
+                                              .getGpodderSettings();
 
             MygPodderClient gpc = new MygPodderClient(
                 gpodderSettings.getUsername(),

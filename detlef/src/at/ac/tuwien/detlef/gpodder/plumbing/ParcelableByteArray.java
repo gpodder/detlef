@@ -29,7 +29,7 @@ public class ParcelableByteArray implements Parcelable {
     private byte[] arr;
 
     public static final Parcelable.Creator<ParcelableByteArray> CREATOR = new
-            Parcelable.Creator<ParcelableByteArray>() {
+    Parcelable.Creator<ParcelableByteArray>() {
         @Override
         public ParcelableByteArray createFromParcel(Parcel source) {
             byte[] moop = new byte[source.readInt()];

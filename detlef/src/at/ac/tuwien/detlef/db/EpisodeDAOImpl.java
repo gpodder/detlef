@@ -48,7 +48,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     private final DatabaseHelper dbHelper;
     private final PodcastDAOImpl podcastDAO;
     private final Set<EpisodeDAO.OnEpisodeChangeListener> listeners =
-            new HashSet<EpisodeDAO.OnEpisodeChangeListener>();
+        new HashSet<EpisodeDAO.OnEpisodeChangeListener>();
     private final HashMap<Long, Episode> hashMapEpisode = new HashMap<Long, Episode>();
 
     /**
@@ -82,42 +82,42 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.COLUMN_EPISODE_AUTHOR,
-                        episode.getAuthor());
+                           episode.getAuthor());
                 values.put(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
-                        episode.getDescription());
+                           episode.getDescription());
                 values.put(DatabaseHelper.COLUMN_EPISODE_FILESIZE,
-                        episode.getFileSize());
+                           episode.getFileSize());
                 values.put(DatabaseHelper.COLUMN_EPISODE_GUID, episode.getGuid());
                 values.put(DatabaseHelper.COLUMN_EPISODE_LINK, episode.getLink());
                 values.put(DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
-                        episode.getMimetype());
+                           episode.getMimetype());
                 if (episode.getPodcast() == null) {
                     throw new IllegalArgumentException("The episode must belong to a podcast");
                 }
                 values.put(DatabaseHelper.COLUMN_EPISODE_PODCAST, episode
-                        .getPodcast().getId());
+                           .getPodcast().getId());
                 values.put(DatabaseHelper.COLUMN_EPISODE_RELEASED,
-                        episode.getReleased());
+                           episode.getReleased());
                 values.put(DatabaseHelper.COLUMN_EPISODE_TITLE, episode.getTitle());
                 values.put(DatabaseHelper.COLUMN_EPISODE_URL, episode.getUrl());
                 if (episode.getFilePath() == null) {
                     values.putNull(DatabaseHelper.COLUMN_EPISODE_FILEPATH);
                 } else {
                     values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                            episode.getFilePath());
+                               episode.getFilePath());
                 }
                 if (episode.getStorageState() == null) {
                     values.putNull(DatabaseHelper.COLUMN_EPISODE_STATE);
                 } else {
                     values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode
-                            .getStorageState().toString());
+                               .getStorageState().toString());
                 }
                 values.put(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION, episode.getPlayPosition());
                 if (episode.getActionState() == null) {
                     values.putNull(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE);
                 } else {
                     values.put(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE,
-                            episode.getActionState().toString());
+                               episode.getActionState().toString());
                 }
 
                 long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
@@ -156,14 +156,14 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                 }
             } catch (Exception ex) {
                 Log.e(TAG,
-                        ("deleteEpisode file delete: " + ex.getMessage()) != null ? ex.getMessage()
-                                : ex.toString());
+                      ("deleteEpisode file delete: " + ex.getMessage()) != null ? ex.getMessage()
+                      : ex.toString());
             }
 
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
             String[] selectionArgs = {
-                    String.valueOf(episode.getId())
+                String.valueOf(episode.getId())
             };
 
             int ret = db.delete(DatabaseHelper.TABLE_EPISODE, selection, selectionArgs);
@@ -190,7 +190,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     public Episode getEpisode(long id) {
         String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
         String[] selectionArgs = {
-                String.valueOf(id)
+            String.valueOf(id)
         };
         List<Episode> ret = getEpisodesWhere(selection, selectionArgs);
         if (ret.isEmpty()) {
@@ -206,7 +206,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     public List<Episode> getEpisodes(Podcast podcast) {
         String selection = DatabaseHelper.COLUMN_EPISODE_PODCAST + " = ?";
         String[] selectionArgs = {
-                String.valueOf(podcast.getId())
+            String.valueOf(podcast.getId())
         };
         return getEpisodesWhere(selection, selectionArgs);
     }
@@ -218,7 +218,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     public int updateFilePath(Episode episode) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                episode.getFilePath());
+                   episode.getFilePath());
         return updateFieldUsingEpisodeId(episode, values);
     }
 
@@ -229,7 +229,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     public int updateStorageState(Episode episode) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getStorageState()
-                .toString());
+                   .toString());
         int ret = updateFieldUsingEpisodeId(episode, values);
 
         if ((ret > 0) && (episode.getStorageState() == Episode.StorageState.DOWNLOADED)) {
@@ -278,7 +278,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
                 String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
                 String[] selectionArgs = {
-                        String.valueOf(episode.getId())
+                    String.valueOf(episode.getId())
                 };
 
                 int ret = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
@@ -325,9 +325,9 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     @Override
     public Episode getEpisodeByUrlOrGuid(String url, String guid) {
         String selection = DatabaseHelper.COLUMN_EPISODE_URL + " = ? OR "
-                + DatabaseHelper.COLUMN_EPISODE_GUID + " = ?";
+                           + DatabaseHelper.COLUMN_EPISODE_GUID + " = ?";
         String[] selectionArgs = {
-                url, guid
+            url, guid
         };
         List<Episode> episodes = getEpisodesWhere(selection, selectionArgs);
         if (episodes.size() > 0) {
@@ -338,39 +338,38 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
     @Override
     public List<Episode> getEpisodesWhere(String selection,
-            String[] selectionArgs) {
+                                          String[] selectionArgs) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             List<Episode> allEpisodes = new ArrayList<Episode>();
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String[] projection =
-                {
-                    DatabaseHelper.COLUMN_EPISODE_AUTHOR,
-                    DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
-                    DatabaseHelper.COLUMN_EPISODE_FILESIZE,
-                    DatabaseHelper.COLUMN_EPISODE_GUID,
-                    DatabaseHelper.COLUMN_EPISODE_ID,
-                    DatabaseHelper.COLUMN_EPISODE_LINK,
-                    DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
-                    DatabaseHelper.COLUMN_EPISODE_PODCAST,
-                    DatabaseHelper.COLUMN_EPISODE_RELEASED,
-                    DatabaseHelper.COLUMN_EPISODE_TITLE,
-                    DatabaseHelper.COLUMN_EPISODE_URL,
-                    DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                    DatabaseHelper.COLUMN_EPISODE_STATE,
-                    DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION,
-                    DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE
-                };
+            String[] projection = {
+                DatabaseHelper.COLUMN_EPISODE_AUTHOR,
+                DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
+                DatabaseHelper.COLUMN_EPISODE_FILESIZE,
+                DatabaseHelper.COLUMN_EPISODE_GUID,
+                DatabaseHelper.COLUMN_EPISODE_ID,
+                DatabaseHelper.COLUMN_EPISODE_LINK,
+                DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
+                DatabaseHelper.COLUMN_EPISODE_PODCAST,
+                DatabaseHelper.COLUMN_EPISODE_RELEASED,
+                DatabaseHelper.COLUMN_EPISODE_TITLE,
+                DatabaseHelper.COLUMN_EPISODE_URL,
+                DatabaseHelper.COLUMN_EPISODE_FILEPATH,
+                DatabaseHelper.COLUMN_EPISODE_STATE,
+                DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION,
+                DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE
+            };
 
             Cursor c =
-                    db.query(DatabaseHelper.TABLE_EPISODE, projection, selection, // columns
-                            // for
-                            // where
-                            // clause
-                            selectionArgs, // values for where clause
-                            null, // group
-                            null, // filter by row group
-                            DatabaseHelper.COLUMN_EPISODE_RELEASED + " DESC" // sort order
-                            );
+                db.query(DatabaseHelper.TABLE_EPISODE, projection, selection, // columns
+                         // for
+                         // where
+                         // clause
+                         selectionArgs, // values for where clause
+                         null, // group
+                         null, // filter by row group
+                         DatabaseHelper.COLUMN_EPISODE_RELEASED + " DESC" // sort order
+                        );
 
             if (c.moveToFirst()) {
                 do {
@@ -391,7 +390,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         }
 
         Episode e = new Episode(podcastDAO.getPodcastById(c.getLong(
-                c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
+                                    c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
         e.setAuthor(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_AUTHOR)));
         e.setDescription(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION)));
         e.setFileSize(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_FILESIZE)));

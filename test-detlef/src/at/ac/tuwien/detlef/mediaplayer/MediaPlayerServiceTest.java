@@ -60,20 +60,20 @@ public class MediaPlayerServiceTest extends ServiceTestCase<MediaPlayerService> 
         startService();
         Episode ep = null;
         assertFalse("Null episode should not have a correct file path",
-                getService().episodeFileOK(ep));
+                    getService().episodeFileOK(ep));
         Podcast p = new Podcast();
         ep = new Episode(p);
         assertFalse("Empty episode should not have a correct file path", getService()
-                .episodeFileOK(ep));
+                    .episodeFileOK(ep));
         ep.setFilePath("/myasdf/qwerty");
         assertFalse("Nonexistent path should not be correct", getService()
-                .episodeFileOK(ep));
+                    .episodeFileOK(ep));
         ep.setFilePath("/data");
         assertFalse("Directory should not be correct", getService()
-                .episodeFileOK(ep));
+                    .episodeFileOK(ep));
         ep.setFilePath("/init.rc");
         assertFalse("File should be correct", getService()
-                .episodeFileOK(ep));
+                    .episodeFileOK(ep));
     }
 
     /**

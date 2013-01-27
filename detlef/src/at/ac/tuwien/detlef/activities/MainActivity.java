@@ -73,9 +73,9 @@ import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class MainActivity extends FragmentActivity
-        implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
-        EpisodeListFragment.OnEpisodeSelectedListener,
-        EpisodeListSortDialogFragment.NoticeDialogListener {
+    implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
+    EpisodeListFragment.OnEpisodeSelectedListener,
+    EpisodeListSortDialogFragment.NoticeDialogListener {
 
     private static final String TAG = MainActivity.class.getCanonicalName();
     private static final int PODCAST_ADD_REQUEST_CODE = 997;
@@ -165,8 +165,8 @@ public class MainActivity extends FragmentActivity
             // TabListener interface, as the
             // listener for when this tab is selected.
             actionBar.addTab(actionBar.newTab()
-                    .setText(mSectionsPagerAdapter.getPageTitle(i))
-                    .setTabListener(this));
+                             .setText(mSectionsPagerAdapter.getPageTitle(i))
+                             .setTabListener(this));
         }
 
         /* Ready the progress dialog */
@@ -193,42 +193,42 @@ public class MainActivity extends FragmentActivity
         b.setMessage(R.string.detlef_is_not_set_up_yet);
 
         b.setPositiveButton(
-                android.R.string.yes, new OnClickListener() {
+        android.R.string.yes, new OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-                        startActivityForResult(
-                                new Intent(
-                                        getApplicationContext(),
-                                        SettingsActivity.class
-                                )
-                                        .putExtra(
-                                                PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-                                                SettingsGpodderNet.class.getName()
-                                        )
-                                        .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
-                                        .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
-                                0
-                        );
-
-                    }
-                });
-        b.setNegativeButton(
-                android.R.string.no,
-                new OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(
-                                getApplicationContext(),
-                                getString(R.string.you_can_setup_your_account_later),
-                                Toast.LENGTH_LONG
-                                ).show();
-
-                    }
-                }
+                startActivityForResult(
+                    new Intent(
+                        getApplicationContext(),
+                        SettingsActivity.class
+                    )
+                    .putExtra(
+                        PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+                        SettingsGpodderNet.class.getName()
+                    )
+                    .putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true)
+                    .putExtra(SettingsGpodderNet.EXTRA_SETUPMODE, true),
+                    0
                 );
+
+            }
+        });
+        b.setNegativeButton(
+            android.R.string.no,
+        new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(
+                    getApplicationContext(),
+                    getString(R.string.you_can_setup_your_account_later),
+                    Toast.LENGTH_LONG
+                ).show();
+
+            }
+        }
+        );
 
         b.show();
 
@@ -247,17 +247,17 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onBackPressed() {
         switch (mViewPager.getCurrentItem()) {
-            case SectionsPagerAdapter.POSITION_PODCASTS:
-                super.onBackPressed();
-                break;
-            case SectionsPagerAdapter.POSITION_EPISODES:
-                actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_PODCASTS));
-                break;
-            case SectionsPagerAdapter.POSITION_PLAYER:
-                actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_EPISODES));
-                break;
-            default:
-                super.onBackPressed();
+        case SectionsPagerAdapter.POSITION_PODCASTS:
+            super.onBackPressed();
+            break;
+        case SectionsPagerAdapter.POSITION_EPISODES:
+            actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_PODCASTS));
+            break;
+        case SectionsPagerAdapter.POSITION_PLAYER:
+            actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_EPISODES));
+            break;
+        default:
+            super.onBackPressed();
         }
     }
 
@@ -300,12 +300,12 @@ public class MainActivity extends FragmentActivity
 
         refreshBtn.setActionView(id);
         refreshBtn.getActionView().setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onRefreshPressed();
-                    }
-                });
+        new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRefreshPressed();
+            }
+        });
     }
 
     private void showRefreshProgressBar() {
@@ -324,8 +324,8 @@ public class MainActivity extends FragmentActivity
                 progressDialog.setMessage(getString(R.string.syncing_episode_actions));
             } else {
                 progressDialog.setMessage(String.format(
-                        getString(R.string.refreshing_feed_x_of_y),
-                        curPodSync.get() + 1, numPodSync.get()));
+                                              getString(R.string.refreshing_feed_x_of_y),
+                                              curPodSync.get() + 1, numPodSync.get()));
             }
         } else {
             progressDialog.setMessage(getString(R.string.refreshing_feed_list));
@@ -385,8 +385,8 @@ public class MainActivity extends FragmentActivity
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
     private static final class PodcastHandler
-            extends ReliableResultHandler<MainActivity>
-            implements NoDataResultHandler<MainActivity> {
+        extends ReliableResultHandler<MainActivity>
+        implements NoDataResultHandler<MainActivity> {
 
         /**
          * Once the Podcast list is synchronized, update all feeds.
@@ -412,10 +412,10 @@ public class MainActivity extends FragmentActivity
                         public void run() {
                             if (showDialog) {
                                 getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished),
-                                        RefreshDoneNotification.DIALOG);
+                                                       RefreshDoneNotification.DIALOG);
                             } else {
                                 getRcv().onRefreshDone(getRcv().getString(
-                                        R.string.refresh_successful));
+                                                           R.string.refresh_successful));
                             }
                         }
                     });
@@ -436,15 +436,15 @@ public class MainActivity extends FragmentActivity
                 @Override
                 public void run() {
                     getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
-                            + errString);
+                                           + errString);
                 }
             });
         }
     };
 
     private static class EpisodeActionHandler
-            extends ReliableResultHandler<MainActivity>
-            implements NoDataResultHandler<MainActivity> {
+        extends ReliableResultHandler<MainActivity>
+        implements NoDataResultHandler<MainActivity> {
 
         @Override
         public void handleFailure(int errCode, final String errStr) {
@@ -452,7 +452,7 @@ public class MainActivity extends FragmentActivity
                 @Override
                 public void run() {
                     getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
-                            + errStr);
+                                           + errStr);
                 }
             });
         }
@@ -464,9 +464,9 @@ public class MainActivity extends FragmentActivity
                 public void run() {
                     if (getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false)) {
                         getRcv().onRefreshDone(
-                                getRcv().getString(R.string.setup_finished),
-                                RefreshDoneNotification.DIALOG
-                                );
+                            getRcv().getString(R.string.setup_finished),
+                            RefreshDoneNotification.DIALOG
+                        );
                     } else {
                         getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
                     }
@@ -479,31 +479,31 @@ public class MainActivity extends FragmentActivity
      * The Handler for receiving PullFeedAsyncTask's results.
      */
     private static final class FeedHandler
-            extends ReliableResultHandler<MainActivity>
-            implements NoDataResultHandler<MainActivity> {
+        extends ReliableResultHandler<MainActivity>
+        implements NoDataResultHandler<MainActivity> {
 
         @Override
         public void handleSuccess() {
             getRcv().runOnUiThread(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            checkDone();
-                        }
-                    });
+            new Runnable() {
+                @Override
+                public void run() {
+                    checkDone();
+                }
+            });
         }
 
         @Override
         public void handleFailure(int errCode, final String errString) {
             getRcv().runOnUiThread(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getRcv(), errString, REFRESH_MSG_DURATION_MS).show();
+            new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getRcv(), errString, REFRESH_MSG_DURATION_MS).show();
 
-                            checkDone();
-                        }
-                    });
+                    checkDone();
+                }
+            });
         }
 
         /**
@@ -517,7 +517,7 @@ public class MainActivity extends FragmentActivity
                 if (getRcv().curPodSync.get() == getRcv().numPodSync.get()) {
 
                     final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST,
-                            false);
+                                               false);
 
                     Log.d(TAG, "r bundle: " + getBundle());
                     Log.d(TAG, "r bundle extra: " + showDialog);
@@ -550,7 +550,7 @@ public class MainActivity extends FragmentActivity
     private void onRefreshPressed(Bundle pBundle) {
 
         GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
-                .getGpodderSettings(this);
+                                   .getGpodderSettings(this);
 
         if (settings.getDeviceId() == null) {
             Toast.makeText(this, R.string.set_up_account_first, Toast.LENGTH_SHORT);
@@ -599,17 +599,17 @@ public class MainActivity extends FragmentActivity
         Log.d(TAG, "notificationType: " + notificationType);
 
         switch (notificationType) {
-            case TOAST:
-            default:
-                Toast.makeText(this, msg, REFRESH_MSG_DURATION_MS).show();
-                break;
-            case DIALOG:
-                final AlertDialog.Builder b = new AlertDialog.Builder(this);
-                b.setTitle("Refresh done.");
-                b.setMessage(msg);
-                b.setPositiveButton(android.R.string.ok, null);
-                b.show();
-                break;
+        case TOAST:
+        default:
+            Toast.makeText(this, msg, REFRESH_MSG_DURATION_MS).show();
+            break;
+        case DIALOG:
+            final AlertDialog.Builder b = new AlertDialog.Builder(this);
+            b.setTitle("Refresh done.");
+            b.setMessage(msg);
+            b.setPositiveButton(android.R.string.ok, null);
+            b.show();
+            break;
         }
 
     }
@@ -628,26 +628,26 @@ public class MainActivity extends FragmentActivity
         // here.
 
         switch (mViewPager.getCurrentItem()) {
-            case SectionsPagerAdapter.POSITION_PODCASTS:
-                getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                if (numPodSync.get() != -1) {
-                    showRefreshProgressBar();
-                } else {
-                    // Hide progress bar explicitly because this also sets up
-                    // the listener.
-                    hideRefreshProgressBar();
-                }
-                break;
-            case SectionsPagerAdapter.POSITION_EPISODES:
-                getMenuInflater().inflate(R.menu.episode_menu, menu);
-                setSearchManager();
-                updateEpisodeFilterUiStatus();
-                break;
-            case SectionsPagerAdapter.POSITION_PLAYER:
-                getMenuInflater().inflate(R.menu.player_menu, menu);
-                break;
-            default:
-                return false;
+        case SectionsPagerAdapter.POSITION_PODCASTS:
+            getMenuInflater().inflate(R.menu.podcast_menu, menu);
+            if (numPodSync.get() != -1) {
+                showRefreshProgressBar();
+            } else {
+                // Hide progress bar explicitly because this also sets up
+                // the listener.
+                hideRefreshProgressBar();
+            }
+            break;
+        case SectionsPagerAdapter.POSITION_EPISODES:
+            getMenuInflater().inflate(R.menu.episode_menu, menu);
+            setSearchManager();
+            updateEpisodeFilterUiStatus();
+            break;
+        case SectionsPagerAdapter.POSITION_PLAYER:
+            getMenuInflater().inflate(R.menu.player_menu, menu);
+            break;
+        default:
+            return false;
         }
         return true;
     }
@@ -664,26 +664,26 @@ public class MainActivity extends FragmentActivity
         if (menu != null) {
             menu.clear();
             switch (tab.getPosition()) {
-                case SectionsPagerAdapter.POSITION_PODCASTS:
-                    getMenuInflater().inflate(R.menu.podcast_menu, menu);
-                    if (numPodSync.get() != -1) {
-                        showRefreshProgressBar();
-                    } else {
-                        // Hide progress bar explicitly because this also sets
-                        // up the listener.
-                        hideRefreshProgressBar();
-                    }
-                    break;
-                case SectionsPagerAdapter.POSITION_EPISODES:
-                    getMenuInflater().inflate(R.menu.episode_menu, menu);
-                    setSearchManager();
-                    updateEpisodeFilterUiStatus();
-                    break;
-                case SectionsPagerAdapter.POSITION_PLAYER:
-                    getMenuInflater().inflate(R.menu.player_menu, menu);
-                    break;
-                default:
-                    Log.wtf(TAG, "Non-existent tab selected! Please fix");
+            case SectionsPagerAdapter.POSITION_PODCASTS:
+                getMenuInflater().inflate(R.menu.podcast_menu, menu);
+                if (numPodSync.get() != -1) {
+                    showRefreshProgressBar();
+                } else {
+                    // Hide progress bar explicitly because this also sets
+                    // up the listener.
+                    hideRefreshProgressBar();
+                }
+                break;
+            case SectionsPagerAdapter.POSITION_EPISODES:
+                getMenuInflater().inflate(R.menu.episode_menu, menu);
+                setSearchManager();
+                updateEpisodeFilterUiStatus();
+                break;
+            case SectionsPagerAdapter.POSITION_PLAYER:
+                getMenuInflater().inflate(R.menu.player_menu, menu);
+                break;
+            default:
+                Log.wtf(TAG, "Non-existent tab selected! Please fix");
             }
         }
         mViewPager.setCurrentItem(tab.getPosition());
@@ -724,7 +724,7 @@ public class MainActivity extends FragmentActivity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(true);
         searchView.setOnQueryTextListener(new EpisodeSearchQueryTextListener(
-                getEpisodeListFragment()));
+                                              getEpisodeListFragment()));
     }
 
     @Override
@@ -759,14 +759,14 @@ public class MainActivity extends FragmentActivity
              */
 
             switch (i) {
-                case POSITION_PODCASTS:
-                    return new PodListFragment();
-                case POSITION_EPISODES:
-                    return new EpisodeListFragment();
-                case POSITION_PLAYER:
-                    return new PlayerFragment();
-                default:
-                    throw new IndexOutOfBoundsException();
+            case POSITION_PODCASTS:
+                return new PodListFragment();
+            case POSITION_EPISODES:
+                return new EpisodeListFragment();
+            case POSITION_PLAYER:
+                return new PlayerFragment();
+            default:
+                throw new IndexOutOfBoundsException();
             }
         }
 
@@ -778,14 +778,14 @@ public class MainActivity extends FragmentActivity
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-                case POSITION_PODCASTS:
-                    return getString(R.string.podcasts).toUpperCase(Locale.getDefault());
-                case POSITION_EPISODES:
-                    return getString(R.string.episodes).toUpperCase(Locale.getDefault());
-                case POSITION_PLAYER:
-                    return getString(R.string.player).toUpperCase(Locale.getDefault());
-                default:
-                    return null;
+            case POSITION_PODCASTS:
+                return getString(R.string.podcasts).toUpperCase(Locale.getDefault());
+            case POSITION_EPISODES:
+                return getString(R.string.episodes).toUpperCase(Locale.getDefault());
+            case POSITION_PLAYER:
+                return getString(R.string.player).toUpperCase(Locale.getDefault());
+            default:
+                return null;
             }
         }
     }
@@ -795,36 +795,36 @@ public class MainActivity extends FragmentActivity
         Intent intent;
 
         switch (item.getItemId()) {
-            case R.id.licenses:
-                intent = new Intent(this, LicensesActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.settings:
-                intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.playlist:
-                intent = new Intent(this, PlaylistActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.refresh:
-                onRefreshPressed();
-                break;
-            case R.id.add_new_podcast:
-                intent = new Intent(this, AddPodcastActivity.class);
-                startActivityForResult(intent, PODCAST_ADD_REQUEST_CODE);
-                break;
-            case R.id.menu_show_only_new_episodes:
-                item.setChecked(!item.isChecked());
-                getEpisodeListFragment().setReadFilter(item.isChecked());
-                // getEpisodeListFragment().set
-                break;
-            case R.id.sort:
-                android.support.v4.app.DialogFragment dialog = new EpisodeListSortDialogFragment();
-                dialog.show(getSupportFragmentManager(), "EpisodeListSortDialogFragment");
-                break;
-            default:
-                break;
+        case R.id.licenses:
+            intent = new Intent(this, LicensesActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.settings:
+            intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.playlist:
+            intent = new Intent(this, PlaylistActivity.class);
+            startActivity(intent);
+            break;
+        case R.id.refresh:
+            onRefreshPressed();
+            break;
+        case R.id.add_new_podcast:
+            intent = new Intent(this, AddPodcastActivity.class);
+            startActivityForResult(intent, PODCAST_ADD_REQUEST_CODE);
+            break;
+        case R.id.menu_show_only_new_episodes:
+            item.setChecked(!item.isChecked());
+            getEpisodeListFragment().setReadFilter(item.isChecked());
+            // getEpisodeListFragment().set
+            break;
+        case R.id.sort:
+            android.support.v4.app.DialogFragment dialog = new EpisodeListSortDialogFragment();
+            dialog.show(getSupportFragmentManager(), "EpisodeListSortDialogFragment");
+            break;
+        default:
+            break;
         }
         return true;
     }
@@ -845,14 +845,14 @@ public class MainActivity extends FragmentActivity
     private EpisodeListFragment getEpisodeListFragment() {
         FragmentManager manager = getSupportFragmentManager();
         String tag = String.format("android:switcher:%d:%d", R.id.pager,
-                SectionsPagerAdapter.POSITION_EPISODES);
+                                   SectionsPagerAdapter.POSITION_EPISODES);
         return (EpisodeListFragment) manager.findFragmentByTag(tag);
     }
 
     private PlayerFragment getPlayerFragment() {
         FragmentManager manager = getSupportFragmentManager();
         String tag = String.format("android:switcher:%d:%d", R.id.pager,
-                SectionsPagerAdapter.POSITION_PLAYER);
+                                   SectionsPagerAdapter.POSITION_PLAYER);
         return (PlayerFragment) manager.findFragmentByTag(tag);
     }
 
@@ -887,14 +887,14 @@ public class MainActivity extends FragmentActivity
         }
 
         Toast.makeText(
-                this,
-                String.format(
-                        getText(text).toString(),
-                        episode.getTitle(),
-                        Toast.LENGTH_SHORT
-                        ),
+            this,
+            String.format(
+                getText(text).toString(),
+                episode.getTitle(),
                 Toast.LENGTH_SHORT
-         ).show();
+            ),
+            Toast.LENGTH_SHORT
+        ).show();
     }
 
     public void onMarkReadUnreadClick(View v) {
@@ -918,10 +918,10 @@ public class MainActivity extends FragmentActivity
         Toast.makeText(
             this,
             String.format(
-                    getText(text).toString(),
-                    episode.getTitle(),
-                    Toast.LENGTH_SHORT
-                    ),
+                getText(text).toString(),
+                episode.getTitle(),
+                Toast.LENGTH_SHORT
+            ),
             Toast.LENGTH_SHORT
         ).show();
 
@@ -951,7 +951,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
-            Intent data) {
+                                    Intent data) {
 
         Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
 
@@ -973,9 +973,9 @@ public class MainActivity extends FragmentActivity
             } else {
                 if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
                     Toast.makeText(
-                            this, getString(R.string.you_can_refresh_your_podcasts_later),
-                            Toast.LENGTH_LONG
-                            ).show();
+                        this, getString(R.string.you_can_refresh_your_podcasts_later),
+                        Toast.LENGTH_LONG
+                    ).show();
                 }
             }
         }

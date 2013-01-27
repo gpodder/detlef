@@ -139,7 +139,7 @@ public interface EpisodeDAO {
      * @return A cached list of episodes that match the description.
      */
     List<Episode> getEpisodesWhere(String selection,
-            String[] selectionArgs);
+                                   String[] selectionArgs);
 
     void addEpisodeChangedListener(EpisodeDAO.OnEpisodeChangeListener listener);
 

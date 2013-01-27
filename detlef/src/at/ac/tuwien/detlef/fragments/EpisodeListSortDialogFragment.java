@@ -50,7 +50,7 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
      */
     public interface NoticeDialogListener {
         void onEpisodeSortDialogPositiveClick(DialogFragment dialog, boolean ascending,
-                EpisodeSortChoice choice);
+                                              EpisodeSortChoice choice);
 
         void onEpisodeSortDialogNegativeClick(DialogFragment dialog);
     }
@@ -58,7 +58,7 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         settings = DependencyAssistant.getDependencyAssistant().
-                getGpodderSettings(getActivity());
+                   getGpodderSettings(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialoglayout = inflater.inflate(R.layout.episode_sort_dialog_fragment, null);
 
@@ -79,7 +79,7 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(dialoglayout);
         builder.setPositiveButton(R.string.button_ok, new
-                DialogInterface.OnClickListener() {
+        DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 // ok
@@ -99,12 +99,12 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
                 .writeSettings(settings);
 
                 mListener.onEpisodeSortDialogPositiveClick(
-                        EpisodeListSortDialogFragment.this,
-                        rbAscending.isChecked(), choice);
+                    EpisodeListSortDialogFragment.this,
+                    rbAscending.isChecked(), choice);
             }
         })
         .setNegativeButton(R.string.button_cancel, new
-                DialogInterface.OnClickListener() {
+        DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 // cancel
@@ -130,7 +130,7 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
+                                         + " must implement NoticeDialogListener");
         }
     }
 

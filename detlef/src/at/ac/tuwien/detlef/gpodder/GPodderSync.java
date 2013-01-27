@@ -57,7 +57,7 @@ public class GPodderSync {
     private int nextReqCode;
 
     /** Maps request codes to handlers. */
-    private final SparseArray<ResultHandler<?>> reqs;
+    private final SparseArray < ResultHandler<? >> reqs;
 
     /** Pauses while the service is being bound. */
     private final Semaphore stoplight;
@@ -86,12 +86,12 @@ public class GPodderSync {
         syncResponder = sr;
         syncResponder.setGpoSync(this);
         nextReqCode = 0;
-        reqs = new SparseArray<ResultHandler<?>>();
+        reqs = new SparseArray < ResultHandler<? >> ();
         stoplight = new Semaphore(1);
         clientInfo = new GpoNetClientInfo();
         clientInfo.setHostname(
-                DependencyAssistant.getDependencyAssistant().getGpodderSettings().getApiHostname()
-                );
+            DependencyAssistant.getDependencyAssistant().getGpodderSettings().getApiHostname()
+        );
         requestDispatcher = Executors.newSingleThreadExecutor();
     }
 
@@ -202,7 +202,7 @@ public class GPodderSync {
                     iface.httpDownload(syncResponder, reqCode, url);
                 } catch (RemoteException rex) {
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                                          rex.toString());
                     iface = null;
                     return;
                 }
@@ -225,7 +225,7 @@ public class GPodderSync {
      * @param handler A handler for callbacks.
      */
     public void addHttpDownloadToFileJob(final String url, final String localfn,
-            final NoDataResultHandler<?> handler) {
+                                         final NoDataResultHandler<?> handler) {
         Log.d(TAG, "addHttpDownloadToFileJob");
 
         requestDispatcher.execute(new Runnable() {
@@ -238,7 +238,7 @@ public class GPodderSync {
                     iface.httpDownloadToFile(syncResponder, reqCode, url, localfn);
                 } catch (RemoteException rex) {
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                                          rex.toString());
                     iface = null;
                     return;
                 }
@@ -260,7 +260,7 @@ public class GPodderSync {
      * @param handler A handler for callbacks.
      */
     public void addAuthCheckJob(String authUsername, String authPassword,
-            final NoDataResultHandler<?> handler) {
+                                final NoDataResultHandler<?> handler) {
         Log.d(TAG, "addAuthCheckJob");
 
         final GpoNetClientInfo tempClientInfo = new GpoNetClientInfo();
@@ -278,9 +278,9 @@ public class GPodderSync {
                     iface.authCheck(syncResponder, reqCode, tempClientInfo);
                 } catch (RemoteException rex) {
                     handler.handleFailure(
-                            PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString()
-                            );
+                        PodderService.ErrorCode.SENDING_REQUEST_FAILED,
+                        rex.toString()
+                    );
                     iface = null;
                     return;
                 }
@@ -309,7 +309,7 @@ public class GPodderSync {
                     iface.downloadPodcastList(syncResponder, reqCode, clientInfo);
                 } catch (RemoteException rex) {
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                                          rex.toString());
                     iface = null;
                     return;
                 }
@@ -325,7 +325,7 @@ public class GPodderSync {
      * @param query The search query.
      */
     public void addSearchPodcastsJob(final PodcastListResultHandler<?> handler,
-            final String query) {
+                                     final String query) {
         Log.d(TAG, "addSearchPodcastsJob");
 
         requestDispatcher.execute(new Runnable() {
@@ -339,7 +339,7 @@ public class GPodderSync {
                     appendReq(reqCode, handler);
                 } catch (RemoteException rex) {
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                                          rex.toString());
                     iface = null;
                 }
             }
@@ -360,7 +360,7 @@ public class GPodderSync {
                     appendReq(reqCode, handler);
                 } catch (RemoteException rex) {
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                                          rex.toString());
                     iface = null;
                 }
             }
@@ -381,7 +381,7 @@ public class GPodderSync {
                     appendReq(reqCode, handler);
                 } catch (RemoteException rex) {
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                                          rex.toString());
                     iface = null;
                 }
             }
@@ -395,7 +395,7 @@ public class GPodderSync {
      * @param changes The changes to submit to the service.
      */
     public void addUpdateSubscriptionsJob(final PushSubscriptionChangesResultHandler<?> handler,
-            final EnhancedSubscriptionChanges changes) {
+                                          final EnhancedSubscriptionChanges changes) {
         Log.d(TAG, "addUpdateSubscriptionsJob");
 
         requestDispatcher.execute(new Runnable() {
@@ -409,7 +409,7 @@ public class GPodderSync {
                     appendReq(reqCode, handler);
                 } catch (RemoteException rex) {
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.toString());
+                                          rex.toString());
                     iface = null;
                 }
             }
@@ -422,7 +422,7 @@ public class GPodderSync {
      * @param url The url to get the podcast info from.
      */
     public void addGetPodcastInfoJob(final PodcastResultHandler<?> handler,
-            final List<String> urls) {
+                                     final List<String> urls) {
         Log.d(TAG, "addGetPodcastInfoJob");
 
         requestDispatcher.execute(new Runnable() {
@@ -437,7 +437,7 @@ public class GPodderSync {
                 } catch (RemoteException rex) {
                     Log.d(TAG, "getPodcastInfo failure");
                     handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                            rex.getMessage());
+                                          rex.getMessage());
                     iface = null;
                 }
             }

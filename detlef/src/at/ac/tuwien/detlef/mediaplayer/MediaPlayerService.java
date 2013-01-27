@@ -48,9 +48,9 @@ import at.ac.tuwien.detlef.domain.Episode.StorageState;
  * @author johannes
  */
 public class MediaPlayerService extends Service implements IMediaPlayerService,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener, PlaylistDAO.OnPlaylistChangeListener,
-        EpisodeDAO.OnEpisodeChangeListener, OnBufferingUpdateListener {
+    MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
+    MediaPlayer.OnCompletionListener, PlaylistDAO.OnPlaylistChangeListener,
+    EpisodeDAO.OnEpisodeChangeListener, OnBufferingUpdateListener {
 
     private static final double HUNDRED_PERCENT = 100.0d;
 
@@ -101,24 +101,24 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
-                case TelephonyManager.CALL_STATE_RINGING:
-                    if (isCurrentlyPlaying()) {
-                        wasPlayingBeforeCall = true;
-                        pausePlaying();
-                    } else {
-                        wasPlayingBeforeCall = false;
-                    }
-                    break;
-                case TelephonyManager.CALL_STATE_OFFHOOK:
-                    break;
-                case TelephonyManager.CALL_STATE_IDLE:
-                    if (wasPlayingBeforeCall) {
-                        startPlaying();
-                        wasPlayingBeforeCall = false;
-                    }
-                    break;
-                default:
-                    Log.d(getClass().getName(), "Unknown call state: " + state);
+            case TelephonyManager.CALL_STATE_RINGING:
+                if (isCurrentlyPlaying()) {
+                    wasPlayingBeforeCall = true;
+                    pausePlaying();
+                } else {
+                    wasPlayingBeforeCall = false;
+                }
+                break;
+            case TelephonyManager.CALL_STATE_OFFHOOK:
+                break;
+            case TelephonyManager.CALL_STATE_IDLE:
+                if (wasPlayingBeforeCall) {
+                    startPlaying();
+                    wasPlayingBeforeCall = false;
+                }
+                break;
+            default:
+                Log.d(getClass().getName(), "Unknown call state: " + state);
             }
         }
     };
@@ -135,7 +135,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             nextEpisode = playlistItems.get(0);
         }
         telManager = (TelephonyManager) Detlef.getAppContext().getSystemService(
-                Context.TELEPHONY_SERVICE);
+                         Context.TELEPHONY_SERVICE);
         telManager.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
@@ -211,8 +211,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.e(getClass().getCanonicalName(),
-                "Error while playing media! What: " + what + ", extra: "
-                        + extra);
+              "Error while playing media! What: " + what + ", extra: "
+              + extra);
         mediaPlayerPrepared = false;
         mp.reset();
         haveRunningEpisode = false;
@@ -303,41 +303,41 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
          */
 
         switch (command) {
-            case EXTRA_PREVIOUS:
-                rewind();
+        case EXTRA_PREVIOUS:
+            rewind();
 
-                if ((getNextEpisode() == activeEpisode) || !isCurrentlyPlaying()) {
-                    return;
-                }
+            if ((getNextEpisode() == activeEpisode) || !isCurrentlyPlaying()) {
+                return;
+            }
 
+            pausePlaying();
+            startPlaying();
+            break;
+        case EXTRA_PLAY_PAUSE:
+            if (isCurrentlyPlaying()) {
                 pausePlaying();
+            } else {
                 startPlaying();
-                break;
-            case EXTRA_PLAY_PAUSE:
-                if (isCurrentlyPlaying()) {
-                    pausePlaying();
-                } else {
-                    startPlaying();
-                }
-                break;
-            case EXTRA_NEXT:
-                fastForward();
+            }
+            break;
+        case EXTRA_NEXT:
+            fastForward();
 
-                if ((getNextEpisode() == activeEpisode) || !isCurrentlyPlaying()) {
-                    return;
-                }
+            if ((getNextEpisode() == activeEpisode) || !isCurrentlyPlaying()) {
+                return;
+            }
 
-                pausePlaying();
-                startPlaying();
-                break;
-            case EXTRA_CLOSE_NOTIFICATION:
-                mediaPlayer.reset();
-                haveRunningEpisode = false;
-                MediaPlayerNotification.cancel(this);
-                break;
-            default:
-                Log.w(TAG, String.format("Invalid incomind media control intent: %d", command));
-                break;
+            pausePlaying();
+            startPlaying();
+            break;
+        case EXTRA_CLOSE_NOTIFICATION:
+            mediaPlayer.reset();
+            haveRunningEpisode = false;
+            MediaPlayerNotification.cancel(this);
+            break;
+        default:
+            Log.w(TAG, String.format("Invalid incomind media control intent: %d", command));
+            break;
         }
     }
 
@@ -414,7 +414,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         updateEpisodePlayState();
         if (position >= playlistItems.size()) {
             Log.e(getClass().getName(), "Wrong playlist index: " + position + ", current size: "
-                    + playlistItems.size());
+                  + playlistItems.size());
             return this;
         }
         Log.d(getClass().getName(), "Skipping to position " + position);
@@ -436,7 +436,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         File f = new File(ep.getFilePath());
         if (!f.exists() || !f.isFile() || !f.canRead()) {
             Log.d(getClass().getName(), "Episode " + ep.getGuid() + " has an invalid file path: "
-                    + f.getAbsolutePath());
+                  + f.getAbsolutePath());
             return false;
         }
         return true;
@@ -474,19 +474,19 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         try {
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer
-                    .setDataSource(getApplicationContext(), getActiveUri());
+            .setDataSource(getApplicationContext(), getActiveUri());
             mediaPlayer.prepareAsync(); // prepare async to not block main
             // thread
         } catch (IllegalStateException e) {
             Log.e(getClass().getCanonicalName(),
-                    "Media Player startup failed!", e);
+                  "Media Player startup failed!", e);
             haveRunningEpisode = false;
             setCurrentlyPlaying(false);
             mediaPlayerPrepared = false;
             mediaPlayer.reset();
         } catch (IOException e) {
             Log.e(getClass().getCanonicalName(),
-                    "Media Player startup failed!", e);
+                  "Media Player startup failed!", e);
             haveRunningEpisode = false;
             setCurrentlyPlaying(false);
             mediaPlayerPrepared = false;
@@ -524,7 +524,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         playlistItems.add(position, episode);
         if (position <= currentPlaylistPosition) {
             currentPlaylistPosition = Math.min(currentPlaylistPosition + 1,
-                    playlistItems.size() - 1);
+                                               playlistItems.size() - 1);
         }
     }
 
@@ -536,9 +536,9 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
                 && (secondPosition >= currentPlaylistPosition)) {
             currentPlaylistPosition = Math.max(currentPlaylistPosition - 1, 0);
         } else if ((firstPosition >= currentPlaylistPosition)
-                && (secondPosition <= currentPlaylistPosition)) {
+                   && (secondPosition <= currentPlaylistPosition)) {
             currentPlaylistPosition = Math.min(currentPlaylistPosition + 1,
-                    playlistItems.size() - 1);
+                                               playlistItems.size() - 1);
         }
     }
 
@@ -621,7 +621,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
         /* Update the notification. */
         MediaPlayerNotification.create(this, currentlyPlaying,
-                (activeEpisode == null) ? null : activeEpisode.getTitle());
+                                       (activeEpisode == null) ? null : activeEpisode.getTitle());
     }
 
     @Override
@@ -629,7 +629,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         if (!mediaPlayerPrepared) {
             this.bufferState = percent;
         } else {
-            this.bufferState = (int) ((mp.getDuration() * percent) / HUNDRED_PERCENT);
+            this.bufferState = (int)((mp.getDuration() * percent) / HUNDRED_PERCENT);
         }
     }
 

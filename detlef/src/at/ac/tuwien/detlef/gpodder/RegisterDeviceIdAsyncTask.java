@@ -18,7 +18,7 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
     private final DeviceId deviceId;
 
     public RegisterDeviceIdAsyncTask(DeviceIdResultHandler<?> callback,
-            DeviceId pDeviceId) {
+                                     DeviceId pDeviceId) {
         deviceId = pDeviceId;
         this.callback = callback;
     }

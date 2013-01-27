@@ -41,15 +41,15 @@ public class SearchKeywordDb
 
     @Override
     public void search(final SearchCriteriaKeyword criteria,
-            final SearchCallback<Episode> callback) {
+                       final SearchCallback<Episode> callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String selection = String.format(
-                    "%s LIKE ? OR %s LIKE ?",
-                    DatabaseHelper.COLUMN_EPISODE_TITLE,
-                    DatabaseHelper.COLUMN_EPISODE_DESCRIPTION
-                );
+                                       "%s LIKE ? OR %s LIKE ?",
+                                       DatabaseHelper.COLUMN_EPISODE_TITLE,
+                                       DatabaseHelper.COLUMN_EPISODE_DESCRIPTION
+                                   );
                 String[] selectionArgs = {
                     String.format("%%%s%%", criteria.getKeyword()),
                     String.format("%%%s%%", criteria.getKeyword())
@@ -57,7 +57,7 @@ public class SearchKeywordDb
                 callback.getResult(edao.getEpisodesWhere(selection, selectionArgs));
             }
         }
-        ).run();
+                  ).run();
     }
 
 

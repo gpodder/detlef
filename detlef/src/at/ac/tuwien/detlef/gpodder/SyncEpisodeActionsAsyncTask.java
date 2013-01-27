@@ -58,7 +58,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
 
         /* Retrieve settings.*/
         GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
-                .getGpodderSettings(Detlef.getAppContext());
+                              .getGpodderSettings(Detlef.getAppContext());
 
         DeviceId devId = gps.getDeviceId();
         if (devId == null) {

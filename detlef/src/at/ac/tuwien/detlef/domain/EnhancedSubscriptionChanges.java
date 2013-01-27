@@ -56,8 +56,8 @@ public class EnhancedSubscriptionChanges implements Serializable, Parcelable {
      * @param remove List of IPodcasts to remove.
      * @param timestamp The timestamp of the changes.
      */
-    public EnhancedSubscriptionChanges(List<? extends IPodcast> add,
-            List<? extends IPodcast> remove, long timestamp) {
+    public EnhancedSubscriptionChanges(List <? extends IPodcast > add,
+                                       List <? extends IPodcast > remove, long timestamp) {
         this.add = new ArrayList<Podcast>(add.size());
         for (IPodcast ip : add) {
             Podcast p = new Podcast(ip);
@@ -118,19 +118,19 @@ public class EnhancedSubscriptionChanges implements Serializable, Parcelable {
     }
 
     public static final Parcelable.Creator<EnhancedSubscriptionChanges> CREATOR = new
-            Creator<EnhancedSubscriptionChanges>() {
-                @Override
-                public EnhancedSubscriptionChanges[] newArray(int size) {
-                    return new EnhancedSubscriptionChanges[size];
-                }
+    Creator<EnhancedSubscriptionChanges>() {
+        @Override
+        public EnhancedSubscriptionChanges[] newArray(int size) {
+            return new EnhancedSubscriptionChanges[size];
+        }
 
-                @Override
-                @SuppressWarnings("unchecked")
-                public EnhancedSubscriptionChanges createFromParcel(Parcel source) {
-                    List<IPodcast> a = source.readArrayList(IPodcast.class.getClassLoader());
-                    List<IPodcast> r = source.readArrayList(IPodcast.class.getClassLoader());
-                    long t = source.readLong();
-                    return new EnhancedSubscriptionChanges(a, r, t);
-                }
-            };
+        @Override
+        @SuppressWarnings("unchecked")
+        public EnhancedSubscriptionChanges createFromParcel(Parcel source) {
+            List<IPodcast> a = source.readArrayList(IPodcast.class.getClassLoader());
+            List<IPodcast> r = source.readArrayList(IPodcast.class.getClassLoader());
+            long t = source.readLong();
+            return new EnhancedSubscriptionChanges(a, r, t);
+        }
+    };
 }

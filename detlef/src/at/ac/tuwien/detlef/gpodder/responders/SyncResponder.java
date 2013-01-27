@@ -64,7 +64,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
      * @param errStr The error message returned by the service.
      */
     public abstract void handleGenericFailure(int reqId, int errCode, String errStr)
-            throws RemoteException;
+    throws RemoteException;
 
     /**
      * Handles the case that an operation that returns no data succeeded.
@@ -72,7 +72,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
      * @param reqId The request ID as passed by {@link GPodderSync}.
      */
     public abstract void handleNoDataSuccess(int reqId)
-            throws RemoteException;
+    throws RemoteException;
 
     /**
      * Starts the service and initiates a bind to it.
@@ -89,7 +89,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     @Override
     public void downloadPodcastListFailed(int reqId, int errCode, String errStr)
-            throws RemoteException {
+    throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
 
@@ -115,7 +115,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     @Override
     public void downloadChangesFailed(int reqId, int errCode, String errStr)
-            throws RemoteException {
+    throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
 
@@ -136,13 +136,13 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     @Override
     public void updateSubscriptionsFailed(int reqId, int errCode, String errStr)
-            throws RemoteException {
+    throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
 
     @Override
     public void getPodcastInfoFailed(int reqId, int errCode, String errStr)
-            throws RemoteException {
+    throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }
 }

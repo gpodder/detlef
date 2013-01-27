@@ -57,8 +57,8 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                 if (action.action.equals("play")) {
                     newActionState = ActionState.PLAY;
                     Log.i(TAG, "updating play position from: " + action.episode + " pos: "
-                            + action.position + " started:" + action.started + " total: "
-                            + action.total);
+                          + action.position + " started:" + action.started + " total: "
+                          + action.total);
                     /* Episode uses milliseconds. */
                     ep.setPlayPosition(action.position * 1000);
                     if (dao.updateStorageState(ep) != 1) {
@@ -95,7 +95,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                     }
                 } catch (Exception ex) {
                     Log.i(TAG, ("enclosure missing, " + ex.getMessage()) != null ? ex.getMessage()
-                            : ex.toString());
+                          : ex.toString());
                 }
             }
         } catch (Exception ex) {
@@ -113,18 +113,18 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
     public void toggleEpisodeReadState(Episode episode) {
         EpisodeDAO dao = EpisodeDAOImpl.i();
         switch (episode.getActionState()) {
-            case DOWNLOAD: // fall-through
-            case NEW: // fall-through
-            case PLAY:
-                episode.setActionState(ActionState.DELETE);
-                dao.updateActionState(episode);
-                break;
-            case DELETE:
-                episode.setActionState(ActionState.NEW);
-                dao.updateActionState(episode);
-                break;
-            default:
-                Log.e(TAG, "Unknown action state encountered");
+        case DOWNLOAD: // fall-through
+        case NEW: // fall-through
+        case PLAY:
+            episode.setActionState(ActionState.DELETE);
+            dao.updateActionState(episode);
+            break;
+        case DELETE:
+            episode.setActionState(ActionState.NEW);
+            dao.updateActionState(episode);
+            break;
+        default:
+            Log.e(TAG, "Unknown action state encountered");
         }
     }
 

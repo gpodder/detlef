@@ -58,11 +58,11 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
 
         // write deviceId (needed for EpisodeActionsDAO - getAllEpisodeActions)
         GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
-                .getGpodderSettings();
+                                   .getGpodderSettings();
         DeviceId devId = new DeviceId("mydevice");
         settings.setDeviceId(devId);
         DependencyAssistant.getDependencyAssistant()
-            .getGpodderSettingsDAO(mContext).writeSettings(settings);
+        .getGpodderSettingsDAO(mContext).writeSettings(settings);
 
         super.setUp();
     }

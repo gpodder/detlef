@@ -49,10 +49,10 @@ public class KeywordFilter implements EpisodeFilter {
         }
 
         String index = String.format(
-            "%s %s",
-            episode.getTitle() != null ? episode.getTitle() : "",
-            episode.getDescription() != null ? episode.getDescription() : ""
-        );
+                           "%s %s",
+                           episode.getTitle() != null ? episode.getTitle() : "",
+                           episode.getDescription() != null ? episode.getDescription() : ""
+                       );
 
         return !(index.toLowerCase().contains(keyword));
     }

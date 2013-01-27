@@ -24,7 +24,7 @@ import at.ac.tuwien.detlef.activities.MainActivity;
 import com.jayway.android.robotium.solo.Solo;
 
 public class MainActivityTest extends
-        ActivityInstrumentationTestCase2<MainActivity> {
+    ActivityInstrumentationTestCase2<MainActivity> {
 
     private Solo solo;
 
@@ -45,7 +45,7 @@ public class MainActivityTest extends
     public void testBackButtonPress() {
         solo.clickOnText("PLAYER");
         solo.goBack();
-        assertTrue("Episode tab should be displayed now!",solo.searchText("EPISODES"));
+        assertTrue("Episode tab should be displayed now!", solo.searchText("EPISODES"));
         solo.goBack();
         assertTrue("Podcasts tab should be displayed now!", solo.searchText("PODCASTS"));
     }

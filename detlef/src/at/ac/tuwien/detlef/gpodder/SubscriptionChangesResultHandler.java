@@ -37,7 +37,7 @@ public interface SubscriptionChangesResultHandler<Receiver> extends ResultHandle
         private final EnhancedSubscriptionChanges chgs;
 
         public SubscriptionChangesSuccessEvent(SubscriptionChangesResultHandler<?> cb,
-                EnhancedSubscriptionChanges chgs) {
+                                               EnhancedSubscriptionChanges chgs) {
             this.cb = cb;
             this.chgs = chgs;
         }

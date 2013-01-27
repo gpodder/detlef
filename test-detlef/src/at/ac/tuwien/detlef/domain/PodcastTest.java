@@ -36,13 +36,21 @@ public class PodcastTest extends TestCase {
             private String logoUrl = "http://potcast.net/pot.png";
             private String title = realTitle;
             @Override
-            public String getDescription() { return description; }
+            public String getDescription() {
+                return description;
+            }
             @Override
-            public String getLogoUrl() { return logoUrl; }
+            public String getLogoUrl() {
+                return logoUrl;
+            }
             @Override
-            public String getTitle() { return title; }
+            public String getTitle() {
+                return title;
+            }
             @Override
-            public String getUrl() { return "https://potcast.net/potfeed.xml"; }
+            public String getUrl() {
+                return "https://potcast.net/potfeed.xml";
+            }
             @Override
             public void setDescription(String description) {
                 this.description = description;

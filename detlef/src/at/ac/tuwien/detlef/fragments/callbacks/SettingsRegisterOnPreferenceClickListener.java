@@ -32,8 +32,7 @@ import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
  */
 public class SettingsRegisterOnPreferenceClickListener
     extends SettingsGpodderNetExternalListener
-    implements OnPreferenceClickListener
-{
+    implements OnPreferenceClickListener {
 
     public SettingsRegisterOnPreferenceClickListener(SettingsGpodderNet pSender) {
         super(pSender);

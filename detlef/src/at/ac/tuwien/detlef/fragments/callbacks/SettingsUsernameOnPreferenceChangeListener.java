@@ -37,8 +37,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class SettingsUsernameOnPreferenceChangeListener
     extends SettingsGpodderNetExternalListener
-    implements OnPreferenceChangeListener
-{
+    implements OnPreferenceChangeListener {
 
     public SettingsUsernameOnPreferenceChangeListener(SettingsGpodderNet pSender) {
         super(pSender);
@@ -55,13 +54,13 @@ public class SettingsUsernameOnPreferenceChangeListener
         }
 
         getSender().getActivity().runOnUiThread(
-            new Runnable() {
-                @Override
-                public void run() {
-                    getSender().setUpTestConnectionButton();
-                    getSender().setUpRegisterDeviceButton();
-                }
+        new Runnable() {
+            @Override
+            public void run() {
+                getSender().setUpTestConnectionButton();
+                getSender().setUpRegisterDeviceButton();
             }
+        }
         );
 
         return true;
@@ -69,8 +68,8 @@ public class SettingsUsernameOnPreferenceChangeListener
 
     private void deletePocasts() {
         DependencyAssistant.getDependencyAssistant()
-            .getPodcastDAO()
-            .deleteAllPodcasts();
+        .getPodcastDAO()
+        .deleteAllPodcasts();
     }
 
     private void updateSettings(String newUsername) {
@@ -78,9 +77,9 @@ public class SettingsUsernameOnPreferenceChangeListener
         .getGpodderSettingsDAO(getSender().getActivity())
         .writeSettings(
             getSettings()
-                .setUsername(newUsername)
-                .setAccountVerified(false)
-                .setDeviceId(null)
+            .setUsername(newUsername)
+            .setAccountVerified(false)
+            .setDeviceId(null)
         );
     }
 

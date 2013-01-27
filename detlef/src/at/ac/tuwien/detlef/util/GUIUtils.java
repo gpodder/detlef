@@ -51,10 +51,10 @@ public class GUIUtils {
                 public void run() {
                     activity.getApplicationContext();
                     Toast.makeText(
-                            activity.getApplicationContext(),
-                            message,
-                            Toast.LENGTH_SHORT
-                            ).show();
+                        activity.getApplicationContext(),
+                        message,
+                        Toast.LENGTH_SHORT
+                    ).show();
                 }
             });
         } catch (Exception e) {
@@ -78,7 +78,7 @@ public class GUIUtils {
      * @return
      */
     public GUIUtils showSimpleOkDialog(final int title, final int message,
-        final OnClickListener okButtonListener, final Activity activity) {
+                                       final OnClickListener okButtonListener, final Activity activity) {
         try {
             activity.runOnUiThread(new Runnable() {
                 @Override

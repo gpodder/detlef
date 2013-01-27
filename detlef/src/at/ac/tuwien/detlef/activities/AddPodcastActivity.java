@@ -88,7 +88,7 @@ public class AddPodcastActivity extends Activity {
         mergeAdapter.addView(tv);
 
         resultAdapter = new PodcastListAdapter(this, android.R.layout.simple_list_item_1,
-                new ArrayList<Podcast>());
+                                               new ArrayList<Podcast>());
         mergeAdapter.addAdapter(resultAdapter);
 
         tv = (TextView) vi.inflate(R.layout.add_podcast_list_header, null);
@@ -104,7 +104,7 @@ public class AddPodcastActivity extends Activity {
         mergeAdapter.addView(tv);
 
         toplistAdapter = new PodcastListAdapter(this, android.R.layout.simple_list_item_1,
-                new ArrayList<Podcast>());
+                                                new ArrayList<Podcast>());
         mergeAdapter.addAdapter(toplistAdapter);
 
         ListView lv = (ListView) findViewById(R.id.result_list);
@@ -115,10 +115,10 @@ public class AddPodcastActivity extends Activity {
         String text = searchBox.getText().toString();
         if (text.startsWith("http://") || text.startsWith("https://")) {
             searchButton.setImageDrawable(getResources().getDrawable(
-                    android.R.drawable.ic_menu_add));
+                                              android.R.drawable.ic_menu_add));
         } else {
             searchButton.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_action_search));
+                                              R.drawable.ic_action_search));
         }
 
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -128,10 +128,10 @@ public class AddPodcastActivity extends Activity {
                 String text = searchBox.getText().toString();
                 if (text.startsWith("http://") || text.startsWith("https://")) {
                     searchButton.setImageDrawable(getResources().getDrawable(
-                            android.R.drawable.ic_menu_add));
+                                                      android.R.drawable.ic_menu_add));
                 } else {
                     searchButton.setImageDrawable(getResources().getDrawable(
-                            R.drawable.ic_action_search));
+                                                      R.drawable.ic_action_search));
                 }
             }
 
@@ -208,8 +208,7 @@ public class AddPodcastActivity extends Activity {
         }
 
         resultAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SEARCH_RESULTS));
-        suggestionsAdapter
-                .addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SUGGESTIONS));
+        suggestionsAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_SUGGESTIONS));
         toplistAdapter.addAll(restorePodcastsFromBundle(savedInstanceState, BUNDLE_TOPLIST));
     }
 
@@ -240,11 +239,11 @@ public class AddPodcastActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                // call the onbackpressed functionality for
-                // refresh feed handling
-                onBackPressed();
-                return true;
+        case android.R.id.home:
+            // call the onbackpressed functionality for
+            // refresh feed handling
+            onBackPressed();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -256,7 +255,7 @@ public class AddPodcastActivity extends Activity {
 
         final TextView tv = (TextView) findViewById(R.id.search_textbox);
         InputMethodManager imm = (InputMethodManager) getSystemService(
-                Context.INPUT_METHOD_SERVICE);
+                                     Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(tv.getWindowToken(), 0);
 
         String text = tv.getText().toString();
@@ -266,8 +265,8 @@ public class AddPodcastActivity extends Activity {
             for (Podcast p : dao.getAllPodcasts()) {
                 if (p.getUrl().equals(text)) {
                     Toast.makeText(this,
-                            "This podcast is already in your podcast list!",
-                            Toast.LENGTH_LONG).show();
+                                   "This podcast is already in your podcast list!",
+                                   Toast.LENGTH_LONG).show();
                     setBusy(false);
                     return;
                 }
@@ -321,7 +320,7 @@ public class AddPodcastActivity extends Activity {
      * displays the results.
      */
     private static class SearchResultHandler extends ReliableResultHandler<AddPodcastActivity>
-            implements PodcastListResultHandler<AddPodcastActivity> {
+        implements PodcastListResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
@@ -348,15 +347,15 @@ public class AddPodcastActivity extends Activity {
                     getRcv().resultAdapter.addAll(filteredResult);
 
                     Toast.makeText(getRcv(),
-                            String.format("%d results found", filteredResult.size()),
-                            Toast.LENGTH_SHORT).show();
+                                   String.format("%d results found", filteredResult.size()),
+                                   Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
 
     private static class ToplistResultHandler extends ReliableResultHandler<AddPodcastActivity>
-            implements PodcastListResultHandler<AddPodcastActivity> {
+        implements PodcastListResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
@@ -382,7 +381,7 @@ public class AddPodcastActivity extends Activity {
     }
 
     private static class SuggestionResultHandler extends ReliableResultHandler<AddPodcastActivity>
-            implements PodcastListResultHandler<AddPodcastActivity> {
+        implements PodcastListResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, String errStr) {
@@ -408,7 +407,7 @@ public class AddPodcastActivity extends Activity {
     }
 
     private static class AddPodcastResultHandler extends ReliableResultHandler<AddPodcastActivity>
-            implements PodcastResultHandler<AddPodcastActivity> {
+        implements PodcastResultHandler<AddPodcastActivity> {
 
         @Override
         public void handleFailure(int errCode, final String url) {
@@ -416,10 +415,10 @@ public class AddPodcastActivity extends Activity {
                 @Override
                 public void run() {
                     Toast.makeText(
-                            getRcv(),
-                            "This podcast is not known to GPodder! "
-                                    + "Please add it via web gpodder.net. It will be available on your device in a few days.",
-                            Toast.LENGTH_LONG).show();
+                        getRcv(),
+                        "This podcast is not known to GPodder! "
+                        + "Please add it via web gpodder.net. It will be available on your device in a few days.",
+                        Toast.LENGTH_LONG).show();
                     getRcv().setBusy(false);
                 }
             });
@@ -434,8 +433,8 @@ public class AddPodcastActivity extends Activity {
                     for (Podcast p : dao.getAllPodcasts()) {
                         if (p.getUrl().equals(result.getUrl())) {
                             Toast.makeText(getRcv(),
-                                    "This podcast is already in your podcast list!",
-                                    Toast.LENGTH_LONG).show();
+                                           "This podcast is already in your podcast list!",
+                                           Toast.LENGTH_LONG).show();
                             getRcv().setBusy(false);
                             return;
                         }
@@ -451,7 +450,7 @@ public class AddPodcastActivity extends Activity {
                     getRcv().suggestionsAdapter.removeWithUrl(result);
                     getRcv().toplistAdapter.removeWithUrl(result);
                     Toast.makeText(getRcv(), "Add podcast from URL succeeded", Toast.LENGTH_SHORT)
-                            .show();
+                    .show();
                     podcastsAdded++;
                     getRcv().setBusy(false);
                 }
@@ -484,7 +483,7 @@ public class AddPodcastActivity extends Activity {
         private final ArrayList<Podcast> podcasts;
 
         public PodcastListAdapter(Context context, int textViewResourceId,
-                ArrayList<Podcast> objects) {
+                                  ArrayList<Podcast> objects) {
             super(context, textViewResourceId, objects);
             podcasts = objects;
         }
@@ -516,7 +515,7 @@ public class AddPodcastActivity extends Activity {
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater) this.getContext()
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.add_podcast_list_layout, null);
             }
 

@@ -40,7 +40,7 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
     private static final String TAG = EpisodeDAOImpl.class.getName();
 
     private static final EpisodeActionDAOImpl INSTANCE = new EpisodeActionDAOImpl(
-            Detlef.getAppContext());
+        Detlef.getAppContext());
 
     private final DatabaseHelper dbHelper;
 
@@ -75,11 +75,11 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
 
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_ACTION,
-                        episodeAction.getActionString());
+                           episodeAction.getActionString());
                 values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_EPISODE_ID,
-                        episodeAction.getEpisode());
+                           episodeAction.getEpisode());
                 values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_PODCAST, episodeAction.getPodcast()
-                        .getId());
+                           .getId());
 
                 db.beginTransaction();
 
@@ -92,11 +92,11 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
                     values = new ContentValues();
                     values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_ID, id);
                     values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_STARTED,
-                            episodeAction.getStarted());
+                               episodeAction.getStarted());
                     values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_POSITION,
-                            episodeAction.getPosition());
+                               episodeAction.getPosition());
                     values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_TOTAL,
-                            episodeAction.getTotal());
+                               episodeAction.getTotal());
 
                     if (db.insert(DatabaseHelper.TABLE_EPISODE_PLAY_ACTION, null, values) == -1) {
                         throw new SQLiteException("Episode play action insert failed");
@@ -147,7 +147,7 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor c = db.rawQuery(QUERY_ALL_EPISODE_ACTIONS, null);
             DeviceId devId =
-                    DependencyAssistant.getDependencyAssistant().getGpodderSettings().getDeviceId();
+                DependencyAssistant.getDependencyAssistant().getGpodderSettings().getDeviceId();
             if (devId == null) {
                 return episodeActions;
             }
@@ -155,24 +155,24 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
             if (c.moveToFirst()) {
                 do {
                     RemoteEpisodeAction a = new RemoteEpisodeAction(
-                            c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ACTION_ID)),
-                            c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_URL)),
-                            c.getString(c.getColumnIndex(
-                                    DatabaseHelper.COLUMN_EPISODE_ACTION_EPISODE_ID)),
-                            c.getString(c.getColumnIndex(
-                                    DatabaseHelper.COLUMN_EPISODE_ACTION_ACTION)),
-                            devId.toString(),
-                            c.getString(c.getColumnIndex(
-                                    DatabaseHelper.COLUMN_EPISODE_ACTION_TIMESTAMP)),
-                            null, null, null);
+                        c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ACTION_ID)),
+                        c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_URL)),
+                        c.getString(c.getColumnIndex(
+                                        DatabaseHelper.COLUMN_EPISODE_ACTION_EPISODE_ID)),
+                        c.getString(c.getColumnIndex(
+                                        DatabaseHelper.COLUMN_EPISODE_ACTION_ACTION)),
+                        devId.toString(),
+                        c.getString(c.getColumnIndex(
+                                        DatabaseHelper.COLUMN_EPISODE_ACTION_TIMESTAMP)),
+                        null, null, null);
 
                     if (a.action.equals(Episode.ActionState.PLAY.toString().toLowerCase())) {
                         a.started = c.getInt(c.getColumnIndex(
-                            DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_STARTED));
+                                                 DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_STARTED));
                         a.position = c.getInt(c.getColumnIndex(
-                            DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_POSITION));
+                                                  DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_POSITION));
                         a.total = c.getInt(c.getColumnIndex(
-                            DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_TOTAL));
+                                               DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_TOTAL));
                     }
 
                     episodeActions.add(a);
@@ -196,7 +196,7 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
 
                 for (RemoteEpisodeAction a : episodeActions) {
                     String[] selectionArgs = {
-                            String.valueOf(a.getId())
+                        String.valueOf(a.getId())
                     };
 
                     db.delete(DatabaseHelper.TABLE_EPISODE_ACTION, selection, selectionArgs);

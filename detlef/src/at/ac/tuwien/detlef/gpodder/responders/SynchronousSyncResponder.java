@@ -82,7 +82,7 @@ public class SynchronousSyncResponder extends SyncResponder {
     @Override
     public void httpDownloadSucceeded(int reqId, ParcelableByteArray data) throws RemoteException {
         final HttpDownloadResultHandler<?> hdrh =
-                (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
+            (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
         hdrh.sendEvent(new HttpDownloadResultHandler.HttpSuccessEvent(hdrh, data.getArray()));
         getGps().removeReq(reqId);
         stoplight.release();
@@ -90,11 +90,11 @@ public class SynchronousSyncResponder extends SyncResponder {
 
     @Override
     public void httpDownloadProgress(int reqId, int haveBytes, int totalBytes)
-            throws RemoteException {
+    throws RemoteException {
         final HttpDownloadResultHandler<?> hdrh =
-                (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
+            (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
         hdrh.sendEvent(new HttpDownloadResultHandler.HttpProgressEvent(hdrh, haveBytes,
-                totalBytes));
+                       totalBytes));
         // don't remove request yet
         stoplight.release();
     }
@@ -106,9 +106,9 @@ public class SynchronousSyncResponder extends SyncResponder {
 
     @Override
     public void downloadPodcastListSucceeded(int reqId, List<String> podcasts)
-            throws RemoteException {
+    throws RemoteException {
         final StringListResultHandler<?> slrh =
-                (StringListResultHandler<?>) getGps().getReq(reqId);
+            (StringListResultHandler<?>) getGps().getReq(reqId);
         slrh.sendEvent(new StringListResultHandler.StringListSuccessEvent(slrh, podcasts));
         getGps().removeReq(reqId);
         stoplight.release();
@@ -132,11 +132,11 @@ public class SynchronousSyncResponder extends SyncResponder {
 
     @Override
     public void downloadChangesSucceeded(int reqId, final EnhancedSubscriptionChanges chgs)
-            throws RemoteException {
+    throws RemoteException {
         final SubscriptionChangesResultHandler<?> scrh =
-                (SubscriptionChangesResultHandler<?>) getGps().getReq(reqId);
+            (SubscriptionChangesResultHandler<?>) getGps().getReq(reqId);
         scrh.sendEvent(new SubscriptionChangesResultHandler.SubscriptionChangesSuccessEvent(scrh,
-                chgs));
+                       chgs));
         getGps().removeReq(reqId);
         stoplight.release();
     }
@@ -144,7 +144,7 @@ public class SynchronousSyncResponder extends SyncResponder {
     @Override
     public void searchPodcastsSucceeded(int reqId, List<Podcast> results) throws RemoteException {
         final PodcastListResultHandler<?> plrh =
-                (PodcastListResultHandler<?>) getGps().getReq(reqId);
+            (PodcastListResultHandler<?>) getGps().getReq(reqId);
         plrh.sendEvent(new PodcastListResultHandler.PodcastListSuccessEvent(plrh, results));
         getGps().removeReq(reqId);
         stoplight.release();
@@ -153,7 +153,7 @@ public class SynchronousSyncResponder extends SyncResponder {
     @Override
     public void getToplistSucceeded(int reqId, List<Podcast> results) throws RemoteException {
         final PodcastListResultHandler<?> plrh =
-                (PodcastListResultHandler<?>) getGps().getReq(reqId);
+            (PodcastListResultHandler<?>) getGps().getReq(reqId);
         plrh.sendEvent(new PodcastListResultHandler.PodcastListSuccessEvent(plrh, results));
         getGps().removeReq(reqId);
         stoplight.release();
@@ -162,7 +162,7 @@ public class SynchronousSyncResponder extends SyncResponder {
     @Override
     public void getSuggestionsSucceeded(int reqId, List<Podcast> results) throws RemoteException {
         final PodcastListResultHandler<?> plrh =
-                (PodcastListResultHandler<?>) getGps().getReq(reqId);
+            (PodcastListResultHandler<?>) getGps().getReq(reqId);
         plrh.sendEvent(new PodcastListResultHandler.PodcastListSuccessEvent(plrh, results));
         getGps().removeReq(reqId);
         stoplight.release();
@@ -171,9 +171,9 @@ public class SynchronousSyncResponder extends SyncResponder {
     @Override
     public void updateSubscriptionsSucceeded(int reqId, long timestamp) throws RemoteException {
         final PushSubscriptionChangesResultHandler<?> pscrh =
-                (PushSubscriptionChangesResultHandler<?>) getGps().getReq(reqId);
+            (PushSubscriptionChangesResultHandler<?>) getGps().getReq(reqId);
         pscrh.sendEvent(new PushSubscriptionChangesResultHandler
-                .PushSubscriptionChangesSuccessEvent(pscrh, timestamp, null));
+                        .PushSubscriptionChangesSuccessEvent(pscrh, timestamp, null));
         getGps().removeReq(reqId);
         stoplight.release();
     }
@@ -181,7 +181,7 @@ public class SynchronousSyncResponder extends SyncResponder {
     @Override
     public void getPodcastInfoSucceeded(int reqId, Podcast result) throws RemoteException {
         final PodcastResultHandler<?> prh =
-                (PodcastResultHandler<?>) getGps().getReq(reqId);
+            (PodcastResultHandler<?>) getGps().getReq(reqId);
         prh.sendEvent(new PodcastResultHandler.PodcastInfoSuccessEvent(prh, result));
         getGps().removeReq(reqId);
         stoplight.release();

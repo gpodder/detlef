@@ -124,7 +124,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void httpDownloadSucceeded(final int reqId, final ParcelableByteArray data)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -157,7 +157,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void httpDownloadFailed(final int reqId, final int errCode, final String errStr)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -174,7 +174,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void httpDownloadProgress(final int reqId, final int haveBytes, final int totalBytes)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -223,7 +223,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void gponetLoginFailed(final int reqId, final int errCode, final String errStr)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -240,7 +240,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void downloadPodcastListSucceeded(final int reqId, final List<String> podcasts)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -257,7 +257,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void downloadPodcastListFailed(final int reqId, final int errCode, final String errStr)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -274,7 +274,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void downloadChangesSucceeded(final int reqId, final EnhancedSubscriptionChanges chgs)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -291,7 +291,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void downloadChangesFailed(final int reqId, final int errCode, final String errStr)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -308,7 +308,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void searchPodcastsSucceeded(final int reqId, final List<Podcast> results)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -325,7 +325,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void searchPodcastsFailed(final int reqId, final int errCode, final String errStr)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -343,7 +343,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void getToplistSucceeded(final int reqId, final List<Podcast> results)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -360,7 +360,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void getToplistFailed(final int reqId, final int errCode, final String errStr)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -377,7 +377,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void getSuggestionsSucceeded(final int reqId, final List<Podcast> results)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -394,7 +394,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void getSuggestionsFailed(final int reqId, final int errCode, final String errStr)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -443,7 +443,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void getPodcastInfoSucceeded(final int reqId, final Podcast result)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {
@@ -460,7 +460,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     @Override
     public void getPodcastInfoFailed(final int reqId, final int errCode, final String errStr)
-            throws RemoteException {
+    throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override
             public boolean resend(PodderServiceCallback cb) {

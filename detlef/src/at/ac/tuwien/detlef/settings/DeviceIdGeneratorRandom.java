@@ -61,17 +61,17 @@ public class DeviceIdGeneratorRandom
 
         for (int i = 0; i < ID_LENGTH; i++) {
 
-            switch ((int) (Math.random() * (CASE_COUNT + 1))) {
-                case 0:
-                default:
-                    chars[i] = (char) (UPPER_OFFSET + (int) (Math.random() * CHAR_COUNT));
-                    break;
-                case 1:
-                    chars[i] = (char) (LOWER_OFFSET + (int) (Math.random() * CHAR_COUNT));
-                    break;
-                case 2:
-                    chars[i] = (char) (DIGIT_OFFSET + (int) (Math.random() * DIGIT_COUNT));
-                    break;
+            switch ((int)(Math.random() * (CASE_COUNT + 1))) {
+            case 0:
+            default:
+                chars[i] = (char)(UPPER_OFFSET + (int)(Math.random() * CHAR_COUNT));
+                break;
+            case 1:
+                chars[i] = (char)(LOWER_OFFSET + (int)(Math.random() * CHAR_COUNT));
+                break;
+            case 2:
+                chars[i] = (char)(DIGIT_OFFSET + (int)(Math.random() * DIGIT_COUNT));
+                break;
             }
 
 

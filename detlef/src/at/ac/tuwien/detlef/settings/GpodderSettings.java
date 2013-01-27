@@ -149,10 +149,10 @@ public class GpodderSettings {
 
     private String getDefaultDevicename() {
         return String.format(
-            "detlef%s%s",
-            getDeviceManufacturer().isEmpty() ? "" : "-",
-            getDeviceManufacturer()
-        );
+                   "detlef%s%s",
+                   getDeviceManufacturer().isEmpty() ? "" : "-",
+                   getDeviceManufacturer()
+               );
     }
 
     /**

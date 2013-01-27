@@ -104,106 +104,106 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /* Create statement for the podcast table. */
     static final String CREATE_PODCAST_TABLE =
-            String.format("create table %s ("
-                    + "%s integer primary key autoincrement, "
-                    + "%s text not null, "
-                    + "%s text not null, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s integer, "
-                    + "%s text,"
-                    + "%s integer);",
-                    TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,
-                    COLUMN_PODCAST_DESCRIPTION, COLUMN_PODCAST_LOGO_URL,
-                    COLUMN_PODCAST_LAST_UPDATE, COLUMN_PODCAST_LOGO_FILE_PATH,
-                    COLUMN_PODCAST_LOGO_FILE_DOWNLOADED);
+        String.format("create table %s ("
+                      + "%s integer primary key autoincrement, "
+                      + "%s text not null, "
+                      + "%s text not null, "
+                      + "%s text, "
+                      + "%s text, "
+                      + "%s integer, "
+                      + "%s text,"
+                      + "%s integer);",
+                      TABLE_PODCAST, COLUMN_PODCAST_ID, COLUMN_PODCAST_URL, COLUMN_PODCAST_TITLE,
+                      COLUMN_PODCAST_DESCRIPTION, COLUMN_PODCAST_LOGO_URL,
+                      COLUMN_PODCAST_LAST_UPDATE, COLUMN_PODCAST_LOGO_FILE_PATH,
+                      COLUMN_PODCAST_LOGO_FILE_DOWNLOADED);
 
     /* Create statement for the episode table. */
     static final String CREATE_EPISODE_TABLE =
-            String.format("create table %s ("
-                    + "%s integer primary key autoincrement, "
-                    + "%s text, " // guid
-                    + "%s text not null, " // title
-                    + "%s text, " // description
-                    + "%s integer, " // released
-                    + "%s text, " // link
-                    + "%s text, " // author
-                    + "%s text not null, " // url
-                    + "%s text, " // mimetype
-                    + "%s integer, " // filesize
-                    + "%s text, " // filepath
-                    + "%s text, " // state
-                    + "%s integer not null, " // podcast
-                    + "%s integer, " // playposition
-                    + "%s string, " // action state
-                    + "foreign key (%s) references %s (%s) on delete cascade);",
-                    TABLE_EPISODE, COLUMN_EPISODE_ID, COLUMN_EPISODE_GUID, COLUMN_EPISODE_TITLE,
-                    COLUMN_EPISODE_DESCRIPTION, COLUMN_EPISODE_RELEASED, COLUMN_EPISODE_LINK,
-                    COLUMN_EPISODE_AUTHOR, COLUMN_EPISODE_URL, COLUMN_EPISODE_MIMETYPE,
-                    COLUMN_EPISODE_FILESIZE, COLUMN_EPISODE_FILEPATH, COLUMN_EPISODE_STATE,
-                    COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION,
-                    COLUMN_EPISODE_ACTIONSTATE,
-                    COLUMN_EPISODE_PODCAST, TABLE_PODCAST, COLUMN_PODCAST_ID);
+        String.format("create table %s ("
+                      + "%s integer primary key autoincrement, "
+                      + "%s text, " // guid
+                      + "%s text not null, " // title
+                      + "%s text, " // description
+                      + "%s integer, " // released
+                      + "%s text, " // link
+                      + "%s text, " // author
+                      + "%s text not null, " // url
+                      + "%s text, " // mimetype
+                      + "%s integer, " // filesize
+                      + "%s text, " // filepath
+                      + "%s text, " // state
+                      + "%s integer not null, " // podcast
+                      + "%s integer, " // playposition
+                      + "%s string, " // action state
+                      + "foreign key (%s) references %s (%s) on delete cascade);",
+                      TABLE_EPISODE, COLUMN_EPISODE_ID, COLUMN_EPISODE_GUID, COLUMN_EPISODE_TITLE,
+                      COLUMN_EPISODE_DESCRIPTION, COLUMN_EPISODE_RELEASED, COLUMN_EPISODE_LINK,
+                      COLUMN_EPISODE_AUTHOR, COLUMN_EPISODE_URL, COLUMN_EPISODE_MIMETYPE,
+                      COLUMN_EPISODE_FILESIZE, COLUMN_EPISODE_FILEPATH, COLUMN_EPISODE_STATE,
+                      COLUMN_EPISODE_PODCAST, COLUMN_EPISODE_PLAYPOSITION,
+                      COLUMN_EPISODE_ACTIONSTATE,
+                      COLUMN_EPISODE_PODCAST, TABLE_PODCAST, COLUMN_PODCAST_ID);
 
     /* Create statement for the episode action table. */
     static final String CREATE_EPISODE_ACTION_TABLE =
-            String.format("create table %s ("
-                    + "%s integer primary key autoincrement, "
-                    + "%s integer, "
-                    + "%s text, "
-                    + "%s text, "
-                    + "%s text default (datetime('now')), "
-                    + "foreign key (%s) references %s (%s) on delete cascade);",
-                    TABLE_EPISODE_ACTION, COLUMN_EPISODE_ACTION_ID, COLUMN_EPISODE_ACTION_PODCAST,
-                    COLUMN_EPISODE_ACTION_EPISODE_ID, COLUMN_EPISODE_ACTION_ACTION,
-                    COLUMN_EPISODE_ACTION_TIMESTAMP, COLUMN_EPISODE_ACTION_PODCAST,
-                    TABLE_PODCAST, COLUMN_PODCAST_ID);
+        String.format("create table %s ("
+                      + "%s integer primary key autoincrement, "
+                      + "%s integer, "
+                      + "%s text, "
+                      + "%s text, "
+                      + "%s text default (datetime('now')), "
+                      + "foreign key (%s) references %s (%s) on delete cascade);",
+                      TABLE_EPISODE_ACTION, COLUMN_EPISODE_ACTION_ID, COLUMN_EPISODE_ACTION_PODCAST,
+                      COLUMN_EPISODE_ACTION_EPISODE_ID, COLUMN_EPISODE_ACTION_ACTION,
+                      COLUMN_EPISODE_ACTION_TIMESTAMP, COLUMN_EPISODE_ACTION_PODCAST,
+                      TABLE_PODCAST, COLUMN_PODCAST_ID);
 
     /* Create statement for the episode play action table. */
     static final String CREATE_EPISODE_PLAY_ACTION_TABLE =
-            String.format("create table %s ("
-                    + "%s integer primary key, "
-                    + "%s integer, "
-                    + "%s integer, "
-                    + "%s integer, "
-                    + "foreign key (%s) references %s (%s) on delete cascade);",
-                    TABLE_EPISODE_PLAY_ACTION, COLUMN_EPISODE_PLAY_ACTION_ID,
-                    COLUMN_EPISODE_PLAY_ACTION_STARTED, COLUMN_EPISODE_PLAY_ACTION_POSITION,
-                    COLUMN_EPISODE_PLAY_ACTION_TOTAL,
-                    COLUMN_EPISODE_PLAY_ACTION_ID, TABLE_EPISODE_ACTION, COLUMN_EPISODE_ACTION_ID);
+        String.format("create table %s ("
+                      + "%s integer primary key, "
+                      + "%s integer, "
+                      + "%s integer, "
+                      + "%s integer, "
+                      + "foreign key (%s) references %s (%s) on delete cascade);",
+                      TABLE_EPISODE_PLAY_ACTION, COLUMN_EPISODE_PLAY_ACTION_ID,
+                      COLUMN_EPISODE_PLAY_ACTION_STARTED, COLUMN_EPISODE_PLAY_ACTION_POSITION,
+                      COLUMN_EPISODE_PLAY_ACTION_TOTAL,
+                      COLUMN_EPISODE_PLAY_ACTION_ID, TABLE_EPISODE_ACTION, COLUMN_EPISODE_ACTION_ID);
 
     /* Create statement for the playlist table. */
     static final String CREATE_PLAYLIST_TABLE =
-            String.format("create table %s ("
-                    + "%s integer primary key autoincrement, "
-                    + "%s integer, "
-                    + "%s integer);",
-                    TABLE_PLAYLIST, COLUMN_PLAYLIST_ID, COLUMN_PLAYLIST_EPISODE,
-                    COLUMN_PLAYLIST_POSITION, COLUMN_PLAYLIST_EPISODE, TABLE_EPISODE,
-                    COLUMN_EPISODE_ID); // no foreign key! we handle this
-                                        // ourselves.
+        String.format("create table %s ("
+                      + "%s integer primary key autoincrement, "
+                      + "%s integer, "
+                      + "%s integer);",
+                      TABLE_PLAYLIST, COLUMN_PLAYLIST_ID, COLUMN_PLAYLIST_EPISODE,
+                      COLUMN_PLAYLIST_POSITION, COLUMN_PLAYLIST_EPISODE, TABLE_EPISODE,
+                      COLUMN_EPISODE_ID); // no foreign key! we handle this
+    // ourselves.
 
     /* Create statement for the Podcast local delete table. */
     static final String CREATE_PODCAST_LOCAL_DEL_TABLE =
-            String.format("create table %s ("
-                    + "%s integer primary key,"
-                    + "foreign key (%s) references %s (%s) on delete cascade);",
-                    TABLE_PODCAST_LOCAL_DEL, COLUMN_PODCAST_DEL_ID, COLUMN_PODCAST_DEL_ID,
-                    TABLE_PODCAST, COLUMN_PODCAST_ID);
+        String.format("create table %s ("
+                      + "%s integer primary key,"
+                      + "foreign key (%s) references %s (%s) on delete cascade);",
+                      TABLE_PODCAST_LOCAL_DEL, COLUMN_PODCAST_DEL_ID, COLUMN_PODCAST_DEL_ID,
+                      TABLE_PODCAST, COLUMN_PODCAST_ID);
 
     /* Create statement for the Podcast local add table. */
     static final String CREATE_PODCAST_LOCAL_ADD_TABLE =
-            String.format("create table %s ("
-                    + "%s integer primary key,"
-                    + "foreign key (%s) references %s (%s) on delete cascade);",
-                    TABLE_PODCAST_LOCAL_ADD, COLUMN_PODCAST_ADD_ID, COLUMN_PODCAST_ADD_ID,
-                    TABLE_PODCAST, COLUMN_PODCAST_ID);
+        String.format("create table %s ("
+                      + "%s integer primary key,"
+                      + "foreign key (%s) references %s (%s) on delete cascade);",
+                      TABLE_PODCAST_LOCAL_ADD, COLUMN_PODCAST_ADD_ID, COLUMN_PODCAST_ADD_ID,
+                      TABLE_PODCAST, COLUMN_PODCAST_ID);
 
     /* index on episode released column needed for sorting */
     static final String CREATE_EPISODE_RELEASED_INDEX =
-            String.format("create index %s ON %s "
-                    + "( %s DESC );",
-                    EPISODE_RELEASED_INDEX, TABLE_EPISODE, COLUMN_EPISODE_RELEASED);
+        String.format("create index %s ON %s "
+                      + "( %s DESC );",
+                      EPISODE_RELEASED_INDEX, TABLE_EPISODE, COLUMN_EPISODE_RELEASED);
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
@@ -244,12 +244,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
 
             GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
-                    .getGpodderSettings(
-                            Detlef.getAppContext());
+                                       .getGpodderSettings(
+                                           Detlef.getAppContext());
             settings.setLastUpdate(0);
             DependencyAssistant.getDependencyAssistant()
-                    .getGpodderSettingsDAO(Detlef.getAppContext())
-                    .writeSettings(settings);
+            .getGpodderSettingsDAO(Detlef.getAppContext())
+            .writeSettings(settings);
             onCreate(db);
         }
     }

@@ -32,7 +32,7 @@ public class SettingsStorage extends PreferenceFragment {
         Preference storageLocation = findPreference("storage_location");
         try {
             storageLocation.setSummary(Detlef.getAppContext()
-                .getExternalFilesDir(Environment.DIRECTORY_MUSIC).getPath());
+                                       .getExternalFilesDir(Environment.DIRECTORY_MUSIC).getPath());
         } catch (Exception ex) {
             Log.w(TAG, "cannot get music directory: " + ex.toString());
             storageLocation.setSummary("");

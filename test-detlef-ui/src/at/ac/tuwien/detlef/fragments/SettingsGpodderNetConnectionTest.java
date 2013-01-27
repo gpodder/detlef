@@ -43,7 +43,7 @@ import com.jayway.android.robotium.solo.Solo;
  * @author moe
  */
 public class SettingsGpodderNetConnectionTest extends
-ActivityInstrumentationTestCase2<SettingsActivity> {
+    ActivityInstrumentationTestCase2<SettingsActivity> {
 
     private final DependencyAssistantTestSettings dependencyAssistant = new DependencyAssistantTestSettings();
 
@@ -98,22 +98,22 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
         dependencyAssistant.connectionTestBehavior = ConnectionTestBehavior.INCORRECT;
 
         solo.clickOnText(
-                (String) getActivity().getText(R.string.test_connection)
-                );
+            (String) getActivity().getText(R.string.test_connection)
+        );
 
         Log.d(TAG, "waiting for toast...");
 
         assertTrue(
-                String.format(
-                        "Text %s should appear",
-                        getActivity().getText(R.string.connectiontest_unsuccessful).toString()
-                        ),
-                        solo.waitForText(
-                                getActivity().getText(R.string.connectiontest_unsuccessful).toString(),
-                                1,
-                                DEFAULT_TOAST_WAIT_TIME
-                                )
-                );
+            String.format(
+                "Text %s should appear",
+                getActivity().getText(R.string.connectiontest_unsuccessful).toString()
+            ),
+            solo.waitForText(
+                getActivity().getText(R.string.connectiontest_unsuccessful).toString(),
+                1,
+                DEFAULT_TOAST_WAIT_TIME
+            )
+        );
 
     }
 
@@ -126,22 +126,22 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
         dependencyAssistant.connectionTestBehavior = ConnectionTestBehavior.CONNECTIONERROR;
 
         solo.clickOnText(
-                (String) getActivity().getText(R.string.test_connection)
-                );
+            (String) getActivity().getText(R.string.test_connection)
+        );
 
         Log.d(TAG, "waiting for toast...");
 
         assertTrue(
-                String.format(
-                        "Text %s should appear",
-                        getActivity().getText(R.string.connectiontest_error).toString()
-                        ),
-                        solo.waitForText(
-                                getActivity().getText(R.string.connectiontest_error).toString(),
-                                1,
-                                DEFAULT_TOAST_WAIT_TIME
-                                )
-                );
+            String.format(
+                "Text %s should appear",
+                getActivity().getText(R.string.connectiontest_error).toString()
+            ),
+            solo.waitForText(
+                getActivity().getText(R.string.connectiontest_error).toString(),
+                1,
+                DEFAULT_TOAST_WAIT_TIME
+            )
+        );
 
     }
 
@@ -154,20 +154,20 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
         dependencyAssistant.connectionTestBehavior = ConnectionTestBehavior.CORRECT;
 
         solo.clickOnText(
-                (String) getActivity().getText(R.string.test_connection)
-                );
+            (String) getActivity().getText(R.string.test_connection)
+        );
 
         Log.d(TAG, "waiting for toast...");
 
         String expected = String.format(
-                getActivity().getText(R.string.connectiontest_successful).toString(),
-                dependencyAssistant.getGpodderSettings(getActivity()).getUsername()
-                );
+                              getActivity().getText(R.string.connectiontest_successful).toString(),
+                              dependencyAssistant.getGpodderSettings(getActivity()).getUsername()
+                          );
 
         assertTrue(
-                String.format("Text %s should appear", expected),
-                solo.waitForText(expected, 1, DEFAULT_TOAST_WAIT_TIME)
-                );
+            String.format("Text %s should appear", expected),
+            solo.waitForText(expected, 1, DEFAULT_TOAST_WAIT_TIME)
+        );
 
     }
 
@@ -182,24 +182,24 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
         dependencyAssistant.connectionTestBehavior = ConnectionTestBehavior.INCORRECT;
 
         solo.clickOnText(
-                (String) getActivity().getText(R.string.test_connection)
-                );
+            (String) getActivity().getText(R.string.test_connection)
+        );
 
         solo.sleep(500);
 
         solo.setActivityOrientation(Solo.LANDSCAPE);
 
         assertTrue(
-                String.format(
-                        "Text %s should appear",
-                        getActivity().getText(R.string.connectiontest_unsuccessful).toString()
-                        ),
-                        solo.waitForText(
-                                getActivity().getText(R.string.connectiontest_unsuccessful).toString(),
-                                1,
-                                5000
-                                )
-                );
+            String.format(
+                "Text %s should appear",
+                getActivity().getText(R.string.connectiontest_unsuccessful).toString()
+            ),
+            solo.waitForText(
+                getActivity().getText(R.string.connectiontest_unsuccessful).toString(),
+                1,
+                5000
+            )
+        );
     }
 
     @Override
@@ -213,15 +213,15 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
      * This is a modified {@link DependencyAssistant} which adjusts these two aspects:
      * <ul>
      *   <li>{@link DependencyAssistant#getConnectionTester()}: Instead of a real connection test
-     *   	this is replaced by a mock connection test, whose outcome can be defined via
-     *   	{@link DependencyAssistantTestSettings#connectionTestBehavior}. So the UI functionality
-     *   	can be tested without having to make a real connection.
+     *      this is replaced by a mock connection test, whose outcome can be defined via
+     *      {@link DependencyAssistantTestSettings#connectionTestBehavior}. So the UI functionality
+     *      can be tested without having to make a real connection.
      *   </li>
      *   <li>
-     *   	{link {@link DependencyAssistant#getGpodderSettings(Context)}: This returns a fixed
-     *   	user name and password combination, so the test can run faster because we don't have
-     *   	to enter the username and password first in order to activate the connection test
-     *   	button.
+     *      {link {@link DependencyAssistant#getGpodderSettings(Context)}: This returns a fixed
+     *      user name and password combination, so the test can run faster because we don't have
+     *      to enter the username and password first in order to activate the connection test
+     *      button.
      *   </li>
      * </ul>
      *
@@ -239,29 +239,29 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
             return new ConnectionTester() {
                 @Override
                 public void testConnection(GPodderSync gpodderSync, GpodderSettings settings,
-                        final NoDataResultHandler<?> callback) {
+                final NoDataResultHandler<?> callback) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             solo.sleep(connectionTestSleepTime);
 
                             switch (connectionTestBehavior) {
-                                case CORRECT:
-                                    callback.sendEvent(new NoDataResultHandler
-                                            .NoDataSuccessEvent(callback));
-                                    return;
-                                case INCORRECT:
-                                    callback.sendEvent(new ResultHandler.GenericFailureEvent(
-                                            callback,
-                                            PodderService.ErrorCode.AUTHENTICATION_FAILED,
-                                            "authentication failed"));
-                                    return;
-                                case CONNECTIONERROR:
-                                default:
-                                    callback.sendEvent(new ResultHandler.GenericFailureEvent(
-                                            callback,
-                                            PodderService.ErrorCode.OFFLINE,
-                                            "device is offline"));
+                            case CORRECT:
+                                callback.sendEvent(new NoDataResultHandler
+                                                   .NoDataSuccessEvent(callback));
+                                return;
+                            case INCORRECT:
+                                callback.sendEvent(new ResultHandler.GenericFailureEvent(
+                                                       callback,
+                                                       PodderService.ErrorCode.AUTHENTICATION_FAILED,
+                                                       "authentication failed"));
+                                return;
+                            case CONNECTIONERROR:
+                            default:
+                                callback.sendEvent(new ResultHandler.GenericFailureEvent(
+                                                       callback,
+                                                       PodderService.ErrorCode.OFFLINE,
+                                                       "device is offline"));
                             }
                         }
 

@@ -30,8 +30,8 @@ import at.ac.tuwien.detlef.util.GUIUtils;
  *
  */
 public class ConnectionTestCallback
-extends ReliableResultHandler<SettingsGpodderNet>
-implements NoDataResultHandler<SettingsGpodderNet> {
+    extends ReliableResultHandler<SettingsGpodderNet>
+    implements NoDataResultHandler<SettingsGpodderNet> {
 
     /**
      * Called if the provided settings are valid, i.e. the username/password
@@ -41,7 +41,7 @@ implements NoDataResultHandler<SettingsGpodderNet> {
     public void connectionIsValid() {
 
         final GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
-                .getGpodderSettings();
+                                         .getGpodderSettings();
 
         DependencyAssistant.getDependencyAssistant()
         .getGpodderSettingsDAO(getRcv().getActivity())
@@ -50,23 +50,23 @@ implements NoDataResultHandler<SettingsGpodderNet> {
         getRcv().enableNextStepButton();
 
         getRcv().getActivity().runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast(
-                                String.format(
-                                        getRcv().getText(R.string.connectiontest_successful)
-                                        .toString(),
-                                        settings.getUsername()
-                                        )
-                                );
-
-                        getRcv().dismissDialog();
-                        getRcv().setUpTestConnectionButton();
-                        getRcv().setUpRegisterDeviceButton();
-                    }
-                }
+        new Runnable() {
+            @Override
+            public void run() {
+                showToast(
+                    String.format(
+                        getRcv().getText(R.string.connectiontest_successful)
+                        .toString(),
+                        settings.getUsername()
+                    )
                 );
+
+                getRcv().dismissDialog();
+                getRcv().setUpTestConnectionButton();
+                getRcv().setUpRegisterDeviceButton();
+            }
+        }
+        );
 
     }
 
@@ -75,13 +75,13 @@ implements NoDataResultHandler<SettingsGpodderNet> {
      */
     public void connectionIsNotValid() {
         getRcv().getActivity().runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast(R.string.connectiontest_unsuccessful);
-                        getRcv().dismissDialog();
-                    }
-                });
+        new Runnable() {
+            @Override
+            public void run() {
+                showToast(R.string.connectiontest_unsuccessful);
+                getRcv().dismissDialog();
+            }
+        });
     }
 
     /**
@@ -89,13 +89,13 @@ implements NoDataResultHandler<SettingsGpodderNet> {
      */
     public void connectionFailed() {
         getRcv().getActivity().runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast(R.string.connectiontest_error);
-                        getRcv().dismissDialog();
-                    }
-                });
+        new Runnable() {
+            @Override
+            public void run() {
+                showToast(R.string.connectiontest_error);
+                getRcv().dismissDialog();
+            }
+        });
     }
 
     private void showToast(int message) {
@@ -106,21 +106,21 @@ implements NoDataResultHandler<SettingsGpodderNet> {
         GUIUtils guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
 
         guiUtils.showToast(
-                message,
-                getRcv().getActivity(),
-                ""
-                );
+            message,
+            getRcv().getActivity(),
+            ""
+        );
 
     }
 
     @Override
     public void handleFailure(int errCode, String errStr) {
         switch (errCode) {
-            case PodderService.ErrorCode.AUTHENTICATION_FAILED:
-                connectionIsNotValid();
-                break;
-            default:
-                connectionFailed();
+        case PodderService.ErrorCode.AUTHENTICATION_FAILED:
+            connectionIsNotValid();
+            break;
+        default:
+            connectionFailed();
         }
     }
 

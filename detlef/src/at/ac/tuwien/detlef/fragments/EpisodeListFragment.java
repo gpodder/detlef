@@ -58,7 +58,7 @@ import at.ac.tuwien.detlef.util.GUIUtils;
  * The {@link Fragment} that displays a list of {@link Episode Episodes}.
  */
 public class EpisodeListFragment extends ListFragment
-        implements EpisodeDAO.OnEpisodeChangeListener, PlaylistDAO.OnPlaylistChangeListener {
+    implements EpisodeDAO.OnEpisodeChangeListener, PlaylistDAO.OnPlaylistChangeListener {
 
     private static final String TAG = EpisodeListFragment.class.getName();
     private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
@@ -93,8 +93,8 @@ public class EpisodeListFragment extends ListFragment
             listener = (OnEpisodeSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(String.format("%s must implement %s",
-                    activity.toString(),
-                    OnEpisodeSelectedListener.class.getName()));
+                                         activity.toString(),
+                                         OnEpisodeSelectedListener.class.getName()));
         }
     }
 
@@ -113,8 +113,8 @@ public class EpisodeListFragment extends ListFragment
         model = new EpisodeListModel(eplist);
 
         adapter = new EpisodeListAdapter(getActivity(),
-                android.R.layout.simple_list_item_1,
-                new ArrayList<Episode>(eplist));
+                                         android.R.layout.simple_list_item_1,
+                                         new ArrayList<Episode>(eplist));
         setListAdapter(adapter);
 
         guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
@@ -146,11 +146,11 @@ public class EpisodeListFragment extends ListFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
         return inflater.inflate(R.layout.episode_fragment_layout, container,
-                false);
+                                false);
     }
 
     @Override
@@ -202,7 +202,7 @@ public class EpisodeListFragment extends ListFragment
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
+                                    ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.episode_context, menu);
@@ -323,27 +323,27 @@ public class EpisodeListFragment extends ListFragment
     public void onDownloadTrashClick(View v) {
         Episode episode = ((Episode) v.getTag());
         switch (episode.getStorageState()) {
-            case NOT_ON_DEVICE:
-                try {
-                    guiUtils.showToast(String.format("Downloading %s", episode.getTitle()),
-                            getActivity(), TAG);
-                    EpisodePersistence.download(episode);
-                } catch (IOException e) {
-                    guiUtils.showToast(getActivity().getString(R.string.cannot_download_episode),
-                            getActivity(), TAG);
-                }
-                break;
-            case DOWNLOADING:
-                guiUtils.showToast("Download aborted", getActivity(), TAG);
-                EpisodePersistence.cancelDownload(episode);
-                break;
-            case DOWNLOADED:
-                guiUtils.showToast(String.format("Deleted %s", episode.getTitle()),
-                        getActivity(), TAG);
-                EpisodePersistence.delete(episode);
-                break;
-            default:
-                Log.e(TAG, "Unknown storage state encountered");
+        case NOT_ON_DEVICE:
+            try {
+                guiUtils.showToast(String.format("Downloading %s", episode.getTitle()),
+                                   getActivity(), TAG);
+                EpisodePersistence.download(episode);
+            } catch (IOException e) {
+                guiUtils.showToast(getActivity().getString(R.string.cannot_download_episode),
+                                   getActivity(), TAG);
+            }
+            break;
+        case DOWNLOADING:
+            guiUtils.showToast("Download aborted", getActivity(), TAG);
+            EpisodePersistence.cancelDownload(episode);
+            break;
+        case DOWNLOADED:
+            guiUtils.showToast(String.format("Deleted %s", episode.getTitle()),
+                               getActivity(), TAG);
+            EpisodePersistence.delete(episode);
+            break;
+        default:
+            Log.e(TAG, "Unknown storage state encountered");
         }
     }
 
@@ -355,7 +355,7 @@ public class EpisodeListFragment extends ListFragment
     public void onMarkReadUnreadClick(View v) {
         Episode episode = ((Episode) v.getTag());
         DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
-                .toggleEpisodeReadState(episode);
+        .toggleEpisodeReadState(episode);
         adapter.notifyDataSetChanged();
     }
 
@@ -367,33 +367,33 @@ public class EpisodeListFragment extends ListFragment
      */
     public void sortEpisodeList(EpisodeSortChoice choice, final boolean ascending) {
         switch (choice) {
-            case Podcast:
-                adapter.sort(new Comparator<Episode>() {
-                    @Override
-                    public int compare(Episode e1, Episode e2) {
-                        if (ascending) {
-                            return Long.valueOf(e1.getPodcast().getId()).compareTo(
-                                    Long.valueOf(e2.getPodcast().getId()));
-                        }
-                        return Long.valueOf(e2.getPodcast().getId()).compareTo(
-                                Long.valueOf(e1.getPodcast().getId()));
+        case Podcast:
+            adapter.sort(new Comparator<Episode>() {
+                @Override
+                public int compare(Episode e1, Episode e2) {
+                    if (ascending) {
+                        return Long.valueOf(e1.getPodcast().getId()).compareTo(
+                                   Long.valueOf(e2.getPodcast().getId()));
                     }
-                });
-                break;
-            case ReleaseDate:
-                adapter.sort(new Comparator<Episode>() {
-                    @Override
-                    public int compare(Episode e1, Episode e2) {
-                        if (ascending) {
-                            return Long.valueOf(e1.getReleased()).compareTo(
-                                    Long.valueOf(e2.getReleased()));
-                        }
-                        return Long.valueOf(e2.getReleased()).compareTo(
-                                Long.valueOf(e1.getReleased()));
+                    return Long.valueOf(e2.getPodcast().getId()).compareTo(
+                               Long.valueOf(e1.getPodcast().getId()));
+                }
+            });
+            break;
+        case ReleaseDate:
+            adapter.sort(new Comparator<Episode>() {
+                @Override
+                public int compare(Episode e1, Episode e2) {
+                    if (ascending) {
+                        return Long.valueOf(e1.getReleased()).compareTo(
+                                   Long.valueOf(e2.getReleased()));
                     }
-                });
-                break;
-            default:
+                    return Long.valueOf(e2.getReleased()).compareTo(
+                               Long.valueOf(e1.getReleased()));
+                }
+            });
+            break;
+        default:
         }
         updateEpisodeList();
     }

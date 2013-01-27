@@ -32,7 +32,7 @@ import com.dragontek.mygpoclient.simple.IPodcast;
  * @author Lacky
  *
  */
-public class PodcastDBAssistantImplTest extends AndroidTestCase{
+public class PodcastDBAssistantImplTest extends AndroidTestCase {
 
 
     Podcast p1;
@@ -123,15 +123,15 @@ public class PodcastDBAssistantImplTest extends AndroidTestCase{
         List<IPodcast> remove = new ArrayList<IPodcast>();
         remove.add(toDelete1);
 
-        EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(add,remove,9999);
+        EnhancedSubscriptionChanges changes = new EnhancedSubscriptionChanges(add, remove, 9999);
         PodcastDBAssistantImpl impl = new PodcastDBAssistantImpl();
         impl.applySubscriptionChanges(this.mContext, changes);
 
         assertNull(pdao.getPodcastById(p2.getId()));
-        assertEquals(0,pdao.getPodcastByUrl("url new1").getLastUpdate());
-        assertEquals(0,pdao.getPodcastByUrl("url new2").getLastUpdate());
-        assertEquals(0,pdao.getPodcastByUrl("url new3").getLastUpdate());
-        assertEquals(p1.getId(),pdao.getPodcastById(p1.getId()).getId());
+        assertEquals(0, pdao.getPodcastByUrl("url new1").getLastUpdate());
+        assertEquals(0, pdao.getPodcastByUrl("url new2").getLastUpdate());
+        assertEquals(0, pdao.getPodcastByUrl("url new3").getLastUpdate());
+        assertEquals(p1.getId(), pdao.getPodcastById(p1.getId()).getId());
         assertEquals(p3.getId(), pdao.getPodcastById(p3.getId()).getId());
     }
 }

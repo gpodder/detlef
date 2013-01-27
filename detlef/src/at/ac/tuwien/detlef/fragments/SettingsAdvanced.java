@@ -44,19 +44,19 @@ public class SettingsAdvanced extends PreferenceFragment {
      */
     private void writeDefaultSettings() {
         DependencyAssistant.getDependencyAssistant()
-            .getGpodderSettingsDAO(getActivity())
-            .writeSettings(getSettings());
+        .getGpodderSettingsDAO(getActivity())
+        .writeSettings(getSettings());
     }
 
     private void setUpSummaryUpdateListener(Preference preference) {
         preference.setOnPreferenceChangeListener(
-            new OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    preference.setSummary((String) newValue);
-                    return true;
-                }
+        new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                preference.setSummary((String) newValue);
+                return true;
             }
+        }
         );
     }
 

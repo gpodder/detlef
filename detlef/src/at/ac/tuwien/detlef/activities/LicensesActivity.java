@@ -38,8 +38,7 @@ import android.widget.ExpandableListAdapter;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
 
-public class LicensesActivity extends ExpandableListActivity
-{
+public class LicensesActivity extends ExpandableListActivity {
     private ExpandableListAdapter adapter;
     private final List<License> licenses = new ArrayList<License>();
 
@@ -52,15 +51,15 @@ public class LicensesActivity extends ExpandableListActivity
 
         licenses.clear();
         licenses.add(new License("Detlef", "https://github.com/gpodder/detlef",
-                readRawText(R.raw.license_gpl2)));
+                                 readRawText(R.raw.license_gpl2)));
         licenses.add(new License("CWAC MergeAdapter & SackOfViewsAdapter",
-                "https://github.com/commonsguy", readRawText(R.raw.license_apache)));
+                                 "https://github.com/commonsguy", readRawText(R.raw.license_apache)));
         licenses.add(new License("google-gson", "http://code.google.com/p/google-gson/",
-                readRawText(R.raw.license_apache)));
+                                 readRawText(R.raw.license_apache)));
         licenses.add(new License("mygpoclient-java", "https://github.com/Dragontek/mygpoclient-java",
-                readRawText(R.raw.license_gpl3)));
+                                 readRawText(R.raw.license_gpl3)));
         licenses.add(new License("drag-sort-listview", "https://github.com/bauerca/drag-sort-listview",
-                readRawText(R.raw.license_apache)));
+                                 readRawText(R.raw.license_apache)));
 
         adapter = new LicensesExpandableListAdapter(this, licenses);
         setListAdapter(adapter);
@@ -74,9 +73,9 @@ public class LicensesActivity extends ExpandableListActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+        case android.R.id.home:
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -105,8 +104,12 @@ public class LicensesActivity extends ExpandableListActivity
         } catch (IOException e) {
             return null;
         } finally {
-            try { if (br != null) br.close(); } catch (IOException e) { }
-            try { if (is != null) is.close(); } catch (IOException e) { }
+            try {
+                if (br != null) br.close();
+            } catch (IOException e) { }
+            try {
+                if (is != null) is.close();
+            } catch (IOException e) { }
         }
     }
 
@@ -139,12 +142,12 @@ public class LicensesActivity extends ExpandableListActivity
 
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
-                View convertView, ViewGroup parent) {
+                                 View convertView, ViewGroup parent) {
             View v = convertView;
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)context.getSystemService(
-                        Context.LAYOUT_INFLATER_SERVICE);
+                                        Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.license_list_child_layout, null);
             }
 
@@ -178,12 +181,12 @@ public class LicensesActivity extends ExpandableListActivity
 
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
-                ViewGroup parent) {
+                                 ViewGroup parent) {
             View v = convertView;
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)context.getSystemService(
-                        Context.LAYOUT_INFLATER_SERVICE);
+                                        Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.license_list_group_layout, null);
             }
 

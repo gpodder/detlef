@@ -35,7 +35,7 @@ import com.dragontek.mygpoclient.feeds.Feed.Episode;
 import com.dragontek.mygpoclient.feeds.Feed.Episode.Enclosure;
 import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
 
-public class EpisodeDBAssistantImplTest extends AndroidTestCase{
+public class EpisodeDBAssistantImplTest extends AndroidTestCase {
 
     Podcast p1;
 
@@ -81,7 +81,7 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase{
         ep.setUrl(url);
         ep = edao.insertEpisode(ep);
 
-        EpisodeAction action = new EpisodeAction("podcastUrl343",url, "play",
+        EpisodeAction action = new EpisodeAction("podcastUrl343", url, "play",
                 "device", "timestamp", null, 34, null);
 
         List<EpisodeAction> aList = new ArrayList<EpisodeAction>();
@@ -93,10 +93,10 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase{
         epassist.applyActionChanges(this.mContext, changes);
 
         List<at.ac.tuwien.detlef.domain.Episode> eps = edao.getEpisodes(p1);
-        assertEquals(1,eps.size());
+        assertEquals(1, eps.size());
         at.ac.tuwien.detlef.domain.Episode freshlyEpisode = eps.get(0);
-        assertEquals(ActionState.PLAY,freshlyEpisode.getActionState());
-        assertEquals(34000,freshlyEpisode.getPlayPosition());
+        assertEquals(ActionState.PLAY, freshlyEpisode.getActionState());
+        assertEquals(34000, freshlyEpisode.getPlayPosition());
     }
 
     public void testUpsertAndDeleteEpisodes() {
@@ -134,8 +134,8 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase{
         epassist.upsertAndDeleteEpisodes(this.mContext, p1, feed);
 
         List<at.ac.tuwien.detlef.domain.Episode> eps = edao.getEpisodes(p1);
-        assertEquals(1,eps.size());
+        assertEquals(1, eps.size());
         at.ac.tuwien.detlef.domain.Episode freshlyEpisode = eps.get(0);
-        assertEquals("epguid",freshlyEpisode.getGuid());
+        assertEquals("epguid", freshlyEpisode.getGuid());
     }
 }

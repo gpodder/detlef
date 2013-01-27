@@ -35,7 +35,7 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
     private final ArrayList<Episode> episodes;
 
     public PlaylistListAdapter(Context context, int textViewResourceId,
-            ArrayList<Episode> episodes) {
+                               ArrayList<Episode> episodes) {
         super(context, textViewResourceId, episodes);
         this.episodes = episodes;
     }
@@ -45,7 +45,7 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
         View v = convertView;
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext()
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.playlist_list_layout, null);
         }
 
@@ -76,16 +76,16 @@ public class PlaylistListAdapter extends ArrayAdapter<Episode> {
 
     private void setDownloadButtonStatus(ImageButton downloadButton, Episode episode) {
         switch (episode.getStorageState()) {
-            case NOT_ON_DEVICE:
-                downloadButton.setVisibility(ImageButton.VISIBLE);
-                downloadButton.setImageResource(R.drawable.ic_download);
-                break;
-            case DOWNLOADING:
-                downloadButton.setVisibility(ImageButton.VISIBLE);
-                downloadButton.setImageResource(R.drawable.ic_stop);
-                break;
-            default:
-                downloadButton.setVisibility(ImageButton.INVISIBLE);
+        case NOT_ON_DEVICE:
+            downloadButton.setVisibility(ImageButton.VISIBLE);
+            downloadButton.setImageResource(R.drawable.ic_download);
+            break;
+        case DOWNLOADING:
+            downloadButton.setVisibility(ImageButton.VISIBLE);
+            downloadButton.setImageResource(R.drawable.ic_stop);
+            break;
+        default:
+            downloadButton.setVisibility(ImageButton.INVISIBLE);
         }
         downloadButton.setTag(episode);
     }

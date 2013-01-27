@@ -137,7 +137,7 @@ public class PodderService extends Service {
         if (!validScheme(uri.getScheme())) {
             Log.w(TAG, "invalid URI scheme");
             cb.httpDownloadFailed(reqId, ErrorCode.INVALID_URL_SCHEME,
-                    "invalid URI scheme: " + uri.getScheme());
+                                  "invalid URI scheme: " + uri.getScheme());
             return false;
         }
 
@@ -149,12 +149,12 @@ public class PodderService extends Service {
         } catch (MalformedURLException mue) {
             Log.w(TAG, "malformed URL");
             cb.httpDownloadFailed(reqId, ErrorCode.MALFORMED_URL,
-                    "malformed URL: " + uri.toString());
+                                  "malformed URL: " + uri.toString());
             return false;
         } catch (IOException ioe) {
             Log.w(TAG, "openConnection IOException: " + ioe.getMessage());
             cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
-                    "I/O problem: " + ioe.getMessage());
+                                  "I/O problem: " + ioe.getMessage());
             return false;
         }
 
@@ -182,7 +182,7 @@ public class PodderService extends Service {
         } catch (IOException ioe) {
             Log.w(TAG, "read IOException: " + ioe.getMessage());
             cb.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
-                    "I/O problem: " + ioe.getMessage());
+                                  "I/O problem: " + ioe.getMessage());
             return false;
         } finally {
             conn.disconnect();
@@ -210,7 +210,7 @@ public class PodderService extends Service {
         }
 
         SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
-                cinfo.getHostname());
+                                           cinfo.getHostname());
 
         boolean ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
 
@@ -223,7 +223,7 @@ public class PodderService extends Service {
 
     private static boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) Detlef.getAppContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
+                                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return (netInfo != null && netInfo.isConnectedOrConnecting());
     }
@@ -346,7 +346,7 @@ public class PodderService extends Service {
 
         @Override
         public void authCheck(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
-                throws RemoteException {
+        throws RemoteException {
             Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
@@ -360,7 +360,7 @@ public class PodderService extends Service {
 
         @Override
         public void downloadPodcastList(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
-                throws RemoteException {
+        throws RemoteException {
             Log.d(TAG, "downloadPodcastList() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
@@ -402,13 +402,13 @@ public class PodderService extends Service {
 
         @Override
         public void httpDownload(PodderServiceCallback cb, int reqId, String url)
-                throws RemoteException {
+        throws RemoteException {
             Log.d(TAG, "httpDownload() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
             final ByteRope rope = new ByteRope();
             boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
-                    new HttpDownloadHandler() {
+            new HttpDownloadHandler() {
 
                 @Override
                 public void lengthKnown(int len) {
@@ -431,7 +431,7 @@ public class PodderService extends Service {
 
         @Override
         public void httpDownloadToFile(final PodderServiceCallback cb, final int reqId, String url,
-                String localfn) throws RemoteException {
+                                       String localfn) throws RemoteException {
             Log.d(TAG, "httpDownloadToFile() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
@@ -442,12 +442,12 @@ public class PodderService extends Service {
             } catch (FileNotFoundException fnfe) {
                 Log.w(TAG, "FileOutputStream c'tor FileNotFoundException: " + fnfe.getMessage());
                 theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.FILE_NOT_FOUND,
-                        "file not found");
+                                                   "file not found");
                 return;
             }
 
             boolean ok = performHttpDownload(theMagicalProxy, reqId, url,
-                    new HttpDownloadHandler() {
+            new HttpDownloadHandler() {
 
                 @Override
                 public void lengthKnown(int len) {
@@ -456,13 +456,13 @@ public class PodderService extends Service {
 
                 @Override
                 public boolean byteChunkDownloaded(byte[] chunk, int len)
-                        throws RemoteException {
+                throws RemoteException {
                     try {
                         fos.write(chunk, 0, len);
                     } catch (IOException e) {
                         Log.w(TAG, "FileOutputStream write IOException: " + e.getMessage());
                         theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
-                                e.getMessage());
+                                                           e.getMessage());
                         return false;
                     }
                     return true;
@@ -475,7 +475,7 @@ public class PodderService extends Service {
             } catch (IOException ioe) {
                 if (ok) {
                     theMagicalProxy.httpDownloadFailed(reqId, ErrorCode.IO_PROBLEM,
-                            ioe.getMessage());
+                                                       ioe.getMessage());
                     return;
                 }
                 // if !ok, we have other problems to worry about already
@@ -489,7 +489,7 @@ public class PodderService extends Service {
 
         @Override
         public void downloadChangesSince(PodderServiceCallback cb, int reqId,
-                GpoNetClientInfo cinfo, long ts) throws RemoteException {
+                                         GpoNetClientInfo cinfo, long ts) throws RemoteException {
             Log.d(TAG, "downloadChangesSince() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
@@ -511,19 +511,19 @@ public class PodderService extends Service {
                 theMagicalProxy.downloadChangesSucceeded(reqId, esc);
             } catch (AuthenticationException ae) {
                 theMagicalProxy.downloadChangesFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
-                        ae.getMessage());
+                                                      ae.getMessage());
                 return;
             } catch (IOException e) {
                 Log.w(TAG, "downloadChangesSince IOException: " + e.getMessage());
                 theMagicalProxy.downloadChangesFailed(reqId, ErrorCode.IO_PROBLEM,
-                        e.getMessage());
+                                                      e.getMessage());
                 return;
             }
         }
 
         @Override
         public void searchPodcasts(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo,
-                String query) throws RemoteException {
+                                   String query) throws RemoteException {
             Log.d(TAG, "searchPodcasts() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
@@ -548,7 +548,7 @@ public class PodderService extends Service {
 
         @Override
         public void getToplist(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
-                throws RemoteException {
+        throws RemoteException {
             Log.d(TAG, "getToplist() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
@@ -573,17 +573,17 @@ public class PodderService extends Service {
 
         @Override
         public void getSuggestions(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
-                throws RemoteException {
+        throws RemoteException {
             Log.d(TAG, "getSuggestions() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
             MygPodderClient mpc = new MygPodderClient(
-                    cinfo.getUsername(),
-                    cinfo.getPassword(),
-                    cinfo.getHostname());
+                cinfo.getUsername(),
+                cinfo.getPassword(),
+                cinfo.getHostname());
 
             try {
-                List<? extends IPodcast> ipodcasts = mpc.getSuggestions(DEFAULT_SUGGESTIONS_COUNT);
+                List <? extends IPodcast > ipodcasts = mpc.getSuggestions(DEFAULT_SUGGESTIONS_COUNT);
 
                 /* Convert the list into podcasts. */
 
@@ -596,30 +596,30 @@ public class PodderService extends Service {
             } catch (IOException e) {
                 Log.w(TAG, "getSuggestions IOException: " + e.getMessage());
                 theMagicalProxy.getSuggestionsFailed(reqId, ErrorCode.IO_PROBLEM,
-                        e.getMessage());
+                                                     e.getMessage());
             } catch (AuthenticationException e) {
                 theMagicalProxy.getSuggestionsFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
-                        e.getMessage());
+                                                     e.getMessage());
                 return;
             }
         }
 
         @Override
         public void updateSubscriptions(PodderServiceCallback cb, int reqId,
-                GpoNetClientInfo cinfo, EnhancedSubscriptionChanges changes) {
+                                        GpoNetClientInfo cinfo, EnhancedSubscriptionChanges changes) {
             Log.d(TAG, "updateSubscriptions() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 
             MygPodderClient mpc = new MygPodderClient(
-                    cinfo.getUsername(),
-                    cinfo.getPassword(),
-                    cinfo.getHostname());
+                cinfo.getUsername(),
+                cinfo.getPassword(),
+                cinfo.getHostname());
 
             try {
                 UpdateResult result = mpc.updateSubscriptions(
-                        cinfo.getDeviceId(),
-                        changes.getAddUrls(),
-                        changes.getRemoveUrls());
+                                          cinfo.getDeviceId(),
+                                          changes.getAddUrls(),
+                                          changes.getRemoveUrls());
 
                 /* TODO: copy the updateUrls too */
                 theMagicalProxy.updateSubscriptionsSucceeded(reqId, result.timestamp);
@@ -637,7 +637,7 @@ public class PodderService extends Service {
 
         @Override
         public void getPodcastInfo(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo,
-                List<String> urls) throws RemoteException {
+                                   List<String> urls) throws RemoteException {
             Log.d(TAG, "getPodcastInfo() on " + Thread.currentThread().getId());
             theMagicalProxy.setTarget(cb);
 

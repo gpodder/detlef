@@ -101,7 +101,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void httpDownloadFailed(int reqId, int errCode, String errStr)
-                throws RemoteException {
+        throws RemoteException {
             fail("HTTP download failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
@@ -109,13 +109,13 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void httpDownloadProgress(int reqId, int haveBytes, int totalBytes)
-                throws RemoteException {
+        throws RemoteException {
             // ignore this message
         }
 
         @Override
         public void httpDownloadSucceeded(int reqId, ParcelableByteArray data)
-                throws RemoteException {
+        throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_HTTP_DOWNLOAD;
             wrpst.get().str = new String(data.getArray());
             wrpst.get().reqId = reqId;
@@ -131,7 +131,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void downloadPodcastListFailed(int reqId, int errCode,
-                String errStr) throws RemoteException {
+                                              String errStr) throws RemoteException {
             fail("podcast list download failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
@@ -139,7 +139,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void downloadPodcastListSucceeded(int reqId, List<String> podcasts)
-                throws RemoteException {
+        throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_DOWNLOAD_PODCAST_LIST;
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
@@ -147,7 +147,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void downloadChangesFailed(int reqId, int errCode, String errStr)
-                throws RemoteException {
+        throws RemoteException {
             fail("podcast changes download failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
@@ -155,14 +155,14 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void downloadChangesSucceeded(int reqId,
-                EnhancedSubscriptionChanges chgs) throws RemoteException {
+                                             EnhancedSubscriptionChanges chgs) throws RemoteException {
             wrpst.get().msgWhat = RESPONDED_DOWNLOAD_CHANGES;
             wrpst.get().stoplight.release();
         }
 
         @Override
         public void searchPodcastsSucceeded(int reqId, List<Podcast> results)
-                throws RemoteException {
+        throws RemoteException {
             wrpst.get().podcasts = results;
             wrpst.get().msgWhat = RESPONDED_PODCAST_SEARCH;
             wrpst.get().reqId = reqId;
@@ -171,7 +171,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void searchPodcastsFailed(int reqId, int errCode, String errStr)
-                throws RemoteException {
+        throws RemoteException {
             fail("podcast search failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
@@ -179,7 +179,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void getToplistSucceeded(int reqId, List<Podcast> results)
-                throws RemoteException {
+        throws RemoteException {
             wrpst.get().podcasts = results;
             wrpst.get().msgWhat = RESPONDED_GET_TOPLIST;
             wrpst.get().reqId = reqId;
@@ -188,7 +188,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void getToplistFailed(int reqId, int errCode, String errStr)
-                throws RemoteException {
+        throws RemoteException {
             fail("toplist retrieval failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
@@ -196,7 +196,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void getSuggestionsSucceeded(int reqId, List<Podcast> results)
-                throws RemoteException {
+        throws RemoteException {
             wrpst.get().podcasts = results;
             wrpst.get().msgWhat = RESPONDED_GET_SUGGESTIONS;
             wrpst.get().reqId = reqId;
@@ -205,7 +205,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void getSuggestionsFailed(int reqId, int errCode, String errStr)
-                throws RemoteException {
+        throws RemoteException {
             fail("suggestion retrieval failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
@@ -220,7 +220,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void updateSubscriptionsFailed(int reqId, int errCode, String errStr)
-                throws RemoteException {
+        throws RemoteException {
             fail("subscription update failed: " + errStr);
             wrpst.get().reqId = reqId;
             wrpst.get().stoplight.release();
@@ -228,7 +228,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
 
         @Override
         public void getPodcastInfoFailed(int reqId, int ioProblem, String message)
-                throws RemoteException {
+        throws RemoteException {
             /* Unused. */
         }
 
@@ -357,7 +357,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
      */
     @FlakyTest
     public final void testHttpDownloadToFile() throws RemoteException, InterruptedException,
-    IOException {
+        IOException {
         Log.d("PodderServiceTest@" + this.hashCode(), "testHttpDownloadToFile()");
 
         PodderServiceInterface psi = performBind();
@@ -367,7 +367,7 @@ public class PodderServiceTest extends ServiceTestCase<PodderService> {
         File f = File.createTempFile("httpdown", ".tmp", null);
         try {
             psi.httpDownloadToFile(handler, rid, "http://ondrahosek.dyndns.org/detlef.txt",
-                    f.getAbsolutePath());
+                                   f.getAbsolutePath());
 
             stoplight.acquireUninterruptibly();
 

@@ -28,7 +28,7 @@ import at.ac.tuwien.detlef.activities.MainActivity;
 import com.jayway.android.robotium.solo.Solo;
 
 public class PlayerFragmentTest extends
-        ActivityInstrumentationTestCase2<MainActivity> {
+    ActivityInstrumentationTestCase2<MainActivity> {
 
     private Solo solo;
     private MainActivity activity;
@@ -54,7 +54,7 @@ public class PlayerFragmentTest extends
     public void testSwitchViews() {
         solo.clickOnText("PLAYER");
         ImageButton imageButton =
-                (ImageButton) solo.getView(R.id.ButtonPlayStop);
+            (ImageButton) solo.getView(R.id.ButtonPlayStop);
         solo.clickOnView(imageButton);
         SeekBar slider = (SeekBar) solo.getView(R.id.SeekBar01);
 

@@ -53,7 +53,7 @@ import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 
 public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistChangeListener,
-        EpisodeDAO.OnEpisodeChangeListener {
+    EpisodeDAO.OnEpisodeChangeListener {
 
     private static final int PROGRESS_BAR_UPDATE_INTERVAL = 500;
 
@@ -85,7 +85,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         public void onServiceConnected(ComponentName className, IBinder iBinder) {
             bound = true;
             MediaPlayerService.MediaPlayerBinder binder =
-                    (MediaPlayerService.MediaPlayerBinder) iBinder;
+                (MediaPlayerService.MediaPlayerBinder) iBinder;
             service = binder.getService();
             activeEpisode = service.getNextEpisode();
             setEpisodeInfoControls(activeEpisode);
@@ -141,8 +141,8 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 if (bound && (service != null)) {
                     alreadyPlayed.setText(getAlreadyPlayed(progress));
                     remainingTime.setText("-"
-                            + getRemainingTime(service.getDuration(),
-                                    progress));
+                                          + getRemainingTime(service.getDuration(),
+                                                  progress));
                 }
             }
         });
@@ -170,7 +170,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
 
     private void initButtonPlayStop(View v) {
         buttonPlayStop =
-                (ImageButton) v.findViewById(R.id.ButtonPlayStop);
+            (ImageButton) v.findViewById(R.id.ButtonPlayStop);
         buttonPlayStop.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v1) {
@@ -187,7 +187,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
 
         if (!MediaPlayerService.isRunning()) {
             Intent serviceIntent =
-                    new Intent(Detlef.getAppContext(), MediaPlayerService.class);
+                new Intent(Detlef.getAppContext(), MediaPlayerService.class);
             Detlef.getAppContext().startService(serviceIntent);
         }
         Intent intent = new Intent(getActivity(), MediaPlayerService.class);
@@ -203,7 +203,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.player_layout, container, false);
     }
@@ -267,11 +267,11 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         }
         if (service.isCurrentlyPlaying()) {
             buttonPlayStop
-                    .setImageResource(android.R.drawable.ic_media_pause);
+            .setImageResource(android.R.drawable.ic_media_pause);
             setPlayingSeekBarAndTime();
         } else {
             buttonPlayStop
-                    .setImageResource(android.R.drawable.ic_media_play);
+            .setImageResource(android.R.drawable.ic_media_play);
             setNotPlayingSeekBarAndTime(activeEpisode);
         }
         if ((activeEpisode != null)
@@ -414,7 +414,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             return this;
         }
         WebView episodeDescription = (WebView) getView().findViewById(
-                R.id.playerEpisodeDescription);
+                                         R.id.playerEpisodeDescription);
         TextView podcast = (TextView) getView().findViewById(R.id.playerPodcast);
         TextView episode = (TextView) getView().findViewById(R.id.playerEpisode);
 
@@ -430,16 +430,16 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
 
         if (ep == null) {
             episode.setText(
-                    getActivity().getText(R.string.no_episode_selected)
-                            .toString());
+                getActivity().getText(R.string.no_episode_selected)
+                .toString());
             podcast.setText("");
             podcastIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_feed_icon));
         } else {
             episodeDescription.loadData("", "text/html; charset=UTF-8", null);
             episodeDescription.loadData(ep.getDescription() == null ? "" : ep.getDescription(),
-                    "text/html; charset=UTF-8", null);
+                                        "text/html; charset=UTF-8", null);
             podcast.setText(ep.getPodcast().getTitle() == null ? "" : ep.getPodcast()
-                    .getTitle());
+                            .getTitle());
             episode.setText(ep.getTitle() == null ? "" : ep.getTitle());
             remainingTime.setText("-00:00");
             alreadyPlayed.setText("00:00");
@@ -465,7 +465,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 MediaMetadataRetriever metaData = new MediaMetadataRetriever();
                 metaData.setDataSource(ep.getFilePath());
                 String durationString = metaData
-                        .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                                        .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                 int duration = Integer.parseInt(durationString);
                 int playingPosition = ep.getPlayPosition();
                 int pos = 0;
@@ -484,11 +484,11 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
                 seekBar.setProgress(service.getCurrentPosition());
                 alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
                 remainingTime.setText("-"
-                        + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
+                                      + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
             }
         } catch (Exception ex) {
             Log.d(getClass().getName(),
-                    "Error while retrieving duration of episode: " + ex.getMessage());
+                  "Error while retrieving duration of episode: " + ex.getMessage());
         }
     }
 
@@ -503,7 +503,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         seekBar.setProgress(service.getCurrentPosition());
         alreadyPlayed.setText(getAlreadyPlayed(service.getCurrentPosition()));
         remainingTime.setText("-"
-                + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
+                              + getRemainingTime(service.getDuration(), service.getCurrentPosition()));
     }
 
     private PlayerFragment setActiveEpisode(Episode ep) {
@@ -516,12 +516,12 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
 
     private String getAlreadyPlayed(int progress) {
         return String.format(
-                "%02d:%02d",
-                TimeUnit.MILLISECONDS.toMinutes(progress),
-                TimeUnit.MILLISECONDS.toSeconds(progress)
-                        -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(progress))
-                );
+                   "%02d:%02d",
+                   TimeUnit.MILLISECONDS.toMinutes(progress),
+                   TimeUnit.MILLISECONDS.toSeconds(progress)
+                   -
+                   TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(progress))
+               );
     }
 
     private String getRemainingTime(int duration, int progress) {
@@ -529,13 +529,13 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             return "00:00";
         }
         return String.format(
-                "%02d:%02d",
-                TimeUnit.MILLISECONDS.toMinutes(duration - progress),
-                TimeUnit.MILLISECONDS.toSeconds(duration - progress)
-                        -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration
-                                - progress))
-                );
+                   "%02d:%02d",
+                   TimeUnit.MILLISECONDS.toMinutes(duration - progress),
+                   TimeUnit.MILLISECONDS.toSeconds(duration - progress)
+                   -
+                   TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration
+                                              - progress))
+               );
     }
 
     @Override

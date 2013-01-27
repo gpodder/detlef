@@ -63,59 +63,59 @@ public class SearchKeywordDbTest extends AndroidTestCase {
         // http://en.wikinews.org/w/index.php?title=Main_Page&oldid=1519685
 
         assertNotNull(episodeDao.insertEpisode(
-            new Episode(p1)
-                .setAuthor("author")
-                .setDescription("Israel warned Hamas yesterday to cease rocket fire and threatened a widening offensive if Hamas continues. Hamas maintains Israel \"is the aggressor.\"")
-                .setFileSize(0)
-                .setGuid("guid")
-                .setLink("link")
-                .setMimetype("mimetype")
-                .setReleased(System.currentTimeMillis())
-                .setTitle("Israel sets 36 hour ultimatum for Hamas")
-                .setUrl("url")
-                .setStorageState(StorageState.NOT_ON_DEVICE)
-                .setFilePath("path")
-        ));
+                          new Episode(p1)
+                          .setAuthor("author")
+                          .setDescription("Israel warned Hamas yesterday to cease rocket fire and threatened a widening offensive if Hamas continues. Hamas maintains Israel \"is the aggressor.\"")
+                          .setFileSize(0)
+                          .setGuid("guid")
+                          .setLink("link")
+                          .setMimetype("mimetype")
+                          .setReleased(System.currentTimeMillis())
+                          .setTitle("Israel sets 36 hour ultimatum for Hamas")
+                          .setUrl("url")
+                          .setStorageState(StorageState.NOT_ON_DEVICE)
+                          .setFilePath("path")
+                      ));
 
         assertNotNull(episodeDao.insertEpisode(
-                new Episode(p1)
-                    .setAuthor("author")
-                    .setDescription("The Philippines announced today it will host a meeting on December 12 in Manila regarding territorial disputes in the South China Sea.")
-                    .setFileSize(0)
-                    .setGuid("guid")
-                    .setLink("link")
-                    .setMimetype("mimetype")
-                    .setReleased(System.currentTimeMillis())
-                    .setTitle("Philippines to host four-country meeting about South China Sea disputes")
-                    .setUrl("url")
-                    .setStorageState(StorageState.NOT_ON_DEVICE)
-                    .setFilePath("path")
-            ));
+                          new Episode(p1)
+                          .setAuthor("author")
+                          .setDescription("The Philippines announced today it will host a meeting on December 12 in Manila regarding territorial disputes in the South China Sea.")
+                          .setFileSize(0)
+                          .setGuid("guid")
+                          .setLink("link")
+                          .setMimetype("mimetype")
+                          .setReleased(System.currentTimeMillis())
+                          .setTitle("Philippines to host four-country meeting about South China Sea disputes")
+                          .setUrl("url")
+                          .setStorageState(StorageState.NOT_ON_DEVICE)
+                          .setFilePath("path")
+                      ));
 
         assertNotNull(episodeDao.insertEpisode(
-                new Episode(p1)
-                    .setAuthor("author")
-                    .setDescription("Three astronauts return to Earth today, after touching down safely in Kazakhstan aboard their Soyuz capsule in the pre-dawn hours of Monday morning.")
-                    .setFileSize(0)
-                    .setGuid("guid")
-                    .setLink("link")
-                    .setMimetype("mimetype")
-                    .setReleased(System.currentTimeMillis())
-                    .setTitle("Expedition 33 crew returns to Earth")
-                    .setUrl("url")
-                    .setStorageState(StorageState.NOT_ON_DEVICE)
-                    .setFilePath("path")
-            ));
+                          new Episode(p1)
+                          .setAuthor("author")
+                          .setDescription("Three astronauts return to Earth today, after touching down safely in Kazakhstan aboard their Soyuz capsule in the pre-dawn hours of Monday morning.")
+                          .setFileSize(0)
+                          .setGuid("guid")
+                          .setLink("link")
+                          .setMimetype("mimetype")
+                          .setReleased(System.currentTimeMillis())
+                          .setTitle("Expedition 33 crew returns to Earth")
+                          .setUrl("url")
+                          .setStorageState(StorageState.NOT_ON_DEVICE)
+                          .setFilePath("path")
+                      ));
 
     }
 
     /**
      * http://en.wikinews.org/w/index.php?title=Main_Page&oldid=1519685
-Israel sets 36 hour ultimatum for Hamas
-Philippines to host four-country meeting about South China Sea disputes
-Israeli airstrikes damage more offices housing international journalists in Gaza City
-Canberra United lose first game since January 2011
-Expedition 33 crew returns to Earth
+    Israel sets 36 hour ultimatum for Hamas
+    Philippines to host four-country meeting about South China Sea disputes
+    Israeli airstrikes damage more offices housing international journalists in Gaza City
+    Canberra United lose first game since January 2011
+    Expedition 33 crew returns to Earth
      * @throws Exception
      */
 

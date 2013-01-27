@@ -36,14 +36,14 @@ public class ConnectionTesterGpodderNet implements ConnectionTester {
 
     @Override
     public void testConnection(GPodderSync gpodderSync, GpodderSettings settings,
-            NoDataResultHandler<?> callback) {
+                               NoDataResultHandler<?> callback) {
 
         gpodderSync.setHostname(settings.getApiHostname());
 
         gpodderSync.addAuthCheckJob(
-                settings.getUsername(),
-                settings.getPassword(),
-                callback);
+            settings.getUsername(),
+            settings.getPassword(),
+            callback);
     }
 
 }

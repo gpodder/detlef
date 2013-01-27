@@ -53,7 +53,7 @@ import at.ac.tuwien.detlef.util.GUIUtils;
 import com.mobeta.android.dslv.DragSortListView;
 
 public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlaylistChangeListener,
-        EpisodeDAO.OnEpisodeChangeListener {
+    EpisodeDAO.OnEpisodeChangeListener {
 
     private ArrayList<Episode> playlistItems;
     private PlaylistListAdapter adapter;
@@ -72,7 +72,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
             bound = true;
             Log.d(getClass().getName(), "Service connected to playlistactivity");
             MediaPlayerService.MediaPlayerBinder binder =
-                    (MediaPlayerService.MediaPlayerBinder) iBinder;
+                (MediaPlayerService.MediaPlayerBinder) iBinder;
             service = binder.getService();
         }
 
@@ -93,7 +93,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         EpisodeDAOImpl.i().addEpisodeChangedListener(this);
 
         downloadManager = DependencyAssistant.getDependencyAssistant().getDownloadManager(
-                Detlef.getAppContext());
+                              Detlef.getAppContext());
 
         initListView();
         registerForContextMenu(getListView());
@@ -105,14 +105,14 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         lv.setDropListener(onDrop);
         lv.setRemoveListener(onRemove);
         adapter = new PlaylistListAdapter(this, R.layout.playlist_list_layout,
-                playlistItems);
+                                          playlistItems);
         setListAdapter(adapter);
     }
 
     private void connectToMediaService() {
         if (!MediaPlayerService.isRunning()) {
             Intent serviceIntent =
-                    new Intent(Detlef.getAppContext(), MediaPlayerService.class);
+                new Intent(Detlef.getAppContext(), MediaPlayerService.class);
             Detlef.getAppContext().startService(serviceIntent);
         }
         Intent intent = new Intent(this, MediaPlayerService.class);
@@ -151,7 +151,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
+                                    ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.playlist_context, menu);
@@ -184,24 +184,24 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.playlistClear:
-                playlistClear();
-                break;
-            case R.id.playlistDownloadAll:
-                playlistDownloadAll();
-                break;
-            case R.id.playlistStopDownload:
-                playlistStopPlaylistDownloads();
-                break;
-            case R.id.playlistStopAllDownloads:
-                stopAllDownloads();
-                break;
-            case R.id.settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-            default:
-                break;
+        case R.id.playlistClear:
+            playlistClear();
+            break;
+        case R.id.playlistDownloadAll:
+            playlistDownloadAll();
+            break;
+        case R.id.playlistStopDownload:
+            playlistStopPlaylistDownloads();
+            break;
+        case R.id.playlistStopAllDownloads:
+            stopAllDownloads();
+            break;
+        case R.id.settings:
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            break;
+        default:
+            break;
         }
         return true;
     }
@@ -222,7 +222,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
                 }
             } catch (Exception e) {
                 Log.d(getClass().getName(), "Could not cancel episode download " + i
-                        + " on playlist");
+                      + " on playlist");
             }
         }
     }
@@ -240,7 +240,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
             } catch (Exception e) {
                 // TODO @Joshi show that episodes are being downloaded somehow?
                 Log.d(getClass().getName(), "Could not add episode " + i
-                        + " on playlist to download manager");
+                      + " on playlist to download manager");
             }
         }
     }
@@ -282,22 +282,22 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         GUIUtils guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
         String tag = getClass().getName();
         switch (episode.getStorageState()) {
-            case NOT_ON_DEVICE:
-                try {
-                    guiUtils.showToast(String.format("Downloading %s", episode.getTitle()),
-                            this, tag);
-                    EpisodePersistence.download(episode);
-                } catch (IOException e) {
-                    guiUtils.showToast(getString(R.string.cannot_download_episode),
-                            this, tag);
-                }
-                break;
-            case DOWNLOADING:
-                guiUtils.showToast("Download aborted", this, tag);
-                EpisodePersistence.cancelDownload(episode);
-                break;
-            default:
-                Log.e(tag, "Invalid storage state encountered");
+        case NOT_ON_DEVICE:
+            try {
+                guiUtils.showToast(String.format("Downloading %s", episode.getTitle()),
+                                   this, tag);
+                EpisodePersistence.download(episode);
+            } catch (IOException e) {
+                guiUtils.showToast(getString(R.string.cannot_download_episode),
+                                   this, tag);
+            }
+            break;
+        case DOWNLOADING:
+            guiUtils.showToast("Download aborted", this, tag);
+            EpisodePersistence.cancelDownload(episode);
+            break;
+        default:
+            Log.e(tag, "Invalid storage state encountered");
         }
     }
 }

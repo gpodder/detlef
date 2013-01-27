@@ -34,7 +34,7 @@ public class SearchListAdapter extends ArrayAdapter<Episode> {
     private final ArrayList<Episode> episodes;
 
     public SearchListAdapter(Context context, int textViewResourceId,
-            ArrayList<Episode> pEpisodes) {
+                             ArrayList<Episode> pEpisodes) {
         super(context, textViewResourceId, pEpisodes);
         episodes = pEpisodes;
     }
@@ -44,7 +44,7 @@ public class SearchListAdapter extends ArrayAdapter<Episode> {
         View v = convertView;
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) this.getContext()
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.episode_list_layout, null);
         }
 
@@ -52,7 +52,7 @@ public class SearchListAdapter extends ArrayAdapter<Episode> {
         if (episodes != null) {
 
             TextView epsiodeName = (TextView) v
-                    .findViewById(R.id.episodeListDescription );
+                                   .findViewById(R.id.episodeListDescription);
 
 
             if (episode != null) {

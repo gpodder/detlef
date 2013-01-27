@@ -22,8 +22,8 @@ package at.ac.tuwien.detlef.gpodder;
 import android.os.Bundle;
 import at.ac.tuwien.detlef.callbacks.ReliableCallback;
 
-public abstract class ReliableResultHandler<Receiver> extends ReliableCallback<Receiver,
-ResultHandler.ResultEvent> implements ResultHandler<Receiver> {
+public abstract class ReliableResultHandler<Receiver> extends ReliableCallback < Receiver,
+    ResultHandler.ResultEvent > implements ResultHandler<Receiver> {
     private Receiver rcv = null;
 
     /** A bundle to pass extra data. */

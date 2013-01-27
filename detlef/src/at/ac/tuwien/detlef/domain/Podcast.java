@@ -203,8 +203,8 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         dest.writeString(url);
         dest.writeLong(lastUpdate);
         dest.writeBooleanArray(new boolean[] {
-                localAdd, localDel
-        });
+                                   localAdd, localDel
+                               });
     }
 
     public int getLogoDownloaded() {

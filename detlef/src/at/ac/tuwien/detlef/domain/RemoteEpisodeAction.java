@@ -37,7 +37,7 @@ public class RemoteEpisodeAction extends EpisodeAction {
      * @param total
      */
     public RemoteEpisodeAction(long id, String podcast, String episode, String action,
-            String device, String timestamp, Integer started, Integer position, Integer total) {
+                               String device, String timestamp, Integer started, Integer position, Integer total) {
         super(podcast, episode, action, device, timestamp, started, position, total);
         this.id = id;
     }

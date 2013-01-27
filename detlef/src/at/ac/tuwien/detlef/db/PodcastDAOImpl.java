@@ -44,7 +44,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
     private final DatabaseHelper dbHelper;
     private final Set<PodcastDAO.OnPodcastChangeListener> listeners =
-            new HashSet<PodcastDAO.OnPodcastChangeListener>();
+        new HashSet<PodcastDAO.OnPodcastChangeListener>();
     private final HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
 
     /**
@@ -90,10 +90,10 @@ public final class PodcastDAOImpl implements PodcastDAO {
                     values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH);
                 } else {
                     values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
-                            podcast.getLogoFilePath());
+                               podcast.getLogoFilePath());
                 }
                 values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
-                        podcast.getLogoDownloaded());
+                           podcast.getLogoDownloaded());
 
                 db.beginTransaction();
 
@@ -162,8 +162,8 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 }
             } catch (Exception ex) {
                 Log.e(TAG,
-                        "delete Podcast icon: " + ex.getMessage() != null ? ex.getMessage()
-                                : ex.toString());
+                      "delete Podcast icon: " + ex.getMessage() != null ? ex.getMessage()
+                      : ex.toString());
             }
 
             SQLiteDatabase db = null;
@@ -173,7 +173,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 db = dbHelper.getWritableDatabase();
                 String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
                 String[] selectionArgs = {
-                        String.valueOf(podcast.getId())
+                    String.valueOf(podcast.getId())
                 };
 
                 ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
@@ -245,11 +245,11 @@ public final class PodcastDAOImpl implements PodcastDAO {
         p.setLogoUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_URL)));
         p.setLastUpdate(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE)));
         p.setLogoFilePath(c.getString(c
-                .getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
+                                      .getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
         p.setLocalAdd(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_ADD)));
         p.setLocalDel(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_DEL)));
         p.setLogoDownloaded(c.getInt(c.getColumnIndex(
-                DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED)));
+                                         DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED)));
 
         hashMapPodcast.put(key, p);
 
@@ -265,7 +265,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
             String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
             String[] selectionArgs = {
-                    String.valueOf(podcast.getId())
+                String.valueOf(podcast.getId())
             };
 
             int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
@@ -289,7 +289,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
             String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
             String[] selectionArgs = {
-                    String.valueOf(podcast.getId())
+                String.valueOf(podcast.getId())
             };
 
             int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
@@ -314,7 +314,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
             String[] selectionArgs = {
-                    String.valueOf(podcastId)
+                String.valueOf(podcastId)
             };
 
             Cursor c = db.rawQuery(QUERY_PODCAST_BY_ID, selectionArgs);
@@ -344,7 +344,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
             String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
             String[] selectionArgs = {
-                    String.valueOf(podcast.getId())
+                String.valueOf(podcast.getId())
             };
 
             int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
@@ -362,12 +362,12 @@ public final class PodcastDAOImpl implements PodcastDAO {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
-                    podcast.getLogoDownloaded());
+                       podcast.getLogoDownloaded());
             values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
 
             String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
             String[] selectionArgs = {
-                    String.valueOf(podcast.getId())
+                String.valueOf(podcast.getId())
             };
 
             int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
@@ -415,7 +415,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
             String[] selectionArgs = {
-                    String.valueOf(url)
+                String.valueOf(url)
             };
 
             Cursor c = db.rawQuery(QUERY_PODCAST_BY_URL, selectionArgs);
@@ -494,7 +494,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
                 String selection = DatabaseHelper.COLUMN_PODCAST_ADD_ID + " = ?";
                 String[] selectionArgs = {
-                        String.valueOf(podcast.getId())
+                    String.valueOf(podcast.getId())
                 };
 
                 db.delete(DatabaseHelper.TABLE_PODCAST_LOCAL_ADD, selection, selectionArgs);
@@ -547,9 +547,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     private static final String QUERY_NON_DELETED_PODCASTS = String.format(
-            "%s where %s is null;",
-            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
-            QUERY_COLUMN_PODCAST_LOCAL_DEL);
+                "%s where %s is null;",
+                QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+                QUERY_COLUMN_PODCAST_LOCAL_DEL);
 
     @Override
     public List<Podcast> getNonDeletedPodcasts() {
@@ -557,9 +557,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     private static final String QUERY_LOCALLY_ADDED_PODCASTS = String.format(
-            "%s where %s not null;",
-            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
-            QUERY_COLUMN_PODCAST_LOCAL_ADD);
+                "%s where %s not null;",
+                QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+                QUERY_COLUMN_PODCAST_LOCAL_ADD);
 
     @Override
     public List<Podcast> getLocallyAddedPodcasts() {
@@ -567,9 +567,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     private static final String QUERY_LOCALLY_DELETED_PODCASTS = String.format(
-            "%s where %s not null;",
-            QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
-            QUERY_COLUMN_PODCAST_LOCAL_DEL);
+                "%s where %s not null;",
+                QUERY_ALL_PODCASTS.substring(0, QUERY_ALL_PODCASTS.length() - 1),
+                QUERY_COLUMN_PODCAST_LOCAL_DEL);
 
     @Override
     public List<Podcast> getLocallyDeletedPodcasts() {

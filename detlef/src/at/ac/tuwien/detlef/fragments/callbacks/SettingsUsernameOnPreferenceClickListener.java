@@ -34,33 +34,32 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  */
 public class SettingsUsernameOnPreferenceClickListener
     extends SettingsGpodderNetExternalListener
-    implements OnPreferenceClickListener
-{
+    implements OnPreferenceClickListener {
 
-        public SettingsUsernameOnPreferenceClickListener(SettingsGpodderNet pSender) {
+    public SettingsUsernameOnPreferenceClickListener(SettingsGpodderNet pSender) {
         super(pSender);
     }
 
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
 
-            if (!getSettings().isAccountVerified()) {
-                return true;
-            }
-
-            final AlertDialog.Builder b = new AlertDialog.Builder(preference.getContext());
-
-            b.setTitle(R.string.warning);
-            b.setMessage(R.string.you_are_changing_verified_username);
-
-            b.setPositiveButton(android.R.string.ok, null);
-            b.show();
-
+        if (!getSettings().isAccountVerified()) {
             return true;
         }
 
-        private GpodderSettings getSettings() {
-            return DependencyAssistant.getDependencyAssistant().getGpodderSettings();
-        }
+        final AlertDialog.Builder b = new AlertDialog.Builder(preference.getContext());
+
+        b.setTitle(R.string.warning);
+        b.setMessage(R.string.you_are_changing_verified_username);
+
+        b.setPositiveButton(android.R.string.ok, null);
+        b.show();
+
+        return true;
+    }
+
+    private GpodderSettings getSettings() {
+        return DependencyAssistant.getDependencyAssistant().getGpodderSettings();
+    }
 
 }

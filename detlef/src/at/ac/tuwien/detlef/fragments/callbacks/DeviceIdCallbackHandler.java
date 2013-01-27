@@ -37,8 +37,8 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  * @author moe
  */
 public class DeviceIdCallbackHandler
-extends ReliableResultHandler<SettingsGpodderNet>
-implements DeviceIdResultHandler<SettingsGpodderNet> {
+    extends ReliableResultHandler<SettingsGpodderNet>
+    implements DeviceIdResultHandler<SettingsGpodderNet> {
 
     /** Logging tag. */
     private static final String TAG = DeviceIdCallbackHandler.class.getCanonicalName();
@@ -48,23 +48,23 @@ implements DeviceIdResultHandler<SettingsGpodderNet> {
 
 
         GpodderSettings settings = DependencyAssistant
-                .getDependencyAssistant()
-                .getGpodderSettings(getRcv().getActivity());
+                                   .getDependencyAssistant()
+                                   .getGpodderSettings(getRcv().getActivity());
         settings.setDeviceId(deviceId);
         DependencyAssistant.getDependencyAssistant()
         .getGpodderSettingsDAO(getRcv().getActivity())
         .writeSettings(settings);
 
         getRcv().getActivity().runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        getRcv().dismissRegisterDeviceDialog();
-                        getRcv().setUpTestConnectionButton();
-                        getRcv().setUpRegisterDeviceButton();
-                    }
-                }
-                );
+        new Runnable() {
+            @Override
+            public void run() {
+                getRcv().dismissRegisterDeviceDialog();
+                getRcv().setUpTestConnectionButton();
+                getRcv().setUpRegisterDeviceButton();
+            }
+        }
+        );
 
         if (getRcv().isSetupMode()) {
             setupModeAction();
@@ -79,10 +79,10 @@ implements DeviceIdResultHandler<SettingsGpodderNet> {
      */
     private void normalModeAction() {
         DependencyAssistant.getDependencyAssistant().getGuiUtils().showToast(
-                getRcv().getText(R.string.device_id_registration_success),
-                getRcv().getActivity(),
-                TAG
-                );
+            getRcv().getText(R.string.device_id_registration_success),
+            getRcv().getActivity(),
+            TAG
+        );
     }
 
     /**
@@ -91,29 +91,29 @@ implements DeviceIdResultHandler<SettingsGpodderNet> {
      */
     private void setupModeAction() {
         DependencyAssistant.getDependencyAssistant().getGuiUtils().showSimpleOkDialog(
-                R.string.almost_done,
-                R.string.detlef_will_now_synchronize,
-                new SetupModeNextStepClickListener(),
-                getRcv().getActivity()
-                );
+            R.string.almost_done,
+            R.string.detlef_will_now_synchronize,
+            new SetupModeNextStepClickListener(),
+            getRcv().getActivity()
+        );
     }
 
     @Override
     public void handleFailure(int errCode, String errString) {
         getRcv().getActivity().runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        getRcv().dismissRegisterDeviceDialog();
-                    }
-                }
-                );
+        new Runnable() {
+            @Override
+            public void run() {
+                getRcv().dismissRegisterDeviceDialog();
+            }
+        }
+        );
 
         DependencyAssistant.getDependencyAssistant().getGuiUtils().showToast(
-                getRcv().getText(R.string.operation_failed),
-                getRcv().getActivity(),
-                TAG
-                );
+            getRcv().getText(R.string.operation_failed),
+            getRcv().getActivity(),
+            TAG
+        );
     }
 
     class SetupModeNextStepClickListener implements OnClickListener {
@@ -122,9 +122,9 @@ implements DeviceIdResultHandler<SettingsGpodderNet> {
         public void onClick(DialogInterface dialog, int which) {
 
             Intent data = new Intent().putExtra(
-                    MainActivity.EXTRA_REFRESH_FEED_LIST,
-                    true
-                    );
+                MainActivity.EXTRA_REFRESH_FEED_LIST,
+                true
+            );
             if (getRcv().getActivity().getParent() == null) {
                 getRcv().getActivity().setResult(Activity.RESULT_OK, data);
             } else {
