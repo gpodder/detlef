@@ -543,7 +543,7 @@ public class MainActivity extends FragmentActivity
     /**
      * Called when the refresh button is pressed. Displays a progress dialog and
      * starts the {@link SyncSubscriptionsAsyncTask}.
-     * 
+     *
      * @param pBundle The {@link Bundle} that is passed to the
      *            {@link PodcastSyncResultHandler}.
      */
@@ -584,7 +584,7 @@ public class MainActivity extends FragmentActivity
     /**
      * Called when refresh is done, dismisses the progress dialog and displays
      * msg in a Toast.
-     * 
+     *
      * @param msg The message displayed in a Toast.
      */
     private void onRefreshDone(String msg) {
@@ -870,7 +870,7 @@ public class MainActivity extends FragmentActivity
         int text;
 
         Episode episode = getEpisodeFromView(v);
-        
+
         if (episode != null) {
             if (playlistDAO.getNonCachedEpisodes().contains(v.getTag())) {
                 playlistDAO.removeEpisodesById(((Episode) v.getTag()).getId());
@@ -898,13 +898,13 @@ public class MainActivity extends FragmentActivity
     }
 
     public void onMarkReadUnreadClick(View v) {
-        
+
         int text;
-        
+
         Episode episode = getEpisodeFromView(v);
-        
+
         getEpisodeListFragment().onMarkReadUnreadClick(v);
-        
+
         if (episode != null) {
             if (episode.getActionState().equals(Episode.ActionState.DELETE)) {
                 text = R.string.episode_marked_as_read;
@@ -914,7 +914,7 @@ public class MainActivity extends FragmentActivity
         } else {
             text = R.string.episode_marked_failure;
         }
-        
+
         Toast.makeText(
             this,
             String.format(
@@ -924,10 +924,10 @@ public class MainActivity extends FragmentActivity
                     ),
             Toast.LENGTH_SHORT
         ).show();
-        
-        
+
+
     }
-    
+
     /**
      * Retrieves an episode from a view and checks for null value.s
      * @param v
@@ -945,7 +945,7 @@ public class MainActivity extends FragmentActivity
             Log.wtf(TAG, "onAddToPlaylistClick(): episode is null");
             return null;
         }
-        
+
         return episode;
     }
 

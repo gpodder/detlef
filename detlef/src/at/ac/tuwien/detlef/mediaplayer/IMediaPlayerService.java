@@ -40,21 +40,21 @@ public interface IMediaPlayerService {
 
     /**
      * Sets the media player progress.
-     * 
+     *
      * @param progress The progress to set the media player to.
      */
     IMediaPlayerService seekTo(int progress);
 
     /**
      * Starts the next piece from the playlist.
-     * 
+     *
      * @return this
      */
     IMediaPlayerService fastForward();
 
     /**
      * Starts the previous piece from the playlist.
-     * 
+     *
      * @return this
      */
     IMediaPlayerService rewind();
@@ -81,7 +81,7 @@ public interface IMediaPlayerService {
     /**
      * Sets the episode that should be prepared and played on the next call to
      * startPlaying().
-     * 
+     *
      * @param ep The episode to be played next
      * @return this
      */
@@ -90,14 +90,14 @@ public interface IMediaPlayerService {
     /**
      * Gets the episode that should be prepared and played on the next call to
      * startPlaying().
-     * 
+     *
      * @return thiThe episode to be played next
      */
     Episode getNextEpisode();
 
     /**
      * Checks if the episode file path exists and points to a valid file.
-     * 
+     *
      * @param ep The episode whose file path to check
      * @return this
      */
@@ -112,7 +112,7 @@ public interface IMediaPlayerService {
     /**
      * Sets the episode that should be played when the user manually selects an
      * episode.
-     * 
+     *
      * @param manualEpisode The manual episode
      */
     void setManualEpisode(Episode manualEpisode);

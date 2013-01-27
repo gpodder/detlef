@@ -77,7 +77,7 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
 
     /**
      * Creates the logo icon.
-     * 
+     *
      * @return
      */
     private Drawable createLogoIcon() {
@@ -94,7 +94,7 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
 
     /**
      * returns the icon for the podcast.
-     * 
+     *
      * @return
      */
     public Drawable getLogoIcon() {

@@ -48,7 +48,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     /**
      * Construct a caching callback proxy.
-     * 
+     *
      * @param cb The callback to which to forward requests.
      */
     public CachingCallbackProxy(PodderServiceCallback cb) {
@@ -93,7 +93,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     /**
      * Sets whether the proxy should not attempt processing queued messages
      * until {@link #resend()} is called, even if a new message is added.
-     * 
+     *
      * @param shouldBePassive Whether the proxy should be passive.
      */
     public void setPassive(boolean shouldBePassive) {
@@ -103,7 +103,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     /**
      * Whether the proxy should not attempt processing queued messages until
      * {@link #resend()} is called, even if a new message is added.
-     * 
+     *
      * @return Whether the proxy should be passive.
      */
     public boolean isPassive() {
@@ -478,13 +478,13 @@ public class CachingCallbackProxy implements PodderServiceCallback {
 
     /**
      * A callback cached for later processing.
-     * 
+     *
      * @author ondra
      */
     protected interface CachedCallback {
         /**
          * Try to re-send this call to the given callback object.
-         * 
+         *
          * @param cb The callback object to which to re-send the call.
          * @return Whether the re-sending was successfull
          */

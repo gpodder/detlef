@@ -44,7 +44,7 @@ public interface EpisodeDBAssistant {
 
     /**
      * Delivers all episodes from one podcast.
-     * 
+     *
      * @param context : The application context eg.
      *            Activity.getApplicationContext());
      * @param podcast : The podcast which contains the episodes
@@ -54,7 +54,7 @@ public interface EpisodeDBAssistant {
 
     /**
      * Delivers all episodes.
-     * 
+     *
      * @param context : The application context eg.
      *            Activity.getApplicationContext());
      * @return returns all episodes which are stored in the database
@@ -63,7 +63,7 @@ public interface EpisodeDBAssistant {
 
     /**
      * applies all changes in the EpisodeActionChanges to the database.
-     * 
+     *
      * @param context: the application context
      * @param changes: the changes made in an episode
      */
@@ -76,7 +76,7 @@ public interface EpisodeDBAssistant {
 
     /**
      * Gets an episode by database id.
-     * 
+     *
      * @param context : The application context eg.
      *            Activity.getApplicationContext());
      * @param id The ID of the episode in the database.
@@ -87,7 +87,7 @@ public interface EpisodeDBAssistant {
     /**
      * Toggle the ActionState of the episode between read and unread
      * (new/play/download vs delete).
-     * 
+     *
      * @param episode The episode whose state to toggle.
      */
     void toggleEpisodeReadState(Episode episode);

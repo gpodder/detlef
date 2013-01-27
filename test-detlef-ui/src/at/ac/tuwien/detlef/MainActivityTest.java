@@ -41,7 +41,7 @@ public class MainActivityTest extends
     public void tearDown() throws Exception {
         solo.finishOpenedActivities();
     }
-    
+
     public void testBackButtonPress() {
         solo.clickOnText("PLAYER");
         solo.goBack();

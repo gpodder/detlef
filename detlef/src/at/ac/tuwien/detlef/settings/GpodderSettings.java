@@ -85,11 +85,11 @@ public class GpodderSettings {
      *
      */
     public String getDevicename() {
-        
+
         if (devicename == null || devicename.isEmpty()) {
             return getDefaultDevicename();
         }
-        
+
         return devicename;
     }
 
@@ -159,15 +159,15 @@ public class GpodderSettings {
      * @return String in lowercase that identifies the device manufacturer.
      */
     private String getDeviceManufacturer() {
-        
+
         if (Build.PRODUCT != null && Build.PRODUCT.equals("sdk")) {
             return "emulator";
         }
-        
+
         if (Build.MANUFACTURER == null || Build.MANUFACTURER.toLowerCase().equals("unknown")) {
             return "";
         }
-        
+
         return Build.MANUFACTURER.toLowerCase();
     }
 

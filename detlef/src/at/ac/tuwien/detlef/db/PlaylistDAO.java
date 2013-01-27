@@ -32,7 +32,7 @@ public interface PlaylistDAO {
     public interface OnPlaylistChangeListener {
         /**
          * Gets called when a playlist item was added.
-         * 
+         *
          * @param position The position of the new playlist item.
          * @param episode The episode that was added as an item.
          */
@@ -40,7 +40,7 @@ public interface PlaylistDAO {
 
         /**
          * Gets called when the user rearranges a playlist item.
-         * 
+         *
          * @param firstPosition The initial position of the playlist item.
          * @param secondPosition The late position of the playlist item.
          */
@@ -49,7 +49,7 @@ public interface PlaylistDAO {
         /**
          * Gets called when some playlist item is removed (including when the
          * user deletes a podcast and its episodes).
-         * 
+         *
          * @param position The position of the item to be removed.
          */
         void onPlaylistEpisodeRemoved(int position);
@@ -57,7 +57,7 @@ public interface PlaylistDAO {
 
     /**
      * Adds an {@link Episode} to the end of the playlist.
-     * 
+     *
      * @param podcast The episode to be added
      * @return true if episode was added, false otherwise.
      */
@@ -65,7 +65,7 @@ public interface PlaylistDAO {
 
     /**
      * Adds an episode to the beginning of the playlist.
-     * 
+     *
      * @param podcast The episode to be added
      * @return True if successful, false if not.
      */
@@ -80,7 +80,7 @@ public interface PlaylistDAO {
 
     /**
      * Removes an episode from playlist.
-     * 
+     *
      * @param episode The ordering number of the episode to be removed.
      * @return True if successful, false if not.
      */
@@ -88,7 +88,7 @@ public interface PlaylistDAO {
 
     /**
      * Moves an episode to a different position in the playlist.
-     * 
+     *
      * @param firstPosition The position of the episode to be moved.
      * @param secondPosition The position where the episode should be moved
      *            into.
@@ -98,14 +98,14 @@ public interface PlaylistDAO {
 
     /**
      * Adds a listener that will get notified when the playlist changes.
-     * 
+     *
      * @param listener The listener to be notified.
      */
     void addPlaylistChangedListener(OnPlaylistChangeListener listener);
 
     /**
      * Removes a listener. See also addPlaylistChangedListener.
-     * 
+     *
      * @param listener The listener to be removed.
      */
     void removePlaylistChangeListener(OnPlaylistChangeListener listener);
@@ -117,7 +117,7 @@ public interface PlaylistDAO {
 
     /**
      * Removes all episodes with the given ID from the playlist.
-     * 
+     *
      * @param id The id of the episodes to remove.
      */
     void removeEpisodesById(long id);

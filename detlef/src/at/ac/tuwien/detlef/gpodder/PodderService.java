@@ -63,7 +63,7 @@ import com.dragontek.mygpoclient.simple.SimpleClient;
  * responds with the respective <tt>_DONE</tt> or <tt>_FAILED</tt> message
  * codes. Messages without a {@link android.os.Message#replyTo replyTo}
  * attribute are ignored.
- * 
+ *
  * @author ondra
  */
 public class PodderService extends Service {
@@ -95,7 +95,7 @@ public class PodderService extends Service {
 
     /**
      * Checks whether the given scheme is allowed.
-     * 
+     *
      * @param sch The scheme to check.
      * @return Whether the given scheme is allowed.
      */
@@ -121,7 +121,7 @@ public class PodderService extends Service {
 
     /**
      * Performs an HTTP download.
-     * 
+     *
      * @param cb HTTP callback for error cases.
      * @param reqId Request ID as passed by the remote caller.
      * @param url URL of the file to download.
@@ -193,7 +193,7 @@ public class PodderService extends Service {
 
     /**
      * Performs a login to a gpodder.net-compatible service.
-     * 
+     *
      * @param cb Callback for error cases.
      * @param reqId Request ID as passed by the remote caller.
      * @param cinfo Information about the client of the gpodder.net-compatible
@@ -230,7 +230,7 @@ public class PodderService extends Service {
 
     /**
      * Fetches details about podcasts specified by the given URLs.
-     * 
+     *
      * @param pc The gpodder.net-compatible public API client.
      * @param urls URLs to fetch.
      * @return
@@ -304,7 +304,7 @@ public class PodderService extends Service {
         /**
          * Called either when the length of the file becomes known, or when it
          * can only be determined by the end of the stream.
-         * 
+         *
          * @param len The length of the stream if known, or -1 if unknowable.
          * @throws RemoteException May be thrown if/when a callback fails.
          */
@@ -312,7 +312,7 @@ public class PodderService extends Service {
 
         /**
          * Called when a chunk of bytes has been downloaded successfully.
-         * 
+         *
          * @param chunk Chunk of bytes downloaded.
          * @param len Number of bytes downloaded (chunk might be larger for
          *            efficiency reasons).

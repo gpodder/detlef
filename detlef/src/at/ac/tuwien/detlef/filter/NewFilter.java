@@ -18,10 +18,10 @@ public class NewFilter implements EpisodeFilter {
      * is {@link ActionState#NEW}, true else.
      */
     @Override
-    public boolean filter(Episode episode) {        
+    public boolean filter(Episode episode) {
         return !episode.getActionState().equals(Episode.ActionState.NEW);
     }
-    
+
     @Override
     public String getFilterName() {
         return getClass().getCanonicalName();

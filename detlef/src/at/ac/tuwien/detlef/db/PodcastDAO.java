@@ -68,10 +68,10 @@ public interface PodcastDAO {
      * data quickly. It is important to note that all remote data stored on gpodder.net <strong>
      * will not be touched</strong> by calling this method. So it sounds more drastic than it
      * actually is, because all data can be restored by simply refreshing the feed list.
-     * 
+     *
      * <p>This is also useful if you change the user account and want to wipe all data with one
      * handy function.</p>
-     * 
+     *
      * @return The number of deleted podcasts.
      */
     int deleteAllPodcasts();
@@ -125,7 +125,7 @@ public interface PodcastDAO {
 
     /**
      * Deletes the podcast locally and removes all its episodes.
-     * 
+     *
      * If the podcast has only been added locally but was never uploaded it is completely
      * removed, otherwise it is marked as deleted in the database. Once this delete action has
      * been pushed to the gpodder service the podcast should be completely deleted (with
@@ -146,21 +146,21 @@ public interface PodcastDAO {
 
     /**
      * Returns all podcasts that aren't marked as deleted.
-     * 
+     *
      * @return A list of podcast objects.
      */
     List<Podcast> getNonDeletedPodcasts();
 
     /**
      * Returns all podcasts are marked as locally added.
-     * 
+     *
      * @return A list of podcast objects.
      */
     List<Podcast> getLocallyAddedPodcasts();
 
     /**
      * Returns all podcasts are marked as locally deleted.
-     * 
+     *
      * @return A list of podcast objects.
      */
     List<Podcast> getLocallyDeletedPodcasts();

@@ -38,9 +38,9 @@ import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
@@ -73,10 +73,10 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     private ImageButton buttonFF;
     private ImageButton buttonRew;
     private ImageView podcastIcon;
-    
+
     /** Logging Tag */
     private static final String TAG = PlayerFragment.class.getCanonicalName();
-    
+
     /**
      * Handles the connection to the MediaPlayerService that plays music.
      */
@@ -293,7 +293,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return this;
         }
-        
+
         try {
             if (!service.isCurrentlyPlaying()) {
                 service.setNextEpisode(activeEpisode);
@@ -355,7 +355,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             showGenericError();
             Log.e(TAG, "startStop() Exception", e);
         }
-        
+
         return this;
     }
 
@@ -379,7 +379,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             showGenericError();
             Log.e(TAG, "fastForward() Exception", e);
         }
-        
+
         return this;
     }
 
@@ -390,7 +390,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         if (service == null) {
             return this;
         }
-        
+
         try {
             service.rewind();
             if (service.getNextEpisode() != activeEpisode) {
@@ -404,7 +404,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
             showGenericError();
             Log.e(TAG, "fastForward() Exception", e);
         }
-        
+
         return this;
     }
 
@@ -427,7 +427,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         // be problems if html text is refreshed.
         episodeDescription.loadData("", "text/html; charset=UTF-8", null);
 
-        
+
         if (ep == null) {
             episode.setText(
                     getActivity().getText(R.string.no_episode_selected)

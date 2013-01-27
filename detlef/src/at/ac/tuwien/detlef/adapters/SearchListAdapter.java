@@ -31,7 +31,7 @@ import at.ac.tuwien.detlef.domain.Episode;
 
 public class SearchListAdapter extends ArrayAdapter<Episode> {
 
-    private ArrayList<Episode> episodes;
+    private final ArrayList<Episode> episodes;
 
     public SearchListAdapter(Context context, int textViewResourceId,
             ArrayList<Episode> pEpisodes) {

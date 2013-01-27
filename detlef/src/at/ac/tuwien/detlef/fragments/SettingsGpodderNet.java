@@ -51,9 +51,9 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
 /**
  * This fragment contains the UI logic for the gpodder.net account preferences
  * screen.
- * 
+ *
  * <p>There are two different states in which this fragment can run:</p>
- * 
+ *
  * <ul>
  *     <li>"set up mode": This will return to the {@link MainActivity} after the
  *     "register device id" button has been pressed where then the podcast and episode

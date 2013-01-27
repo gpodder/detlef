@@ -8,12 +8,12 @@ import at.ac.tuwien.detlef.domain.Episode;
 /**
  * Allows to chain up a set of {@link EpisodeFilter EpisodeFilters}.
  * This is especially useful if you need to combine multiple filters.
- * 
+ *
  * @author moe
  *
  */
 public class FilterChain implements EpisodeFilter {
-    
+
     /** serialization id */
     private static final long serialVersionUID = -2419542734907859360L;
     /**
@@ -21,8 +21,8 @@ public class FilterChain implements EpisodeFilter {
      * canonical name of the {@link EpisodeFilter}'s class. This
      * means that each type can only be contained once.
      */
-    private Map<String, EpisodeFilter> filters = new HashMap<String, EpisodeFilter>();
-    
+    private final Map<String, EpisodeFilter> filters = new HashMap<String, EpisodeFilter>();
+
     /**
      * Goes through the set of provided {@link EpisodeFilters} and checks
      * for each of them, if {@link EpisodeFilter#filter(Episode)} returns
@@ -32,16 +32,16 @@ public class FilterChain implements EpisodeFilter {
      */
     @Override
     public boolean filter(Episode episode) {
-        
+
         for (String key : filters.keySet()) {
             if (filters.get(key).filter(episode)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Adds an {@link EpisodeFilter} to the chain. If there exists
      * already an EpsiodeFilter with the same name (determined by
@@ -55,22 +55,22 @@ public class FilterChain implements EpisodeFilter {
         filters.put(episodeFilter.getFilterName(), episodeFilter);
         return this;
     }
-    
+
     /**
-     * Gets an {@link EpisodeFilter} by passing another instance of 
+     * Gets an {@link EpisodeFilter} by passing another instance of
      * EpisodeFilter.
      * @param episodeFilter
      * @return the EpisodeFilter or null, if no filter with the given type
      * exists in the chain. If the result is not null, the returned
-     * EpisodeFilter must be of the same type as the one passed as 
-     * parameter. 
+     * EpisodeFilter must be of the same type as the one passed as
+     * parameter.
      */
     public EpisodeFilter getEpisodeFilterByType(EpisodeFilter episodeFilter) {
-        
+
         return filters.get(episodeFilter.getFilterName());
-        
+
     }
-    
+
     /**
      * Calls {@link #removeEpisodeFilter(String)} with the episode's
      * {@link EpisodeFilter#getFilterName() filter name} as parameter.
@@ -99,7 +99,7 @@ public class FilterChain implements EpisodeFilter {
         filters.remove(filterName);
         return this;
     }
-    
+
     /**
      * Returns whether the list of filters contains an {@link EpisodeFilter}
      * of the same type as passed on via the parameter.
@@ -110,7 +110,7 @@ public class FilterChain implements EpisodeFilter {
     public boolean contains(EpisodeFilter filter) {
         return filters.containsKey(filter.getFilterName());
     }
-    
+
     /**
      * @return The number of filters currently in the chain. If no
      * filters are contained, return 0.
@@ -118,7 +118,7 @@ public class FilterChain implements EpisodeFilter {
     public int countFilters() {
         return filters.size();
     }
-    
+
     @Override
     public String getFilterName() {
         return getClass().getCanonicalName();

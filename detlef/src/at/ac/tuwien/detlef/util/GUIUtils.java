@@ -66,10 +66,10 @@ public class GUIUtils {
         }
         return this;
     }
-    
+
     /**
      * A simple {@link AlertDialog} with only one OK button.
-     * 
+     *
      * @param title The title's resource id.
      * @param message The messages's resource id.
      * @param okButtonListener The {@link OnClickListener} that will be called after the user
@@ -98,7 +98,7 @@ public class GUIUtils {
             Log.e(TAG, e.getMessage(), e);
         }
         return this;
-        
+
     }
-    
+
 }

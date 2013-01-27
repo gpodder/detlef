@@ -63,7 +63,7 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
         settings.setDeviceId(devId);
         DependencyAssistant.getDependencyAssistant()
             .getGpodderSettingsDAO(mContext).writeSettings(settings);
-        
+
         super.setUp();
     }
 

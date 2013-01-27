@@ -19,7 +19,7 @@
 /**
  * Utility and helper classes. Please keep it to the absolute minimum, as packages like this
  * tend to become "trash dumps".
- * 
+ *
  * @author moe
  */
 package at.ac.tuwien.detlef.util;

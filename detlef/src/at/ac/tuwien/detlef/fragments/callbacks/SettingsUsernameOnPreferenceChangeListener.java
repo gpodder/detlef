@@ -24,14 +24,14 @@ import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 /**
  * Quite a lot is going on if the username preference is changed:
- * 
+ *
  * <ul>
  *     <li>Generate a default device name out of the username</li>
  *     <li>If the use has changed a previously entered device name that has been successfully
  *     verified, all user data from the previous user has to be wiped.
  *     </li>
  * </ul>
- * 
+ *
  * @author moe
  *
  */
@@ -39,7 +39,7 @@ public class SettingsUsernameOnPreferenceChangeListener
     extends SettingsGpodderNetExternalListener
     implements OnPreferenceChangeListener
 {
-    
+
     public SettingsUsernameOnPreferenceChangeListener(SettingsGpodderNet pSender) {
         super(pSender);
     }
@@ -47,13 +47,13 @@ public class SettingsUsernameOnPreferenceChangeListener
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         preference.setSummary((String) newValue);
-        
-        if (!getSettings().getUsername().equals((String) newValue)) {
+
+        if (!getSettings().getUsername().equals(newValue)) {
             // you have been warned!!
             updateSettings((String) newValue);
             deletePocasts();
         }
-        
+
         getSender().getActivity().runOnUiThread(
             new Runnable() {
                 @Override
@@ -63,7 +63,7 @@ public class SettingsUsernameOnPreferenceChangeListener
                 }
             }
         );
-        
+
         return true;
     }
 

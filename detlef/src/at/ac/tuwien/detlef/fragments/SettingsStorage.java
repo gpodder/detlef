@@ -10,20 +10,20 @@ import at.ac.tuwien.detlef.R;
 
 /**
  * Sets the storage information about the episodes in the settings screen.
- * 
+ *
  * @author Lacky
  */
 public class SettingsStorage extends PreferenceFragment {
 
     private static final String TAG = SettingsStorage.class.getName();
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);        
+        super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences_storage);
         setUpStorageLocation();
     }
-    
+
     /**
      * Sets the storage location textbox in the settings screen,
      * if the external files dir isn't available we will display an empty string.

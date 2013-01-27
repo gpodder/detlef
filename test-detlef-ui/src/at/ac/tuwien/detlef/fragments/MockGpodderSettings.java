@@ -18,7 +18,8 @@ class MockGpodderSettings extends GpodderSettings {
     public String getDevicename() {
         return "username-android";
     }
-    
+
+    @Override
     public DeviceId getDeviceId() {
         return new DeviceId("abcde");
     }

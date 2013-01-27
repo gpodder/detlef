@@ -91,7 +91,7 @@ public class EpisodeTest extends TestCase {
         /* Check whether the Episode was really copied. */
         assertNotSame(ie, e);
     }
-    
+
     public void testGetEnclosure() {
         Episode e = new Episode(new Podcast());
         e.setFileSize(1000);

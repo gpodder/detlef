@@ -39,13 +39,13 @@ import com.jayway.android.robotium.solo.Solo;
  * This tests the "Connection Test" button.
  * Because we use a modified {@link DependencyAssistant} this is in a separate file as the
  * {@link DependencyAssistant} must be passed in the {@link #setUp()} method.
- * 
+ *
  * @author moe
  */
 public class SettingsGpodderNetConnectionTest extends
 ActivityInstrumentationTestCase2<SettingsActivity> {
 
-    private DependencyAssistantTestSettings dependencyAssistant = new DependencyAssistantTestSettings();
+    private final DependencyAssistantTestSettings dependencyAssistant = new DependencyAssistantTestSettings();
 
     public enum ConnectionTestBehavior {CORRECT, INCORRECT, CONNECTIONERROR};
 
@@ -224,7 +224,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
      *   	button.
      *   </li>
      * </ul>
-     * 
+     *
      * @author moe
      */
     public class DependencyAssistantTestSettings extends DependencyAssistant {
@@ -264,7 +264,7 @@ ActivityInstrumentationTestCase2<SettingsActivity> {
                                             "device is offline"));
                             }
                         }
-                        
+
                     }).start();
                 }
             };

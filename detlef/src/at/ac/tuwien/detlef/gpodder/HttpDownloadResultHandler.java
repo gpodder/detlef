@@ -46,6 +46,7 @@ public interface HttpDownloadResultHandler<Receiver> extends ResultHandler<Recei
             this.bytes = bytes;
         }
 
+        @Override
         public void deliver() {
             cb.handleSuccess(bytes);
         }
@@ -62,6 +63,7 @@ public interface HttpDownloadResultHandler<Receiver> extends ResultHandler<Recei
             this.total = total;
         }
 
+        @Override
         public void deliver() {
             cb.handleProgress(have, total);
         }

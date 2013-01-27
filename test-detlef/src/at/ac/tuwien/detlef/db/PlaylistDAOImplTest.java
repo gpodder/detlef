@@ -29,7 +29,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
  * tests the episodeDAOImpl
- * 
+ *
  * @author Lacky
  */
 public class PlaylistDAOImplTest extends AndroidTestCase {
@@ -300,7 +300,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         assertTrue(ldao.checkNoGaps());
         assertTrue(ldao.getNonCachedEpisodes().size() == 0);
     }
-    
+
     public void testRemoveEpisodesById() {
         clearDatabase();
 
@@ -335,7 +335,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         assertTrue(playlist.get(4) == e1);
         assertTrue(playlist.get(5) == e2);
         assertTrue(playlist.get(6) == e1);
-        
+
         ldao.removeEpisodesById(e2.getId());
         playlist = ldao.getNonCachedEpisodes();
         assertTrue(playlist.size() == 5);

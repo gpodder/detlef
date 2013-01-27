@@ -28,7 +28,7 @@ import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceCallback;
 /**
  * A prototype of a responder to answers from the {@link PodderService} and how
  * they should be forwarded to the user of {@link GPodderSync}.
- * 
+ *
  * @author ondra
  */
 public abstract class SyncResponder extends PodderServiceCallback.Stub {
@@ -49,7 +49,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
     /**
      * Sets the {@link GPodderSync} object which is used to manage the service
      * connection. Called by {@link GPodderSync} itself.
-     * 
+     *
      * @param gpos The GPodderSync object to use.
      */
     public void setGpoSync(GPodderSync gpos) {
@@ -58,7 +58,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     /**
      * Handles the case that an operation, any operation, failed.
-     * 
+     *
      * @param reqId The request ID as passed by {@link GPodderSync}.
      * @param errCode The error code returned by the service.
      * @param errStr The error message returned by the service.
@@ -68,7 +68,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     /**
      * Handles the case that an operation that returns no data succeeded.
-     * 
+     *
      * @param reqId The request ID as passed by {@link GPodderSync}.
      */
     public abstract void handleNoDataSuccess(int reqId)
@@ -76,7 +76,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
 
     /**
      * Starts the service and initiates a bind to it.
-     * 
+     *
      * @param sconn Service connection manager object, supplied by
      *            {@link GPodderSync}.
      */

@@ -116,7 +116,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
     /**
      * Called when the task encounters an error. The given String is sent. The
      * Task should exit after this has been called.
-     * 
+     *
      * @param errString A String describing the error.
      */
     private void sendError(String errString) {

@@ -23,12 +23,12 @@ import android.content.Context;
 
 /**
  * Detlef.
- * 
+ *
  * <ol>
  *     <li>A given name for males mainly used in Germany.</li>
  *     <li>The code name for a gpodder.net client running on Android.</li>
  * </ol>
- * 
+ *
  * @author INSO_ASE_GROUP1 WS2012
  *
  */

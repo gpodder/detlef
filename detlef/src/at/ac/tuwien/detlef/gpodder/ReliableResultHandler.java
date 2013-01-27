@@ -67,9 +67,9 @@ ResultHandler.ResultEvent> implements ResultHandler<Receiver> {
 
     /**
      * Order the callback to deliver the event e.
-     * 
+     *
      * If the receiver is not ready, the event is queued.
-     * 
+     *
      * @param e The event to deliver.
      */
     @Override
@@ -92,11 +92,13 @@ ResultHandler.ResultEvent> implements ResultHandler<Receiver> {
         e.deliver();
     }
 
+    @Override
     public ReliableResultHandler<Receiver> setBundle(Bundle pBundle) {
         bundle = pBundle;
         return this;
     }
 
+    @Override
     public Bundle getBundle() {
         return bundle;
     }

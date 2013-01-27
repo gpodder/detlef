@@ -29,7 +29,7 @@ import java.util.LinkedList;
  */
 public class ByteRope {
     /** The linked list backing this rope. */
-    private LinkedList<byte[]> ll;
+    private final LinkedList<byte[]> ll;
 
     /** The current length, in bytes, of the rope. */
     private int len;

@@ -25,10 +25,10 @@ import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 /**
  * A {@link ConnectionTester} that verifies {@link GpodderSettings} data against
  * the public API of gpodder.net.
- * 
+ *
  * <p>This implementation needs a {@link Context} to be injected via {@link #setContext(Context)}
  * in order to work properly.</p>
- * 
+ *
  * @author moe
  *
  */

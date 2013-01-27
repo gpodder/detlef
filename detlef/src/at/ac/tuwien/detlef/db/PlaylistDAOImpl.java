@@ -75,7 +75,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     /**
      * Notifies all the listeners of the added episode.
-     * 
+     *
      * @param position The position of the new episode.
      * @param episode The episode that was added.
      */
@@ -87,7 +87,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     /**
      * Notifies all the listeners of the removed episode.
-     * 
+     *
      * @param position The former position of the removed episode.
      */
     private void notifyListenersRemoved(int position) {
@@ -98,7 +98,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     /**
      * Notifies all the listeners of a move in the ordering.
-     * 
+     *
      * @param firstPosition The former position of the episode.
      * @param secondPosition The late position of the episode.
      */
@@ -110,7 +110,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     /**
      * Gets the next free ordering item.
-     * 
+     *
      * @param db The db with which to perform the query.
      * @return The next free ordering item; at least 0.
      */
@@ -189,7 +189,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
     /**
      * Shifts the ordering by the specified amount, starting from the specified
      * position.
-     * 
+     *
      * @param from All items >= from will be shifted.
      * @param by The amount by which the items will be shifted. Can be negative
      *            or positive.
@@ -244,7 +244,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     /**
      * Removes an item from the playlist and shifts the ordering accordingly.
-     * 
+     *
      * @param position The position of the episode to remove.
      * @param db The db with which to perform the operations.
      * @return The number of affected rows.
@@ -321,7 +321,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     /**
      * Gets the playlist database id at the specified playlist position.
-     * 
+     *
      * @param position The position for which to get the id.
      * @param db The DB with which to perform the query.
      * @return The database ID.
@@ -378,7 +378,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
 
     /**
      * Gets all the position of a specified episode in the playlist.
-     * 
+     *
      * @param episode The episode for which to search.
      * @param db The database with which to perform the search.
      * @return All the position of the specified episode in the playlist.

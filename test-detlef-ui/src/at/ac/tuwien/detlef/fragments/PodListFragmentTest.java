@@ -94,7 +94,7 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
 
         assertFalse(String.format("Deleted podcast %s should not be displayed in list", uuid), solo.searchText(uuid));
         assertFalse(String.format("Deleted podcast %s should not be in DAO", uuid), dao.getPodcastById(p.getId()) != null);
-        
+
     }
 
     @Override

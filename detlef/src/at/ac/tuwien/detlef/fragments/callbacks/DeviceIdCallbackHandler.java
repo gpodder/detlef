@@ -33,7 +33,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
 /**
  * The Handler that is called after a {@link DeviceId} has successfully been
  *  registered at gpodder.net.
- * 
+ *
  * @author moe
  */
 public class DeviceIdCallbackHandler

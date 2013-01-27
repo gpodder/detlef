@@ -29,15 +29,15 @@ public class LocalEpisodeAction {
 
     /**
      * Constructs a new LocalEpisodeAction for insertion into the db.
-     * 
+     *
      * If action is != PLAY, started, position and total may be null, otherwise they must not.
-     * 
+     *
      * @param podcast The Podcast object this action belongs to. Mote that this must already be in
      *                  the databse.
-     * @param episode The URL or GUID of the episode this action belongs to. 
+     * @param episode The URL or GUID of the episode this action belongs to.
      * @param action The type of action. This is one of DOWNLOAD, PLAY, DELETE and NEW.
      * @param started The starting position of a playback action (in seconds).
-     * @param position The current position of a playback action (in seconds). 
+     * @param position The current position of a playback action (in seconds).
      * @param total The total length of the episode file (in seconds).
      */
     public LocalEpisodeAction(Podcast podcast, String episode, Episode.ActionState action,

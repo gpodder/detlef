@@ -29,7 +29,7 @@ public interface EpisodeActionDAO {
 
     /**
      * Inserts an episode action into the database.
-     * 
+     *
      * @param episodeAction The episode action which should be saved into the
      *            database.
      * @return Returns true on success, false otherwise.
@@ -38,7 +38,7 @@ public interface EpisodeActionDAO {
 
     /**
      * Delivers all episode actions which are stored in the database.
-     * 
+     *
      * @return Returns a list of all episode actions.
      */
     List<RemoteEpisodeAction> getAllEpisodeActions();
@@ -46,7 +46,7 @@ public interface EpisodeActionDAO {
     /**
      * Deletes all specified episode actions from the database. This should be
      * called after they were persisted on the gpodder service.
-     * 
+     *
      * @param episodeActions The episode actions to delete.
      * @return Returns true on success, false otherwise.
      */

@@ -18,11 +18,13 @@
 
 package at.ac.tuwien.detlef.filter;
 
-import org.mockito.Mockito;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import at.ac.tuwien.detlef.domain.*;
+
+import org.mockito.Mockito;
+
+import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
  * Tests the {@link FilterChain}.
@@ -30,88 +32,88 @@ import at.ac.tuwien.detlef.domain.*;
  *
  */
 public class FilterChainTest extends TestCase {
-	
+
 	public void testFilter_returnsFalseIfNoFilterInChain() {
-		
+
 		Episode episode = new Episode(new Podcast());
-		
+
 		FilterChain filterChain = new FilterChain();
 		Assert.assertFalse(
 			"An empty filterChain must always return false",
 			filterChain.filter(episode)
 		);
-		
+
 	}
-	
+
 	public void testFilter_returnsTrueIfTrueFilter() {
-		
+
 		Episode episode = new Episode(new Podcast());
-		
-		FilterChain filterChain = new FilterChain();	
-		
+
+		FilterChain filterChain = new FilterChain();
+
 		EpisodeFilter filter = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filter.filter(episode)).thenReturn(true);
-        
+
         filterChain.putEpisodeFilter(filter);
-        
+
         Assert.assertTrue(
         	"Filterchain must return true, because it contains a"
         	+ " filter that returns true",
         	filterChain.filter(episode)
         );
-		
+
 	}
 
 	public void testFilter_returnsFalseIfFalseFilter() {
-		
+
 		Episode episode = new Episode(new Podcast());
-		
-		FilterChain filterChain = new FilterChain();	
-		
+
+		FilterChain filterChain = new FilterChain();
+
 		EpisodeFilter filter = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filter.filter(episode)).thenReturn(false);
-        
+
         filterChain.putEpisodeFilter(filter);
-        
+
         Assert.assertFalse(
         	"Filterchain must return true, because it contains a"
         	+ " filter that returns true",
         	filterChain.filter(episode)
         );
-		
+
 	}
 
 	public void testFilter_returnsTrueIfSingleFilterisTrue() {
-		
+
 		Episode episode = new Episode(new Podcast());
-		
-		FilterChain filterChain = new FilterChain();	
-		
+
+		FilterChain filterChain = new FilterChain();
+
 		EpisodeFilter filterFalse = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filterFalse.filter(episode)).thenReturn(false);
 
 		EpisodeFilter filterTrue = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filterTrue.filter(episode)).thenReturn(true);
 
-        
+
         filterChain.putEpisodeFilter(filterFalse);
         filterChain.putEpisodeFilter(filterTrue);
-        
-        
+
+
         Assert.assertTrue(
         	"Filterchain must return true, because it contains a"
         	+ " filter that returns true",
         	filterChain.filter(episode)
         );
-		
+
 	}
 
 	public void testFilter_putFilterReplacesExistingType() {
-		
+
 		Episode episode = new Episode(new Podcast());
-		
-		FilterChain filterChain = new FilterChain();	
-		
+
+		FilterChain filterChain = new FilterChain();
+
 		EpisodeFilter filterFalse = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filterFalse.filter(episode)).thenReturn(false);
         Mockito.when(filterFalse.getFilterName()).thenReturn("filterFalse");
@@ -127,23 +129,23 @@ public class FilterChainTest extends TestCase {
         filterChain.putEpisodeFilter(filterFalse);
         filterChain.putEpisodeFilter(filterTrue1);
         filterChain.putEpisodeFilter(filterTrue2);
-        
-        
+
+
         Assert.assertEquals(
         	"Filterchain must contain 2 elements, because"
         	+ " a filter with the same name was added twice",
         	2,
         	filterChain.countFilters()
         );
-		
+
 	}
 
 	public void testFilter_removeFilter() {
-		
+
 		Episode episode = new Episode(new Podcast());
-		
-		FilterChain filterChain = new FilterChain();	
-		
+
+		FilterChain filterChain = new FilterChain();
+
 		EpisodeFilter filterFalse = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filterFalse.filter(episode)).thenReturn(false);
         Mockito.when(filterFalse.getFilterName()).thenReturn("filterFalse");
@@ -155,27 +157,27 @@ public class FilterChainTest extends TestCase {
 		EpisodeFilter filterTrueDel = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filterTrueDel.filter(episode)).thenReturn(true);
         Mockito.when(filterTrueDel.getFilterName()).thenReturn("filterTrue");
- 
-       
+
+
         filterChain.putEpisodeFilter(filterFalse);
         filterChain.putEpisodeFilter(filterTrue);
         filterChain.removeEpisodeFilter(filterTrueDel);
-        
+
         Assert.assertEquals(
         	"Filterchain must contain 1 element, because"
         	+ " a filter was removed",
         	1,
         	filterChain.countFilters()
         );
-		
+
 	}
 
 	public void testFilter_removeFilterByName() {
-		
+
 		Episode episode = new Episode(new Podcast());
-		
-		FilterChain filterChain = new FilterChain();	
-		
+
+		FilterChain filterChain = new FilterChain();
+
 		EpisodeFilter filterFalse = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filterFalse.filter(episode)).thenReturn(false);
         Mockito.when(filterFalse.getFilterName()).thenReturn("filterFalse");
@@ -183,32 +185,32 @@ public class FilterChainTest extends TestCase {
 		EpisodeFilter filterTrue = Mockito.mock(EpisodeFilter.class);
         Mockito.when(filterTrue.filter(episode)).thenReturn(true);
         Mockito.when(filterTrue.getFilterName()).thenReturn("filterTrue");
-       
+
         filterChain.putEpisodeFilter(filterFalse);
         filterChain.putEpisodeFilter(filterTrue);
         filterChain.removeEpisodeFilter("filterFalse");
-        
+
         Assert.assertEquals(
         	"Filterchain must contain 1 element, because"
         	+ " a filter was removed",
         	1,
         	filterChain.countFilters()
         );
-		
+
 	}
 
 	public void testFilter_removeInexistantFilterDontCare() {
-		
+
 		FilterChain filterChain = new FilterChain();
         filterChain.removeEpisodeFilter("lolMeNoExists");
-        
+
         Assert.assertEquals(
         	"Filterchain must contain 0 elements",
         	0,
         	filterChain.countFilters()
         );
-		
+
 	}
 
-	
+
 }

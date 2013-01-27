@@ -25,7 +25,7 @@ public class RemoteEpisodeAction extends EpisodeAction {
 
     /**
      * This should only be created inside of an EpisodeActionDAO.
-     * 
+     *
      * @param id
      * @param podcast
      * @param episode

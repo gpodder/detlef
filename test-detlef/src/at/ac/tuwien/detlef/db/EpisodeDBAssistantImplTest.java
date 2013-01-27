@@ -63,7 +63,7 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase{
         p1.setUrl("podcastUrl343");
         p1 = pdao.insertPodcast(p1);
         String url = java.util.UUID.randomUUID().toString();
-        
+
         at.ac.tuwien.detlef.domain.Episode ep = new at.ac.tuwien.detlef.domain.Episode(p1);
         ep.setActionState(ActionState.NEW);
         ep.setAuthor("authro");
@@ -77,21 +77,21 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase{
         ep.setReleased(343443);
         ep.setStorageState(StorageState.NOT_ON_DEVICE);
         ep.setTitle("titel");
-        
+
         ep.setUrl(url);
         ep = edao.insertEpisode(ep);
-        
+
         EpisodeAction action = new EpisodeAction("podcastUrl343",url, "play",
                 "device", "timestamp", null, 34, null);
-        
+
         List<EpisodeAction> aList = new ArrayList<EpisodeAction>();
         aList.add(action);
-        
-        EpisodeActionChanges changes = new EpisodeActionChanges(aList, (long)44444);
-        
+
+        EpisodeActionChanges changes = new EpisodeActionChanges(aList, 44444);
+
         EpisodeDBAssistantImpl epassist = new EpisodeDBAssistantImpl();
         epassist.applyActionChanges(this.mContext, changes);
-        
+
         List<at.ac.tuwien.detlef.domain.Episode> eps = edao.getEpisodes(p1);
         assertEquals(1,eps.size());
         at.ac.tuwien.detlef.domain.Episode freshlyEpisode = eps.get(0);

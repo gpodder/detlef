@@ -36,7 +36,7 @@ public class Episode implements IEpisode {
         DOWNLOADING,
         DOWNLOADED
     }
-    
+
     public enum ActionState {
         DOWNLOAD,
         PLAY,
@@ -174,7 +174,7 @@ public class Episode implements IEpisode {
     @Override
     public IEnclosure getEnclosure() {
         return new IEnclosure() {
-            
+
             @Override
             public long getFilesize() {
                 return Episode.this.getFileSize();
@@ -189,7 +189,7 @@ public class Episode implements IEpisode {
             public String getUrl() {
                 return Episode.this.getUrl();
             }
-            
+
         };
     }
 

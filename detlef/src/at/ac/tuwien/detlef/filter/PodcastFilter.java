@@ -19,17 +19,17 @@ public class PodcastFilter implements EpisodeFilter {
     private Podcast podcast = null;
 
     /**
-     * Sets the {@link Podcast} to be filtered. 
+     * Sets the {@link Podcast} to be filtered.
      * @param pPodcast The {@link Podcast} or null, if nothing
      *     should be filtered.
      * @return Fluent Interface
      */
     public PodcastFilter setPodcast(Podcast pPodcast) {
-        
+
         podcast = pPodcast;
         return this;
     }
-    
+
     /**
      * @return false, if the
      * {@link #setPodcast(Podcast) given Podcast's}
@@ -39,19 +39,19 @@ public class PodcastFilter implements EpisodeFilter {
      */
     @Override
     public boolean filter(Episode episode) {
-        
+
         if (podcast == null) {
             return false;
         }
-        
+
         if (episode.getPodcast() == null) {
             return true;
         }
-        
+
         return episode.getPodcast().getId() != podcast.getId();
-        
+
     }
-    
+
     @Override
     public String getFilterName() {
         return getClass().getCanonicalName();

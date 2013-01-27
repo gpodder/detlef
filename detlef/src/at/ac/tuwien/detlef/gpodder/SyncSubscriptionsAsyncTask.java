@@ -173,7 +173,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
     /**
      * Called when the task encounters an error. The given error code and string
      * are sent. The Task should exit after this has been called.
-     * 
+     *
      * @param errCode The error code.
      * @param errString The error string.
      */
@@ -195,7 +195,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         /**
          * Convert changes into EnhancedSubscriptionChanges. This accesses the
          * Network is may be sloooooooowwwww.
-         * 
+         *
          * @param changes
          * @return The converted SubscriptionChagnes.
          */

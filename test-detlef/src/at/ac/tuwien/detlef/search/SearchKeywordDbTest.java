@@ -25,29 +25,29 @@ import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
+import at.ac.tuwien.detlef.domain.Podcast;
 
 public class SearchKeywordDbTest extends AndroidTestCase {
-    
+
     private List<Episode> result;
-    
+
     public static final int TIMEOUT = 2000;
-    
+
     @Override
     protected void setUp() throws Exception {
-        
+
         result = null;
-        
+
         PodcastDAOImpl pdao = PodcastDAOImpl.i();
         EpisodeDAO episodeDao = EpisodeDAOImpl.i();
-        
+
         // remove all episodes from db
         for (Episode episode : episodeDao.getAllEpisodes()) {
             episodeDao.deleteEpisode(episode);
         }
-        
-        
+
+
         Podcast p1;
         p1 = new Podcast();
         p1.setDescription("description");
@@ -57,11 +57,11 @@ public class SearchKeywordDbTest extends AndroidTestCase {
         p1.setTitle("title");
         p1.setUrl("die url halt");
         pdao.insertPodcast(p1);
- 
-        
+
+
         // text taken from
         // http://en.wikinews.org/w/index.php?title=Main_Page&oldid=1519685
-        
+
         assertNotNull(episodeDao.insertEpisode(
             new Episode(p1)
                 .setAuthor("author")
@@ -76,7 +76,7 @@ public class SearchKeywordDbTest extends AndroidTestCase {
                 .setStorageState(StorageState.NOT_ON_DEVICE)
                 .setFilePath("path")
         ));
-        
+
         assertNotNull(episodeDao.insertEpisode(
                 new Episode(p1)
                     .setAuthor("author")
@@ -91,7 +91,7 @@ public class SearchKeywordDbTest extends AndroidTestCase {
                     .setStorageState(StorageState.NOT_ON_DEVICE)
                     .setFilePath("path")
             ));
-        
+
         assertNotNull(episodeDao.insertEpisode(
                 new Episode(p1)
                     .setAuthor("author")
@@ -106,9 +106,9 @@ public class SearchKeywordDbTest extends AndroidTestCase {
                     .setStorageState(StorageState.NOT_ON_DEVICE)
                     .setFilePath("path")
             ));
-        
+
     }
-    
+
     /**
      * http://en.wikinews.org/w/index.php?title=Main_Page&oldid=1519685
 Israel sets 36 hour ultimatum for Hamas
@@ -116,53 +116,53 @@ Philippines to host four-country meeting about South China Sea disputes
 Israeli airstrikes damage more offices housing international journalists in Gaza City
 Canberra United lose first game since January 2011
 Expedition 33 crew returns to Earth
-     * @throws Exception 
+     * @throws Exception
      */
-    
+
     public void testSearchTitle() throws Exception {
-       
+
         SearchCallback<Episode> callback = new SearchCallback<Episode>() {
-            
+
             @Override
             public void getResult(List<Episode> pResult) {
                 result = pResult;
-                
+
             }
         };
-        
+
         SearchKeywordDb search = new SearchKeywordDb();
         search.search(new SearchCriteriaKeyword().setKeyword("Earth"), callback);
-        
+
         Thread.sleep(TIMEOUT);
-        
+
         if (result == null) {
             fail(String.format("Search did not finish within %d ms", TIMEOUT));
         }
-        
+
         assertEquals("Expedition 33 crew returns to Earth", result.get(0).getTitle());
     }
-    
+
     public void testSearchDescription() throws Exception {
-        
+
         SearchCallback<Episode> callback = new SearchCallback<Episode>() {
-            
+
             @Override
             public void getResult(List<Episode> pResult) {
                 result = pResult;
-                
+
             }
         };
-        
+
         SearchKeywordDb search = new SearchKeywordDb();
         search.search(new SearchCriteriaKeyword().setKeyword("Kazakhstan"), callback);
-        
+
         Thread.sleep(TIMEOUT);
-        
+
         if (result == null) {
             fail(String.format("Search did not finish within %d ms", TIMEOUT));
         }
-        
+
         assertEquals("Expedition 33 crew returns to Earth", result.get(0).getTitle());
     }
-    
+
 }

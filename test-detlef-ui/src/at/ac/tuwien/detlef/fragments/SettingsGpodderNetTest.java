@@ -20,17 +20,17 @@ package at.ac.tuwien.detlef.fragments;
 
 import java.util.UUID;
 
-import com.jayway.android.robotium.solo.Solo;
-
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
 
+import com.jayway.android.robotium.solo.Solo;
+
 public class SettingsGpodderNetTest
     extends ActivityInstrumentationTestCase2<SettingsActivity> {
-    
+
     private Solo solo;
 
     @Override
@@ -40,7 +40,7 @@ public class SettingsGpodderNetTest
         delay();
         clickOnGpodderNetListEntry();
         delay();
-        
+
     }
 
     private void delay() {
@@ -85,14 +85,14 @@ public class SettingsGpodderNetTest
      * @throws Exception
      */
     public void notestChangeUsernameUpdatesDevicename() throws Exception {
-    
+
         String newUsername =  UUID.randomUUID().toString();
         enterUsername(newUsername);
-    
+
         // user name should appear as summary
         assertTrue(solo.searchText(String.format("%s-android", newUsername)));
     }
-    
+
     /**
      * If no user name and no password is set, the "Test Connection" button should be disabled.
      */
@@ -103,10 +103,10 @@ public class SettingsGpodderNetTest
             ).isEnabled()
         );
     }
-    
+
     /**
      * If a user name but no password is set, the "Test Connection" button should be disabled.
-     * @throws InterruptedException 
+     * @throws InterruptedException
      */
     public void testConnectionTestButtonDisabledIfUsernameButNoPassword() throws InterruptedException {
         enterUsername("username");
@@ -117,10 +117,10 @@ public class SettingsGpodderNetTest
             ).isEnabled()
         );
     }
-    
+
     /**
      * If a no user name but a password is set, the "Test Connection" button should be disabled.
-     * @throws InterruptedException 
+     * @throws InterruptedException
      */
     public void testConnectionTestButtonDisabledIfNoUsernameButPassword() throws InterruptedException {
         enterPassword("MeSoSecret");
@@ -131,11 +131,11 @@ public class SettingsGpodderNetTest
             ).isEnabled()
         );
     }
-    
+
     /**
      * Only if a user name AND a password is entered, the test connection button should become
      * enabled.
-     * @throws InterruptedException 
+     * @throws InterruptedException
      */
     public void testConnectionTestButtonEnabledIfUsernameAndPassword() throws InterruptedException {
         delay();
@@ -149,7 +149,7 @@ public class SettingsGpodderNetTest
             ).isEnabled()
         );
     }
-    
+
     private void enterPassword(String password) {
         solo.clickOnText(getActivity().getText(R.string.password).toString());
         delay();
@@ -168,7 +168,7 @@ public class SettingsGpodderNetTest
 
         String newDeviceName =  UUID.randomUUID().toString();
         String newUsername =  UUID.randomUUID().toString();
-        
+
         enterDevicename(newDeviceName);
         delay();
         enterUsername(newUsername);

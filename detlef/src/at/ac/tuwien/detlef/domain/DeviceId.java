@@ -60,6 +60,7 @@ public class DeviceId {
      * @return The device id that was set in {@link #DeviceId(String)} and is guaranteed to match
      *     {@value #DEVICE_ID_REGEX}.
      */
+    @Override
     public String toString() {
         return deviceId;
     }

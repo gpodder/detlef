@@ -113,7 +113,7 @@ public class LicensesActivity extends ExpandableListActivity
     /**
      * This adapter shows a general summary of each license as an overview, and
      * can be expanded to show the full license text.
-     * 
+     *
      * The group represents a single license overview, and each group has a single child
      * containing the license text.
      */

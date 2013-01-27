@@ -24,42 +24,43 @@ import at.ac.tuwien.detlef.domain.DeviceId;
  * @author moe
  *
  */
-public class DeviceIdGeneratorRandom 
+public class DeviceIdGeneratorRandom
     implements DeviceIdGenerator {
-    
+
     /**
      * The length of the random ID.
      */
-    private static final int ID_LENGTH = 12; 
-    
+    private static final int ID_LENGTH = 12;
+
     /** ASCII Offset of the lower chars (a-z). */
     private static final int LOWER_OFFSET = 97;
-    
+
     /** ASCII Offset of the upper chars (A-Z). */
     private static final int UPPER_OFFSET = 65;
-    
+
     /** ASCII Offset of the digits (0-9). */
     private static final int DIGIT_OFFSET = 48;
-    
+
     /** Number of chars in the alphabet. */
     private static final int CHAR_COUNT = 26;
 
     /** Number of digits in the alphabet. */
     private static final int DIGIT_COUNT = 10;
-    
-    /** 
+
+    /**
      *  The number of possible cases.
      *  In our case we have 3: lower case chars, upper case chars and digits.
      */
     private static final int CASE_COUNT = 3;
-    
+
+    @Override
     public DeviceId generate() {
-        
-        
+
+
         char[] chars = new char[ID_LENGTH];
-        
+
         for (int i = 0; i < ID_LENGTH; i++) {
-            
+
             switch ((int) (Math.random() * (CASE_COUNT + 1))) {
                 case 0:
                 default:
@@ -72,12 +73,12 @@ public class DeviceIdGeneratorRandom
                     chars[i] = (char) (DIGIT_OFFSET + (int) (Math.random() * DIGIT_COUNT));
                     break;
             }
-            
-             
+
+
         }
-        
+
         return new DeviceId(new String(chars));
 
     }
-    
+
 }

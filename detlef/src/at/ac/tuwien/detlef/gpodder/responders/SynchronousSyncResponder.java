@@ -41,19 +41,19 @@ import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
  * Responds to callbacks from the {@link PodderService} by simply executing them
  * on any thread, pausing the execution of another thread until such a callback
  * is processed.
- * 
+ *
  * @author ondra
  */
 public class SynchronousSyncResponder extends SyncResponder {
     /** Makes this whole shebang synchronous. */
-    private Semaphore stoplight;
+    private final Semaphore stoplight;
 
     /** The context in which the service should be started/stopped. */
-    private Context ctx;
+    private final Context ctx;
 
     /**
      * Constructs a synchronous responder.
-     * 
+     *
      * @param context The context in which the service should be
      *            started/stopped.
      */
@@ -71,7 +71,7 @@ public class SynchronousSyncResponder extends SyncResponder {
 
     /**
      * Blocks until the service has responded or the thread is interrupted.
-     * 
+     *
      * @throws InterruptedException The thread has been interrupted while
      *             waiting.
      */

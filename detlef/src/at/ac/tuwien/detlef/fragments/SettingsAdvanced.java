@@ -2,8 +2,8 @@ package at.ac.tuwien.detlef.fragments;
 
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceFragment;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceFragment;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
@@ -11,7 +11,7 @@ import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
 
 /**
  * Advanced settings that are only needed by experienced users.
- * 
+ *
  * @author moe
  */
 public class SettingsAdvanced extends PreferenceFragment {
@@ -24,7 +24,7 @@ public class SettingsAdvanced extends PreferenceFragment {
         loadSummaries();
         setUpSummaryUpdateListener(findPreference(GpodderSettingsDAO.KEY_API_ENDPOINT));
         setUpSummaryUpdateListener(findPreference(GpodderSettingsDAO.KEY_FEED_ENDPOINT));
-        
+
     }
 
     private void loadSummaries() {
@@ -47,7 +47,7 @@ public class SettingsAdvanced extends PreferenceFragment {
             .getGpodderSettingsDAO(getActivity())
             .writeSettings(getSettings());
     }
-    
+
     private void setUpSummaryUpdateListener(Preference preference) {
         preference.setOnPreferenceChangeListener(
             new OnPreferenceChangeListener() {
@@ -59,5 +59,5 @@ public class SettingsAdvanced extends PreferenceFragment {
             }
         );
     }
-    
+
 }

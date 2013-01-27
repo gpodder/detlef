@@ -28,13 +28,13 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
  * This {@link OnPreferenceClickListener} will pop up a warning if a user tries to change
  * a username that already has been verified. Because in this case all user data is
  * wiped and has to be synchronized again.
- * 
+ *
  * @author moe
  *
  */
 public class SettingsUsernameOnPreferenceClickListener
     extends SettingsGpodderNetExternalListener
-    implements OnPreferenceClickListener 
+    implements OnPreferenceClickListener
 {
 
         public SettingsUsernameOnPreferenceClickListener(SettingsGpodderNet pSender) {
@@ -43,19 +43,19 @@ public class SettingsUsernameOnPreferenceClickListener
 
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            
+
             if (!getSettings().isAccountVerified()) {
                 return true;
             }
-            
+
             final AlertDialog.Builder b = new AlertDialog.Builder(preference.getContext());
-            
+
             b.setTitle(R.string.warning);
             b.setMessage(R.string.you_are_changing_verified_username);
-            
+
             b.setPositiveButton(android.R.string.ok, null);
             b.show();
-            
+
             return true;
         }
 

@@ -37,6 +37,7 @@ public interface NoDataResultHandler<Receiver> extends ResultHandler<Receiver> {
             this.cb = cb;
         }
 
+        @Override
         public void deliver() {
             cb.handleSuccess();
         }

@@ -166,7 +166,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         Episode ep = eps.get(0);
         assertEquals(newPath, ep.getFilePath());
     }
-    
+
     /**
      * tests the updateActionState functionality
      */
@@ -181,7 +181,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         Episode ep = eps.get(0);
         assertEquals(ActionState.DELETE, ep.getActionState());
     }
-    
+
     /**
      * tests the updatePlayPosition functionality
      */

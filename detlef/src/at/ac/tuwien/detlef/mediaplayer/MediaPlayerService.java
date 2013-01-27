@@ -44,7 +44,7 @@ import at.ac.tuwien.detlef.domain.Episode.StorageState;
 
 /**
  * A service that provides methods for playing episodes.
- * 
+ *
  * @author johannes
  */
 public class MediaPlayerService extends Service implements IMediaPlayerService,
@@ -72,7 +72,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
 
     /**
      * Binder that allows local classes to communicate with the service.
-     * 
+     *
      * @author johannes
      */
     public class MediaPlayerBinder extends Binder {
@@ -179,7 +179,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             episodeDAO.updateStorageState(activeEpisode);
             return null;
         }
-        
+
         return Uri.fromFile(new File(activeEpisode.getFilePath()));
     }
 
@@ -290,7 +290,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     /**
      * Handles an incoming media control intent (which can be sent from a
      * notification).
-     * 
+     *
      * @param command The intent's EXTRA_MEDIA_CONTRL extra. One of
      *            EXTRA_PLAY_PAUSE, EXTRA_PREVIOUS, EXTRA_NEXT.
      */

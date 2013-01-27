@@ -20,8 +20,9 @@ package at.ac.tuwien.detlef.filter;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import at.ac.tuwien.detlef.domain.*;
+import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
+import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
  * Tests the {@link NewFilter}.
@@ -29,33 +30,33 @@ import at.ac.tuwien.detlef.domain.Episode.ActionState;
  *
  */
 public class NewFilterTest extends TestCase {
-	
+
 	public void testFilter_filtersNewEpisode() {
-		
+
 		Episode episode = new Episode(new Podcast());
 		episode.setActionState(ActionState.NEW);
 		NewFilter filter = new NewFilter();
-		
+
 		Assert.assertFalse(
 			"Episode should not be filterd, because its "
 			+ "ActionState is NEW",
 			filter.filter(episode)
 		);
-		
+
 	}
 
 	public void testFilter_filtersNonNewEpisode() {
-		
+
 		Episode episode = new Episode(new Podcast());
 		episode.setActionState(ActionState.PLAY);
 		NewFilter filter = new NewFilter();
-		
+
 		Assert.assertTrue(
 			"Episode should be filterd, because its "
 			+ "ActionState is not NEW",
 			filter.filter(episode)
 		);
-		
+
 	}
 
 }

@@ -11,7 +11,7 @@ public class NullFilter implements EpisodeFilter {
     public boolean filter(Episode episode) {
         return false;
     }
-    
+
     @Override
     public String getFilterName() {
         return getClass().getCanonicalName();

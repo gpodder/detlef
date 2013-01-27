@@ -5,6 +5,7 @@ import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 public class MockDependencyAssistant extends DependencyAssistant {
+    @Override
     public GpodderSettings getGpodderSettings(Context context) {
         return new MockGpodderSettings();
     }

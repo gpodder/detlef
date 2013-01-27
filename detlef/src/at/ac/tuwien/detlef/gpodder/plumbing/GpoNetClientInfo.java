@@ -78,10 +78,12 @@ public class GpoNetClientInfo implements Parcelable {
         return username;
     }
 
+    @Override
     public int describeContents() {
         return 0;
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(username);
         dest.writeString(password);
@@ -92,6 +94,7 @@ public class GpoNetClientInfo implements Parcelable {
     public static final Parcelable.Creator<GpoNetClientInfo> CREATOR
     = new Parcelable.Creator<GpoNetClientInfo>() {
 
+        @Override
         public GpoNetClientInfo createFromParcel(Parcel source) {
             GpoNetClientInfo gnci = new GpoNetClientInfo();
             gnci.setUsername(source.readString());
@@ -101,6 +104,7 @@ public class GpoNetClientInfo implements Parcelable {
             return gnci;
         }
 
+        @Override
         public GpoNetClientInfo[] newArray(int size) {
             return new GpoNetClientInfo[size];
         };

@@ -125,7 +125,7 @@ public class EpisodeListFragment extends ListFragment
     /**
      * Restores the {@link EpisodeFilter episode filters}, e.g. after the screen
      * has been rotated.
-     * 
+     *
      * @param savedInstanceState
      */
     private void restoreFilter(Bundle savedInstanceState) {
@@ -349,7 +349,7 @@ public class EpisodeListFragment extends ListFragment
 
     /**
      * Handles clicks on the mark read/unread button
-     * 
+     *
      * @param v The view of the button
      */
     public void onMarkReadUnreadClick(View v) {
@@ -361,7 +361,7 @@ public class EpisodeListFragment extends ListFragment
 
     /**
      * Sorts the episode list by a specific choice.
-     * 
+     *
      * @param choice The sort choice
      * @param ascending Whether to sort ascending/descending
      */
@@ -400,7 +400,7 @@ public class EpisodeListFragment extends ListFragment
 
     /**
      * Sets a keyword for the episode search.
-     * 
+     *
      * @param newText The keyword to search for.
      */
     public void setKeyword(String newText) {
@@ -433,7 +433,7 @@ public class EpisodeListFragment extends ListFragment
 
     /**
      * Sets a filter for filtering the episodes.
-     * 
+     *
      * @param pFilter The filter to set.
      * @return this
      */

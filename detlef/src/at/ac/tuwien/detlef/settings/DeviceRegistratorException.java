@@ -1,5 +1,7 @@
 package at.ac.tuwien.detlef.settings;
 
+import at.ac.tuwien.detlef.domain.DeviceId;
+
 /**
  * Exception that is thrown by {@link DeviceRegistrator} if something goes wrong while
  * registering a {@link DeviceId} at gpodder.net.

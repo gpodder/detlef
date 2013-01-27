@@ -27,18 +27,18 @@ import at.ac.tuwien.detlef.domain.Episode;
  * Provides an interface for a search functionality which takes a
  * {@link SearchCriteriaKeyword keyword} as {@link SearchCriteria} and searches for
  * it in the database.
- * 
+ *
  * @author moe
  */
-public class SearchKeywordDb 
+public class SearchKeywordDb
     implements Search<SearchCriteriaKeyword, Episode> {
 
-    private EpisodeDAO edao;
-    
+    private final EpisodeDAO edao;
+
     public SearchKeywordDb() {
         edao = EpisodeDAOImpl.i();
     }
-    
+
     @Override
     public void search(final SearchCriteriaKeyword criteria,
             final SearchCallback<Episode> callback) {
@@ -59,9 +59,9 @@ public class SearchKeywordDb
         }
         ).run();
     }
-    
-    
 
 
-    
+
+
+
 }

@@ -42,6 +42,7 @@ public interface StringListResultHandler<Receiver> extends ResultHandler<Receive
             this.strs = strs;
         }
 
+        @Override
         public void deliver() {
             cb.handleSuccess(strs);
         }

@@ -39,7 +39,7 @@ public interface EpisodeDAO {
 
     /**
      * inserts an episode into the database.
-     * 
+     *
      * @param episode
      *            : the episode which should be saved into the database
      * @return returns the refreshed Episode, null if error occurs
@@ -48,7 +48,7 @@ public interface EpisodeDAO {
 
     /**
      * deletes an episode from the database.
-     * 
+     *
      * @param episode
      *            : the episode which should be deleted (the id will be used for
      *            this)
@@ -59,24 +59,24 @@ public interface EpisodeDAO {
 
     /**
      * delivers all episodes which are stored in the database.
-     * 
+     *
      * @return returns a list of all episodes
      */
     List<Episode> getAllEpisodes();
 
     /**
      * delivers all episodes from a given podcast.
-     * 
+     *
      * @param podcast
      *            : the podcast which contains the episodes
      * @return returns a list of episodes which belongs to the given podcast
      */
     List<Episode> getEpisodes(Podcast podcast);
-    
+
     /**
      * updates the filePath column of the given episode (uses the filePath
      * attribute of the episode).
-     * 
+     *
      * @param episode
      *            the episode which should be updated
      * @return the number of updated rows
@@ -86,35 +86,35 @@ public interface EpisodeDAO {
     /**
      * updates the storage state column of the given episode (uses the state attribute
      * of the episode).
-     * 
+     *
      * @param episode
      *            the episode which should be updated
      * @return the number of updated rows
      */
     int updateStorageState(Episode episode);
-    
-    
+
+
     /**
      * updates the playposition of the given episode.
-     * 
+     *
      * @param episode the episode which should be updated
-     * 
+     *
      * @return the number of updated rows
      */
     int updatePlayPosition(Episode episode);
 
     /**
      * updates the actionstate of the given episode.
-     * 
+     *
      * @param episode the episode which should be updated
-     * 
+     *
      * @return the number of updated rows
      */
     int updateActionState(Episode episode);
-    
+
     /**
      * Gets an episode by ID.
-     * 
+     *
      * @param id
      *            The ID of the episode to fetch.
      * @return The episode with the given ID, if it exists. Otherwise null.
@@ -123,7 +123,7 @@ public interface EpisodeDAO {
 
     /**
      * Gets an episode by the given guid or the url (both should be unique).
-     * 
+     *
      * @param url
      *            the url of the episode
      * @param guid
@@ -131,7 +131,7 @@ public interface EpisodeDAO {
      * @return the episode
      */
     Episode getEpisodeByUrlOrGuid(String url, String guid);
-    
+
     /**
      * Creates a custom query on the episodes that caches with the internal episodes map.
      * @param selection The fields in the where clause.

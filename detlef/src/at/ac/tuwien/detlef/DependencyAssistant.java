@@ -48,7 +48,7 @@ import at.ac.tuwien.detlef.util.GUIUtils;
 /**
  * This class acts as a central point for setting and retrieving service
  * classes.
- * 
+ *
  * @author johannes
  */
 public class DependencyAssistant {
@@ -172,7 +172,7 @@ public class DependencyAssistant {
      * Overwrites the default {@link DependencyAssistant} with a custom one. By
      * using this method you can easily replace parts of the Application with
      * Mocks which is useful for testing.
-     * 
+     *
      * @param pDependencyAssistant
      */
     public static void setDependencyAssistant(DependencyAssistant pDependencyAssistant) {

@@ -48,10 +48,10 @@ public class EnhancedSubscriptionChanges implements Serializable, Parcelable {
 
     /**
      * Create new EnhancedSubscriptionChanges.
-     * 
+     *
      * The Lists passed to the constuctor are copied into Lists of Podcast. The timestamp an all
      * Podcasts is set to the given timestamp.
-     * 
+     *
      * @param add List of IPodcasts to add.
      * @param remove List of IPodcasts to remove.
      * @param timestamp The timestamp of the changes.

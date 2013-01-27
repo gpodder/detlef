@@ -20,7 +20,8 @@ package at.ac.tuwien.detlef.filter;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import at.ac.tuwien.detlef.domain.*;
+import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
  * Tests the {@link KeywordFilter}.
@@ -28,16 +29,16 @@ import at.ac.tuwien.detlef.domain.*;
  *
  */
 public class KeywordFilterTest extends TestCase {
-	
+
 	public void testFilter_FiltersTitlePositive() {
-		
+
 		Episode episode = new Episode(new Podcast().setId(1));
-		
+
 		episode.setTitle("Deus ex machina.");
-		
+
 		KeywordFilter filter = new KeywordFilter();
 		filter.setKeyword("Deus");
-		
+
 		Assert.assertFalse(
 			"Epsiode should not be filtered, because its "
 			+ "title contains the keyword",
@@ -46,14 +47,14 @@ public class KeywordFilterTest extends TestCase {
 	}
 
 	public void testFilter_FiltersTitleNegative() {
-		
+
 		Episode episode = new Episode(new Podcast().setId(1));
-		
+
 		episode.setTitle("Deus ex machina.");
-		
+
 		KeywordFilter filter = new KeywordFilter();
 		filter.setKeyword("maschine");
-		
+
 		Assert.assertTrue(
 			"Epsiode should be filtered, because its title "
 			+ "does not contain the keyword",
@@ -62,30 +63,30 @@ public class KeywordFilterTest extends TestCase {
 	}
 
 	public void testFilter_FiltersDescriptionPositive() {
-		
+
 		Episode episode = new Episode(new Podcast().setId(1));
-		
+
 		episode.setDescription("And this is the description.");
-		
+
 		KeywordFilter filter = new KeywordFilter();
 		filter.setKeyword("description");
-		
+
 		Assert.assertFalse(
 			"Epsiode should not be filtered, because its "
 			+ "description does contain the keyword",
 			filter.filter(episode)
 		);
 	}
-	
+
 	public void testFilter_FiltersDescriptionNegative() {
-		
+
 		Episode episode = new Episode(new Podcast().setId(1));
-		
+
 		episode.setDescription("And this is the description.");
-		
+
 		KeywordFilter filter = new KeywordFilter();
 		filter.setKeyword("maschine");
-		
+
 		Assert.assertTrue(
 			"Epsiode should be filtered, because its description "
 			+ "does not contain the keyword",
@@ -94,52 +95,52 @@ public class KeywordFilterTest extends TestCase {
 	}
 
 	public void testFilter_TitleIsCaseInsensitive() {
-		
+
 		Episode episode = new Episode(new Podcast().setId(1));
-		
+
 		episode.setTitle("Deux ex machina.");
-		
+
 		KeywordFilter filter = new KeywordFilter();
 		filter.setKeyword("MaChINa");
-		
+
 		Assert.assertFalse(
 			"Epsiode should not be filtered, because its "
 			+ "title contains the keyword",
 			filter.filter(episode)
 		);
 	}
-	
+
 	public void testFilter_DescriptionIsCaseInsensitive() {
-		
+
 		Episode episode = new Episode(new Podcast().setId(1));
-		
+
 		episode.setDescription("And this is the description.");
-		
+
 		KeywordFilter filter = new KeywordFilter();
 		filter.setKeyword("DeScriptIon");
-		
+
 		Assert.assertFalse(
 			"Epsiode should not be filtered, because its "
 			+ "description contains the keyword",
 			filter.filter(episode)
 		);
 	}
-	
+
 	public void testFilter_TitleAndDescriptionMatch() {
-		
+
 		Episode episode = new Episode(new Podcast().setId(1));
-		
+
 		episode.setTitle("Deux ex machina.");
 		episode.setDescription("And this is the machina description.");
-		
+
 		KeywordFilter filter = new KeywordFilter();
 		filter.setKeyword("machina");
-		
+
 		Assert.assertFalse(
 			"Epsiode should not be filtered, because its description "
 			+ "and title contains the keyword",
 			filter.filter(episode)
 		);
 	}
-	
+
 }

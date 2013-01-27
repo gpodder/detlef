@@ -33,7 +33,7 @@ public interface ResultHandler<Receiver> extends Callback<Receiver> {
      * @param errStr A string describing the error.
      */
     void handleFailure(int errCode, String errStr);
-    
+
     void sendEvent(ResultEvent e);
 
     interface ResultEvent {
@@ -42,7 +42,7 @@ public interface ResultHandler<Receiver> extends Callback<Receiver> {
          */
         abstract void deliver();
     }
-    
+
     static class GenericFailureEvent implements ResultEvent {
         private final ResultHandler<?> cb;
         private final int errCode;
@@ -54,7 +54,8 @@ public interface ResultHandler<Receiver> extends Callback<Receiver> {
             this.errCode = errCode;
             this.errString = errString;
         }
-        
+
+        @Override
         public void deliver() {
             cb.handleFailure(errCode, errString);
         }

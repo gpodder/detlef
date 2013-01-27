@@ -26,7 +26,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 public interface PodcastResultHandler<Receiver> extends ResultHandler<Receiver> {
     /**
      * Called to handle a successful fetching of a podcast list.
-     * 
+     *
      * @param result List of strings that has been successfully fetched.
      */
     void handleSuccess(Podcast result);

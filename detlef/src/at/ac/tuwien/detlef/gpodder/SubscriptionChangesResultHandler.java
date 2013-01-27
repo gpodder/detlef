@@ -42,6 +42,7 @@ public interface SubscriptionChangesResultHandler<Receiver> extends ResultHandle
             this.chgs = chgs;
         }
 
+        @Override
         public void deliver() {
             cb.handleSuccess(chgs);
         }

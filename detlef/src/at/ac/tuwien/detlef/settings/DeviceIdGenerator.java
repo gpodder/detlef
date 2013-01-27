@@ -25,7 +25,7 @@ import at.ac.tuwien.detlef.domain.DeviceId;
  *
  */
 public interface DeviceIdGenerator {
-    
+
     /**
      * Generates a new {@link DeviceId} by some algorithm intrinsic to
      * the concrete implementation.
@@ -34,5 +34,5 @@ public interface DeviceIdGenerator {
      *     ANDROID_ID).
      */
     DeviceId generate();
-    
+
 }

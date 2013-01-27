@@ -37,7 +37,7 @@ import at.ac.tuwien.detlef.gpodder.responders.SyncResponder;
 
 /**
  * This class facilitates background HTTP and gpodder.net transactions.
- * 
+ *
  * @author ondra
  */
 public class GPodderSync {
@@ -45,25 +45,25 @@ public class GPodderSync {
     private static final String TAG = "GPodderSync";
 
     /** Manages the connection to the service. */
-    private ConMan conMan;
+    private final ConMan conMan;
 
     /** The interface to the service. */
     private volatile PodderServiceInterface iface;
 
     /** Handles responses from the service. */
-    private SyncResponder syncResponder;
+    private final SyncResponder syncResponder;
 
     /** Stores the next unused request code. */
     private int nextReqCode;
 
     /** Maps request codes to handlers. */
-    private SparseArray<ResultHandler<?>> reqs;
+    private final SparseArray<ResultHandler<?>> reqs;
 
     /** Pauses while the service is being bound. */
-    private Semaphore stoplight;
+    private final Semaphore stoplight;
 
     /** Information about this client of the gpodder.net-compatible service. */
-    private GpoNetClientInfo clientInfo;
+    private final GpoNetClientInfo clientInfo;
 
     /**
      * Each request has to be launched in a thread other than the main thread.
@@ -75,7 +75,7 @@ public class GPodderSync {
 
     /**
      * Constructs a GPodderSync instance.
-     * 
+     *
      * @param sr The handler which will take care of any
      *            threading/synchronization concerns.
      */
@@ -97,7 +97,7 @@ public class GPodderSync {
 
     /**
      * Returns the next request code in sequence.
-     * 
+     *
      * @return The next request code in sequence.
      */
     private int nextReqCode() {
@@ -108,7 +108,7 @@ public class GPodderSync {
 
     /**
      * Sets the username used for access to gpodder.net-compatible services.
-     * 
+     *
      * @param newUsername The new username.
      */
     public void setUsername(String newUsername) {
@@ -117,7 +117,7 @@ public class GPodderSync {
 
     /**
      * Sets the password used for access to gpodder.net-compatible services.
-     * 
+     *
      * @param newPassword The new password.
      */
     public void setPassword(String newPassword) {
@@ -126,7 +126,7 @@ public class GPodderSync {
 
     /**
      * Sets the hostname of the gpodder.net-compatible service to use.
-     * 
+     *
      * @param newHostname The hostname of the gpodder.net-compatible service to
      *            use.
      */
@@ -136,7 +136,7 @@ public class GPodderSync {
 
     /**
      * Sets the device name used for access to gpodder.net-compatible services.
-     * 
+     *
      * @param newDeviceName The new device name.
      */
     public void setDeviceName(String newDeviceName) {
@@ -145,7 +145,7 @@ public class GPodderSync {
 
     /**
      * Remove the request with id reqId. Synchronized against reqs.
-     * 
+     *
      * @param reqId
      */
     public void removeReq(int reqId) {
@@ -156,7 +156,7 @@ public class GPodderSync {
 
     /**
      * Return the ResultHandler for reqId. Synchronized against reqs.
-     * 
+     *
      * @param reqId
      * @return
      */
@@ -168,7 +168,7 @@ public class GPodderSync {
 
     /**
      * Inserts the handler into reqs at reqCode. Synchronized against reqs.
-     * 
+     *
      * @param reqCode
      * @param handler
      */
@@ -184,7 +184,7 @@ public class GPodderSync {
      * passes the downloaded data as a byte array to the callback. For
      * moderately huge files, you should use
      * {@link #addHttpDownloadToFileJob(String, String, NoDataResultHandler)}.
-     * 
+     *
      * @param url The URL of the file to download.
      * @param handler A handler for callbacks.
      */
@@ -218,7 +218,7 @@ public class GPodderSync {
      * doesn't exist and overwritten if it does. To download small files without
      * storing them in the file system first, you should use
      * {@link #addHttpDownloadJob(String, HttpDownloadResultHandler)}.
-     * 
+     *
      * @param url The URL of the file to download.
      * @param localfn The local file name into which to store the downloaded
      *            file.
@@ -254,7 +254,7 @@ public class GPodderSync {
      * this was successful or not. Since this is not a day-to-day operation, the
      * stored credentials are neither used nor modified by this method; the
      * hostname, however, is.
-     * 
+     *
      * @param authUsername User name to use for authentication check.
      * @param authPassword Password to use for authentication check.
      * @param handler A handler for callbacks.
@@ -293,7 +293,7 @@ public class GPodderSync {
      * Requests that the service perform a podcast list download job. The
      * service will log in using the credentials previously set by calls to
      * {@link #setUsername(String)} and {@link #setPassword(String)}.
-     * 
+     *
      * @param handler A handler for callbacks.
      */
     public void addDownloadPodcastListJob(final StringListResultHandler<?> handler) {
@@ -320,7 +320,7 @@ public class GPodderSync {
 
     /**
      * Requests that the service performs a podcast search job.
-     * 
+     *
      * @param handler A handler for callbacks.
      * @param query The search query.
      */
@@ -390,7 +390,7 @@ public class GPodderSync {
 
     /**
      * Requests that the service performs a subscription update job.
-     * 
+     *
      * @param handler A handler for callbacks.
      * @param changes The changes to submit to the service.
      */
@@ -418,7 +418,7 @@ public class GPodderSync {
 
     /**
      * Adds a "get podcast info" job for a specific URL.
-     * 
+     *
      * @param url The url to get the podcast info from.
      */
     public void addGetPodcastInfoJob(final PodcastResultHandler<?> handler,
@@ -467,16 +467,16 @@ public class GPodderSync {
 
     /**
      * Handles the connection the the service.
-     * 
+     *
      * @author ondra
      */
     protected static class ConMan implements ServiceConnection {
         /** The GPodderSync to whom this connection manager belongs. */
-        private WeakReference<GPodderSync> gps;
+        private final WeakReference<GPodderSync> gps;
 
         /**
          * Constructs an instance of ConMan.
-         * 
+         *
          * @param gposync {@link GPodderSync} to whom this connection manager
          *            belongs.
          */

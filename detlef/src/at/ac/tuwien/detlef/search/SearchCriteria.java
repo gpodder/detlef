@@ -19,7 +19,7 @@
 package at.ac.tuwien.detlef.search;
 
 /**
- * Some arbitrary search criteria. 
+ * Some arbitrary search criteria.
  * @author moe
  *
  */

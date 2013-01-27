@@ -24,7 +24,7 @@ import at.ac.tuwien.detlef.fragments.EpisodeListFragment;
 
 /**
  * An {@link OnQueryTextListener}.
- * 
+ *
  * @author moe
  */
 public class EpisodeSearchQueryTextListener

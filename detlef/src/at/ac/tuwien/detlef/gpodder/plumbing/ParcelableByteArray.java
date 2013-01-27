@@ -30,12 +30,14 @@ public class ParcelableByteArray implements Parcelable {
 
     public static final Parcelable.Creator<ParcelableByteArray> CREATOR = new
             Parcelable.Creator<ParcelableByteArray>() {
+        @Override
         public ParcelableByteArray createFromParcel(Parcel source) {
             byte[] moop = new byte[source.readInt()];
             source.readByteArray(moop);
             return new ParcelableByteArray(moop);
         }
 
+        @Override
         public ParcelableByteArray[] newArray(int size) {
             return new ParcelableByteArray[size];
         }
@@ -57,10 +59,12 @@ public class ParcelableByteArray implements Parcelable {
         this.arr = array;
     }
 
+    @Override
     public int describeContents() {
         return 0;
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(arr.length);
         dest.writeByteArray(arr);

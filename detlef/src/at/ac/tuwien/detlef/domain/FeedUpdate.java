@@ -27,9 +27,9 @@ import android.util.Log;
 import com.dragontek.mygpoclient.feeds.IFeed;
 
 public class FeedUpdate implements IFeed {
-    
+
     private static final String TAG = FeedUpdate.class.getName();
-    
+
     private final String title;
     private final String link;
     private final String description;
@@ -53,7 +53,7 @@ public class FeedUpdate implements IFeed {
 
         return ret;
     }
-    
+
     public List<Episode> getEpisodeList() {
         return Collections.unmodifiableList(episodes);
     }
@@ -72,7 +72,7 @@ public class FeedUpdate implements IFeed {
     public String getUrl() {
         return url;
     }
-    
+
     /**
      * Constructs a FeedUpdate containing all Episodes which were added to the podcast after its
      * last update time.
@@ -108,7 +108,7 @@ public class FeedUpdate implements IFeed {
         url = iFeed.getUrl();
         link = iFeed.getLink();
     }
-    
+
     public long getLastReleaseTime() {
         return lastRelease;
     }

@@ -24,9 +24,9 @@ import android.preference.Preference.OnPreferenceClickListener;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 /**
  * This {@link OnPreferenceClickListener} will open up the browser and call
- * the registration site of gpodder.net so that the user can register a 
+ * the registration site of gpodder.net so that the user can register a
  * new username.
- * 
+ *
  * @author moe
  *
  */
@@ -41,13 +41,13 @@ public class SettingsRegisterOnPreferenceClickListener
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        
+
         Intent browserIntent = new Intent(
             Intent.ACTION_VIEW,
             Uri.parse("https://gpodder.net/register")
         );
         getSender().startActivity(browserIntent);
-        
+
         return true;
     }
 }

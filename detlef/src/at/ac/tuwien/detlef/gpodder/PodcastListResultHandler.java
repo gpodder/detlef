@@ -41,6 +41,7 @@ public interface PodcastListResultHandler<Receiver> extends ResultHandler<Receiv
             this.result = result;
         }
 
+        @Override
         public void deliver() {
             cb.handleSuccess(result);
         }
