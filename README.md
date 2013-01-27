@@ -41,6 +41,11 @@ about Detlef's innards), the source code is available from
 https://github.com/gpodder/detlef
 git://github.com/gpodder/detlef.git
 
+The coding style should follow the conventions of the surrounding
+code. Enable the provided astyle pre-commit hook:
+
+cp etc/pre-commit .git/hooks/pre-commit
+
 Please submit patches as github pull requests.
 
 
