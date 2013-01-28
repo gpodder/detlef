@@ -31,7 +31,6 @@ import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.EpisodeActionDAO;
-import at.ac.tuwien.detlef.db.EpisodeActionDAOImpl;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -79,7 +78,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
         EpisodeActionChanges changes = null;
         try {
             /* Send our episode actions */
-            EpisodeActionDAO eaDao = EpisodeActionDAOImpl.i();
+            EpisodeActionDAO eaDao = Singletons.i().getEpisodeActionDAO();
             List<RemoteEpisodeAction> localChanges = eaDao.getAllEpisodeActions();
 
             List<EpisodeAction> sndLocalChanges = new ArrayList<EpisodeAction>(localChanges.size());

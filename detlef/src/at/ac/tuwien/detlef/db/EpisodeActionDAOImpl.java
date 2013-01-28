@@ -27,7 +27,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.Singletons;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.LocalEpisodeAction;
@@ -39,19 +38,9 @@ import at.ac.tuwien.detlef.domain.RemoteEpisodeAction;
 public class EpisodeActionDAOImpl implements EpisodeActionDAO {
     private static final String TAG = SimpleEpisodeDAO.class.getName();
 
-    private static final EpisodeActionDAOImpl INSTANCE = new EpisodeActionDAOImpl(
-        Detlef.getAppContext());
-
     private final DatabaseHelper dbHelper;
 
-    /**
-     * Returns the EpisodeActionDAOImpl singleton instance.
-     */
-    public static EpisodeActionDAOImpl i() {
-        return INSTANCE;
-    }
-
-    protected EpisodeActionDAOImpl(Context context) {
+    public EpisodeActionDAOImpl(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             dbHelper = new DatabaseHelper(context);
 

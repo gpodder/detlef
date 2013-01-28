@@ -41,6 +41,8 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
     private LocalEpisodeAction lea2;
     private Podcast p1;
 
+    private EpisodeActionDAO dao;
+
     @Override
     protected void setUp() throws Exception {
         p1 = new Podcast();
@@ -50,6 +52,7 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
         p1.setLogoUrl("logoUrl");
         p1.setTitle("title");
         p1.setUrl("url");
+
         PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
 
@@ -57,12 +60,12 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
         lea2 = new LocalEpisodeAction(p1, "ep1", Episode.ActionState.PLAY, 0, 7, 42);
 
         // write deviceId (needed for EpisodeActionsDAO - getAllEpisodeActions)
-        GpodderSettings settings = Singletons.i()
-                                   .getGpodderSettings();
+        GpodderSettings settings = Singletons.i().getGpodderSettings();
         DeviceId devId = new DeviceId("mydevice");
         settings.setDeviceId(devId);
-        Singletons.i()
-        .getGpodderSettingsDAO(mContext).writeSettings(settings);
+        Singletons.i().getGpodderSettingsDAO(mContext).writeSettings(settings);
+
+        dao = Singletons.i().getEpisodeActionDAO();
 
         super.setUp();
     }
@@ -73,7 +76,6 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
     }
 
     public void testGetAllEpisodeActions() {
-        EpisodeActionDAOImpl dao = EpisodeActionDAOImpl.i();
         assertNotNull("List of episode actions shouldn't be null", dao.getAllEpisodeActions());
     }
 
@@ -81,7 +83,6 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
      * Tests whether inserting a non-play episode action works.
      */
     public void testInsertEpisodeActionNonPlay() {
-        EpisodeActionDAOImpl dao = EpisodeActionDAOImpl.i();
         int countBeforeInsert = dao.getAllEpisodeActions().size();
         assertTrue(dao.insertEpisodeAction(lea1));
         int countAfterInsert = dao.getAllEpisodeActions().size();
@@ -92,7 +93,6 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
      * Tests whether inserting a play episode action works.
      */
     public void testInsertEpisodeActionPlay() {
-        EpisodeActionDAOImpl dao = EpisodeActionDAOImpl.i();
         int countBeforeInsert = dao.getAllEpisodeActions().size();
         assertTrue(dao.insertEpisodeAction(lea2));
         int countAfterInsert = dao.getAllEpisodeActions().size();
@@ -103,7 +103,6 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
      * Tests flushEpisodeActions with an empty list.
      */
     public void testFlushEpisodeActionsEmptyList() {
-        EpisodeActionDAOImpl dao = EpisodeActionDAOImpl.i();
         int countBeforeFlush = dao.getAllEpisodeActions().size();
         dao.flushEpisodeActions(new LinkedList<RemoteEpisodeAction>());
         int countAfterFlush = dao.getAllEpisodeActions().size();
@@ -114,7 +113,6 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
      * Tests flushEpisodeActions with the list returned by getAllEpisodeActions..
      */
     public void testFlushEpisodeActionsAll() {
-        EpisodeActionDAOImpl dao = EpisodeActionDAOImpl.i();
         List<RemoteEpisodeAction> all = dao.getAllEpisodeActions();
         dao.flushEpisodeActions(all);
         assertEquals(0, dao.getAllEpisodeActions().size());

@@ -40,7 +40,6 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
-import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
@@ -86,7 +85,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         super.onCreate(savedInstanceState);
         setContentView(R.layout.playlist_activity_layout);
 
-        playlistDAO = PlaylistDAOImpl.i();
+        playlistDAO = Singletons.i().getPlaylistDAO();
         playlistDAO.addPlaylistChangedListener(this);
         playlistItems = playlistDAO.getNonCachedEpisodes();
         Singletons.i().getEpisodeDAO().addEpisodeChangedListener(this);

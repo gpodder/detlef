@@ -46,7 +46,6 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
-import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
@@ -182,7 +181,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        PlaylistDAOImpl.i().addPlaylistChangedListener(this);
+        Singletons.i().getPlaylistDAO().addPlaylistChangedListener(this);
         Singletons.i().getEpisodeDAO().addEpisodeChangedListener(this);
 
         if (!MediaPlayerService.isRunning()) {
@@ -196,7 +195,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
 
     @Override
     public void onDestroy() {
-        PlaylistDAOImpl.i().removePlaylistChangeListener(this);
+        Singletons.i().getPlaylistDAO().removePlaylistChangeListener(this);
         Singletons.i().getEpisodeDAO().removeEpisodeChangedListener(this);
         super.onDestroy();
     }

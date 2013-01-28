@@ -37,7 +37,6 @@ import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
-import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
@@ -126,7 +125,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     @Override
     public void onCreate() {
         super.onCreate();
-        playlistDAO = PlaylistDAOImpl.i();
+        playlistDAO = Singletons.i().getPlaylistDAO();
         playlistItems = playlistDAO.getNonCachedEpisodes();
         playlistDAO.addPlaylistChangedListener(this);
         episodeDAO = Singletons.i().getEpisodeDAO();

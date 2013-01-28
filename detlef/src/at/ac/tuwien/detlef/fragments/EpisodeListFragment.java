@@ -38,7 +38,6 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
-import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
@@ -104,7 +103,7 @@ public class EpisodeListFragment extends ListFragment
 
         EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         dao.addEpisodeChangedListener(this);
-        playlistDAO = PlaylistDAOImpl.i();
+        playlistDAO = Singletons.i().getPlaylistDAO();
         playlistDAO.addPlaylistChangedListener(this);
 
         List<Episode> eplist = dao.getAllEpisodes();

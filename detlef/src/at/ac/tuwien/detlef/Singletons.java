@@ -26,7 +26,11 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import at.ac.tuwien.detlef.db.CachingEpisodeDAO;
 import at.ac.tuwien.detlef.db.CachingPodcastDAO;
+import at.ac.tuwien.detlef.db.EpisodeActionDAO;
+import at.ac.tuwien.detlef.db.EpisodeActionDAOImpl;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
+import at.ac.tuwien.detlef.db.PlaylistDAO;
+import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
@@ -56,6 +60,8 @@ public class Singletons {
     private GPodderSync gPodderSync = null;
     private PodcastDAO podcastDAO = null;
     private EpisodeDAO episodeDAO = null;
+    private EpisodeActionDAO episodeActionDAO = null;
+    private PlaylistDAO playlistDAO = null;
 
     /**
      * Lazy initialization to both improve performance and avoid issues getting the
@@ -177,5 +183,19 @@ public class Singletons {
             episodeDAO = new CachingEpisodeDAO(Detlef.getAppContext());
         }
         return episodeDAO;
+    }
+
+    public EpisodeActionDAO getEpisodeActionDAO() {
+        if (episodeActionDAO == null) {
+            episodeActionDAO = new EpisodeActionDAOImpl(Detlef.getAppContext());
+        }
+        return episodeActionDAO;
+    }
+
+    public PlaylistDAO getPlaylistDAO() {
+        if (playlistDAO == null) {
+            playlistDAO = new PlaylistDAOImpl(Detlef.getAppContext());
+        }
+        return playlistDAO;
     }
 }

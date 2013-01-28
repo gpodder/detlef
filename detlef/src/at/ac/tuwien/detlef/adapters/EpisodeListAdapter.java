@@ -34,8 +34,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
-import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
@@ -52,7 +52,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
                               List<Episode> episodes) {
         super(context, textViewResourceId, episodes);
         this.episodes = episodes;
-        playlistDAO = PlaylistDAOImpl.i();
+        playlistDAO = Singletons.i().getPlaylistDAO();
     }
 
     @Override

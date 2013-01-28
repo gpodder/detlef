@@ -41,6 +41,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
 
     private EpisodeDAO edao;
     private PodcastDAO pdao;
+    private PlaylistDAOImpl ldao;
 
     @Override
     protected void setUp() throws Exception {
@@ -94,6 +95,9 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         edao = Singletons.i().getEpisodeDAO();
         pdao = Singletons.i().getPodcastDAO();
 
+        /* We use an evil cast here because of the testing method checkNoGaps(). */
+        ldao = (PlaylistDAOImpl)Singletons.i().getPlaylistDAO();
+
         super.setUp();
     }
 
@@ -116,7 +120,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToBeginningOfPlaylist(e0);
         assertTrue(ldao.checkNoGaps());
         List<Episode> playlist = ldao.getNonCachedEpisodes();
@@ -144,7 +147,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         assertTrue(ldao.checkNoGaps());
         List<Episode> playlist = ldao.getNonCachedEpisodes();
@@ -173,7 +175,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         e2 = edao.insertEpisode(e2);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         ldao.addEpisodeToEndOfPlaylist(e1);
         ldao.addEpisodeToEndOfPlaylist(e2);
@@ -206,7 +207,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         e2 = edao.insertEpisode(e2);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         ldao.addEpisodeToEndOfPlaylist(e1);
         ldao.addEpisodeToEndOfPlaylist(e2);
@@ -246,7 +246,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         e2 = edao.insertEpisode(e2);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         assertTrue(ldao.checkNoGaps());
         ldao.addEpisodeToEndOfPlaylist(e1);
@@ -283,7 +282,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         e2 = edao.insertEpisode(e2);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         assertTrue(ldao.checkNoGaps());
         ldao.addEpisodeToEndOfPlaylist(e1);
@@ -304,7 +302,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         e2 = edao.insertEpisode(e2);
 
-        PlaylistDAOImpl ldao = PlaylistDAOImpl.i();
         ldao.addEpisodeToEndOfPlaylist(e0);
         assertTrue(ldao.checkNoGaps());
         ldao.addEpisodeToEndOfPlaylist(e1);

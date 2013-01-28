@@ -28,26 +28,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 
-public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeChangeListener {
+public final class PlaylistDAOImpl
+    implements PlaylistDAO, EpisodeDAO.OnEpisodeChangeListener {
 
     private static final String TAG = PlaylistDAOImpl.class.getName();
-    private static final PlaylistDAOImpl INSTANCE = new PlaylistDAOImpl(Detlef.getAppContext());
 
     private final DatabaseHelper dbHelper;
     private final List<PlaylistDAO.OnPlaylistChangeListener> listeners =
         new ArrayList<PlaylistDAO.OnPlaylistChangeListener>();
     private final EpisodeDAO edao;
-
-    /**
-     * Returns the PlaylistDAOImpl singleton instance.
-     */
-    public static PlaylistDAOImpl i() {
-        return INSTANCE;
-    }
 
     public PlaylistDAOImpl(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
@@ -63,14 +55,14 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
     }
 
     @Override
-    public void addPlaylistChangedListener(PlaylistDAO.OnPlaylistChangeListener listener) {
+    public void addPlaylistChangedListener(OnPlaylistChangeListener listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
 
     @Override
-    public void removePlaylistChangeListener(PlaylistDAO.OnPlaylistChangeListener listener) {
+    public void removePlaylistChangeListener(OnPlaylistChangeListener listener) {
         listeners.remove(listener);
     }
 
