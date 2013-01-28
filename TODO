@@ -1,0 +1,13 @@
+* Basic DB refactoring: move all remaining DAO singletons into Singletons (instead of i() methods),
+  split caching into separate classes.
+* Local add/delete refactoring: the current solution seems somewhat unwieldy, come up with a better
+concept & implement it.
+* Unify all communications with the backend. At this point, I'm not even sure what the recommended
+way is; SynchronousSyncResponder??
+* Simplify the backend: get rid of the AIDL version and convert all of it into a basic IntentService (or similar).
+* Refactor podcast logo handling. Right now it's scattered all over the place.
+* Get rid of the DB semaphore lock. SQLite should be able to handle concurrent execution by itself; or, alternatively, don't do concurrent db manipulation.
+* Refactor download manager to handle both logo & episode downloads nicely.
+* Replace the player controls with MediaController
+* Refactor the media player backend
+* Reenable download and play position episode actions. See 81d7bf3c4.
