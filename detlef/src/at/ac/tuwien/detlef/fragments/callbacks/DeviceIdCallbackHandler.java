@@ -117,7 +117,7 @@ public class DeviceIdCallbackHandler
         );
     }
 
-    class SetupModeNextStepClickListener implements OnClickListener {
+    private class SetupModeNextStepClickListener implements OnClickListener {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {

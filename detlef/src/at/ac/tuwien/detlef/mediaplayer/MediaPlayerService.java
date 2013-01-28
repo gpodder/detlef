@@ -580,19 +580,9 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     }
 
     @Override
-    public Episode getManualEpisode() {
-        return manualEpisode;
-    }
-
-    @Override
     public void setManualEpisode(Episode manualEpisode) {
         this.manualEpisode = manualEpisode;
         manual = true;
-    }
-
-    @Override
-    public boolean isManual() {
-        return manual;
     }
 
     private void updateEpisodeCompleted() {

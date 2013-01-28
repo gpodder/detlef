@@ -55,16 +55,6 @@ public abstract class ReliableResultHandler<Receiver> extends ReliableCallback <
         }
     }
 
-    @Override
-    public void init() {
-        /* nothing to do */
-    }
-
-    @Override
-    public void destroy() {
-        /* nothing to do */
-    }
-
     /**
      * Order the callback to deliver the event e.
      *

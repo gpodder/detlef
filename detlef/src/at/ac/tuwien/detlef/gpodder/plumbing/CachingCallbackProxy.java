@@ -110,13 +110,6 @@ public class CachingCallbackProxy implements PodderServiceCallback {
         return passive;
     }
 
-    /**
-     * Return how many messages are waiting.
-     */
-    public int countWaiting() {
-        return queuedMessages.size();
-    }
-
     @Override
     public IBinder asBinder() {
         return target.asBinder();
@@ -414,7 +407,7 @@ public class CachingCallbackProxy implements PodderServiceCallback {
      *
      * @author ondra
      */
-    protected interface CachedCallback {
+    private interface CachedCallback {
         /**
          * Try to re-send this call to the given callback object.
          *

@@ -49,18 +49,4 @@ public interface Callback<Receiver> {
      * is unavailable.
      */
     void unregisterReceiver();
-
-    /**
-     * This should be called before the callback is first used.
-     *
-     * This method performs some initialization which only needs to be done once.
-     */
-    void init();
-
-    /**
-     * This should be called when the callback is no longer used.
-     *
-     * This method usually cleans up what has been done in init().
-     */
-    void destroy();
 }

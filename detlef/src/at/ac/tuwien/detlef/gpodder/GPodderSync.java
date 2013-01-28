@@ -30,7 +30,6 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 import at.ac.tuwien.detlef.Singletons;
-import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
 import at.ac.tuwien.detlef.gpodder.responders.SyncResponder;
@@ -221,35 +220,6 @@ public class GPodderSync {
     }
 
     /**
-     * Requests that the service perform a podcast list download job. The
-     * service will log in using the credentials previously set by calls to
-     * {@link #setUsername(String)} and {@link #setPassword(String)}.
-     *
-     * @param handler A handler for callbacks.
-     */
-    public void addDownloadPodcastListJob(final StringListResultHandler<?> handler) {
-        Log.d(TAG, "addDownloadPodcastListJob");
-
-        requestDispatcher.execute(new Runnable() {
-            @Override
-            public void run() {
-                assureBind();
-
-                int reqCode = nextReqCode();
-                try {
-                    iface.downloadPodcastList(syncResponder, reqCode, clientInfo);
-                } catch (RemoteException rex) {
-                    handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                                          rex.toString());
-                    iface = null;
-                    return;
-                }
-                appendReq(reqCode, handler);
-            }
-        });
-    }
-
-    /**
      * Requests that the service performs a podcast search job.
      *
      * @param handler A handler for callbacks.
@@ -320,34 +290,6 @@ public class GPodderSync {
     }
 
     /**
-     * Requests that the service performs a subscription update job.
-     *
-     * @param handler A handler for callbacks.
-     * @param changes The changes to submit to the service.
-     */
-    public void addUpdateSubscriptionsJob(final PushSubscriptionChangesResultHandler<?> handler,
-                                          final EnhancedSubscriptionChanges changes) {
-        Log.d(TAG, "addUpdateSubscriptionsJob");
-
-        requestDispatcher.execute(new Runnable() {
-            @Override
-            public void run() {
-                assureBind();
-
-                int reqCode = nextReqCode();
-                try {
-                    iface.updateSubscriptions(syncResponder, reqCode, clientInfo, changes);
-                    appendReq(reqCode, handler);
-                } catch (RemoteException rex) {
-                    handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                                          rex.toString());
-                    iface = null;
-                }
-            }
-        });
-    }
-
-    /**
      * Adds a "get podcast info" job for a specific URL.
      *
      * @param url The url to get the podcast info from.
@@ -401,7 +343,7 @@ public class GPodderSync {
      *
      * @author ondra
      */
-    protected static class ConMan implements ServiceConnection {
+    private static class ConMan implements ServiceConnection {
         /** The GPodderSync to whom this connection manager belongs. */
         private final WeakReference<GPodderSync> gps;
 

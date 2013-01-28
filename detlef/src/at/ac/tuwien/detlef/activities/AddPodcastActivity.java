@@ -40,8 +40,8 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
@@ -51,7 +51,7 @@ import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 
 import com.commonsware.cwac.merge.MergeAdapter;
 
-public class AddPodcastActivity extends Activity {
+class AddPodcastActivity extends Activity {
 
     private static final String TAG = AddPodcastActivity.class.getName();
 

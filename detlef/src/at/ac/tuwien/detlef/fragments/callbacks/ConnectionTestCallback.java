@@ -38,8 +38,7 @@ public class ConnectionTestCallback
      * combination is recognized as valid account.
      * @param settings
      */
-    public void connectionIsValid() {
-
+    private void connectionIsValid() {
         final GpodderSettings settings = Singletons.i()
                                          .getGpodderSettings();
 
@@ -73,7 +72,7 @@ public class ConnectionTestCallback
     /**
      * Called if the provided settings are not valid.
      */
-    public void connectionIsNotValid() {
+    private void connectionIsNotValid() {
         getRcv().getActivity().runOnUiThread(
         new Runnable() {
             @Override
@@ -87,7 +86,7 @@ public class ConnectionTestCallback
     /**
      * Called if an error occurs while connecting.
      */
-    public void connectionFailed() {
+    private void connectionFailed() {
         getRcv().getActivity().runOnUiThread(
         new Runnable() {
             @Override

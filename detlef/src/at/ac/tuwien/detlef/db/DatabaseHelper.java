@@ -21,14 +21,14 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 /**
  * DatabaseHelper class which creates the database.
  */
-public class DatabaseHelper extends SQLiteOpenHelper {
+class DatabaseHelper extends SQLiteOpenHelper {
 
     static final int VERSION = 15;
 
@@ -205,7 +205,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                       + "( %s DESC );",
                       EPISODE_RELEASED_INDEX, TABLE_EPISODE, COLUMN_EPISODE_RELEASED);
 
-    public DatabaseHelper(Context context) {
+    DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
     }
 

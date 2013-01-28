@@ -12,19 +12,4 @@ public interface DeviceIdResultHandler<Receiver> extends ResultHandler<Receiver>
      * @param changes The subscription changes.
      */
     void handleSuccess(DeviceId deviceId);
-
-    static class DeviceIdSuccessEvent implements ResultEvent {
-        private final DeviceIdResultHandler<?> cb;
-        private final DeviceId deviceId;
-
-        public DeviceIdSuccessEvent(DeviceIdResultHandler<?> cb, DeviceId deviceId) {
-            this.cb = cb;
-            this.deviceId = deviceId;
-        }
-
-        @Override
-        public void deliver() {
-            cb.handleSuccess(deviceId);
-        }
-    }
 }

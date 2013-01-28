@@ -104,24 +104,12 @@ public interface IMediaPlayerService {
     boolean episodeFileOK(Episode ep);
 
     /**
-     * @return The episode that should be played when the user manually selects
-     *         an episode.
-     */
-    Episode getManualEpisode();
-
-    /**
      * Sets the episode that should be played when the user manually selects an
      * episode.
      *
      * @param manualEpisode The manual episode
      */
     void setManualEpisode(Episode manualEpisode);
-
-    /**
-     * @return If we are in manual mode. In this mode, the manual episode is
-     *         played instead of the next episode.
-     */
-    boolean isManual();
 
     /**
      * @return Gets the current download progress of an episode, if it is
