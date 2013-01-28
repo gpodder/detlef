@@ -30,9 +30,6 @@ import com.dragontek.mygpoclient.feeds.IFeed;
  * some (with no reason) is in DBAssistants. Originally, it was
  * intended to have public DBAssistant classes and to keep DAOImpl's
  * private. This is still doable but requires some effort.
- *
- * DB object caching (episodes/podcasts/...) should be moved into a separate
- * class layer (decorators).
  */
 
 /**
