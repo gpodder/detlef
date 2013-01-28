@@ -21,7 +21,6 @@ package at.ac.tuwien.detlef.db;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,16 +37,16 @@ import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
 
-public final class EpisodeDAOImpl implements EpisodeDAO {
+public final class SimpleEpisodeDAO implements EpisodeDAO {
 
-    private static final String TAG = EpisodeDAOImpl.class.getName();
+    private static final String TAG = SimpleEpisodeDAO.class.getName();
 
     private final DatabaseHelper dbHelper;
     private final PodcastDAO podcastDAO;
     private final Set<EpisodeDAO.OnEpisodeChangeListener> listeners =
         new HashSet<EpisodeDAO.OnEpisodeChangeListener>();
-    private final HashMap<Long, Episode> hashMapEpisode = new HashMap<Long, Episode>();
-    public EpisodeDAOImpl(Context context) {
+
+    public SimpleEpisodeDAO(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             dbHelper = new DatabaseHelper(context);
             podcastDAO = Singletons.i().getPodcastDAO();
@@ -77,7 +76,6 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
                 }
 
                 episode.setId(id);
-                hashMapEpisode.put(id, episode);
                 notifyListenersAdded(episode);
 
             } catch (Exception ex) {
@@ -164,9 +162,6 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
             db.close();
 
             notifyListenersDeleted(episode);
-            if (hashMapEpisode.containsKey(episode.getId())) {
-                hashMapEpisode.remove(episode.getId());
-            }
 
             return ret;
         }
@@ -347,9 +342,6 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
     private Episode getEpisode(Cursor c) {
         long key = c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ID));
-        if (hashMapEpisode.containsKey(key)) {
-            return hashMapEpisode.get(key);
-        }
 
         Episode e = new Episode(podcastDAO.getPodcastById(c.getLong(
                                     c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_PODCAST))));
@@ -373,8 +365,6 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         if (aState != null) {
             e.setActionState(ActionState.valueOf(aState));
         }
-
-        hashMapEpisode.put(key, e);
 
         return e;
     }

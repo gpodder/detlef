@@ -22,7 +22,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
+import at.ac.tuwien.detlef.db.SimpleEpisodeDAO;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.SimplePodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;

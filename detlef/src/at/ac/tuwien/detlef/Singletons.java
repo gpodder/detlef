@@ -24,9 +24,9 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.content.Context;
 import android.preference.PreferenceManager;
+import at.ac.tuwien.detlef.db.CachingEpisodeDAO;
 import at.ac.tuwien.detlef.db.CachingPodcastDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -211,7 +211,7 @@ public class Singletons {
 
     public EpisodeDAO getEpisodeDAO() {
         if (episodeDAO == null) {
-            episodeDAO = new EpisodeDAOImpl(Detlef.getAppContext());
+            episodeDAO = new CachingEpisodeDAO(Detlef.getAppContext());
         }
         return episodeDAO;
     }

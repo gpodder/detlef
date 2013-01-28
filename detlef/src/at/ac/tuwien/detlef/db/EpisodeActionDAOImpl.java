@@ -37,7 +37,7 @@ import at.ac.tuwien.detlef.domain.RemoteEpisodeAction;
  * DAO for episode action access.
  */
 public class EpisodeActionDAOImpl implements EpisodeActionDAO {
-    private static final String TAG = EpisodeDAOImpl.class.getName();
+    private static final String TAG = SimpleEpisodeDAO.class.getName();
 
     private static final EpisodeActionDAOImpl INSTANCE = new EpisodeActionDAOImpl(
         Detlef.getAppContext());
