@@ -309,9 +309,8 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
         return null;
     }
 
-    @Override
-    public List<Episode> getEpisodesWhere(String selection,
-                                          String[] selectionArgs) {
+    private List<Episode> getEpisodesWhere(String selection,
+                                           String[] selectionArgs) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             List<Episode> allEpisodes = new ArrayList<Episode>();
             SQLiteDatabase db = dbHelper.getReadableDatabase();
