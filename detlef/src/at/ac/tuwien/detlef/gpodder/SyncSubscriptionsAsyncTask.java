@@ -26,14 +26,16 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 
-import at.ac.tuwien.detlef.Singletons;
+import android.content.Context;
+import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.PodcastDAO;
-import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.domain.PodcastImgPersistance;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.dragontek.mygpoclient.api.MygPodderClient;
@@ -48,6 +50,8 @@ import com.dragontek.mygpoclient.simple.IPodcast;
  * needs to implement the Callback's handle & handleFailure methods.
  */
 public class SyncSubscriptionsAsyncTask implements Runnable {
+
+    private static final String TAG = SyncSubscriptionsAsyncTask.class.getName();
 
     private static final int HTTP_STATUS_FORBIDDEN = 401;
     private static final int HTTP_STATUS_NOT_FOUND = 404;
@@ -105,11 +109,10 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             PodcastDetailsRetriever pdr = new PodcastDetailsRetriever();
             EnhancedSubscriptionChanges remoteChanges = pdr.getPodcastDetails(changes);
 
-            /* update the db here */
-            PodcastDBAssistant dba = Singletons.i()
-                                     .getPodcastDBAssistant();
-            dba.applySubscriptionChanges(Detlef.getAppContext(), localChanges);
-            dba.applySubscriptionChanges(Detlef.getAppContext(), remoteChanges);
+            /* Update the db here */
+
+            applySubscriptionChanges(Detlef.getAppContext(), localChanges);
+            applySubscriptionChanges(Detlef.getAppContext(), remoteChanges);
 
             /* apply the changed URLs */
             if (result.updateUrls != null && result.updateUrls.size() > 0) {
@@ -178,6 +181,52 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
      */
     private void sendError(int errCode, String errString) {
         callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, errCode, errString));
+    }
+
+    private void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {
+        Log.d(TAG, "Applying changes");
+
+        PodcastDAO dao = Singletons.i().getPodcastDAO();
+        for (Podcast p : changes.getAdd()) {
+            /* The podcast may already be in the local add/delete table. */
+            Podcast pod = dao.getPodcastByUrl(p.getUrl());
+            if (pod != null) {
+                if (pod.isLocalAdd() || pod.isLocalDel()) {
+                    dao.setRemotePodcast(pod);
+                    if (pod.getLogoUrl() != null && !pod.getLogoUrl().equals("")) {
+                        try {
+                            PodcastImgPersistance.download(pod);
+                        } catch (IOException e) {
+                            Log.e(TAG, "error downloading podcast img: " + e.getMessage());
+                        }
+                    }
+                }
+
+                /* Never insert a podcast twice. */
+                continue;
+            }
+
+            if ((p.getTitle() != null) && (p.getUrl() != null)) {
+
+                if (p.getLogoUrl() != null && !p.getLogoUrl().equals("")) {
+                    try {
+                        PodcastImgPersistance.download(p);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error downloading podcast img: " + e.getMessage());
+                    }
+                }
+                dao.insertPodcast(p);
+            } else {
+                Log.w(TAG, "Cannot insert podcast without title/url");
+            }
+        }
+
+        for (Podcast p : changes.getRemove()) {
+            Podcast pod = dao.getPodcastByUrl(p.getUrl());
+            if (pod != null) {
+                dao.deletePodcast(pod);
+            }
+        }
     }
 
     /**

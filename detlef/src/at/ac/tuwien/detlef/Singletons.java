@@ -30,8 +30,6 @@ import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
-import at.ac.tuwien.detlef.db.PodcastDBAssistant;
-import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
@@ -58,7 +56,6 @@ public class Singletons {
     private static Singletons dependencyAssistant = null;
 
     private EpisodeDBAssistant episodeDBAssistant = null;
-    private PodcastDBAssistant podcastDBAssistant = null;
     private DetlefDownloadManager downloadManager = null;
     private GUIUtils guiUtils = null;
     private GPodderSync gPodderSync = null;
@@ -84,17 +81,6 @@ public class Singletons {
                                               Detlef.getAppContext()));
         }
         return gPodderSync;
-    }
-
-    /**
-     * @return Gets the quasi-singleton PodcastDBAssistant instance for this
-     *         program.
-     */
-    public PodcastDBAssistant getPodcastDBAssistant() {
-        if (podcastDBAssistant == null) {
-            podcastDBAssistant = new PodcastDBAssistantImpl();
-        }
-        return podcastDBAssistant;
     }
 
     /**
