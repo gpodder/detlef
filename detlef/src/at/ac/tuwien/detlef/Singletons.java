@@ -24,10 +24,10 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.content.Context;
 import android.preference.PreferenceManager;
+import at.ac.tuwien.detlef.db.CachingPodcastDAO;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.db.PodcastDBAssistantImpl;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -201,7 +201,7 @@ public class Singletons {
      */
     public PodcastDAO getPodcastDAO() {
         if (podcastDAO == null) {
-            podcastDAO  = new PodcastDAOImpl(Detlef.getAppContext());
+            podcastDAO  = new CachingPodcastDAO(Detlef.getAppContext());
         }
         return podcastDAO;
     }

@@ -21,7 +21,6 @@ package at.ac.tuwien.detlef.db;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,16 +34,15 @@ import android.util.Log;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
-public final class PodcastDAOImpl implements PodcastDAO {
+public class SimplePodcastDAO implements PodcastDAO {
 
-    private static final String TAG = PodcastDAOImpl.class.getName();
+    private static final String TAG = SimplePodcastDAO.class.getName();
 
     private final DatabaseHelper dbHelper;
     private final Set<PodcastDAO.OnPodcastChangeListener> listeners =
         new HashSet<PodcastDAO.OnPodcastChangeListener>();
-    private final HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
 
-    public PodcastDAOImpl(Context context) {
+    public SimplePodcastDAO(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             dbHelper = new DatabaseHelper(context);
 
@@ -92,7 +90,6 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 }
 
                 podcast.setId(id);
-                hashMapPodcast.put(id, podcast);
                 notifyListenersAdded(podcast);
 
                 db.setTransactionSuccessful();
@@ -175,9 +172,6 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 db.close();
 
                 notifyListenersDeleted(podcast);
-                if (hashMapPodcast.containsKey(podcast.getId())) {
-                    hashMapPodcast.remove(podcast.getId());
-                }
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
             } finally {
@@ -226,12 +220,6 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     private Podcast getPodcast(Cursor c) {
-        long key = c.getLong(0);
-
-        if (hashMapPodcast.containsKey(key)) {
-            return hashMapPodcast.get(key);
-        }
-
         Podcast p = new Podcast();
         p.setId(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_ID)));
         p.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_URL)));
@@ -239,14 +227,11 @@ public final class PodcastDAOImpl implements PodcastDAO {
         p.setDescription(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION)));
         p.setLogoUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_URL)));
         p.setLastUpdate(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE)));
-        p.setLogoFilePath(c.getString(c
-                                      .getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
+        p.setLogoFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
         p.setLocalAdd(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_ADD)));
         p.setLocalDel(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_DEL)));
         p.setLogoDownloaded(c.getInt(c.getColumnIndex(
                                          DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED)));
-
-        hashMapPodcast.put(key, p);
 
         return p;
     }
@@ -303,10 +288,12 @@ public final class PodcastDAOImpl implements PodcastDAO {
         }
     }
 
+    @Override
     public void addPodcastChangedListener(PodcastDAO.OnPodcastChangeListener listener) {
         listeners.add(listener);
     }
 
+    @Override
     public void removePodListChangeListener(PodcastDAO.OnPodcastChangeListener listener) {
         listeners.remove(listener);
     }
@@ -391,7 +378,6 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 }
 
                 podcast.setLocalDel(true);
-                hashMapPodcast.put(podcast.getId(), podcast);
                 notifyListenersDeleted(podcast);
 
                 return true;
@@ -428,11 +414,9 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
                 db.delete(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, selection, selectionArgs);
 
-                Podcast newPodcast = hashMapPodcast.get(podcast.getId());
-                if (newPodcast != null) {
-                    newPodcast.setLocalAdd(false);
-                    newPodcast.setLocalDel(false);
-                }
+                podcast.setLocalAdd(false);
+                podcast.setLocalDel(false);
+
                 notifyListenersChanged(podcast);
 
                 db.setTransactionSuccessful();
