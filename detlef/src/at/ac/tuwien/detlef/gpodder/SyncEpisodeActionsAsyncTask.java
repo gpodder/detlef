@@ -26,12 +26,16 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 
 import android.content.Context;
-import at.ac.tuwien.detlef.Singletons;
+import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.EpisodeActionDAO;
 import at.ac.tuwien.detlef.db.EpisodeActionDAOImpl;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.domain.DeviceId;
+import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.RemoteEpisodeAction;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -45,6 +49,8 @@ import com.dragontek.mygpoclient.api.MygPodderClient;
  * implement the Callback's handleSuccess & handleFailure methods.
  */
 public class SyncEpisodeActionsAsyncTask implements Runnable {
+
+    private static final String TAG = SyncEpisodeActionsAsyncTask.class.getName();
 
     private final NoDataResultHandler<?> callback;
 
@@ -86,8 +92,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
             /* Get episode actions. */
             changes = gpc.downloadEpisodeActions(gps.getLastEpisodeActionUpdate());
 
-            Singletons.i().getEpisodeDBAssistant()
-            .applyActionChanges(Detlef.getAppContext(), changes);
+            applyActionChanges(Detlef.getAppContext(), changes);
 
             /* Sadly, changes.since is always 0, hence we can't use it to fetch new
              * episode actions. So we use the timestamp returned by the upload. */
@@ -121,5 +126,41 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
      */
     private void sendError(String errString) {
         callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, 0, errString));
+    }
+
+    private void applyActionChanges(Context context, EpisodeActionChanges changes) {
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
+
+        for (EpisodeAction action : changes.actions) {
+            // update playposition
+            Episode ep = dao.getEpisodeByUrlOrGuid(action.episode, action.episode);
+            if (ep != null) {
+                ActionState newActionState = ActionState.NEW;
+                if (action.action.equals("play")) {
+                    newActionState = ActionState.PLAY;
+                    Log.i(TAG, "updating play position from: " + action.episode + " pos: "
+                          + action.position + " started:" + action.started + " total: "
+                          + action.total);
+                    /* Episode uses milliseconds. */
+                    ep.setPlayPosition(action.position * 1000);
+                    if (dao.update(ep) != 1) {
+                        Log.w(TAG, "update play position went wrong: " + ep.getLink());
+                    }
+
+                } else {
+                    if (action.action.equals("download")) {
+                        newActionState = ActionState.DOWNLOAD;
+                    } else {
+                        if (action.action.equals("delete")) {
+                            newActionState = ActionState.DELETE;
+                        }
+                    }
+                }
+                ep.setActionState(newActionState);
+                int ret = dao.update(ep);
+                Log.i(TAG, "asdf: " + ret);
+            }
+        }
+
     }
 }

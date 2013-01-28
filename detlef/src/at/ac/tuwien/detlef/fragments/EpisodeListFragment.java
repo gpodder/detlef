@@ -41,6 +41,7 @@ import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
+import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -353,8 +354,23 @@ public class EpisodeListFragment extends ListFragment
      */
     public void onMarkReadUnreadClick(View v) {
         Episode episode = ((Episode) v.getTag());
-        Singletons.i().getEpisodeDBAssistant()
-        .toggleEpisodeReadState(episode);
+
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
+        switch (episode.getActionState()) {
+        case DOWNLOAD: // fall-through
+        case NEW: // fall-through
+        case PLAY:
+            episode.setActionState(ActionState.DELETE);
+            dao.update(episode);
+            break;
+        case DELETE:
+            episode.setActionState(ActionState.NEW);
+            dao.update(episode);
+            break;
+        default:
+            Log.e(TAG, "Unknown action state encountered");
+        }
+
         adapter.notifyDataSetChanged();
     }
 

@@ -22,16 +22,22 @@ import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
 
-import at.ac.tuwien.detlef.Singletons;
+import android.content.Context;
+import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.PodcastDAO;
+import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.FeedUpdate;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.dragontek.mygpoclient.feeds.FeedServiceClient;
 import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
+import com.dragontek.mygpoclient.feeds.IFeed;
+import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
 
 /**
  * A Runnable to fetch feed changes. It should be started in its own Thread
@@ -41,6 +47,8 @@ import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
 public class PullFeedAsyncTask implements Runnable {
 
     private static final int GENERIC_ERROR = -1;
+
+    private static final String TAG = PullFeedAsyncTask.class.getName();
 
     private final NoDataResultHandler<?> callback;
     private final Podcast podcast;
@@ -85,8 +93,7 @@ public class PullFeedAsyncTask implements Runnable {
 
             feed = new FeedUpdate(fsr.get(0), podcast);
 
-            Singletons.i().getEpisodeDBAssistant()
-            .upsertAndDeleteEpisodes(Detlef.getAppContext(), podcast, feed);
+            upsertAndDeleteEpisodes(Detlef.getAppContext(), podcast, feed);
 
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
@@ -114,5 +121,25 @@ public class PullFeedAsyncTask implements Runnable {
      */
     private void sendError(int errCode, String errString) {
         callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, errCode, errString));
+    }
+
+    private void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed) {
+        try {
+            EpisodeDAO dao = Singletons.i().getEpisodeDAO();
+            for (IEpisode ep : feed.getEpisodes()) {
+                try {
+                    if (ep.getEnclosure() != null) {
+                        Episode newEp = new Episode(ep, p);
+
+                        dao.insertEpisode(newEp);
+                    }
+                } catch (Exception ex) {
+                    Log.i(TAG, ("enclosure missing, " + ex.getMessage()) != null ? ex.getMessage()
+                          : ex.toString());
+                }
+            }
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage());
+        }
     }
 }

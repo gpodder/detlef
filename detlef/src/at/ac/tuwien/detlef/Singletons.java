@@ -27,8 +27,6 @@ import android.preference.PreferenceManager;
 import at.ac.tuwien.detlef.db.CachingEpisodeDAO;
 import at.ac.tuwien.detlef.db.CachingPodcastDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
-import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
@@ -55,7 +53,6 @@ public class Singletons {
 
     private static Singletons dependencyAssistant = null;
 
-    private EpisodeDBAssistant episodeDBAssistant = null;
     private DetlefDownloadManager downloadManager = null;
     private GUIUtils guiUtils = null;
     private GPodderSync gPodderSync = null;
@@ -81,17 +78,6 @@ public class Singletons {
                                               Detlef.getAppContext()));
         }
         return gPodderSync;
-    }
-
-    /**
-     * @return Gets the quasi-singleton EpisodeDBAssistant instance for this
-     *         program.
-     */
-    public EpisodeDBAssistant getEpisodeDBAssistant() {
-        if (episodeDBAssistant == null) {
-            episodeDBAssistant = new EpisodeDBAssistantImpl();
-        }
-        return episodeDBAssistant;
     }
 
     /**
