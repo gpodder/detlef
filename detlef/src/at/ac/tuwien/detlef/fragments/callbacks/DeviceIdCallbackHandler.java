@@ -21,14 +21,15 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.gpodder.DeviceIdResultHandler;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
+import at.ac.tuwien.detlef.util.GUIUtils;
 
 /**
  * The Handler that is called after a {@link DeviceId} has successfully been
@@ -78,7 +79,7 @@ public class DeviceIdCallbackHandler
      * i.e. not in {@link SettingsGpodderNet#isSetupMode() setup mode}.
      */
     private void normalModeAction() {
-        Singletons.i().getGuiUtils().showToast(
+        GUIUtils.showToast(
             getRcv().getText(R.string.device_id_registration_success),
             getRcv().getActivity(),
             TAG
@@ -90,7 +91,7 @@ public class DeviceIdCallbackHandler
      * {@link SettingsGpodderNet#isSetupMode() setup mode}.
      */
     private void setupModeAction() {
-        Singletons.i().getGuiUtils().showSimpleOkDialog(
+        GUIUtils.showSimpleOkDialog(
             R.string.almost_done,
             R.string.detlef_will_now_synchronize,
             new SetupModeNextStepClickListener(),
@@ -109,7 +110,7 @@ public class DeviceIdCallbackHandler
         }
         );
 
-        Singletons.i().getGuiUtils().showToast(
+        GUIUtils.showToast(
             getRcv().getText(R.string.operation_failed),
             getRcv().getActivity(),
             TAG

@@ -278,21 +278,20 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
 
     public void downloadEpisode(View v) {
         Episode episode = ((Episode) v.getTag());
-        GUIUtils guiUtils = Singletons.i().getGuiUtils();
         String tag = getClass().getName();
         switch (episode.getStorageState()) {
         case NOT_ON_DEVICE:
             try {
-                guiUtils.showToast(String.format("Downloading %s", episode.getTitle()),
+                GUIUtils.showToast(String.format("Downloading %s", episode.getTitle()),
                                    this, tag);
                 EpisodePersistence.download(episode);
             } catch (IOException e) {
-                guiUtils.showToast(getString(R.string.cannot_download_episode),
+                GUIUtils.showToast(getString(R.string.cannot_download_episode),
                                    this, tag);
             }
             break;
         case DOWNLOADING:
-            guiUtils.showToast("Download aborted", this, tag);
+            GUIUtils.showToast("Download aborted", this, tag);
             EpisodePersistence.cancelDownload(episode);
             break;
         default:

@@ -17,8 +17,8 @@
 
 package at.ac.tuwien.detlef.fragments.callbacks;
 
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderService;
@@ -103,14 +103,11 @@ public class ConnectionTestCallback
     }
 
     private void showToast(CharSequence message) {
-        GUIUtils guiUtils = Singletons.i().getGuiUtils();
-
-        guiUtils.showToast(
+        GUIUtils.showToast(
             message,
             getRcv().getActivity(),
             ""
         );
-
     }
 
     @Override

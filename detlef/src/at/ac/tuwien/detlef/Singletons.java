@@ -41,7 +41,6 @@ import at.ac.tuwien.detlef.settings.DeviceRegistratorGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
-import at.ac.tuwien.detlef.util.GUIUtils;
 
 /**
  * This class acts as a central point for setting and retrieving service
@@ -54,17 +53,9 @@ public class Singletons {
     private static Singletons dependencyAssistant = null;
 
     private DetlefDownloadManager downloadManager = null;
-    private GUIUtils guiUtils = null;
     private GPodderSync gPodderSync = null;
     private PodcastDAO podcastDAO = null;
     private EpisodeDAO episodeDAO = null;
-
-    public GUIUtils getGuiUtils() {
-        if (guiUtils == null) {
-            guiUtils = new GUIUtils();
-        }
-        return guiUtils;
-    }
 
     /**
      * Lazy initialization to both improve performance and avoid issues getting the

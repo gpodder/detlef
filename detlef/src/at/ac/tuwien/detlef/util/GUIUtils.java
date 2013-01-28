@@ -30,6 +30,10 @@ public class GUIUtils {
     /** Logging Tag. */
     private static final String TAG = GUIUtils.class.getCanonicalName();
 
+    private GUIUtils() {
+        /* Pure static. */
+    }
+
     /**
      * Takes its best effort to display a toast message within the current
      * {@link Activity#getApplicationContext() application context}. This method
@@ -42,7 +46,7 @@ public class GUIUtils {
      *
      * @param message
      */
-    public GUIUtils showToast(final CharSequence message, final Activity activity, String tag) {
+    public static void showToast(final CharSequence message, final Activity activity, String tag) {
         Log.d(tag, String.format("showToast: message = %s, activity = %s", message, activity));
 
         try {
@@ -64,7 +68,6 @@ public class GUIUtils {
             // application at some other point.
             Log.e(tag, e.getMessage(), e);
         }
-        return this;
     }
 
     /**
@@ -77,8 +80,8 @@ public class GUIUtils {
      * @param activity The {@link Activity} that invokes the Dialog.
      * @return
      */
-    public GUIUtils showSimpleOkDialog(final int title, final int message,
-                                       final OnClickListener okButtonListener, final Activity activity) {
+    public static void showSimpleOkDialog(final int title, final int message,
+                                          final OnClickListener okButtonListener, final Activity activity) {
         try {
             activity.runOnUiThread(new Runnable() {
                 @Override
@@ -97,8 +100,5 @@ public class GUIUtils {
             // application at some other point.
             Log.e(TAG, e.getMessage(), e);
         }
-        return this;
-
     }
-
 }

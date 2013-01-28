@@ -73,8 +73,6 @@ public class EpisodeListFragment extends ListFragment
     private OnEpisodeSelectedListener listener;
     private PlaylistDAO playlistDAO;
 
-    private GUIUtils guiUtils;
-
     private GpodderSettings settings;
 
     /**
@@ -117,7 +115,6 @@ public class EpisodeListFragment extends ListFragment
                                          new ArrayList<Episode>(eplist));
         setListAdapter(adapter);
 
-        guiUtils = Singletons.i().getGuiUtils();
         restoreSortOrder();
         restoreFilter(savedInstanceState);
     }
@@ -325,20 +322,20 @@ public class EpisodeListFragment extends ListFragment
         switch (episode.getStorageState()) {
         case NOT_ON_DEVICE:
             try {
-                guiUtils.showToast(String.format("Downloading %s", episode.getTitle()),
+                GUIUtils.showToast(String.format("Downloading %s", episode.getTitle()),
                                    getActivity(), TAG);
                 EpisodePersistence.download(episode);
             } catch (IOException e) {
-                guiUtils.showToast(getActivity().getString(R.string.cannot_download_episode),
+                GUIUtils.showToast(getActivity().getString(R.string.cannot_download_episode),
                                    getActivity(), TAG);
             }
             break;
         case DOWNLOADING:
-            guiUtils.showToast("Download aborted", getActivity(), TAG);
+            GUIUtils.showToast("Download aborted", getActivity(), TAG);
             EpisodePersistence.cancelDownload(episode);
             break;
         case DOWNLOADED:
-            guiUtils.showToast(String.format("Deleted %s", episode.getTitle()),
+            GUIUtils.showToast(String.format("Deleted %s", episode.getTitle()),
                                getActivity(), TAG);
             EpisodePersistence.delete(episode);
             break;
