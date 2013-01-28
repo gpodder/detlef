@@ -57,6 +57,8 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase {
         edao = Singletons.i().getEpisodeDAO();
         pdao = Singletons.i().getPodcastDAO();
 
+        pdao.deleteAllPodcasts();
+
         super.setUp();
     }
 

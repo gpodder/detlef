@@ -31,6 +31,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 public class PodcastDAOImplTest extends AndroidTestCase {
 
     Podcast p1;
+    private PodcastDAO pdao;
 
     @Override
     protected void setUp() throws Exception {
@@ -41,6 +42,10 @@ public class PodcastDAOImplTest extends AndroidTestCase {
         p1.setLogoUrl("logoUrl");
         p1.setTitle("title");
         p1.setUrl("url");
+
+        pdao = Singletons.i().getPodcastDAO();
+        pdao.deleteAllPodcasts();
+
         super.setUp();
     }
 
@@ -53,15 +58,13 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * test the getAllPodcast functionality
      */
     public void testGetAllPodcasts() {
-        PodcastDAO dao = Singletons.i().getPodcastDAO();
-        assertNotNull("List of podcasts shouldn't be null", dao.getAllPodcasts());
+        assertNotNull("List of podcasts shouldn't be null", pdao.getAllPodcasts());
     }
 
     /**
      * tests the insertPodcast functionality
      */
     public void testInsertPodcast() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         int countBeforeInsert = pdao.getAllPodcasts().size();
         p1 = pdao.insertPodcast(p1);
         int countAfterInsert = pdao.getAllPodcasts().size();
@@ -73,7 +76,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the deletePodcast functionality
      */
     public void testDeletePodcast() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         int countBeforeDelete = pdao.getAllPodcasts().size();
         int ret = pdao.deletePodcast(p1);
@@ -86,7 +88,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the getPodcastById functionality
      */
     public void testGetPodcastById() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1.setTitle("expected title");
         p1 = pdao.insertPodcast(p1);
         Podcast pod = pdao.getPodcastById(p1.getId());
@@ -99,8 +100,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the updateUrl functionality
      */
     public void testUpdate() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
-
         long currentMilis = System.currentTimeMillis();
         String newFilePath = "new path haha";
 
@@ -122,7 +121,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * null on a non nullable column
      */
     public void testInsertNotNullableColumnShouldFail() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1.setUrl(null);
         Podcast pod = pdao.insertPodcast(p1);
         assertNull(pod);
@@ -133,7 +131,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * on a nullable column
      */
     public void testInsertNullOnNullableColumn() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1.setLogoFilePath(null);
         Podcast pod = pdao.insertPodcast(p1);
         assertNotNull(pod);
@@ -143,7 +140,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the getpodcastbyurl functionality
      */
     public void testGetPodcastByUrl() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         String url = "supergeileurl";
         p1.setUrl(url);
         pdao.insertPodcast(p1);
@@ -155,7 +151,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * Tests adding a podcast locally.
      */
     public void testLocalAdd() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1.setLocalAdd(true);
         pdao.insertPodcast(p1);
         assertTrue(pdao.getNonDeletedPodcasts().contains(p1));
@@ -167,7 +162,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * Tests adding a podcast locally and then deleting it locally.
      */
     public void testLocalDeletePodcastLocalAdd() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1.setLocalAdd(true);
         pdao.insertPodcast(p1);
         assertTrue(pdao.localDeletePodcast(p1));
@@ -182,7 +176,6 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * and then deleting it completely.
      */
     public void testLocalDeletePodcastNonLocalAdd() {
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1.setLocalAdd(false);
         pdao.insertPodcast(p1);
         assertTrue(pdao.localDeletePodcast(p1));
