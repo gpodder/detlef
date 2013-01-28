@@ -20,7 +20,6 @@
 package at.ac.tuwien.detlef.db;
 
 import java.io.IOException;
-import java.util.List;
 
 import android.content.Context;
 import android.util.Log;
@@ -32,12 +31,6 @@ import at.ac.tuwien.detlef.domain.PodcastImgPersistance;
 public class PodcastDBAssistantImpl implements PodcastDBAssistant {
     /** Logging tag. */
     private static final String TAG = "PodcastDBAssistant";
-
-    @Override
-    public List<Podcast> getAllPodcasts(Context context) {
-        PodcastDAO dao = Singletons.i().getPodcastDAO();
-        return dao.getAllPodcasts();
-    }
 
     @Override
     public void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {

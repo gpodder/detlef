@@ -17,8 +17,6 @@
 
 package at.ac.tuwien.detlef.db;
 
-import java.util.List;
-
 import android.content.Context;
 import android.util.Log;
 import at.ac.tuwien.detlef.Singletons;
@@ -34,18 +32,6 @@ import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
 public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
 
     private static final String TAG = EpisodeDBAssistantImpl.class.getName();
-
-    @Override
-    public List<Episode> getEpisodes(Context context, Podcast podcast) {
-        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
-        return dao.getEpisodes(podcast);
-    }
-
-    @Override
-    public List<Episode> getAllEpisodes(Context context) {
-        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
-        return dao.getAllEpisodes();
-    }
 
     @Override
     public void applyActionChanges(Context context, EpisodeActionChanges changes) {
@@ -102,12 +88,6 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
         }
-    }
-
-    @Override
-    public Episode getEpisodeById(Context context, int id) {
-        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
-        return dao.getEpisode(id);
     }
 
     @Override
