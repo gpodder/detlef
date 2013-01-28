@@ -26,7 +26,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -147,7 +147,7 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor c = db.rawQuery(QUERY_ALL_EPISODE_ACTIONS, null);
             DeviceId devId =
-                DependencyAssistant.getDependencyAssistant().getGpodderSettings().getDeviceId();
+                Singletons.i().getGpodderSettings().getDeviceId();
             if (devId == null) {
                 return episodeActions;
             }

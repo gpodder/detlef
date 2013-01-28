@@ -23,7 +23,7 @@ import java.util.List;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -107,7 +107,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         clearDatabase();
 
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -137,7 +137,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         clearDatabase();
 
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -167,7 +167,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         clearDatabase();
 
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -202,7 +202,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         clearDatabase();
 
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -244,7 +244,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         clearDatabase();
 
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -283,7 +283,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         clearDatabase();
 
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -306,7 +306,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         clearDatabase();
 
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);

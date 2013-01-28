@@ -34,7 +34,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
@@ -92,7 +92,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         playlistItems = playlistDAO.getNonCachedEpisodes();
         EpisodeDAOImpl.i().addEpisodeChangedListener(this);
 
-        downloadManager = DependencyAssistant.getDependencyAssistant().getDownloadManager(
+        downloadManager = Singletons.i().getDownloadManager(
                               Detlef.getAppContext());
 
         initListView();
@@ -279,7 +279,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
 
     public void downloadEpisode(View v) {
         Episode episode = ((Episode) v.getTag());
-        GUIUtils guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
+        GUIUtils guiUtils = Singletons.i().getGuiUtils();
         String tag = getClass().getName();
         switch (episode.getStorageState()) {
         case NOT_ON_DEVICE:

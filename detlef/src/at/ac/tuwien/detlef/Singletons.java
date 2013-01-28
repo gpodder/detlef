@@ -51,9 +51,9 @@ import at.ac.tuwien.detlef.util.GUIUtils;
  *
  * @author johannes
  */
-public class DependencyAssistant {
+public class Singletons {
 
-    private static DependencyAssistant dependencyAssistant = null;
+    private static Singletons dependencyAssistant = null;
 
     private EpisodeDBAssistant episodeDBAssistant = null;
     private PodcastDBAssistant podcastDBAssistant = null;
@@ -162,28 +162,31 @@ public class DependencyAssistant {
         return new ConnectionTesterGpodderNet();
     }
 
-    public static DependencyAssistant getDependencyAssistant() {
+    /**
+     * @return The static instance.
+     */
+    public static Singletons i() {
         if (dependencyAssistant == null) {
-            dependencyAssistant = new DependencyAssistant();
+            dependencyAssistant = new Singletons();
         }
         return dependencyAssistant;
     }
 
     /**
-     * Overwrites the default {@link DependencyAssistant} with a custom one. By
+     * Overwrites the default {@link Singletons} with a custom one. By
      * using this method you can easily replace parts of the Application with
      * Mocks which is useful for testing.
      *
      * @param pDependencyAssistant
      */
-    public static void setDependencyAssistant(DependencyAssistant pDependencyAssistant) {
+    public static void setDependencyAssistant(Singletons pDependencyAssistant) {
         dependencyAssistant = pDependencyAssistant;
     }
 
     /**
      * Convenience Method that calls {@link #getGpodderSettings(Context)} with
      * {@link Detlef#getAppContext()} as Context.
-     * @return {@value DependencyAssistant#getGpodderSettings(Context)}
+     * @return {@value Singletons#getGpodderSettings(Context)}
      */
     public GpodderSettings getGpodderSettings() {
         return getGpodderSettings(Detlef.getAppContext());

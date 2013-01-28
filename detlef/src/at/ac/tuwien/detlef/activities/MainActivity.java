@@ -48,7 +48,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.callbacks.EpisodeSearchQueryTextListener;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
@@ -180,8 +180,8 @@ public class MainActivity extends FragmentActivity
 
     private void startSettingsActivityIfNoDeviceIdSet() {
 
-        if (DependencyAssistant
-                .getDependencyAssistant()
+        if (Singletons
+                .i()
                 .getGpodderSettings(this)
                 .getDeviceId() != null) {
             return;
@@ -392,7 +392,7 @@ public class MainActivity extends FragmentActivity
          */
         @Override
         public void handleSuccess() {
-            PodcastDAO pDao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+            PodcastDAO pDao = Singletons.i().getPodcastDAO();
 
             final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false);
 
@@ -548,7 +548,7 @@ public class MainActivity extends FragmentActivity
      */
     private void onRefreshPressed(Bundle pBundle) {
 
-        GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+        GpodderSettings settings = Singletons.i()
                                    .getGpodderSettings(this);
 
         if (settings.getDeviceId() == null) {

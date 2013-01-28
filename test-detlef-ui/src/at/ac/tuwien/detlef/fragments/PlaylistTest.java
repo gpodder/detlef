@@ -20,7 +20,7 @@
 package at.ac.tuwien.detlef.fragments;
 
 import android.test.ActivityInstrumentationTestCase2;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -51,7 +51,7 @@ public class PlaylistTest extends ActivityInstrumentationTestCase2<MainActivity>
 
         solo = new Solo(getInstrumentation(), activity);
         edao = EpisodeDAOImpl.i();
-        pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        pdao = Singletons.i().getPodcastDAO();
 
         p1 = new Podcast();
         p1.setDescription("description");

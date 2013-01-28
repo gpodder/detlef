@@ -24,7 +24,7 @@ import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.widget.Toast;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
@@ -37,8 +37,8 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
 import com.jayway.android.robotium.solo.Solo;
 /**
  * This tests the "Connection Test" button.
- * Because we use a modified {@link DependencyAssistant} this is in a separate file as the
- * {@link DependencyAssistant} must be passed in the {@link #setUp()} method.
+ * Because we use a modified {@link Singletons} this is in a separate file as the
+ * {@link Singletons} must be passed in the {@link #setUp()} method.
  *
  * @author moe
  */
@@ -63,7 +63,7 @@ public class SettingsGpodderNetConnectionTest extends
     public void setUp() throws Exception {
         resetSettings();
 
-        DependencyAssistant.setDependencyAssistant(dependencyAssistant);
+        Singletons.setDependencyAssistant(dependencyAssistant);
 
         solo = new Solo(getInstrumentation(), getActivity());
         solo.setActivityOrientation(Solo.PORTRAIT);
@@ -205,20 +205,20 @@ public class SettingsGpodderNetConnectionTest extends
     @Override
     public void tearDown() throws Exception {
         // reset dependency assistant so that other tests are not affected
-        DependencyAssistant.setDependencyAssistant(new DependencyAssistant());
+        Singletons.setDependencyAssistant(new Singletons());
         solo.finishOpenedActivities();
     }
 
     /**
-     * This is a modified {@link DependencyAssistant} which adjusts these two aspects:
+     * This is a modified {@link Singletons} which adjusts these two aspects:
      * <ul>
-     *   <li>{@link DependencyAssistant#getConnectionTester()}: Instead of a real connection test
+     *   <li>{@link Singletons#getConnectionTester()}: Instead of a real connection test
      *      this is replaced by a mock connection test, whose outcome can be defined via
      *      {@link DependencyAssistantTestSettings#connectionTestBehavior}. So the UI functionality
      *      can be tested without having to make a real connection.
      *   </li>
      *   <li>
-     *      {link {@link DependencyAssistant#getGpodderSettings(Context)}: This returns a fixed
+     *      {link {@link Singletons#getGpodderSettings(Context)}: This returns a fixed
      *      user name and password combination, so the test can run faster because we don't have
      *      to enter the username and password first in order to activate the connection test
      *      button.
@@ -227,7 +227,7 @@ public class SettingsGpodderNetConnectionTest extends
      *
      * @author moe
      */
-    public class DependencyAssistantTestSettings extends DependencyAssistant {
+    public class DependencyAssistantTestSettings extends Singletons {
 
         public ConnectionTestBehavior connectionTestBehavior = ConnectionTestBehavior.CORRECT;
 

@@ -32,7 +32,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
@@ -61,7 +61,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     public EpisodeDAOImpl(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             dbHelper = new DatabaseHelper(context);
-            podcastDAO = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+            podcastDAO = Singletons.i().getPodcastDAO();
 
             /* Take care of any pending database upgrades. */
 

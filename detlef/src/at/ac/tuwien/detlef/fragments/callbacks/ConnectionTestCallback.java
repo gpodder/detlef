@@ -17,7 +17,7 @@
 
 package at.ac.tuwien.detlef.fragments.callbacks;
 
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
@@ -40,10 +40,10 @@ public class ConnectionTestCallback
      */
     public void connectionIsValid() {
 
-        final GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+        final GpodderSettings settings = Singletons.i()
                                          .getGpodderSettings();
 
-        DependencyAssistant.getDependencyAssistant()
+        Singletons.i()
         .getGpodderSettingsDAO(getRcv().getActivity())
         .writeSettings(settings.setAccountVerified(true));
 
@@ -103,7 +103,7 @@ public class ConnectionTestCallback
     }
 
     private void showToast(CharSequence message) {
-        GUIUtils guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
+        GUIUtils guiUtils = Singletons.i().getGuiUtils();
 
         guiUtils.showToast(
             message,

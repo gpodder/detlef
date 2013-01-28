@@ -19,7 +19,7 @@
 package at.ac.tuwien.detlef.fragments;
 
 import android.test.ActivityInstrumentationTestCase2;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
@@ -35,7 +35,7 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
 
     public PodListFragmentTest() {
         super(MainActivity.class);
-        DependencyAssistant.setDependencyAssistant(new MockDependencyAssistant());
+        Singletons.setDependencyAssistant(new MockDependencyAssistant());
     }
 
     @Override
@@ -43,7 +43,7 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
         MainActivity activity = getActivity();
 
         solo = new Solo(getInstrumentation(), activity);
-        dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        dao = Singletons.i().getPodcastDAO();
         uuid = java.util.UUID.randomUUID().toString();
     }
 

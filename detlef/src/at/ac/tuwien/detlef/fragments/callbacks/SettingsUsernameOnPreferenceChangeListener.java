@@ -19,7 +19,7 @@ package at.ac.tuwien.detlef.fragments.callbacks;
 
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 /**
@@ -67,13 +67,13 @@ public class SettingsUsernameOnPreferenceChangeListener
     }
 
     private void deletePocasts() {
-        DependencyAssistant.getDependencyAssistant()
+        Singletons.i()
         .getPodcastDAO()
         .deleteAllPodcasts();
     }
 
     private void updateSettings(String newUsername) {
-        DependencyAssistant.getDependencyAssistant()
+        Singletons.i()
         .getGpodderSettingsDAO(getSender().getActivity())
         .writeSettings(
             getSettings()
@@ -84,7 +84,7 @@ public class SettingsUsernameOnPreferenceChangeListener
     }
 
     private GpodderSettings getSettings() {
-        return DependencyAssistant.getDependencyAssistant().getGpodderSettings();
+        return Singletons.i().getGpodderSettings();
     }
 
 }

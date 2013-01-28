@@ -1,6 +1,6 @@
 package at.ac.tuwien.detlef.settings;
 
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.DeviceId;
 
 import com.dragontek.mygpoclient.api.MygPodderClient;
@@ -19,8 +19,8 @@ public class DeviceRegistratorGpodderNet
     throws DeviceRegistratorException {
 
         try {
-            GpodderSettings gpodderSettings = DependencyAssistant
-                                              .getDependencyAssistant()
+            GpodderSettings gpodderSettings = Singletons
+                                              .i()
                                               .getGpodderSettings();
 
             MygPodderClient gpc = new MygPodderClient(

@@ -29,7 +29,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.gpodder.plumbing.PodderServiceInterface;
@@ -90,7 +90,7 @@ public class GPodderSync {
         stoplight = new Semaphore(1);
         clientInfo = new GpoNetClientInfo();
         clientInfo.setHostname(
-            DependencyAssistant.getDependencyAssistant().getGpodderSettings().getApiHostname()
+            Singletons.i().getGpodderSettings().getApiHostname()
         );
         requestDispatcher = Executors.newSingleThreadExecutor();
     }

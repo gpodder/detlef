@@ -26,7 +26,7 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 
 import android.content.Context;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.EpisodeActionDAO;
@@ -57,7 +57,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
         Context context = Detlef.getAppContext();
 
         /* Retrieve settings.*/
-        GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
+        GpodderSettings gps = Singletons.i()
                               .getGpodderSettings(Detlef.getAppContext());
 
         DeviceId devId = gps.getDeviceId();
@@ -86,14 +86,14 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
             /* Get episode actions. */
             changes = gpc.downloadEpisodeActions(gps.getLastEpisodeActionUpdate());
 
-            DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
+            Singletons.i().getEpisodeDBAssistant()
             .applyActionChanges(Detlef.getAppContext(), changes);
 
             /* Sadly, changes.since is always 0, hence we can't use it to fetch new
              * episode actions. So we use the timestamp returned by the upload. */
             gps.setLastEpisodeActionUpdate(since);
 
-            DependencyAssistant.getDependencyAssistant()
+            Singletons.i()
             .getGpodderSettingsDAO(Detlef.getAppContext())
             .writeSettings(gps);
 

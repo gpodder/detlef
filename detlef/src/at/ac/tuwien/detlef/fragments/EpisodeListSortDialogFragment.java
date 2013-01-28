@@ -26,7 +26,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
@@ -57,7 +57,7 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        settings = DependencyAssistant.getDependencyAssistant().
+        settings = Singletons.i().
                    getGpodderSettings(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialoglayout = inflater.inflate(R.layout.episode_sort_dialog_fragment, null);
@@ -94,7 +94,7 @@ public class EpisodeListSortDialogFragment extends DialogFragment {
                 // change settings
                 settings.setSortChoice(choice).setAscending(rbAscending.isChecked());
                 // save settings
-                DependencyAssistant.getDependencyAssistant()
+                Singletons.i()
                 .getGpodderSettingsDAO(getActivity())
                 .writeSettings(settings);
 

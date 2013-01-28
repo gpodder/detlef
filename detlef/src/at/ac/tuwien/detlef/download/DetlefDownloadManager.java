@@ -38,7 +38,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -71,7 +71,7 @@ public class DetlefDownloadManager {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
         dao = EpisodeDAOImpl.i();
-        pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        pdao = Singletons.i().getPodcastDAO();
     }
 
     /**

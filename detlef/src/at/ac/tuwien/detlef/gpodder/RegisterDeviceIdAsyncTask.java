@@ -2,7 +2,7 @@
 package at.ac.tuwien.detlef.gpodder;
 
 import android.util.Log;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.settings.DeviceRegistratorException;
 
@@ -30,7 +30,7 @@ public class RegisterDeviceIdAsyncTask implements Runnable {
 
         try {
             Log.d(TAG, "Registering new Device with id " + deviceId);
-            DependencyAssistant.getDependencyAssistant()
+            Singletons.i()
             .getDeviceRegistrator()
             .registerNewDeviceId(deviceId);
             Log.d(TAG, "Registering new Device: Done");

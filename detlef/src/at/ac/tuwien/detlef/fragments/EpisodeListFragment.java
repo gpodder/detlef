@@ -33,7 +33,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
@@ -117,7 +117,7 @@ public class EpisodeListFragment extends ListFragment
                                          new ArrayList<Episode>(eplist));
         setListAdapter(adapter);
 
-        guiUtils = DependencyAssistant.getDependencyAssistant().getGuiUtils();
+        guiUtils = Singletons.i().getGuiUtils();
         restoreSortOrder();
         restoreFilter(savedInstanceState);
     }
@@ -163,7 +163,7 @@ public class EpisodeListFragment extends ListFragment
         if (savedState != null) {
             long id = savedState.getLong(BUNDLE_SELECTED_PODCAST, ID_NONE);
             if (id != ID_NONE) {
-                PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+                PodcastDAO dao = Singletons.i().getPodcastDAO();
                 filteredByPodcast = dao.getPodcastById(id);
                 filterByPodcast();
             }
@@ -233,7 +233,7 @@ public class EpisodeListFragment extends ListFragment
     }
 
     private void restoreSortOrder() {
-        settings = DependencyAssistant.getDependencyAssistant().getGpodderSettings(getActivity());
+        settings = Singletons.i().getGpodderSettings(getActivity());
         this.sortEpisodeList(settings.getSortChoice(), settings.isAscending());
     }
 
@@ -354,7 +354,7 @@ public class EpisodeListFragment extends ListFragment
      */
     public void onMarkReadUnreadClick(View v) {
         Episode episode = ((Episode) v.getTag());
-        DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
+        Singletons.i().getEpisodeDBAssistant()
         .toggleEpisodeReadState(episode);
         adapter.notifyDataSetChanged();
     }

@@ -24,7 +24,7 @@ import java.util.List;
 import org.mockito.Mockito;
 
 import android.test.AndroidTestCase;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -60,7 +60,7 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase {
 
     public void testApplyActionChanges() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1.setUrl("podcastUrl343");
         p1 = pdao.insertPodcast(p1);
         String url = java.util.UUID.randomUUID().toString();
@@ -102,7 +102,7 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase {
 
     public void testUpsertAndDeleteEpisodes() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
 
         Feed feed = Mockito.mock(Feed.class);

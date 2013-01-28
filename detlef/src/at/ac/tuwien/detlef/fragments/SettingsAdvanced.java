@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
@@ -35,7 +35,7 @@ public class SettingsAdvanced extends PreferenceFragment {
     }
 
     private GpodderSettings getSettings() {
-        return DependencyAssistant.getDependencyAssistant().getGpodderSettings(getActivity());
+        return Singletons.i().getGpodderSettings(getActivity());
     }
 
     /**
@@ -43,7 +43,7 @@ public class SettingsAdvanced extends PreferenceFragment {
      * settings are written to the storage and are visible in the settings screen.
      */
     private void writeDefaultSettings() {
-        DependencyAssistant.getDependencyAssistant()
+        Singletons.i()
         .getGpodderSettingsDAO(getActivity())
         .writeSettings(getSettings());
     }

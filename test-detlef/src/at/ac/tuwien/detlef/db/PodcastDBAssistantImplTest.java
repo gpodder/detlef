@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.test.AndroidTestCase;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -111,7 +111,7 @@ public class PodcastDBAssistantImplTest extends AndroidTestCase {
      * 3 new Podcasts will be added and 1 deleted
      */
     public void testApplySubscriptionChanges() {
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         p2 = pdao.insertPodcast(p2); // will be deleted
         p3 = pdao.insertPodcast(p3);

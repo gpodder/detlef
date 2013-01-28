@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
 
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -61,7 +61,7 @@ public class PullFeedAsyncTask implements Runnable {
         long since = podcast.getLastUpdate();
 
         /* Retrieve settings.*/
-        GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
+        GpodderSettings gps = Singletons.i()
                               .getGpodderSettings(Detlef.getAppContext());
 
         String username = gps.getUsername();
@@ -85,13 +85,13 @@ public class PullFeedAsyncTask implements Runnable {
 
             feed = new FeedUpdate(fsr.get(0), podcast);
 
-            DependencyAssistant.getDependencyAssistant().getEpisodeDBAssistant()
+            Singletons.i().getEpisodeDBAssistant()
             .upsertAndDeleteEpisodes(Detlef.getAppContext(), podcast, feed);
 
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
 
-            PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+            PodcastDAO pdao = Singletons.i().getPodcastDAO();
             pdao.update(podcast);
         } catch (ClientProtocolException e) {
             sendError(GENERIC_ERROR, e.getLocalizedMessage());

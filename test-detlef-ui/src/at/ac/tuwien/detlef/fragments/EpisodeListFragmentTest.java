@@ -19,7 +19,7 @@
 package at.ac.tuwien.detlef.fragments;
 
 import android.test.ActivityInstrumentationTestCase2;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -38,7 +38,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
 
     public EpisodeListFragmentTest() {
         super(MainActivity.class);
-        DependencyAssistant.setDependencyAssistant(new MockDependencyAssistant());
+        Singletons.setDependencyAssistant(new MockDependencyAssistant());
     }
 
     @Override
@@ -54,7 +54,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         Podcast p = new Podcast();
         p.setTitle(uuid);
 
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         pdao.insertPodcast(p);
 
         Episode e = new Episode(p);

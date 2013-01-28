@@ -33,7 +33,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.widget.Toast;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.MainActivity;
@@ -202,7 +202,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 preference.setSummary(maskPassword((String) newValue));
-                DependencyAssistant.getDependencyAssistant()
+                Singletons.i()
                 .getGpodderSettingsDAO(getActivity())
                 .writeSettings(
                     getSettings().setPassword((String) newValue)
@@ -244,7 +244,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
     }
 
     private GpodderSettings getSettings() {
-        return DependencyAssistant.getDependencyAssistant().getGpodderSettings(getActivity());
+        return Singletons.i().getGpodderSettings(getActivity());
     }
 
     public void setUpTestConnectionButton() {
@@ -310,11 +310,11 @@ public class SettingsGpodderNet extends PreferenceFragment {
             showProgressDialog();
             toast.cancel();
 
-            GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
-            GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+            GPodderSync gps = Singletons.i().getGPodderSync();
+            GpodderSettings settings = Singletons.i()
                                        .getGpodderSettings();
 
-            DependencyAssistant.getDependencyAssistant().getConnectionTester()
+            Singletons.i().getConnectionTester()
             .testConnection(gps, settings, barCb);
 
             return true;
@@ -343,7 +343,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
             executorService.execute(
                 new RegisterDeviceIdAsyncTask(
                     devIdCb,
-                    DependencyAssistant.getDependencyAssistant()
+                    Singletons.i()
                     .getDeviceIdGenerator().generate()
                 )
             );

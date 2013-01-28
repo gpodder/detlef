@@ -32,7 +32,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -75,7 +75,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
 
         /* Initialize our podcast model. */
 
-        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO dao = Singletons.i().getPodcastDAO();
         dao.addPodcastChangedListener(this);
 
         List<Podcast> podlist = dao.getNonDeletedPodcasts();
@@ -118,7 +118,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
 
     @Override
     public void onDestroy() {
-        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO dao = Singletons.i().getPodcastDAO();
         dao.removePodListChangeListener(this);
 
         super.onDestroy();
@@ -173,7 +173,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
     private void onDeleteFeedClicked(int pos) {
         Log.v(TAG, String.format("onDeleteFeedClicked %d", pos));
         Podcast podcast = model.get(pos);
-        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO dao = Singletons.i().getPodcastDAO();
         dao.localDeletePodcast(podcast);
     }
 

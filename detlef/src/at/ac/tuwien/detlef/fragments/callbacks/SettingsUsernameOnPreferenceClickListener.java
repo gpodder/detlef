@@ -20,7 +20,7 @@ package at.ac.tuwien.detlef.fragments.callbacks;
 import android.app.AlertDialog;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
@@ -59,7 +59,7 @@ public class SettingsUsernameOnPreferenceClickListener
     }
 
     private GpodderSettings getSettings() {
-        return DependencyAssistant.getDependencyAssistant().getGpodderSettings();
+        return Singletons.i().getGpodderSettings();
     }
 
 }

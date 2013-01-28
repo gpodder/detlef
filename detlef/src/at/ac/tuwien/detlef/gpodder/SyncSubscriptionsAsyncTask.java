@@ -26,7 +26,7 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -64,7 +64,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         boolean success = false;
 
         /* Retrieve settings. */
-        GpodderSettings gps = DependencyAssistant.getDependencyAssistant()
+        GpodderSettings gps = Singletons.i()
                               .getGpodderSettings(Detlef.getAppContext());
 
         DeviceId id = gps.getDeviceId();
@@ -74,7 +74,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             return;
         }
 
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
 
         String devId = id.toString();
 
@@ -106,7 +106,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             EnhancedSubscriptionChanges remoteChanges = pdr.getPodcastDetails(changes);
 
             /* update the db here */
-            PodcastDBAssistant dba = DependencyAssistant.getDependencyAssistant()
+            PodcastDBAssistant dba = Singletons.i()
                                      .getPodcastDBAssistant();
             dba.applySubscriptionChanges(Detlef.getAppContext(), localChanges);
             dba.applySubscriptionChanges(Detlef.getAppContext(), remoteChanges);
@@ -132,7 +132,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             /* Update last changed timestamp. */
             gps.setLastUpdate(remoteChanges.getTimestamp());
 
-            DependencyAssistant.getDependencyAssistant()
+            Singletons.i()
             .getGpodderSettingsDAO(Detlef.getAppContext())
             .writeSettings(gps);
 

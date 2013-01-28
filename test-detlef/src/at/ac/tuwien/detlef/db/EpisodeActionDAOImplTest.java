@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.test.AndroidTestCase;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.LocalEpisodeAction;
@@ -50,18 +50,18 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
         p1.setLogoUrl("logoUrl");
         p1.setTitle("title");
         p1.setUrl("url");
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
 
         lea1 = new LocalEpisodeAction(p1, "ep1", Episode.ActionState.DOWNLOAD, null, null, null);
         lea2 = new LocalEpisodeAction(p1, "ep1", Episode.ActionState.PLAY, 0, 7, 42);
 
         // write deviceId (needed for EpisodeActionsDAO - getAllEpisodeActions)
-        GpodderSettings settings = DependencyAssistant.getDependencyAssistant()
+        GpodderSettings settings = Singletons.i()
                                    .getGpodderSettings();
         DeviceId devId = new DeviceId("mydevice");
         settings.setDeviceId(devId);
-        DependencyAssistant.getDependencyAssistant()
+        Singletons.i()
         .getGpodderSettingsDAO(mContext).writeSettings(settings);
 
         super.setUp();

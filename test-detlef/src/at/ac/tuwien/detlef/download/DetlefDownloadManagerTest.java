@@ -25,7 +25,7 @@ import java.util.concurrent.Semaphore;
 import android.content.Context;
 import android.os.Environment;
 import android.test.AndroidTestCase;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -43,8 +43,8 @@ public class DetlefDownloadManagerTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        DependencyAssistant.setDependencyAssistant(new MockDependencyAssistant());
-        mgr = DependencyAssistant.getDependencyAssistant().getDownloadManager(mContext);
+        Singletons.setDependencyAssistant(new MockDependencyAssistant());
+        mgr = Singletons.i().getDownloadManager(mContext);
 
         getFile().delete();
     }
@@ -74,7 +74,7 @@ public class DetlefDownloadManagerTest extends AndroidTestCase {
         assertTrue(file.isFile());
     }
 
-    private class MockDependencyAssistant extends DependencyAssistant {
+    private class MockDependencyAssistant extends Singletons {
 
         DetlefDownloadManager ddm = null;
 

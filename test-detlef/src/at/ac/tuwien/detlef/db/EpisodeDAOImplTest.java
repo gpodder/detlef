@@ -22,7 +22,7 @@ package at.ac.tuwien.detlef.db;
 import java.util.ArrayList;
 
 import android.test.AndroidTestCase;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
@@ -96,7 +96,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testInsertEpisode() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         int countBeforeInsert = edao.getAllEpisodes().size();
         e1 = edao.insertEpisode(e1);
@@ -110,7 +110,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testDeleteEpisode() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         int countBeforeDelete = edao.getAllEpisodes().size();
@@ -125,7 +125,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testGetEpisodes() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         ArrayList<Episode> episodes = (ArrayList<Episode>)edao.getEpisodes(p1);
@@ -141,7 +141,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testUpdateState() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         StorageState newState = StorageState.DOWNLOADED;
@@ -157,7 +157,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testUpdateFilePath() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         String newPath = "a wholy shit new path";
@@ -173,7 +173,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testUpdateActionState() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         e1.setActionState(ActionState.DELETE);
@@ -188,7 +188,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testUpdatePlayPosition() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         e1.setPlayPosition(33);
@@ -204,7 +204,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testDeletePodcastCascade() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         e2 = edao.insertEpisode(e2);
@@ -219,7 +219,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testInsertNotNullableColumnShouldFail() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1.setUrl(null);
         e1 = edao.insertEpisode(e1);
@@ -232,7 +232,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
      */
     public void testInsertNullOnNullableColumn() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e1.setStorageState(null);
         e1 = edao.insertEpisode(e1);
@@ -241,7 +241,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
 
     public void testGetEpisodeByUrlOrGuid() {
         EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         String newGuid = java.util.UUID.randomUUID().toString();
         e1.setGuid(newGuid);

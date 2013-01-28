@@ -23,7 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 
 public class DownloadBroadcastReceiver extends BroadcastReceiver {
 
@@ -55,8 +55,8 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
         Log.v(TAG, String.format("Received broadcast intent: action = %s, id = %d",
                                  intent.getAction(), id));
 
-        DetlefDownloadManager ddm = DependencyAssistant
-                                    .getDependencyAssistant()
+        DetlefDownloadManager ddm = Singletons
+                                    .i()
                                     .getDownloadManager(context);
         ddm.downloadComplete(id);
     }

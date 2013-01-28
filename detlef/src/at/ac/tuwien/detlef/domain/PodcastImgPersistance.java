@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import android.content.Context;
 import android.util.Log;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 
@@ -72,7 +72,7 @@ public final class PodcastImgPersistance {
     }
 
     private static DetlefDownloadManager getDownloadManager() {
-        return DependencyAssistant.getDependencyAssistant().getDownloadManager(getContext());
+        return Singletons.i().getDownloadManager(getContext());
     }
 
     private static Context getContext() {

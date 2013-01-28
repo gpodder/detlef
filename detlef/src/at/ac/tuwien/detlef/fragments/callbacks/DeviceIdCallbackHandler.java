@@ -21,7 +21,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.domain.DeviceId;
@@ -47,11 +47,11 @@ public class DeviceIdCallbackHandler
     public void handleSuccess(DeviceId deviceId) {
 
 
-        GpodderSettings settings = DependencyAssistant
-                                   .getDependencyAssistant()
+        GpodderSettings settings = Singletons
+                                   .i()
                                    .getGpodderSettings(getRcv().getActivity());
         settings.setDeviceId(deviceId);
-        DependencyAssistant.getDependencyAssistant()
+        Singletons.i()
         .getGpodderSettingsDAO(getRcv().getActivity())
         .writeSettings(settings);
 
@@ -78,7 +78,7 @@ public class DeviceIdCallbackHandler
      * i.e. not in {@link SettingsGpodderNet#isSetupMode() setup mode}.
      */
     private void normalModeAction() {
-        DependencyAssistant.getDependencyAssistant().getGuiUtils().showToast(
+        Singletons.i().getGuiUtils().showToast(
             getRcv().getText(R.string.device_id_registration_success),
             getRcv().getActivity(),
             TAG
@@ -90,7 +90,7 @@ public class DeviceIdCallbackHandler
      * {@link SettingsGpodderNet#isSetupMode() setup mode}.
      */
     private void setupModeAction() {
-        DependencyAssistant.getDependencyAssistant().getGuiUtils().showSimpleOkDialog(
+        Singletons.i().getGuiUtils().showSimpleOkDialog(
             R.string.almost_done,
             R.string.detlef_will_now_synchronize,
             new SetupModeNextStepClickListener(),
@@ -109,7 +109,7 @@ public class DeviceIdCallbackHandler
         }
         );
 
-        DependencyAssistant.getDependencyAssistant().getGuiUtils().showToast(
+        Singletons.i().getGuiUtils().showToast(
             getRcv().getText(R.string.operation_failed),
             getRcv().getActivity(),
             TAG

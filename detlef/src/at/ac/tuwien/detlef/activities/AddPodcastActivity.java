@@ -40,7 +40,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import at.ac.tuwien.detlef.DependencyAssistant;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -150,7 +150,7 @@ public class AddPodcastActivity extends Activity {
          */
 
         if (savedInstanceState == null) {
-            GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+            GPodderSync gps = Singletons.i().getGPodderSync();
             gps.addGetToplistJob(trh);
             gps.addGetSuggestionsJob(urh);
         }
@@ -260,7 +260,7 @@ public class AddPodcastActivity extends Activity {
         String text = tv.getText().toString();
         setBusy(true);
         if (text.startsWith("http://") || text.startsWith("https://")) {
-            PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+            PodcastDAO dao = Singletons.i().getPodcastDAO();
             for (Podcast p : dao.getAllPodcasts()) {
                 if (p.getUrl().equals(text)) {
                     Toast.makeText(this,
@@ -271,12 +271,12 @@ public class AddPodcastActivity extends Activity {
                 }
             }
 
-            GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+            GPodderSync gps = Singletons.i().getGPodderSync();
             ArrayList<String> urls = new ArrayList<String>();
             urls.add(tv.getText().toString());
             gps.addGetPodcastInfoJob(prh, urls);
         } else {
-            GPodderSync gps = DependencyAssistant.getDependencyAssistant().getGPodderSync();
+            GPodderSync gps = Singletons.i().getGPodderSync();
             gps.addSearchPodcastsJob(srh, tv.getText().toString());
         }
     }
@@ -303,7 +303,7 @@ public class AddPodcastActivity extends Activity {
         suggestionsAdapter.removePodcast(p);
         toplistAdapter.removePodcast(p);
 
-        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO dao = Singletons.i().getPodcastDAO();
         p.setLocalAdd(true);
         if (dao.insertPodcast(p) == null) {
             Toast.makeText(this, "Subscription update failed", Toast.LENGTH_SHORT);
@@ -428,7 +428,7 @@ public class AddPodcastActivity extends Activity {
             getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+                    PodcastDAO dao = Singletons.i().getPodcastDAO();
                     for (Podcast p : dao.getAllPodcasts()) {
                         if (p.getUrl().equals(result.getUrl())) {
                             Toast.makeText(getRcv(),
@@ -464,7 +464,7 @@ public class AddPodcastActivity extends Activity {
     private static List<Podcast> filterSubscribedPodcasts(List<Podcast> in) {
         List<Podcast> out = new ArrayList<Podcast>(in);
 
-        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        PodcastDAO dao = Singletons.i().getPodcastDAO();
         for (int i = out.size() - 1; i >= 0; i--) {
             if (dao.getPodcastByUrl(out.get(i).getUrl()) != null) {
                 out.remove(i);
