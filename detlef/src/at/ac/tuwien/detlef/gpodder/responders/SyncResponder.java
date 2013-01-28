@@ -94,17 +94,7 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
     }
 
     @Override
-    public void httpDownloadFailed(int reqId, int errCode, String errStr) throws RemoteException {
-        handleGenericFailure(reqId, errCode, errStr);
-    }
-
-    @Override
     public void authCheckSucceeded(int reqId) throws RemoteException {
-        handleNoDataSuccess(reqId);
-    }
-
-    @Override
-    public void httpDownloadToFileSucceeded(int reqId) throws RemoteException {
         handleNoDataSuccess(reqId);
     }
 

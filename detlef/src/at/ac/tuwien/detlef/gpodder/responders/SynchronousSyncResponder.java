@@ -26,7 +26,6 @@ import android.content.ServiceConnection;
 import android.os.RemoteException;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.gpodder.HttpDownloadResultHandler;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
@@ -35,7 +34,6 @@ import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
 import at.ac.tuwien.detlef.gpodder.ResultHandler;
 import at.ac.tuwien.detlef.gpodder.StringListResultHandler;
 import at.ac.tuwien.detlef.gpodder.SubscriptionChangesResultHandler;
-import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
 
 /**
  * Responds to callbacks from the {@link PodderService} by simply executing them
@@ -77,26 +75,6 @@ public class SynchronousSyncResponder extends SyncResponder {
      */
     public void waitInterruptiblyForCompletion() throws InterruptedException {
         stoplight.acquire();
-    }
-
-    @Override
-    public void httpDownloadSucceeded(int reqId, ParcelableByteArray data) throws RemoteException {
-        final HttpDownloadResultHandler<?> hdrh =
-            (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
-        hdrh.sendEvent(new HttpDownloadResultHandler.HttpSuccessEvent(hdrh, data.getArray()));
-        getGps().removeReq(reqId);
-        stoplight.release();
-    }
-
-    @Override
-    public void httpDownloadProgress(int reqId, int haveBytes, int totalBytes)
-    throws RemoteException {
-        final HttpDownloadResultHandler<?> hdrh =
-            (HttpDownloadResultHandler<?>) getGps().getReq(reqId);
-        hdrh.sendEvent(new HttpDownloadResultHandler.HttpProgressEvent(hdrh, haveBytes,
-                       totalBytes));
-        // don't remove request yet
-        stoplight.release();
     }
 
     @Override
