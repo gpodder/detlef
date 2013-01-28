@@ -180,7 +180,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
         pdao.insertPodcast(p1);
         assertTrue(pdao.localDeletePodcast(p1));
         assertTrue(!pdao.getNonDeletedPodcasts().contains(p1));
-        assertTrue(pdao.getLocallyDeletedPodcasts().contains(p1));
+        assertTrue(pdao.getLocallyDeletedPodcasts().size() == 1);
         assertTrue(pdao.setRemotePodcast(p1));
         assertTrue(!pdao.getLocallyDeletedPodcasts().contains(p1));
     }
