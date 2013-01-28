@@ -74,43 +74,12 @@ public interface EpisodeDAO {
     List<Episode> getEpisodes(Podcast podcast);
 
     /**
-     * updates the filePath column of the given episode (uses the filePath
-     * attribute of the episode).
-     *
-     * @param episode
-     *            the episode which should be updated
-     * @return the number of updated rows
-     */
-    int updateFilePath(Episode episode);
-
-    /**
-     * updates the storage state column of the given episode (uses the state attribute
-     * of the episode).
-     *
-     * @param episode
-     *            the episode which should be updated
-     * @return the number of updated rows
-     */
-    int updateStorageState(Episode episode);
-
-
-    /**
-     * updates the playposition of the given episode.
+     * Updates the the given episode.
      *
      * @param episode the episode which should be updated
-     *
      * @return the number of updated rows
      */
-    int updatePlayPosition(Episode episode);
-
-    /**
-     * updates the actionstate of the given episode.
-     *
-     * @param episode the episode which should be updated
-     *
-     * @return the number of updated rows
-     */
-    int updateActionState(Episode episode);
+    int update(Episode episode);
 
     /**
      * Gets an episode by ID.

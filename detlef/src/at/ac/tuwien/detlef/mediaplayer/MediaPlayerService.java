@@ -176,7 +176,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         }
         if (!episodeFileOK(activeEpisode)) {
             activeEpisode.setStorageState(StorageState.NOT_ON_DEVICE);
-            episodeDAO.updateStorageState(activeEpisode);
+            episodeDAO.update(activeEpisode);
             return null;
         }
 
@@ -234,7 +234,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             if ((activeEpisode.getActionState() == ActionState.NEW)
                     || (activeEpisode.getActionState() == ActionState.DOWNLOAD)) {
                 activeEpisode.setActionState(ActionState.PLAY);
-                episodeDAO.updateActionState(activeEpisode);
+                episodeDAO.update(activeEpisode);
             }
         }
         mediaPlayer.start();
@@ -364,7 +364,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             mediaPlayer.seekTo(seekTo);
         } else if (getNextEpisode() != null) {
             getNextEpisode().setPlayPosition(progress);
-            episodeDAO.updatePlayPosition(getNextEpisode());
+            episodeDAO.update(getNextEpisode());
         }
         return this;
     }
@@ -601,9 +601,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             return;
         }
         activeEpisode.setPlayPosition(0);
-        episodeDAO.updatePlayPosition(activeEpisode);
         activeEpisode.setActionState(ActionState.DELETE);
-        episodeDAO.updateActionState(activeEpisode);
+        episodeDAO.update(activeEpisode);
     }
 
     private void updateEpisodePlayState() {
@@ -612,7 +611,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         }
         if (mediaPlayerPrepared) {
             activeEpisode.setPlayPosition(mediaPlayer.getCurrentPosition());
-            episodeDAO.updatePlayPosition(activeEpisode);
+            episodeDAO.update(activeEpisode);
         }
     }
 

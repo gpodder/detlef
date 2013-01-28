@@ -161,8 +161,8 @@ public class DetlefDownloadManager {
         episode.setFilePath(file.getAbsolutePath());
         episode.setStorageState(StorageState.DOWNLOADING);
 
-        dao.updateFilePath(episode);
-        dao.updateStorageState(episode);
+        dao.update(episode);
+        dao.update(episode);
 
         Log.v(TAG, String.format("Enqueued download task %s", path));
     }
@@ -206,7 +206,7 @@ public class DetlefDownloadManager {
         }
 
         episode.setStorageState(StorageState.NOT_ON_DEVICE);
-        dao.updateStorageState(episode);
+        dao.update(episode);
     }
 
     /**
@@ -238,7 +238,7 @@ public class DetlefDownloadManager {
 
             Episode episode = entry.getValue();
             episode.setStorageState(StorageState.NOT_ON_DEVICE);
-            dao.updateStorageState(episode);
+            dao.update(episode);
         }
         for (Entry<Long, Podcast> entry : activeImgDownloads.entrySet()) {
 
@@ -273,7 +273,7 @@ public class DetlefDownloadManager {
                                          id, reason));
 
                 episode.setStorageState(StorageState.NOT_ON_DEVICE);
-                dao.updateStorageState(episode);
+                dao.update(episode);
 
                 return;
             }
@@ -288,7 +288,7 @@ public class DetlefDownloadManager {
             /* Update the episode's state in the database. */
 
             episode.setStorageState(StorageState.DOWNLOADED);
-            dao.updateStorageState(episode);
+            dao.update(episode);
         } else if (activeImgDownloads.containsKey(id)) {
             Podcast p = activeImgDownloads.remove(id);
             if (p == null) {

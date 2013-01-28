@@ -61,7 +61,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                           + action.total);
                     /* Episode uses milliseconds. */
                     ep.setPlayPosition(action.position * 1000);
-                    if (dao.updateStorageState(ep) != 1) {
+                    if (dao.update(ep) != 1) {
                         Log.w(TAG, "update play position went wrong: " + ep.getLink());
                     }
 
@@ -75,7 +75,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
                     }
                 }
                 ep.setActionState(newActionState);
-                int ret = dao.updateActionState(ep);
+                int ret = dao.update(ep);
                 Log.i(TAG, "asdf: " + ret);
             }
         }
@@ -117,11 +117,11 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
         case NEW: // fall-through
         case PLAY:
             episode.setActionState(ActionState.DELETE);
-            dao.updateActionState(episode);
+            dao.update(episode);
             break;
         case DELETE:
             episode.setActionState(ActionState.NEW);
-            dao.updateActionState(episode);
+            dao.update(episode);
             break;
         default:
             Log.e(TAG, "Unknown action state encountered");

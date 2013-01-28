@@ -36,7 +36,6 @@ import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
-import at.ac.tuwien.detlef.domain.LocalEpisodeAction;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public final class EpisodeDAOImpl implements EpisodeDAO {
@@ -80,45 +79,7 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
             try {
                 db = dbHelper.getWritableDatabase();
 
-                ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_EPISODE_AUTHOR,
-                           episode.getAuthor());
-                values.put(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
-                           episode.getDescription());
-                values.put(DatabaseHelper.COLUMN_EPISODE_FILESIZE,
-                           episode.getFileSize());
-                values.put(DatabaseHelper.COLUMN_EPISODE_GUID, episode.getGuid());
-                values.put(DatabaseHelper.COLUMN_EPISODE_LINK, episode.getLink());
-                values.put(DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
-                           episode.getMimetype());
-                if (episode.getPodcast() == null) {
-                    throw new IllegalArgumentException("The episode must belong to a podcast");
-                }
-                values.put(DatabaseHelper.COLUMN_EPISODE_PODCAST, episode
-                           .getPodcast().getId());
-                values.put(DatabaseHelper.COLUMN_EPISODE_RELEASED,
-                           episode.getReleased());
-                values.put(DatabaseHelper.COLUMN_EPISODE_TITLE, episode.getTitle());
-                values.put(DatabaseHelper.COLUMN_EPISODE_URL, episode.getUrl());
-                if (episode.getFilePath() == null) {
-                    values.putNull(DatabaseHelper.COLUMN_EPISODE_FILEPATH);
-                } else {
-                    values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                               episode.getFilePath());
-                }
-                if (episode.getStorageState() == null) {
-                    values.putNull(DatabaseHelper.COLUMN_EPISODE_STATE);
-                } else {
-                    values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode
-                               .getStorageState().toString());
-                }
-                values.put(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION, episode.getPlayPosition());
-                if (episode.getActionState() == null) {
-                    values.putNull(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE);
-                } else {
-                    values.put(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE,
-                               episode.getActionState().toString());
-                }
+                ContentValues values = toContentValues(episode);
 
                 long id = db.insert(DatabaseHelper.TABLE_EPISODE, null, values);
                 if (id == -1) {
@@ -140,6 +101,49 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
             return episode;
         }
+    }
+
+    private ContentValues toContentValues(Episode episode) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COLUMN_EPISODE_AUTHOR,
+                   episode.getAuthor());
+        values.put(DatabaseHelper.COLUMN_EPISODE_DESCRIPTION,
+                   episode.getDescription());
+        values.put(DatabaseHelper.COLUMN_EPISODE_FILESIZE,
+                   episode.getFileSize());
+        values.put(DatabaseHelper.COLUMN_EPISODE_GUID, episode.getGuid());
+        values.put(DatabaseHelper.COLUMN_EPISODE_LINK, episode.getLink());
+        values.put(DatabaseHelper.COLUMN_EPISODE_MIMETYPE,
+                   episode.getMimetype());
+        if (episode.getPodcast() == null) {
+            throw new IllegalArgumentException("The episode must belong to a podcast");
+        }
+        values.put(DatabaseHelper.COLUMN_EPISODE_PODCAST, episode
+                   .getPodcast().getId());
+        values.put(DatabaseHelper.COLUMN_EPISODE_RELEASED,
+                   episode.getReleased());
+        values.put(DatabaseHelper.COLUMN_EPISODE_TITLE, episode.getTitle());
+        values.put(DatabaseHelper.COLUMN_EPISODE_URL, episode.getUrl());
+        if (episode.getFilePath() == null) {
+            values.putNull(DatabaseHelper.COLUMN_EPISODE_FILEPATH);
+        } else {
+            values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH,
+                       episode.getFilePath());
+        }
+        if (episode.getStorageState() == null) {
+            values.putNull(DatabaseHelper.COLUMN_EPISODE_STATE);
+        } else {
+            values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode
+                       .getStorageState().toString());
+        }
+        values.put(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION, episode.getPlayPosition());
+        if (episode.getActionState() == null) {
+            values.putNull(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE);
+        } else {
+            values.put(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE,
+                       episode.getActionState().toString());
+        }
+        return values;
     }
 
     /**
@@ -212,86 +216,55 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
     }
 
     /**
-     * @see EpisodeDAO#updateFilePath(Episode)
+     * @see EpisodeDAO#update(Episode)
      */
     @Override
-    public int updateFilePath(Episode episode) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_EPISODE_FILEPATH,
-                   episode.getFilePath());
-        return updateFieldUsingEpisodeId(episode, values);
-    }
+    public int update(Episode episode) {
+        ContentValues values = toContentValues(episode);
+        SQLiteDatabase db = null;
+        int rows = 0;
 
-    /**
-     * @see EpisodeDAO#updateStorageState(Episode)
-     */
-    @Override
-    public int updateStorageState(Episode episode) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_EPISODE_STATE, episode.getStorageState()
-                   .toString());
-        int ret = updateFieldUsingEpisodeId(episode, values);
-
-        if ((ret > 0) && (episode.getStorageState() == Episode.StorageState.DOWNLOADED)) {
-            /* TODO: no correct error handling due to db locking issues. */
-            EpisodeActionDAO epDao = EpisodeActionDAOImpl.i();
-            LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
-                    episode.getUrl(), Episode.ActionState.DOWNLOAD, null, null, null);
-            epDao.insertEpisodeAction(action);
-        }
-
-        return ret;
-    }
-
-    @Override
-    public int updatePlayPosition(Episode episode) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_EPISODE_PLAYPOSITION, episode.getPlayPosition());
-        int ret = updateFieldUsingEpisodeId(episode, values);
-
-        if (ret > 0) {
-            /* TODO: no correct error handling due to db locking issues. */
-            EpisodeActionDAO epDao = EpisodeActionDAOImpl.i();
-            /* Episode uses milliseconds. */
-            LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
-                    episode.getUrl(), Episode.ActionState.PLAY, null,
-                    episode.getPlayPosition() / 1000,
-                    null);
-            epDao.insertEpisodeAction(action);
-        }
-
-        return ret;
-    }
-
-    @Override
-    public int updateActionState(Episode episode) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_EPISODE_ACTIONSTATE, episode.getActionState().toString());
-        return updateFieldUsingEpisodeId(episode, values);
-    }
-
-    private int
-    updateFieldUsingEpisodeId(Episode episode, ContentValues values) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             try {
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                db = dbHelper.getWritableDatabase();
 
                 String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";
                 String[] selectionArgs = {
                     String.valueOf(episode.getId())
                 };
 
-                int ret = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
-                db.close();
+                rows = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
 
                 notifyListenersChanged(episode);
-
-                return ret;
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
-                return 0;
+            } finally {
+                if (db != null) {
+                    db.close();
+                }
             }
         }
+
+        /* TODO: Reenable download and play position episode actions. These should only be triggered
+         * if the respective values have just been altered. */
+
+//        if ((ret > 0) && (episode.getStorageState() == Episode.StorageState.DOWNLOADED)) {
+//            /* TODO: no correct error handling due to db locking issues. */
+//            EpisodeActionDAO epDao = EpisodeActionDAOImpl.i();
+//            LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
+//                    episode.getUrl(), Episode.ActionState.DOWNLOAD, null, null, null);
+//            epDao.insertEpisodeAction(action);
+//        }
+//
+//        EpisodeActionDAO epDao = EpisodeActionDAOImpl.i();
+//        /* Episode uses milliseconds. */
+//        LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
+//                episode.getUrl(), Episode.ActionState.PLAY, null,
+//                episode.getPlayPosition() / 1000,
+//                null);
+//        epDao.insertEpisodeAction(action);
+
+        return rows;
     }
 
     @Override

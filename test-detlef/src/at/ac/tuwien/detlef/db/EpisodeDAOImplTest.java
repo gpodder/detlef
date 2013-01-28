@@ -145,7 +145,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         StorageState newState = StorageState.DOWNLOADED;
         e1.setStorageState(newState);
-        assertEquals(1, edao.updateStorageState(e1));
+        assertEquals(1, edao.update(e1));
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
         Episode ep = eps.get(0);
         assertEquals(newState, ep.getStorageState());
@@ -161,7 +161,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e1 = edao.insertEpisode(e1);
         String newPath = "a wholy shit new path";
         e1.setFilePath(newPath);
-        assertEquals(1, edao.updateFilePath(e1));
+        assertEquals(1, edao.update(e1));
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
         Episode ep = eps.get(0);
         assertEquals(newPath, ep.getFilePath());
@@ -176,7 +176,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         e1.setActionState(ActionState.DELETE);
-        assertEquals(1, edao.updateActionState(e1));
+        assertEquals(1, edao.update(e1));
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
         Episode ep = eps.get(0);
         assertEquals(ActionState.DELETE, ep.getActionState());
@@ -191,7 +191,7 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         p1 = pdao.insertPodcast(p1);
         e1 = edao.insertEpisode(e1);
         e1.setPlayPosition(33);
-        assertEquals(1, edao.updatePlayPosition(e1));
+        assertEquals(1, edao.update(e1));
         ArrayList<Episode> eps = (ArrayList<Episode>)edao.getEpisodes(p1);
         Episode ep = eps.get(0);
         assertEquals(33, ep.getPlayPosition());
