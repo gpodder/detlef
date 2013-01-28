@@ -110,23 +110,27 @@ public class SimplePodcastDAO implements PodcastDAO {
 
     private ContentValues toContentValues(Podcast podcast) {
         ContentValues values = new ContentValues();
+
         values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
         values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
         values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
+        values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
+        values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
+                   podcast.getLogoDownloaded());
+
         if (podcast.getLogoUrl() == null) {
             values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_URL);
         } else {
             values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
         }
-        values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
+
         if (podcast.getLogoFilePath() == null) {
             values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH);
         } else {
             values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
                        podcast.getLogoFilePath());
         }
-        values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
-                   podcast.getLogoDownloaded());
+
         return values;
     }
 
@@ -148,6 +152,7 @@ public class SimplePodcastDAO implements PodcastDAO {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             int ret = 0;
             try {
+                /* WTF.. Move this. */
                 if (podcast.getLogoFilePath() != null && !podcast.getLogoFilePath().equals("")) {
                     File file = new File(podcast.getLogoFilePath());
                     file.delete();
