@@ -90,7 +90,7 @@ public class PullFeedAsyncTask implements Runnable {
 
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
-            PodcastDAOImpl.i().updateLastUpdate(podcast);
+            PodcastDAOImpl.i().update(podcast);
         } catch (ClientProtocolException e) {
             sendError(GENERIC_ERROR, e.getLocalizedMessage());
             return;

@@ -108,7 +108,7 @@ public class DetlefDownloadManager {
         activeImgDownloads.put(id,  podcast);
 
         podcast.setLogoFilePath(file.getAbsolutePath());
-        pdao.updateLogoFilePath(podcast);
+        pdao.update(podcast);
 
         Log.v(TAG, String.format("Enqued download for img %s", path));
     }
@@ -225,7 +225,7 @@ public class DetlefDownloadManager {
             break;
         }
         podcast.setLogoFilePath("");
-        pdao.updateLogoFilePath(podcast);
+        pdao.update(podcast);
     }
 
     /**
@@ -245,7 +245,7 @@ public class DetlefDownloadManager {
             downloadManager.remove(entry.getKey());
             Podcast p = entry.getValue();
             p.setLogoFilePath("");
-            pdao.updateLogoFilePath(p);
+            pdao.update(p);
         }
         activeDownloads.clear();
         activeImgDownloads.clear();
@@ -317,7 +317,7 @@ public class DetlefDownloadManager {
             }
 
             p.setLogoDownloaded(1);
-            pdao.updateLogoDownloaded(p);
+            pdao.update(p);
         }
     }
 

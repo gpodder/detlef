@@ -97,39 +97,23 @@ public class PodcastDAOImplTest extends AndroidTestCase {
     /**
      * tests the updateUrl functionality
      */
-    public void testUpdateUrl() {
+    public void testUpdate() {
         PodcastDAOImpl pdao = PodcastDAOImpl.i();
+
+        long currentMilis = System.currentTimeMillis();
+        String newFilePath = "new path haha";
+
         p1 = pdao.insertPodcast(p1);
         p1.setUrl("newUrl");
-        assertEquals(1, pdao.updateUrl(p1));
+        p1.setLastUpdate(currentMilis);
+        p1.setLogoFilePath(newFilePath);
+
+        assertEquals(1, pdao.update(p1));
+
         Podcast pod = pdao.getPodcastById(p1.getId());
         assertEquals("newUrl", pod.getUrl());
-    }
-
-    /**
-     * tests the updateLastUpdate functionality
-     */
-    public void testUpdateLastUpdate() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
-        p1 = pdao.insertPodcast(p1);
-        long currentMilis = System.currentTimeMillis();
-        p1.setLastUpdate(currentMilis);
-        assertEquals(1, pdao.updateLastUpdate(p1));
-        Podcast pod = pdao.getPodcastById(p1.getId());
-        assertEquals(currentMilis, pod.getLastUpdate());
-    }
-
-    /**
-     * tests the updateLogoFilePath functionality
-     */
-    public void testUpdateLogoFilePath() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
-        p1 = pdao.insertPodcast(p1);
-        String newFilePath = "new path haha";
-        p1.setLogoFilePath(newFilePath);
-        assertEquals(1, pdao.updateLogoFilePath(p1));
-        Podcast pod = pdao.getPodcastById(p1.getId());
         assertEquals(newFilePath, pod.getLogoFilePath());
+        assertEquals(currentMilis, pod.getLastUpdate());
     }
 
     /**

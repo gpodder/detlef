@@ -76,24 +76,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             try {
                 db = dbHelper.getWritableDatabase();
 
-                ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
-                values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
-                values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
-                if (podcast.getLogoUrl() == null) {
-                    values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_URL);
-                } else {
-                    values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
-                }
-                values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
-                if (podcast.getLogoFilePath() == null) {
-                    values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH);
-                } else {
-                    values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
-                               podcast.getLogoFilePath());
-                }
-                values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
-                           podcast.getLogoDownloaded());
+                ContentValues values = toContentValues(podcast);
 
                 db.beginTransaction();
 
@@ -135,6 +118,28 @@ public final class PodcastDAOImpl implements PodcastDAO {
                 }
             }
         }
+    }
+
+    private ContentValues toContentValues(Podcast podcast) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COLUMN_PODCAST_DESCRIPTION, podcast.getDescription());
+        values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
+        values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
+        if (podcast.getLogoUrl() == null) {
+            values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_URL);
+        } else {
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_URL, podcast.getLogoUrl());
+        }
+        values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
+        if (podcast.getLogoFilePath() == null) {
+            values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH);
+        } else {
+            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
+                       podcast.getLogoFilePath());
+        }
+        values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
+                   podcast.getLogoDownloaded());
+        return values;
     }
 
     private void deleteEpisodesForPodcast(Podcast podcast) {
@@ -257,11 +262,11 @@ public final class PodcastDAOImpl implements PodcastDAO {
     }
 
     @Override
-    public int updateUrl(Podcast podcast) {
+    public int update(Podcast podcast) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
+
+            ContentValues values = toContentValues(podcast);
 
             String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
             String[] selectionArgs = {
@@ -272,30 +277,7 @@ public final class PodcastDAOImpl implements PodcastDAO {
             db.close();
 
             notifyListenersChanged(podcast);
-            return ret;
-        }
-    }
 
-    /**
-     * @see at.ac.tuwien.detlef.db.PodcastDAO#updateLastUpdate(at.ac.tuwien.detlef
-     *      .domain.Podcast)
-     */
-    @Override
-    public int updateLastUpdate(Podcast podcast) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
-
-            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-            String[] selectionArgs = {
-                String.valueOf(podcast.getId())
-            };
-
-            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
-            db.close();
-
-            notifyListenersChanged(podcast);
             return ret;
         }
     }
@@ -328,54 +310,6 @@ public final class PodcastDAOImpl implements PodcastDAO {
             c.close();
             db.close();
             return p;
-        }
-    }
-
-    /**
-     * @see at.ac.tuwien.detlef.db.PodcastDAO#updateLogoFilePath(at.ac.tuwien.detlef
-     *      .domain.Podcast)
-     */
-    @Override
-    public int updateLogoFilePath(Podcast podcast) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
-
-            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-            String[] selectionArgs = {
-                String.valueOf(podcast.getId())
-            };
-
-            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
-            db.close();
-
-            notifyListenersChanged(podcast);
-
-            return ret;
-        }
-    }
-
-    @Override
-    public int updateLogoDownloaded(Podcast podcast) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
-                       podcast.getLogoDownloaded());
-            values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH, podcast.getLogoFilePath());
-
-            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-            String[] selectionArgs = {
-                String.valueOf(podcast.getId())
-            };
-
-            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
-            db.close();
-
-            notifyListenersChanged(podcast);
-
-            return ret;
         }
     }
 

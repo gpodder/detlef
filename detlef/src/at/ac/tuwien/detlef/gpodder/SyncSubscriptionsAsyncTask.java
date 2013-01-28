@@ -126,7 +126,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
                     }
 
                     p.setUrl(newUrl);
-                    pDao.updateUrl(p);
+                    pDao.update(p);
                 }
             }
 

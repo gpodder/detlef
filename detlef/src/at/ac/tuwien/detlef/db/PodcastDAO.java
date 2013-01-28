@@ -84,36 +84,12 @@ public interface PodcastDAO {
     List<Podcast> getAllPodcasts();
 
     /**
-     * Updates the URL column of the given podcast.
+     * Updates the database entry of the given podcast.
      *
      * @param podcast the podcast which should be updated
      * @return the number of updated rows
      */
-    int updateUrl(Podcast podcast);
-
-    /**
-     * Updates the lastUpdate column of the given podcast (uses the lastUpdate
-     * attribute of the podcast).
-     *
-     * @param podcast the podcast which should be updated
-     * @return the number of updated rows
-     */
-    int updateLastUpdate(Podcast podcast);
-
-    /**
-     * Updates the logoDownloaded column of the given podcast.
-     * If podcast is downloaded it is set to 1, else != 1
-     */
-    int updateLogoDownloaded(Podcast podcast);
-
-    /**
-     * Updates the logoFilePath column of the given podcast (uses the
-     * logoFilePath attribute of the podcast).
-     *
-     * @param podcast the podcast which should be updated
-     * @return the number of updated rows
-     */
-    int updateLogoFilePath(Podcast podcast);
+    int update(Podcast podcast);
 
     /**
      * Delivers the podcast with the given id.
