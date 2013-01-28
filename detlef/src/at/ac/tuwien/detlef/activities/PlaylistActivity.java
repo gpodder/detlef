@@ -34,12 +34,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.adapters.PlaylistListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -90,7 +89,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         playlistDAO = PlaylistDAOImpl.i();
         playlistDAO.addPlaylistChangedListener(this);
         playlistItems = playlistDAO.getNonCachedEpisodes();
-        EpisodeDAOImpl.i().addEpisodeChangedListener(this);
+        Singletons.i().getEpisodeDAO().addEpisodeChangedListener(this);
 
         downloadManager = Singletons.i().getDownloadManager(
                               Detlef.getAppContext());

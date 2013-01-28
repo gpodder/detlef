@@ -40,6 +40,9 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase {
 
     Podcast p1;
 
+    private EpisodeDAO edao;
+    private PodcastDAO pdao;
+
 
     @Override
     protected void setUp() throws Exception {
@@ -50,6 +53,10 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase {
         p1.setLogoUrl("EpisodeDBAssistantImpllogoUrl1");
         p1.setTitle("EpisodeDBAssistantImpltitle1");
         p1.setUrl("EpisodeDBAssistantImplurl1");
+
+        edao = Singletons.i().getEpisodeDAO();
+        pdao = Singletons.i().getPodcastDAO();
+
         super.setUp();
     }
 
@@ -59,8 +66,6 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase {
     }
 
     public void testApplyActionChanges() {
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1.setUrl("podcastUrl343");
         p1 = pdao.insertPodcast(p1);
         String url = java.util.UUID.randomUUID().toString();
@@ -101,8 +106,6 @@ public class EpisodeDBAssistantImplTest extends AndroidTestCase {
     }
 
     public void testUpsertAndDeleteEpisodes() {
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
 
         Feed feed = Mockito.mock(Feed.class);

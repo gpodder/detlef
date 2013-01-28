@@ -21,6 +21,7 @@ package at.ac.tuwien.detlef.fragments;
 import android.test.ActivityInstrumentationTestCase2;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.SimplePodcastDAO;
@@ -33,7 +34,7 @@ import com.jayway.android.robotium.solo.Solo;
 public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     private Solo solo;
-    private EpisodeDAOImpl dao;
+    private EpisodeDAO dao;
     private String uuid;
 
     public EpisodeListFragmentTest() {
@@ -46,7 +47,7 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         MainActivity activity = getActivity();
 
         solo = new Solo(getInstrumentation(), activity);
-        dao = EpisodeDAOImpl.i();
+        dao = Singletons.i().getEpisodeDAO();
         uuid = java.util.UUID.randomUUID().toString();
     }
 

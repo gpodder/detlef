@@ -33,11 +33,10 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -104,7 +103,7 @@ public class EpisodeListFragment extends ListFragment
 
         Log.d(TAG, "onCreate(" + savedInstanceState + ")");
 
-        EpisodeDAOImpl dao = EpisodeDAOImpl.i();
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         dao.addEpisodeChangedListener(this);
         playlistDAO = PlaylistDAOImpl.i();
         playlistDAO.addPlaylistChangedListener(this);
@@ -187,7 +186,7 @@ public class EpisodeListFragment extends ListFragment
 
     @Override
     public void onDestroy() {
-        EpisodeDAOImpl dao = EpisodeDAOImpl.i();
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         dao.removeEpisodeChangedListener(this);
         playlistDAO.removePlaylistChangeListener(this);
 

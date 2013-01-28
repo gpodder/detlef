@@ -25,6 +25,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import at.ac.tuwien.detlef.db.CachingPodcastDAO;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
+import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistant;
 import at.ac.tuwien.detlef.db.EpisodeDBAssistantImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
@@ -61,6 +63,7 @@ public class Singletons {
     private GUIUtils guiUtils = null;
     private GPodderSync gPodderSync = null;
     private PodcastDAO podcastDAO = null;
+    private EpisodeDAO episodeDAO = null;
 
     public GUIUtils getGuiUtils() {
         if (guiUtils == null) {
@@ -206,5 +209,10 @@ public class Singletons {
         return podcastDAO;
     }
 
-
+    public EpisodeDAO getEpisodeDAO() {
+        if (episodeDAO == null) {
+            episodeDAO = new EpisodeDAOImpl(Detlef.getAppContext());
+        }
+        return episodeDAO;
+    }
 }

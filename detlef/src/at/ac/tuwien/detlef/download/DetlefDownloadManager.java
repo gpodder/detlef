@@ -38,9 +38,9 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
+import at.ac.tuwien.detlef.Singletons;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
@@ -58,7 +58,7 @@ public class DetlefDownloadManager {
     private final Map<Long, Episode> activeDownloads = new ConcurrentHashMap<Long, Episode>();
     private final Map<Long, Podcast> activeImgDownloads = new ConcurrentHashMap<Long, Podcast>();
     private final Context context;
-    private final EpisodeDAOImpl dao;
+    private final EpisodeDAO edao;
     private final PodcastDAO pdao;
     private final DownloadManager downloadManager;
 
@@ -70,7 +70,7 @@ public class DetlefDownloadManager {
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
-        dao = EpisodeDAOImpl.i();
+        edao = Singletons.i().getEpisodeDAO();
         pdao = Singletons.i().getPodcastDAO();
     }
 
@@ -162,8 +162,8 @@ public class DetlefDownloadManager {
         episode.setFilePath(file.getAbsolutePath());
         episode.setStorageState(StorageState.DOWNLOADING);
 
-        dao.update(episode);
-        dao.update(episode);
+        edao.update(episode);
+        edao.update(episode);
 
         Log.v(TAG, String.format("Enqueued download task %s", path));
     }
@@ -207,7 +207,7 @@ public class DetlefDownloadManager {
         }
 
         episode.setStorageState(StorageState.NOT_ON_DEVICE);
-        dao.update(episode);
+        edao.update(episode);
     }
 
     /**
@@ -239,7 +239,7 @@ public class DetlefDownloadManager {
 
             Episode episode = entry.getValue();
             episode.setStorageState(StorageState.NOT_ON_DEVICE);
-            dao.update(episode);
+            edao.update(episode);
         }
         for (Entry<Long, Podcast> entry : activeImgDownloads.entrySet()) {
 
@@ -274,7 +274,7 @@ public class DetlefDownloadManager {
                                          id, reason));
 
                 episode.setStorageState(StorageState.NOT_ON_DEVICE);
-                dao.update(episode);
+                edao.update(episode);
 
                 return;
             }
@@ -289,7 +289,7 @@ public class DetlefDownloadManager {
             /* Update the episode's state in the database. */
 
             episode.setStorageState(StorageState.DOWNLOADED);
-            dao.update(episode);
+            edao.update(episode);
         } else if (activeImgDownloads.containsKey(id)) {
             Podcast p = activeImgDownloads.remove(id);
             if (p == null) {

@@ -33,7 +33,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.Singletons;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
@@ -43,21 +42,11 @@ public final class EpisodeDAOImpl implements EpisodeDAO {
 
     private static final String TAG = EpisodeDAOImpl.class.getName();
 
-    private static final EpisodeDAOImpl INSTANCE = new EpisodeDAOImpl(Detlef.getAppContext());
-
     private final DatabaseHelper dbHelper;
     private final PodcastDAO podcastDAO;
     private final Set<EpisodeDAO.OnEpisodeChangeListener> listeners =
         new HashSet<EpisodeDAO.OnEpisodeChangeListener>();
     private final HashMap<Long, Episode> hashMapEpisode = new HashMap<Long, Episode>();
-
-    /**
-     * Returns the EpisodeDAOImpl singleton instance.
-     */
-    public static EpisodeDAOImpl i() {
-        return INSTANCE;
-    }
-
     public EpisodeDAOImpl(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             dbHelper = new DatabaseHelper(context);

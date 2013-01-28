@@ -22,9 +22,8 @@ package at.ac.tuwien.detlef.fragments;
 import android.test.ActivityInstrumentationTestCase2;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
+import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.PodcastDAO;
-import at.ac.tuwien.detlef.db.SimplePodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -34,7 +33,7 @@ import com.jayway.android.robotium.solo.Solo;
 public class PlaylistTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     private Solo solo;
-    private EpisodeDAOImpl edao;
+    private EpisodeDAO edao;
     private PodcastDAO pdao;
 
     private Podcast p1;
@@ -50,7 +49,7 @@ public class PlaylistTest extends ActivityInstrumentationTestCase2<MainActivity>
         MainActivity activity = getActivity();
 
         solo = new Solo(getInstrumentation(), activity);
-        edao = EpisodeDAOImpl.i();
+        edao = Singletons.i().getEpisodeDAO();
         pdao = Singletons.i().getPodcastDAO();
 
         p1 = new Podcast();

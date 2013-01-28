@@ -39,6 +39,9 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
 
     Podcast p1;
 
+    private EpisodeDAO edao;
+    private PodcastDAO pdao;
+
     @Override
     protected void setUp() throws Exception {
         p1 = new Podcast();
@@ -88,6 +91,9 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
         e2.setStorageState(StorageState.NOT_ON_DEVICE);
         e2.setFilePath("path");
 
+        edao = Singletons.i().getEpisodeDAO();
+        pdao = Singletons.i().getPodcastDAO();
+
         super.setUp();
     }
 
@@ -106,8 +112,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testAddToBeginning() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -136,8 +140,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testAddToEnd() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -166,8 +168,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testRemove() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -201,8 +201,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testMove() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -243,8 +241,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testBackgroundDelete() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -282,8 +278,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testClear() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);
@@ -305,8 +299,6 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     public void testRemoveEpisodesById() {
         clearDatabase();
 
-        EpisodeDAOImpl edao = EpisodeDAOImpl.i();
-        PodcastDAO pdao = Singletons.i().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         e0 = edao.insertEpisode(e0);
         e1 = edao.insertEpisode(e1);

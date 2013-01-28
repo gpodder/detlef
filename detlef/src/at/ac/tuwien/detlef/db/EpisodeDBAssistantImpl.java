@@ -21,6 +21,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.util.Log;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -36,19 +37,19 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
 
     @Override
     public List<Episode> getEpisodes(Context context, Podcast podcast) {
-        EpisodeDAO dao = EpisodeDAOImpl.i();
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         return dao.getEpisodes(podcast);
     }
 
     @Override
     public List<Episode> getAllEpisodes(Context context) {
-        EpisodeDAO dao = EpisodeDAOImpl.i();
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         return dao.getAllEpisodes();
     }
 
     @Override
     public void applyActionChanges(Context context, EpisodeActionChanges changes) {
-        EpisodeDAO dao = EpisodeDAOImpl.i();
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         for (EpisodeAction action : changes.actions) {
             // update playposition
             Episode ep = dao.getEpisodeByUrlOrGuid(action.episode, action.episode);
@@ -85,7 +86,7 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
     @Override
     public void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed) {
         try {
-            EpisodeDAO dao = EpisodeDAOImpl.i();
+            EpisodeDAO dao = Singletons.i().getEpisodeDAO();
             for (IEpisode ep : feed.getEpisodes()) {
                 try {
                     if (ep.getEnclosure() != null) {
@@ -105,13 +106,13 @@ public class EpisodeDBAssistantImpl implements EpisodeDBAssistant {
 
     @Override
     public Episode getEpisodeById(Context context, int id) {
-        EpisodeDAO dao = EpisodeDAOImpl.i();
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         return dao.getEpisode(id);
     }
 
     @Override
     public void toggleEpisodeReadState(Episode episode) {
-        EpisodeDAO dao = EpisodeDAOImpl.i();
+        EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         switch (episode.getActionState()) {
         case DOWNLOAD: // fall-through
         case NEW: // fall-through

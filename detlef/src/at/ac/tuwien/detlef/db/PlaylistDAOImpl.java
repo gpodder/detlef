@@ -29,6 +29,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 
 public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeChangeListener {
@@ -51,7 +52,7 @@ public final class PlaylistDAOImpl implements PlaylistDAO, EpisodeDAO.OnEpisodeC
     public PlaylistDAOImpl(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             dbHelper = new DatabaseHelper(context);
-            edao = EpisodeDAOImpl.i();
+            edao = Singletons.i().getEpisodeDAO();
             edao.addEpisodeChangedListener(this);
 
             /* Take care of any pending database upgrades. */

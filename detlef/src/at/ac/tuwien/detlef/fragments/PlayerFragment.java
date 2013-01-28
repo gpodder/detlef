@@ -43,8 +43,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -183,7 +183,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PlaylistDAOImpl.i().addPlaylistChangedListener(this);
-        EpisodeDAOImpl.i().addEpisodeChangedListener(this);
+        Singletons.i().getEpisodeDAO().addEpisodeChangedListener(this);
 
         if (!MediaPlayerService.isRunning()) {
             Intent serviceIntent =
@@ -197,7 +197,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
     @Override
     public void onDestroy() {
         PlaylistDAOImpl.i().removePlaylistChangeListener(this);
-        EpisodeDAOImpl.i().removeEpisodeChangedListener(this);
+        Singletons.i().getEpisodeDAO().removeEpisodeChangedListener(this);
         super.onDestroy();
     }
 

@@ -34,8 +34,8 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
@@ -129,7 +129,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
         playlistDAO = PlaylistDAOImpl.i();
         playlistItems = playlistDAO.getNonCachedEpisodes();
         playlistDAO.addPlaylistChangedListener(this);
-        episodeDAO = EpisodeDAOImpl.i();
+        episodeDAO = Singletons.i().getEpisodeDAO();
         episodeDAO.addEpisodeChangedListener(this);
         if ((nextEpisode == null) && !playlistItems.isEmpty()) {
             nextEpisode = playlistItems.get(0);

@@ -31,6 +31,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -132,7 +133,7 @@ public class SimplePodcastDAO implements PodcastDAO {
     private void deleteEpisodesForPodcast(Podcast podcast) {
         // delete podcasts manually because of refreshing
         // the episodeListFragment
-        EpisodeDAOImpl epDao = EpisodeDAOImpl.i();
+        EpisodeDAO epDao = Singletons.i().getEpisodeDAO();
         List<Episode> epList = epDao.getEpisodes(podcast);
         for (Episode ep : epList) {
             epDao.deleteEpisode(ep);
