@@ -43,7 +43,7 @@ public class PodListFragmentTest extends ActivityInstrumentationTestCase2<MainAc
         MainActivity activity = getActivity();
 
         solo = new Solo(getInstrumentation(), activity);
-        dao = PodcastDAOImpl.i();
+        dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         uuid = java.util.UUID.randomUUID().toString();
     }
 

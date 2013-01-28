@@ -140,4 +140,7 @@ public interface PodcastDAO {
      * @return A list of podcast objects.
      */
     List<Podcast> getLocallyDeletedPodcasts();
+
+    void addPodcastChangedListener(OnPodcastChangeListener listener);
+    void removePodListChangeListener(OnPodcastChangeListener listener);
 }

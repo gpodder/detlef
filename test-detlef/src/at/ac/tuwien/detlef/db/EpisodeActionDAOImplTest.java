@@ -50,7 +50,7 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
         p1.setLogoUrl("logoUrl");
         p1.setTitle("title");
         p1.setUrl("url");
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
 
         lea1 = new LocalEpisodeAction(p1, "ep1", Episode.ActionState.DOWNLOAD, null, null, null);

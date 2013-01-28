@@ -25,7 +25,7 @@ import org.apache.http.client.ClientProtocolException;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
+import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.FeedUpdate;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
@@ -90,7 +90,9 @@ public class PullFeedAsyncTask implements Runnable {
 
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
-            PodcastDAOImpl.i().update(podcast);
+
+            PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+            pdao.update(podcast);
         } catch (ClientProtocolException e) {
             sendError(GENERIC_ERROR, e.getLocalizedMessage());
             return;

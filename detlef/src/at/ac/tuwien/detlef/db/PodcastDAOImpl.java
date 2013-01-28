@@ -32,7 +32,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -40,19 +39,10 @@ public final class PodcastDAOImpl implements PodcastDAO {
 
     private static final String TAG = PodcastDAOImpl.class.getName();
 
-    private static PodcastDAOImpl instance = new PodcastDAOImpl(Detlef.getAppContext());
-
     private final DatabaseHelper dbHelper;
     private final Set<PodcastDAO.OnPodcastChangeListener> listeners =
         new HashSet<PodcastDAO.OnPodcastChangeListener>();
     private final HashMap<Long, Podcast> hashMapPodcast = new HashMap<Long, Podcast>();
-
-    /**
-     * Returns the PodcastDAOImpl singleton instance.
-     */
-    public static PodcastDAOImpl i() {
-        return instance;
-    }
 
     public PodcastDAOImpl(Context context) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {

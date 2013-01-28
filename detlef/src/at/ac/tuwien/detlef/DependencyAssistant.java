@@ -60,6 +60,7 @@ public class DependencyAssistant {
     private DetlefDownloadManager downloadManager = null;
     private GUIUtils guiUtils = null;
     private GPodderSync gPodderSync = null;
+    private PodcastDAO podcastDAO = null;
 
     public GUIUtils getGuiUtils() {
         if (guiUtils == null) {
@@ -196,7 +197,10 @@ public class DependencyAssistant {
      * @return The DAO that is used to crud {@link Podcast Podcasts}.
      */
     public PodcastDAO getPodcastDAO() {
-        return PodcastDAOImpl.i();
+        if (podcastDAO == null) {
+            podcastDAO  = new PodcastDAOImpl(Detlef.getAppContext());
+        }
+        return podcastDAO;
     }
 
 

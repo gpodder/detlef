@@ -22,6 +22,7 @@ import android.test.ActivityInstrumentationTestCase2;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
+import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
@@ -53,7 +54,8 @@ public class EpisodeListFragmentTest extends ActivityInstrumentationTestCase2<Ma
         Podcast p = new Podcast();
         p.setTitle(uuid);
 
-        PodcastDAOImpl.i().insertPodcast(p);
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
+        pdao.insertPodcast(p);
 
         Episode e = new Episode(p);
         e.setAuthor("author");

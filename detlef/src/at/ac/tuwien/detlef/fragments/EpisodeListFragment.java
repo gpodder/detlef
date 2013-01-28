@@ -40,7 +40,7 @@ import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.db.EpisodeDAOImpl;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
+import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
@@ -163,7 +163,7 @@ public class EpisodeListFragment extends ListFragment
         if (savedState != null) {
             long id = savedState.getLong(BUNDLE_SELECTED_PODCAST, ID_NONE);
             if (id != ID_NONE) {
-                PodcastDAOImpl dao = PodcastDAOImpl.i();
+                PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
                 filteredByPodcast = dao.getPodcastById(id);
                 filterByPodcast();
             }

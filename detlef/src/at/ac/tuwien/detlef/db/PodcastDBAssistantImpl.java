@@ -24,6 +24,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.util.Log;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.domain.PodcastImgPersistance;
@@ -34,14 +35,14 @@ public class PodcastDBAssistantImpl implements PodcastDBAssistant {
 
     @Override
     public List<Podcast> getAllPodcasts(Context context) {
-        PodcastDAO dao = PodcastDAOImpl.i();
+        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         return dao.getAllPodcasts();
     }
 
     @Override
     public void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {
         Log.d(TAG, "applying changes");
-        PodcastDAO dao = PodcastDAOImpl.i();
+        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         for (Podcast p : changes.getAdd()) {
             /* The podcast may already be in the local add/delete table. */
             Podcast pod = dao.getPodcastByUrl(p.getUrl());

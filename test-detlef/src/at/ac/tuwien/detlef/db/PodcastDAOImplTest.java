@@ -20,6 +20,7 @@
 package at.ac.tuwien.detlef.db;
 
 import android.test.AndroidTestCase;
+import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
@@ -52,7 +53,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * test the getAllPodcast functionality
      */
     public void testGetAllPodcasts() {
-        PodcastDAOImpl dao = PodcastDAOImpl.i();
+        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         assertNotNull("List of podcasts shouldn't be null", dao.getAllPodcasts());
     }
 
@@ -60,7 +61,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the insertPodcast functionality
      */
     public void testInsertPodcast() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         int countBeforeInsert = pdao.getAllPodcasts().size();
         p1 = pdao.insertPodcast(p1);
         int countAfterInsert = pdao.getAllPodcasts().size();
@@ -72,7 +73,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the deletePodcast functionality
      */
     public void testDeletePodcast() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p1 = pdao.insertPodcast(p1);
         int countBeforeDelete = pdao.getAllPodcasts().size();
         int ret = pdao.deletePodcast(p1);
@@ -85,7 +86,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the getPodcastById functionality
      */
     public void testGetPodcastById() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p1.setTitle("expected title");
         p1 = pdao.insertPodcast(p1);
         Podcast pod = pdao.getPodcastById(p1.getId());
@@ -98,7 +99,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the updateUrl functionality
      */
     public void testUpdate() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
 
         long currentMilis = System.currentTimeMillis();
         String newFilePath = "new path haha";
@@ -121,7 +122,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * null on a non nullable column
      */
     public void testInsertNotNullableColumnShouldFail() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p1.setUrl(null);
         Podcast pod = pdao.insertPodcast(p1);
         assertNull(pod);
@@ -132,7 +133,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * on a nullable column
      */
     public void testInsertNullOnNullableColumn() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p1.setLogoFilePath(null);
         Podcast pod = pdao.insertPodcast(p1);
         assertNotNull(pod);
@@ -142,7 +143,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * tests the getpodcastbyurl functionality
      */
     public void testGetPodcastByUrl() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         String url = "supergeileurl";
         p1.setUrl(url);
         pdao.insertPodcast(p1);
@@ -154,7 +155,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * Tests adding a podcast locally.
      */
     public void testLocalAdd() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p1.setLocalAdd(true);
         pdao.insertPodcast(p1);
         assertTrue(pdao.getNonDeletedPodcasts().contains(p1));
@@ -166,7 +167,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * Tests adding a podcast locally and then deleting it locally.
      */
     public void testLocalDeletePodcastLocalAdd() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p1.setLocalAdd(true);
         pdao.insertPodcast(p1);
         assertTrue(pdao.localDeletePodcast(p1));
@@ -181,7 +182,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
      * and then deleting it completely.
      */
     public void testLocalDeletePodcastNonLocalAdd() {
-        PodcastDAOImpl pdao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p1.setLocalAdd(false);
         pdao.insertPodcast(p1);
         assertTrue(pdao.localDeletePodcast(p1));

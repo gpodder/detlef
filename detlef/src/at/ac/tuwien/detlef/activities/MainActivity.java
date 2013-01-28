@@ -54,7 +54,6 @@ import at.ac.tuwien.detlef.activities.callbacks.EpisodeSearchQueryTextListener;
 import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -393,7 +392,7 @@ public class MainActivity extends FragmentActivity
          */
         @Override
         public void handleSuccess() {
-            PodcastDAO pDao = PodcastDAOImpl.i();
+            PodcastDAO pDao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
 
             final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false);
 

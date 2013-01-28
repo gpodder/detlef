@@ -30,7 +30,6 @@ import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.PodcastDAO;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDBAssistant;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
@@ -75,7 +74,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             return;
         }
 
-        PodcastDAO pDao = PodcastDAOImpl.i();
+        PodcastDAO pdao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
 
         String devId = id.toString();
 
@@ -89,7 +88,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
 
         try {
             EnhancedSubscriptionChanges localChanges = new EnhancedSubscriptionChanges(
-                pDao.getLocallyAddedPodcasts(), pDao.getLocallyDeletedPodcasts(),
+                pdao.getLocallyAddedPodcasts(), pdao.getLocallyDeletedPodcasts(),
                 lastUpdate);
 
             UpdateResult result = gpc.updateSubscriptions(
@@ -115,7 +114,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             /* apply the changed URLs */
             if (result.updateUrls != null && result.updateUrls.size() > 0) {
                 for (String oldUrl : result.updateUrls.keySet()) {
-                    Podcast p = pDao.getPodcastByUrl(oldUrl);
+                    Podcast p = pdao.getPodcastByUrl(oldUrl);
                     if (p == null) {
                         continue;
                     }
@@ -126,7 +125,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
                     }
 
                     p.setUrl(newUrl);
-                    pDao.update(p);
+                    pdao.update(p);
                 }
             }
 

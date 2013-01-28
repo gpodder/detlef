@@ -43,7 +43,6 @@ import android.widget.Toast;
 import at.ac.tuwien.detlef.DependencyAssistant;
 import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.db.PodcastDAO;
-import at.ac.tuwien.detlef.db.PodcastDAOImpl;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
@@ -261,7 +260,7 @@ public class AddPodcastActivity extends Activity {
         String text = tv.getText().toString();
         setBusy(true);
         if (text.startsWith("http://") || text.startsWith("https://")) {
-            PodcastDAO dao = PodcastDAOImpl.i();
+            PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
             for (Podcast p : dao.getAllPodcasts()) {
                 if (p.getUrl().equals(text)) {
                     Toast.makeText(this,
@@ -304,7 +303,7 @@ public class AddPodcastActivity extends Activity {
         suggestionsAdapter.removePodcast(p);
         toplistAdapter.removePodcast(p);
 
-        PodcastDAO dao = PodcastDAOImpl.i();
+        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         p.setLocalAdd(true);
         if (dao.insertPodcast(p) == null) {
             Toast.makeText(this, "Subscription update failed", Toast.LENGTH_SHORT);
@@ -429,7 +428,7 @@ public class AddPodcastActivity extends Activity {
             getRcv().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    PodcastDAO dao = PodcastDAOImpl.i();
+                    PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
                     for (Podcast p : dao.getAllPodcasts()) {
                         if (p.getUrl().equals(result.getUrl())) {
                             Toast.makeText(getRcv(),
@@ -465,7 +464,7 @@ public class AddPodcastActivity extends Activity {
     private static List<Podcast> filterSubscribedPodcasts(List<Podcast> in) {
         List<Podcast> out = new ArrayList<Podcast>(in);
 
-        PodcastDAO dao = PodcastDAOImpl.i();
+        PodcastDAO dao = DependencyAssistant.getDependencyAssistant().getPodcastDAO();
         for (int i = out.size() - 1; i >= 0; i--) {
             if (dao.getPodcastByUrl(out.get(i).getUrl()) != null) {
                 out.remove(i);
