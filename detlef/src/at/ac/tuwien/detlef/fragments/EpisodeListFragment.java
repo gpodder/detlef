@@ -234,6 +234,7 @@ public class EpisodeListFragment extends ListFragment
     }
 
     private void filterByPodcast() {
+
         adapter.clear();
         if (filteredByPodcast == null) {
             getFilter().removeEpisodeFilter(new PodcastFilter());
@@ -431,6 +432,8 @@ public class EpisodeListFragment extends ListFragment
             }
             adapter.add(e);
         }
+        restoreSortOrder();
+        updateEpisodeList();
 
     }
 
