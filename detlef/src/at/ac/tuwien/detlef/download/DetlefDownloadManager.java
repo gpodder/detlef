@@ -117,6 +117,7 @@ public class DetlefDownloadManager {
         activeImgDownloads.put(id,  podcast);
 
         podcast.setLogoFilePath(file.getAbsolutePath());
+
         pdao.update(podcast);
 
         Log.v(TAG, String.format("Enqueued download for img %s", path));
@@ -166,7 +167,6 @@ public class DetlefDownloadManager {
         episode.setFilePath(file.getAbsolutePath());
         episode.setStorageState(StorageState.DOWNLOADING);
 
-        edao.update(episode);
         edao.update(episode);
 
         Log.v(TAG, String.format("Enqueued download task %s", path));
