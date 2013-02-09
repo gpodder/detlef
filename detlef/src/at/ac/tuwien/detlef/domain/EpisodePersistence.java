@@ -22,12 +22,16 @@ package at.ac.tuwien.detlef.domain;
 import java.io.File;
 import java.io.IOException;
 
+import android.app.DownloadManager;
 import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
-import at.ac.tuwien.detlef.download.DetlefDownloadManager.EpisodeDownloadCallback;
+import at.ac.tuwien.detlef.download.DetlefDownloadManager.DownloadCallback;
 
 /**
  * EpisodePersistence contains static helper methods for handling
@@ -91,5 +95,97 @@ public final class EpisodePersistence {
     private static Context getContext() {
         return Detlef.getAppContext();
     }
+
+    private static class EpisodeDownloadCallback implements DownloadCallback {
+
+        private final Episode episode;
+        private final Podcast podcast;
+
+        public EpisodeDownloadCallback(Episode episode) {
+            this.episode = episode;
+            this.podcast = episode.getPodcast();
+        }
+
+        @Override
+        public void onStart(String path) {
+            episode.setFilePath(path);
+            episode.setStorageState(StorageState.DOWNLOADING);
+
+            Singletons.i().getEpisodeDAO().update(episode);
+        }
+
+        @Override
+        public void onCancel() {
+            episode.setFilePath(null);
+            episode.setStorageState(StorageState.NOT_ON_DEVICE);
+
+            Singletons.i().getEpisodeDAO().update(episode);
+        }
+
+        @Override
+        public void onError() {
+            episode.setFilePath(null);
+            episode.setStorageState(StorageState.NOT_ON_DEVICE);
+
+            Singletons.i().getEpisodeDAO().update(episode);
+        }
+
+        @Override
+        public void onFinish(Uri uri) {
+            episode.setFilePath(uri.getPath());
+            episode.setStorageState(StorageState.DOWNLOADED);
+
+            Singletons.i().getEpisodeDAO().update(episode);
+
+            Toast.makeText(Detlef.getAppContext(),
+                           String.format("Download complete: %s", episode.getTitle()),
+                           Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public Uri getSource() {
+            return Uri.parse(episode.getUrl());
+        }
+
+        @Override
+        public String getDestinationDirType() {
+            return Environment.DIRECTORY_MUSIC;
+        }
+
+        @Override
+        public String getDestinationSubPath() {
+            return String.format("%s/%s", removeUnwantedCharacters(podcast.getTitle()),
+                                 removeUnwantedCharacters(new File(getSource().getPath()).getName()));
+        }
+
+        @Override
+        public String getTitle() {
+            return episode.getTitle();
+        }
+
+        @Override
+        public String getDescription() {
+            return String.format("Downloading episode from podcast %s", podcast.getTitle());
+        }
+
+        @Override
+        public int getNotificationVisibility() {
+            return DownloadManager.Request.VISIBILITY_VISIBLE;
+        }
+
+        @Override
+        public Object getObject() {
+            return episode;
+        }
+
+        private static String removeUnwantedCharacters(String path) {
+            for (char unwantedChar : new char[] { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' }) {
+                path = path.replace(unwantedChar, '_');
+            }
+
+            return path;
+        }
+    }
+
 
 }

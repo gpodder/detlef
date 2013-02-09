@@ -33,12 +33,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 import at.ac.tuwien.detlef.Detlef;
-import at.ac.tuwien.detlef.Singletons;
-import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Episode.StorageState;
-import at.ac.tuwien.detlef.domain.Podcast;
 
 /**
  * DetlefDownloadManager keeps track of all active downloads and updates episode
@@ -85,19 +80,6 @@ public class DetlefDownloadManager {
         callback.onStart(destination.getAbsolutePath());
 
         Log.v(TAG, String.format("Enqueued download with id %d", id));
-    }
-
-    /**
-     * Removes unwanted chars from file name descriptors.
-     * @param path
-     * @return The beautified string.
-     */
-    private static String removeUnwantedCharacters(String path) {
-        for (char unwantedChar : new char[] { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' }) {
-            path = path.replace(unwantedChar, '_');
-        }
-
-        return path;
     }
 
     private boolean isExternalStorageWritable() {
@@ -196,171 +178,5 @@ public class DetlefDownloadManager {
         String getDescription();
         int getNotificationVisibility();
         Object getObject();
-    }
-
-    public static class EpisodeDownloadCallback implements DownloadCallback {
-
-        private final Episode episode;
-        private final Podcast podcast;
-
-        public EpisodeDownloadCallback(Episode episode) {
-            this.episode = episode;
-            this.podcast = episode.getPodcast();
-        }
-
-        @Override
-        public void onStart(String path) {
-            episode.setFilePath(path);
-            episode.setStorageState(StorageState.DOWNLOADING);
-
-            Singletons.i().getEpisodeDAO().update(episode);
-        }
-
-        @Override
-        public void onCancel() {
-            episode.setFilePath(null);
-            episode.setStorageState(StorageState.NOT_ON_DEVICE);
-
-            Singletons.i().getEpisodeDAO().update(episode);
-        }
-
-        @Override
-        public void onError() {
-            episode.setFilePath(null);
-            episode.setStorageState(StorageState.NOT_ON_DEVICE);
-
-            Singletons.i().getEpisodeDAO().update(episode);
-        }
-
-        @Override
-        public void onFinish(Uri uri) {
-            episode.setFilePath(uri.getPath());
-            episode.setStorageState(StorageState.DOWNLOADED);
-
-            Singletons.i().getEpisodeDAO().update(episode);
-
-            Toast.makeText(Detlef.getAppContext(),
-                           String.format("Download complete: %s", episode.getTitle()),
-                           Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public Uri getSource() {
-            return Uri.parse(episode.getUrl());
-        }
-
-        @Override
-        public String getDestinationDirType() {
-            return Environment.DIRECTORY_MUSIC;
-        }
-
-        @Override
-        public String getDestinationSubPath() {
-            return String.format("%s/%s", removeUnwantedCharacters(podcast.getTitle()),
-                                 removeUnwantedCharacters(new File(getSource().getPath()).getName()));
-        }
-
-        @Override
-        public String getTitle() {
-            return episode.getTitle();
-        }
-
-        @Override
-        public String getDescription() {
-            return String.format("Downloading episode from podcast %s", podcast.getTitle());
-        }
-
-        @Override
-        public int getNotificationVisibility() {
-            return DownloadManager.Request.VISIBILITY_VISIBLE;
-        }
-
-        @Override
-        public Object getObject() {
-            return episode;
-        }
-
-    }
-
-    public static class PodcastLogoDownloadCallback implements DownloadCallback {
-
-        private final Podcast podcast;
-
-        public PodcastLogoDownloadCallback(Podcast podcast) {
-            this.podcast = podcast;
-
-            /* Ensure that the gallery does not pick up our podcast logo images. */
-
-            try {
-                File file = new File(
-                    Detlef.getAppContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                    ".nomedia");
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-            } catch (Exception e) {
-                Log.w(TAG, "Could not create .nomedia file");
-            }
-        }
-
-        @Override
-        public void onStart(String path) {
-            /* Nothing. */
-        }
-
-        @Override
-        public void onCancel() {
-            podcast.setLogoFilePath(null);
-            Singletons.i().getPodcastDAO().update(podcast);
-        }
-
-        @Override
-        public void onError() {
-            podcast.setLogoFilePath(null);
-            Singletons.i().getPodcastDAO().update(podcast);
-        }
-
-        @Override
-        public void onFinish(Uri uri) {
-            podcast.setLogoDownloaded(1);
-            podcast.setLogoFilePath(uri.getPath());
-            Singletons.i().getPodcastDAO().update(podcast);
-        }
-
-        @Override
-        public Uri getSource() {
-            return Uri.parse(podcast.getLogoUrl());
-        }
-
-        @Override
-        public String getDestinationDirType() {
-            return Environment.DIRECTORY_PICTURES;
-        }
-
-        @Override
-        public String getDestinationSubPath() {
-            return String.format("%s/%s", removeUnwantedCharacters(podcast.getTitle()),
-                                 removeUnwantedCharacters(new File(getSource().toString()).getName()));
-        }
-
-        @Override
-        public String getTitle() {
-            return podcast.getTitle();
-        }
-
-        @Override
-        public String getDescription() {
-            return String.format("Downloading podcast icon from podcast %s", podcast.getTitle());
-        }
-
-        @Override
-        public int getNotificationVisibility() {
-            return DownloadManager.Request.VISIBILITY_HIDDEN;
-        }
-
-        @Override
-        public Object getObject() {
-            return podcast;
-        }
-
     }
 }

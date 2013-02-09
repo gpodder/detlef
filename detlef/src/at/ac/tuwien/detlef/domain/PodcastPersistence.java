@@ -22,12 +22,15 @@ package at.ac.tuwien.detlef.domain;
 import java.io.File;
 import java.io.IOException;
 
+import android.app.DownloadManager;
 import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
-import at.ac.tuwien.detlef.download.DetlefDownloadManager.PodcastLogoDownloadCallback;
+import at.ac.tuwien.detlef.download.DetlefDownloadManager.DownloadCallback;
 
 /**
  * PodcastPersistence contains static helper methods for handling
@@ -81,6 +84,96 @@ public final class PodcastPersistence {
 
     private static Context getContext() {
         return Detlef.getAppContext();
+    }
+
+    private static class PodcastLogoDownloadCallback implements DownloadCallback {
+
+        private final Podcast podcast;
+
+        public PodcastLogoDownloadCallback(Podcast podcast) {
+            this.podcast = podcast;
+
+            /* Ensure that the gallery does not pick up our podcast logo images. */
+
+            try {
+                File file = new File(
+                    Detlef.getAppContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                    ".nomedia");
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (Exception e) {
+                Log.w(TAG, "Could not create .nomedia file");
+            }
+        }
+
+        @Override
+        public void onStart(String path) {
+            /* Nothing. */
+        }
+
+        @Override
+        public void onCancel() {
+            podcast.setLogoFilePath(null);
+            Singletons.i().getPodcastDAO().update(podcast);
+        }
+
+        @Override
+        public void onError() {
+            podcast.setLogoFilePath(null);
+            Singletons.i().getPodcastDAO().update(podcast);
+        }
+
+        @Override
+        public void onFinish(Uri uri) {
+            podcast.setLogoDownloaded(1);
+            podcast.setLogoFilePath(uri.getPath());
+            Singletons.i().getPodcastDAO().update(podcast);
+        }
+
+        @Override
+        public Uri getSource() {
+            return Uri.parse(podcast.getLogoUrl());
+        }
+
+        @Override
+        public String getDestinationDirType() {
+            return Environment.DIRECTORY_PICTURES;
+        }
+
+        @Override
+        public String getDestinationSubPath() {
+            return String.format("%s/%s", removeUnwantedCharacters(podcast.getTitle()),
+                                 removeUnwantedCharacters(new File(getSource().toString()).getName()));
+        }
+
+        @Override
+        public String getTitle() {
+            return podcast.getTitle();
+        }
+
+        @Override
+        public String getDescription() {
+            return String.format("Downloading podcast icon from podcast %s", podcast.getTitle());
+        }
+
+        @Override
+        public int getNotificationVisibility() {
+            return DownloadManager.Request.VISIBILITY_HIDDEN;
+        }
+
+        @Override
+        public Object getObject() {
+            return podcast;
+        }
+
+        private static String removeUnwantedCharacters(String path) {
+            for (char unwantedChar : new char[] { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' }) {
+                path = path.replace(unwantedChar, '_');
+            }
+
+            return path;
+        }
+
     }
 
 }
