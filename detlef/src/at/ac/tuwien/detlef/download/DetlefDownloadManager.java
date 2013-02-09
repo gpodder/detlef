@@ -89,8 +89,8 @@ public class DetlefDownloadManager {
 
         String path = String.format(
                           "%s/%s",
-                          removeUnwantedCharactes(podcast.getTitle()),
-                          removeUnwantedCharactes(new File(uri.toString()).getName())
+                          removeUnwantedCharacters(podcast.getTitle()),
+                          removeUnwantedCharacters(new File(uri.toString()).getName())
                       );
 
         /* Ensure the directory already exists. */
@@ -131,8 +131,8 @@ public class DetlefDownloadManager {
 
         String path = String.format(
                           "%s/%s",
-                          removeUnwantedCharactes(podcast.getTitle()),
-                          removeUnwantedCharactes(new File(uri.toString()).getName())
+                          removeUnwantedCharacters(podcast.getTitle()),
+                          removeUnwantedCharacters(new File(uri.toString()).getName())
                       );
 
         Log.d(TAG, "path is " + path);
@@ -174,7 +174,7 @@ public class DetlefDownloadManager {
      * @param path
      * @return The beautified string.
      */
-    private String removeUnwantedCharactes(String path) {
+    private String removeUnwantedCharacters(String path) {
 
         for (char unwantedChar : UNWANTED_CHARS) {
             path = path.replace(unwantedChar, '_');
