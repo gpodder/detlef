@@ -36,7 +36,6 @@ import android.util.Log;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
-import at.ac.tuwien.detlef.db.EpisodeDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -50,16 +49,13 @@ public class DetlefDownloadManager {
 
     private static final String TAG = DetlefDownloadManager.class.getName();
 
-    private final Map<Long, Episode> activeDownloads = new ConcurrentHashMap<Long, Episode>();
-    private final Map<Long, DownloadCallback> activeImgDownloads = new ConcurrentHashMap<Long, DownloadCallback>();
+    private final Map<Long, DownloadCallback> activeDownloads = new ConcurrentHashMap<Long, DownloadCallback>();
     private final Context context;
-    private final EpisodeDAO edao;
     private final DownloadManager downloadManager;
 
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
-        edao = Singletons.i().getEpisodeDAO();
     }
 
     public void enqueue(DownloadCallback callback) throws IOException {
@@ -84,60 +80,11 @@ public class DetlefDownloadManager {
         request.setNotificationVisibility(callback.getNotificationVisibility());
 
         long id = downloadManager.enqueue(request);
-        activeImgDownloads.put(id, callback);
+        activeDownloads.put(id, callback);
 
         callback.onStart(destination.getAbsolutePath());
 
         Log.v(TAG, String.format("Enqueued download with id %d", id));
-    }
-
-    /**
-     * Places an episode in the system's download queue.
-     * The episode's state is set to DOWNLOADING, and its path is updated.
-     */
-    public void enqueue(Episode episode) throws IOException {
-        if (!isExternalStorageWritable()) {
-            throw new IOException("Cannot write to external storage");
-        }
-
-        Podcast podcast = episode.getPodcast();
-        Uri uri = Uri.parse(episode.getUrl());
-
-        /* We may need to change our naming policy in case of duplicates. However,
-         * let's ignore this for now since it's simplest for us and the user. */
-
-        String path = String.format(
-                          "%s/%s",
-                          removeUnwantedCharacters(podcast.getTitle()),
-                          removeUnwantedCharacters(new File(uri.toString()).getName())
-                      );
-
-        Log.d(TAG, "path is " + path);
-
-        /* Ensure the directory already exists. */
-
-        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), path);
-        file.getParentFile().mkdirs();
-
-        Request request = new Request(uri);
-        request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_MUSIC, path);
-        request.allowScanningByMediaScanner();
-        request.setTitle(episode.getTitle());
-        request.setDescription(
-            String.format("Downloading episode from podcast %s", podcast.getTitle()));
-        request.addRequestHeader("user-agent", Detlef.USER_AGENT);
-
-        long id = downloadManager.enqueue(request);
-        activeDownloads.put(id, episode);
-
-        /* Finally, update the episode's path and state in the database. */
-
-        episode.setFilePath(file.getAbsolutePath());
-        episode.setStorageState(StorageState.DOWNLOADING);
-
-        edao.update(episode);
-
-        Log.v(TAG, String.format("Enqueued download task %s", path));
     }
 
     /**
@@ -158,38 +105,15 @@ public class DetlefDownloadManager {
         return state.equals(Environment.MEDIA_MOUNTED);
     }
 
-    /**
-     * Cancels the download of an episode. If the specified episode is not currently being downloaded,
-     * no action is taken.
-     */
-    public void cancel(Episode episode) {
-
-        for (Entry<Long, Episode> entry : activeDownloads.entrySet()) {
-            if (entry.getValue() != episode) {
-                continue;
-            }
-
-            long id = entry.getKey();
-
-            activeDownloads.remove(id);
-            downloadManager.remove(id);
-
-            break;
-        }
-
-        episode.setStorageState(StorageState.NOT_ON_DEVICE);
-        edao.update(episode);
-    }
-
     public void cancel(Object object) {
-        for (Entry<Long, DownloadCallback> entry : activeImgDownloads.entrySet()) {
+        for (Entry<Long, DownloadCallback> entry : activeDownloads.entrySet()) {
             if (!entry.getValue().getObject().equals(object)) {
                 continue;
             }
 
             downloadManager.remove(entry.getKey());
 
-            DownloadCallback callback = activeImgDownloads.remove(entry.getKey());
+            DownloadCallback callback = activeDownloads.remove(entry.getKey());
             callback.onCancel();
 
             break;
@@ -200,18 +124,10 @@ public class DetlefDownloadManager {
      * Cancels all active downloads.
      */
     public void cancelAll() {
-        for (Entry<Long, Episode> entry : activeDownloads.entrySet()) {
-
+        for (Entry<Long, DownloadCallback> entry : activeDownloads.entrySet()) {
             downloadManager.remove(entry.getKey());
 
-            Episode episode = entry.getValue();
-            episode.setStorageState(StorageState.NOT_ON_DEVICE);
-            edao.update(episode);
-        }
-        for (Entry<Long, DownloadCallback> entry : activeImgDownloads.entrySet()) {
-            downloadManager.remove(entry.getKey());
-
-            DownloadCallback callback = activeImgDownloads.remove(entry.getKey());
+            DownloadCallback callback = activeDownloads.remove(entry.getKey());
             callback.onCancel();
         }
     }
@@ -222,57 +138,27 @@ public class DetlefDownloadManager {
      * @param id The download id.
      */
     public void downloadComplete(long id) {
-        if (activeDownloads.containsKey(id)) {
-            Episode episode = activeDownloads.remove(id);
-            if (episode == null) {
-                Log.w(TAG, String.format("No active download found for id %d", id));
-                return;
-            }
-
-            if (!isDownloadSuccessful(id)) {
-                int reason = getDownloadFailureReason(id);
-                Toast.makeText(context,
-                               String.format("Download failed with error code %d", reason),
-                               Toast.LENGTH_SHORT).show();
-                Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
-                                         id, reason));
-
-                episode.setStorageState(StorageState.NOT_ON_DEVICE);
-                edao.update(episode);
-
-                return;
-            }
-
-            Uri uri = downloadManager.getUriForDownloadedFile(id);
-
-            Toast.makeText(context,
-                           String.format("Download complete: %s", episode.getTitle()),
-                           Toast.LENGTH_SHORT).show();
-            Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
-
-            /* Update the episode's state in the database. */
-
-            episode.setStorageState(StorageState.DOWNLOADED);
-            edao.update(episode);
-        } else if (activeImgDownloads.containsKey(id)) {
-            DownloadCallback callback = activeImgDownloads.remove(id);
-            if (callback == null) {
-                Log.w(TAG, String.format("No active download found for id %d", id));
-                return;
-            }
-
-            if (!isDownloadSuccessful(id)) {
-                Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
-                                         id, getDownloadFailureReason(id)));
-                callback.onError();
-                return;
-            }
-
-            Uri uri = downloadManager.getUriForDownloadedFile(id);
-            Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
-
-            callback.onFinish(uri);
+        if (!activeDownloads.containsKey(id)) {
+            return;
         }
+
+        DownloadCallback callback = activeDownloads.remove(id);
+        if (callback == null) {
+            Log.w(TAG, String.format("No active download found for id %d", id));
+            return;
+        }
+
+        if (!isDownloadSuccessful(id)) {
+            Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
+                                     id, getDownloadFailureReason(id)));
+            callback.onError();
+            return;
+        }
+
+        Uri uri = downloadManager.getUriForDownloadedFile(id);
+        Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
+
+        callback.onFinish(uri);
     }
 
     private boolean isDownloadSuccessful(long id) {
@@ -310,6 +196,90 @@ public class DetlefDownloadManager {
         String getDescription();
         int getNotificationVisibility();
         Object getObject();
+    }
+
+    public static class EpisodeDownloadCallback implements DownloadCallback {
+
+        private final Episode episode;
+        private final Podcast podcast;
+
+        public EpisodeDownloadCallback(Episode episode) {
+            this.episode = episode;
+            this.podcast = episode.getPodcast();
+        }
+
+        @Override
+        public void onStart(String path) {
+            episode.setFilePath(path);
+            episode.setStorageState(StorageState.DOWNLOADING);
+
+            Singletons.i().getEpisodeDAO().update(episode);
+        }
+
+        @Override
+        public void onCancel() {
+            episode.setFilePath(null);
+            episode.setStorageState(StorageState.NOT_ON_DEVICE);
+
+            Singletons.i().getEpisodeDAO().update(episode);
+        }
+
+        @Override
+        public void onError() {
+            episode.setFilePath(null);
+            episode.setStorageState(StorageState.NOT_ON_DEVICE);
+
+            Singletons.i().getEpisodeDAO().update(episode);
+        }
+
+        @Override
+        public void onFinish(Uri uri) {
+            episode.setFilePath(uri.getPath());
+            episode.setStorageState(StorageState.DOWNLOADED);
+
+            Singletons.i().getEpisodeDAO().update(episode);
+
+            Toast.makeText(Detlef.getAppContext(),
+                           String.format("Download complete: %s", episode.getTitle()),
+                           Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public Uri getSource() {
+            return Uri.parse(episode.getUrl());
+        }
+
+        @Override
+        public String getDestinationDirType() {
+            return Environment.DIRECTORY_MUSIC;
+        }
+
+        @Override
+        public String getDestinationSubPath() {
+            return String.format("%s/%s", removeUnwantedCharacters(podcast.getTitle()),
+                                 removeUnwantedCharacters(new File(getSource().getPath()).getName()));
+        }
+
+        @Override
+        public String getTitle() {
+            return episode.getTitle();
+        }
+
+        @Override
+        public String getDescription() {
+            return String.format("Downloading episode from podcast %s", podcast.getTitle());
+        }
+
+        @Override
+        public int getNotificationVisibility() {
+            return DownloadManager.Request.VISIBILITY_VISIBLE;
+        }
+
+        @Override
+        public Object getObject() {
+            return episode;
+        }
+
     }
 
     public static class PodcastLogoDownloadCallback implements DownloadCallback {

@@ -233,7 +233,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
             try {
                 Episode ep = playlistItems.get(i);
                 if (ep.getStorageState() == StorageState.NOT_ON_DEVICE) {
-                    downloadManager.enqueue(playlistItems.get(i));
+                    EpisodePersistence.download(playlistItems.get(i));
                 }
             } catch (Exception e) {
                 // TODO @Joshi show that episodes are being downloaded somehow?
