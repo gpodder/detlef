@@ -146,7 +146,7 @@ public class CachingPodcastDAO implements PodcastDAO {
 
     @Override
     public List<Podcast> getLocallyAddedPodcasts() {
-        return cacheResults(dao.getLocallyAddedPodcasts());
+        return dao.getLocallyAddedPodcasts();
     }
 
     @Override
