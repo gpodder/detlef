@@ -35,6 +35,7 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
+import at.ac.tuwien.detlef.domain.LocalEpisodeAction;
 import at.ac.tuwien.detlef.domain.Podcast;
 
 public final class SimpleEpisodeDAO implements EpisodeDAO {
@@ -209,6 +210,11 @@ public final class SimpleEpisodeDAO implements EpisodeDAO {
         SQLiteDatabase db = null;
         int rows = 0;
 
+        /* We need the old state of the episode in order to deduct current changes
+         * for episode actions. */
+
+        Episode oldEpisode = getEpisode(episode.getId());
+
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
             try {
                 db = dbHelper.getWritableDatabase();
@@ -220,6 +226,24 @@ public final class SimpleEpisodeDAO implements EpisodeDAO {
 
                 rows = db.update(DatabaseHelper.TABLE_EPISODE, values, selection, selectionArgs);
 
+                /* Trigger download and play position episode actions if applicable. */
+
+                EpisodeActionDAO epDao = Singletons.i().getEpisodeActionDAO();
+                if (episode.getStorageState() == Episode.StorageState.DOWNLOADED &&
+                        oldEpisode.getStorageState() != episode.getStorageState()) {
+                    LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
+                            episode.getUrl(), Episode.ActionState.DOWNLOAD, null, null, null);
+                    epDao.insertEpisodeAction(action);
+                }
+
+                if (oldEpisode.getPlayPosition() != episode.getPlayPosition()) {
+                    LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
+                            episode.getUrl(), Episode.ActionState.PLAY, null,
+                            episode.getPlayPosition() / 1000,
+                            null);
+                    epDao.insertEpisodeAction(action);
+                }
+
                 notifyListenersChanged(episode);
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
@@ -229,25 +253,6 @@ public final class SimpleEpisodeDAO implements EpisodeDAO {
                 }
             }
         }
-
-        /* TODO: Reenable download and play position episode actions. These should only be triggered
-         * if the respective values have just been altered. */
-
-//        if ((ret > 0) && (episode.getStorageState() == Episode.StorageState.DOWNLOADED)) {
-//            /* TODO: no correct error handling due to db locking issues. */
-//            EpisodeActionDAO epDao = EpisodeActionDAOImpl.i();
-//            LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
-//                    episode.getUrl(), Episode.ActionState.DOWNLOAD, null, null, null);
-//            epDao.insertEpisodeAction(action);
-//        }
-//
-//        EpisodeActionDAO epDao = EpisodeActionDAOImpl.i();
-//        /* Episode uses milliseconds. */
-//        LocalEpisodeAction action = new LocalEpisodeAction(episode.getPodcast(),
-//                episode.getUrl(), Episode.ActionState.PLAY, null,
-//                episode.getPlayPosition() / 1000,
-//                null);
-//        epDao.insertEpisodeAction(action);
 
         return rows;
     }
