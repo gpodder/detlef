@@ -58,11 +58,6 @@ public class DetlefDownloadManager {
     private final PodcastDAO pdao;
     private final DownloadManager downloadManager;
 
-    /**
-     * A list of chars that must not appear in file and directory names.
-     */
-    private static final char[] UNWANTED_CHARS = { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' };
-
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -178,8 +173,7 @@ public class DetlefDownloadManager {
      * @return The beautified string.
      */
     private String removeUnwantedCharacters(String path) {
-
-        for (char unwantedChar : UNWANTED_CHARS) {
+        for (char unwantedChar : new char[] { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' }) {
             path = path.replace(unwantedChar, '_');
         }
 
