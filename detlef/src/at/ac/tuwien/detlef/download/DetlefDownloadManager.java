@@ -108,7 +108,7 @@ public class DetlefDownloadManager {
         podcast.setLogoFilePath(file.getAbsolutePath());
         pdao.update(podcast);
 
-        Log.v(TAG, String.format("Enqued download for img %s", path));
+        Log.v(TAG, String.format("Enqueued download for img %s", path));
     }
 
     /**
