@@ -51,7 +51,7 @@ import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 
 import com.commonsware.cwac.merge.MergeAdapter;
 
-class AddPodcastActivity extends Activity {
+public class AddPodcastActivity extends Activity {
 
     private static final String TAG = AddPodcastActivity.class.getName();
 
