@@ -68,6 +68,17 @@ public class DetlefDownloadManager {
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
         edao = Singletons.i().getEpisodeDAO();
         pdao = Singletons.i().getPodcastDAO();
+
+        /* Ensure that the gallery does not pick up our podcast logo images. */
+
+        try {
+            File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                                 ".nomedia");
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        } catch (Exception e) {
+            Log.w(TAG, "Could not create .nomedia file");
+        }
     }
 
     /**
