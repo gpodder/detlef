@@ -35,7 +35,7 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.domain.PodcastImgPersistance;
+import at.ac.tuwien.detlef.domain.PodcastPersistence;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.dragontek.mygpoclient.api.MygPodderClient;
@@ -195,7 +195,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
                     dao.setRemotePodcast(pod);
                     if (pod.getLogoUrl() != null && !pod.getLogoUrl().equals("")) {
                         try {
-                            PodcastImgPersistance.download(pod);
+                            PodcastPersistence.download(pod);
                         } catch (IOException e) {
                             Log.e(TAG, "error downloading podcast img: " + e.getMessage());
                         }
@@ -210,7 +210,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
 
                 if (p.getLogoUrl() != null && !p.getLogoUrl().equals("")) {
                     try {
-                        PodcastImgPersistance.download(p);
+                        PodcastPersistence.download(p);
                     } catch (IOException e) {
                         Log.e(TAG, "Error downloading podcast img: " + e.getMessage());
                     }

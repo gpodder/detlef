@@ -24,20 +24,20 @@ import java.io.IOException;
 
 import android.content.Context;
 import android.util.Log;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 
 /**
- * EpisodePersistence contains static helper methods for handling
- * persistence-related functionalities related to episodes, such as download
- * management and episode file deletion.
+ * PodcastPersistence contains static helper methods for handling
+ * persistence-related functionalities related to podcasts, such as download
+ * management and logo file deletion.
  */
-public final class PodcastImgPersistance {
+public final class PodcastPersistence {
 
-    private static final String TAG = PodcastImgPersistance.class.getName();
+    private static final String TAG = PodcastPersistence.class.getName();
 
-    private PodcastImgPersistance() {
+    private PodcastPersistence() {
         /* Non-instantiable. */
     }
 
@@ -54,21 +54,24 @@ public final class PodcastImgPersistance {
     }
 
     /**
-     * Cancels active downloads of the current podcast img (if one exists).
+     * Cancels active downloads of the current podcast image (if one exists).
      */
     public static void cancelDownload(Podcast podcast) {
         getDownloadManager().cancel(podcast);
     }
 
     /**
-     * Delete the specified podcast img file from disk. Automatically cancels
+     * Delete the specified podcast image file from disk. Automatically cancels
      * any ongoing downloads.
      */
     public static void delete(Podcast podcast) {
         cancelDownload(podcast);
 
-        File file = new File(podcast.getLogoFilePath());
-        file.delete();
+        if (podcast.getLogoFilePath() != null) {
+            File file = new File(podcast.getLogoFilePath());
+            file.delete();
+            podcast.setLogoFilePath(null);
+        }
     }
 
     private static DetlefDownloadManager getDownloadManager() {

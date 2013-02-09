@@ -19,7 +19,6 @@
 
 package at.ac.tuwien.detlef.db;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +33,7 @@ import android.util.Log;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.domain.PodcastPersistence;
 
 public class SimplePodcastDAO implements PodcastDAO {
 
@@ -150,19 +150,7 @@ public class SimplePodcastDAO implements PodcastDAO {
     @Override
     public int deletePodcast(Podcast podcast) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            int ret = 0;
-            try {
-                /* WTF.. Move this. */
-                if (podcast.getLogoFilePath() != null && !podcast.getLogoFilePath().equals("")) {
-                    File file = new File(podcast.getLogoFilePath());
-                    file.delete();
-                    Log.i(TAG, "file deleted: " + podcast.getLogoFilePath());
-                }
-            } catch (Exception ex) {
-                Log.e(TAG,
-                      "delete Podcast icon: " + ex.getMessage() != null ? ex.getMessage()
-                      : ex.toString());
-            }
+            PodcastPersistence.delete(podcast);
 
             SQLiteDatabase db = null;
             try {
@@ -174,18 +162,19 @@ public class SimplePodcastDAO implements PodcastDAO {
                     String.valueOf(podcast.getId())
                 };
 
-                ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
+                int ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
                 db.close();
 
                 notifyListenersDeleted(podcast);
+                return ret;
             } catch (Exception ex) {
                 Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
+                return -1;
             } finally {
                 if (db != null && db.isOpen()) {
                     db.close();
                 }
             }
-            return ret;
         }
     }
 
