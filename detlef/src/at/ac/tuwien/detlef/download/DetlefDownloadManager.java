@@ -103,6 +103,7 @@ public class DetlefDownloadManager {
         request.setDescription(
             String.format("Downloading podcast icon from podcast %s", podcast.getTitle()));
         request.addRequestHeader("user-agent", Detlef.USER_AGENT);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
 
 
         long id = downloadManager.enqueue(request);
