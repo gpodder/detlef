@@ -130,6 +130,7 @@ public class DetlefDownloadManager {
         if (!isExternalStorageWritable()) {
             throw new IOException("Cannot write to external storage");
         }
+
         Podcast podcast = episode.getPodcast();
         Uri uri = Uri.parse(episode.getUrl());
 
@@ -148,13 +149,8 @@ public class DetlefDownloadManager {
 
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), path);
         file.getParentFile().mkdirs();
-        Request request;
-        try {
-            request = new Request(uri);
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
-        }
 
+        Request request = new Request(uri);
         request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_MUSIC, path);
         request.allowScanningByMediaScanner();
         request.setTitle(episode.getTitle());
