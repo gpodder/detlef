@@ -30,6 +30,7 @@ import android.util.Log;
 import android.widget.Toast;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
+import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager.DownloadCallback;
 
@@ -79,12 +80,14 @@ public final class EpisodePersistence {
      * @param episode The episode to delete.
      */
     public static void delete(Episode episode) {
+        episode.setFilePath(null);
+        episode.setStorageState(StorageState.NOT_ON_DEVICE);
+
         cancelDownload(episode);
 
         if (episode.getFilePath() != null) {
             File file = new File(episode.getFilePath());
             file.delete();
-            episode.setFilePath(null);
         }
     }
 

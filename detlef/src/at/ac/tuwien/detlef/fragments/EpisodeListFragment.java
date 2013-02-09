@@ -338,6 +338,7 @@ public class EpisodeListFragment extends ListFragment
             GUIUtils.showToast(String.format("Deleted %s", episode.getTitle()),
                                getActivity(), TAG);
             EpisodePersistence.delete(episode);
+            Singletons.i().getEpisodeDAO().update(episode);
             break;
         default:
             Log.e(TAG, "Unknown storage state encountered");
