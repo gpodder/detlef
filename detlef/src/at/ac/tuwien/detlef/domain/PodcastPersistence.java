@@ -27,6 +27,7 @@ import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
+import at.ac.tuwien.detlef.download.DetlefDownloadManager.PodcastLogoDownloadCallback;
 
 /**
  * PodcastPersistence contains static helper methods for handling
@@ -46,7 +47,7 @@ public final class PodcastPersistence {
      */
     public static void download(Podcast podcast) throws IOException {
         try {
-            getDownloadManager().enqueue(podcast);
+            getDownloadManager().enqueue(new PodcastLogoDownloadCallback(podcast));
         } catch (IOException e) {
             Log.e(TAG, "IOException while trying to download: ", e);
             throw e;

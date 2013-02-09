@@ -37,7 +37,6 @@ import android.widget.Toast;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -52,70 +51,44 @@ public class DetlefDownloadManager {
     private static final String TAG = DetlefDownloadManager.class.getName();
 
     private final Map<Long, Episode> activeDownloads = new ConcurrentHashMap<Long, Episode>();
-    private final Map<Long, Podcast> activeImgDownloads = new ConcurrentHashMap<Long, Podcast>();
+    private final Map<Long, DownloadCallback> activeImgDownloads = new ConcurrentHashMap<Long, DownloadCallback>();
     private final Context context;
     private final EpisodeDAO edao;
-    private final PodcastDAO pdao;
     private final DownloadManager downloadManager;
 
     public DetlefDownloadManager(Context context) {
         this.context = context;
         downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
         edao = Singletons.i().getEpisodeDAO();
-        pdao = Singletons.i().getPodcastDAO();
-
-        /* Ensure that the gallery does not pick up our podcast logo images. */
-
-        try {
-            File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                                 ".nomedia");
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-        } catch (Exception e) {
-            Log.w(TAG, "Could not create .nomedia file");
-        }
     }
 
-    /**
-     * Places an Podcast in the system's download queue.
-     * For downloading the Podcast Image.
-     */
-    public void enqueue(Podcast podcast) throws IOException {
+    public void enqueue(DownloadCallback callback) throws IOException {
         if (!isExternalStorageWritable()) {
             throw new IOException("Cannot write to external storage");
         }
-        Uri uri = Uri.parse(podcast.getLogoUrl());
 
-        /* We may need to change our naming policy in case of duplicates. However,
-         * let's ignore this for now since it's simplest for us and the user. */
+        Uri source = callback.getSource();
 
-        String path = String.format(
-                          "%s/%s",
-                          removeUnwantedCharacters(podcast.getTitle()),
-                          removeUnwantedCharacters(new File(uri.toString()).getName())
-                      );
+        /* Ensure the destination directory already exists. */
 
-        /* Ensure the directory already exists. */
-        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), path);
-        file.getParentFile().mkdirs();
+        File destination = new File(Detlef.getAppContext().getExternalFilesDir(
+                                        callback.getDestinationDirType()), callback.getDestinationSubPath());
+        destination.getParentFile().mkdirs();
 
-        Request request = new Request(uri);
-        request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_PICTURES, path);
-        request.setTitle(podcast.getTitle());
-        request.setDescription(
-            String.format("Downloading podcast icon from podcast %s", podcast.getTitle()));
+        Request request = new Request(source);
+        request.setDestinationInExternalFilesDir(context, callback.getDestinationDirType(),
+                callback.getDestinationSubPath());
         request.addRequestHeader("user-agent", Detlef.USER_AGENT);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
-
+        request.setTitle(callback.getTitle());
+        request.setDescription(callback.getDescription());
+        request.setNotificationVisibility(callback.getNotificationVisibility());
 
         long id = downloadManager.enqueue(request);
-        activeImgDownloads.put(id,  podcast);
+        activeImgDownloads.put(id, callback);
 
-        podcast.setLogoFilePath(file.getAbsolutePath());
+        callback.onStart(destination.getAbsolutePath());
 
-        pdao.update(podcast);
-
-        Log.v(TAG, String.format("Enqueued download for img %s", path));
+        Log.v(TAG, String.format("Enqueued download with id %d", id));
     }
 
     /**
@@ -172,7 +145,7 @@ public class DetlefDownloadManager {
      * @param path
      * @return The beautified string.
      */
-    private String removeUnwantedCharacters(String path) {
+    private static String removeUnwantedCharacters(String path) {
         for (char unwantedChar : new char[] { '<', '>', ':', '"', '/', '\\', '|', '?', '*', '=', ' ' }) {
             path = path.replace(unwantedChar, '_');
         }
@@ -208,23 +181,19 @@ public class DetlefDownloadManager {
         edao.update(episode);
     }
 
-    /**
-     * Cancels the download of an podcast img. If the img is not currently being downloaded,
-     * no action is taken.
-     */
-    public void cancel(Podcast podcast) {
-        for (Entry<Long, Podcast> entry : activeImgDownloads.entrySet()) {
-            if (entry.getValue() != podcast) {
+    public void cancel(Object object) {
+        for (Entry<Long, DownloadCallback> entry : activeImgDownloads.entrySet()) {
+            if (!entry.getValue().getObject().equals(object)) {
                 continue;
             }
-            long id = entry.getKey();
-            activeImgDownloads.remove(id);
-            downloadManager.remove(id);
+
+            downloadManager.remove(entry.getKey());
+
+            DownloadCallback callback = activeImgDownloads.remove(entry.getKey());
+            callback.onCancel();
 
             break;
         }
-        podcast.setLogoFilePath("");
-        pdao.update(podcast);
     }
 
     /**
@@ -239,15 +208,12 @@ public class DetlefDownloadManager {
             episode.setStorageState(StorageState.NOT_ON_DEVICE);
             edao.update(episode);
         }
-        for (Entry<Long, Podcast> entry : activeImgDownloads.entrySet()) {
-
+        for (Entry<Long, DownloadCallback> entry : activeImgDownloads.entrySet()) {
             downloadManager.remove(entry.getKey());
-            Podcast p = entry.getValue();
-            p.setLogoFilePath("");
-            pdao.update(p);
+
+            DownloadCallback callback = activeImgDownloads.remove(entry.getKey());
+            callback.onCancel();
         }
-        activeDownloads.clear();
-        activeImgDownloads.clear();
     }
 
     /**
@@ -289,21 +255,23 @@ public class DetlefDownloadManager {
             episode.setStorageState(StorageState.DOWNLOADED);
             edao.update(episode);
         } else if (activeImgDownloads.containsKey(id)) {
-            Podcast p = activeImgDownloads.remove(id);
-            if (p == null) {
+            DownloadCallback callback = activeImgDownloads.remove(id);
+            if (callback == null) {
                 Log.w(TAG, String.format("No active download found for id %d", id));
                 return;
             }
+
             if (!isDownloadSuccessful(id)) {
                 Log.w(TAG, String.format("Download for id %d did not complete successfully (Reason: %d)",
                                          id, getDownloadFailureReason(id)));
+                callback.onError();
                 return;
             }
+
             Uri uri = downloadManager.getUriForDownloadedFile(id);
             Log.v(TAG, String.format("File %s downloaded successfully", uri.getPath()));
 
-            p.setLogoDownloaded(1);
-            pdao.update(p);
+            callback.onFinish(uri);
         }
     }
 
@@ -329,4 +297,100 @@ public class DetlefDownloadManager {
         return c.getInt(columnIndex);
     }
 
+    public interface DownloadCallback {
+        void onStart(String path);
+        void onCancel();
+        void onError();
+        void onFinish(Uri uri);
+
+        Uri getSource();
+        String getDestinationDirType();
+        String getDestinationSubPath();
+        String getTitle();
+        String getDescription();
+        int getNotificationVisibility();
+        Object getObject();
+    }
+
+    public static class PodcastLogoDownloadCallback implements DownloadCallback {
+
+        private final Podcast podcast;
+
+        public PodcastLogoDownloadCallback(Podcast podcast) {
+            this.podcast = podcast;
+
+            /* Ensure that the gallery does not pick up our podcast logo images. */
+
+            try {
+                File file = new File(
+                    Detlef.getAppContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                    ".nomedia");
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (Exception e) {
+                Log.w(TAG, "Could not create .nomedia file");
+            }
+        }
+
+        @Override
+        public void onStart(String path) {
+            /* Nothing. */
+        }
+
+        @Override
+        public void onCancel() {
+            podcast.setLogoFilePath(null);
+            Singletons.i().getPodcastDAO().update(podcast);
+        }
+
+        @Override
+        public void onError() {
+            podcast.setLogoFilePath(null);
+            Singletons.i().getPodcastDAO().update(podcast);
+        }
+
+        @Override
+        public void onFinish(Uri uri) {
+            podcast.setLogoDownloaded(1);
+            podcast.setLogoFilePath(uri.getPath());
+            Singletons.i().getPodcastDAO().update(podcast);
+        }
+
+        @Override
+        public Uri getSource() {
+            return Uri.parse(podcast.getLogoUrl());
+        }
+
+        @Override
+        public String getDestinationDirType() {
+            return Environment.DIRECTORY_PICTURES;
+        }
+
+        @Override
+        public String getDestinationSubPath() {
+            return String.format("%s/%s", removeUnwantedCharacters(podcast.getTitle()),
+                                 removeUnwantedCharacters(new File(getSource().toString()).getName()));
+        }
+
+        @Override
+        public String getTitle() {
+            return podcast.getTitle();
+        }
+
+        @Override
+        public String getDescription() {
+            return String.format("Downloading podcast icon from podcast %s", podcast.getTitle());
+        }
+
+        @Override
+        public int getNotificationVisibility() {
+            return DownloadManager.Request.VISIBILITY_HIDDEN;
+        }
+
+        @Override
+        public Object getObject() {
+            return podcast;
+        }
+
+    }
 }
