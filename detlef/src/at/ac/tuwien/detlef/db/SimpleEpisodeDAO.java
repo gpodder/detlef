@@ -19,7 +19,6 @@
 
 package at.ac.tuwien.detlef.db;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +34,7 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
+import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.domain.LocalEpisodeAction;
 import at.ac.tuwien.detlef.domain.Podcast;
 
@@ -141,17 +141,7 @@ public final class SimpleEpisodeDAO implements EpisodeDAO {
     @Override
     public int deleteEpisode(Episode episode) {
         synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            try {
-                if (episode.getStorageState() == StorageState.DOWNLOADED) {
-                    File file = new File(episode.getFilePath());
-                    file.delete();
-                    Log.i(TAG, "file deleted: " + episode.getFilePath());
-                }
-            } catch (Exception ex) {
-                Log.e(TAG,
-                      ("deleteEpisode file delete: " + ex.getMessage()) != null ? ex.getMessage()
-                      : ex.toString());
-            }
+            EpisodePersistence.delete(episode);
 
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             String selection = DatabaseHelper.COLUMN_EPISODE_ID + " = ?";

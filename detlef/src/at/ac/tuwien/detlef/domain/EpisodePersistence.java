@@ -24,8 +24,8 @@ import java.io.IOException;
 
 import android.content.Context;
 import android.util.Log;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 
 /**
@@ -76,8 +76,11 @@ public final class EpisodePersistence {
     public static void delete(Episode episode) {
         cancelDownload(episode);
 
-        File file = new File(episode.getFilePath());
-        file.delete();
+        if (episode.getFilePath() != null) {
+            File file = new File(episode.getFilePath());
+            file.delete();
+            episode.setFilePath(null);
+        }
     }
 
     private static DetlefDownloadManager getDownloadManager() {
