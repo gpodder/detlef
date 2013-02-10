@@ -26,6 +26,7 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import at.ac.tuwien.detlef.db.CachingEpisodeDAO;
 import at.ac.tuwien.detlef.db.CachingPodcastDAO;
+import at.ac.tuwien.detlef.db.DatabaseHelper;
 import at.ac.tuwien.detlef.db.EpisodeActionDAO;
 import at.ac.tuwien.detlef.db.EpisodeActionDAOImpl;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
@@ -56,6 +57,7 @@ public class Singletons {
 
     private static Singletons dependencyAssistant = null;
 
+    private DatabaseHelper databaseHelper = null;
     private DetlefDownloadManager downloadManager = null;
     private GPodderSync gPodderSync = null;
     private PodcastDAO podcastDAO = null;
@@ -63,6 +65,12 @@ public class Singletons {
     private EpisodeActionDAO episodeActionDAO = null;
     private PlaylistDAO playlistDAO = null;
 
+    public DatabaseHelper getDatabaseHelper() {
+        if (databaseHelper == null) {
+            databaseHelper = new DatabaseHelper(Detlef.getAppContext());
+        }
+        return databaseHelper;
+    }
     /**
      * Lazy initialization to both improve performance and avoid issues getting the
      * application context in unit tests.

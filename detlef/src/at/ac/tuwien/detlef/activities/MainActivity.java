@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.support.v4.app.DialogFragment;
@@ -281,6 +282,11 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onDestroy() {
         progressDialog.dismiss();
+
+        /* Close our database connection. */
+
+        SQLiteDatabase db = Singletons.i().getDatabaseHelper().getWritableDatabase();
+        db.close();
 
         super.onDestroy();
     }

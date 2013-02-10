@@ -41,14 +41,11 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
     private final DatabaseHelper dbHelper;
 
     public EpisodeActionDAOImpl(Context context) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            dbHelper = new DatabaseHelper(context);
+        dbHelper = Singletons.i().getDatabaseHelper();
 
-            /* Take care of any pending database upgrades. */
+        /* Take care of any pending database upgrades. */
 
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.close();
-        }
+        dbHelper.getWritableDatabase();
     }
 
     @Override
@@ -57,54 +54,51 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
             return false;
         }
 
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = null;
-            try {
-                db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = null;
+        try {
+            db = dbHelper.getWritableDatabase();
 
-                ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_ACTION,
-                           episodeAction.getActionString());
-                values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_EPISODE_ID,
-                           episodeAction.getEpisode());
-                values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_PODCAST, episodeAction.getPodcast()
-                           .getId());
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_ACTION,
+                       episodeAction.getActionString());
+            values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_EPISODE_ID,
+                       episodeAction.getEpisode());
+            values.put(DatabaseHelper.COLUMN_EPISODE_ACTION_PODCAST, episodeAction.getPodcast()
+                       .getId());
 
-                db.beginTransaction();
+            db.beginTransaction();
 
-                long id = db.insert(DatabaseHelper.TABLE_EPISODE_ACTION, null, values);
-                if (id == -1) {
-                    throw new SQLiteException("Episode action insert failed");
-                }
+            long id = db.insert(DatabaseHelper.TABLE_EPISODE_ACTION, null, values);
+            if (id == -1) {
+                throw new SQLiteException("Episode action insert failed");
+            }
 
-                if (episodeAction.getAction() == Episode.ActionState.PLAY) {
-                    values = new ContentValues();
-                    values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_ID, id);
-                    values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_STARTED,
-                               episodeAction.getStarted());
-                    values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_POSITION,
-                               episodeAction.getPosition());
-                    values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_TOTAL,
-                               episodeAction.getTotal());
+            if (episodeAction.getAction() == Episode.ActionState.PLAY) {
+                values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_ID, id);
+                values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_STARTED,
+                           episodeAction.getStarted());
+                values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_POSITION,
+                           episodeAction.getPosition());
+                values.put(DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_TOTAL,
+                           episodeAction.getTotal());
 
-                    if (db.insert(DatabaseHelper.TABLE_EPISODE_PLAY_ACTION, null, values) == -1) {
-                        throw new SQLiteException("Episode play action insert failed");
-                    }
-                }
-
-                db.setTransactionSuccessful();
-            } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
-                return false;
-            } finally {
-                if ((db != null) && db.isOpen()) {
-                    db.endTransaction();
-                    db.close();
+                if (db.insert(DatabaseHelper.TABLE_EPISODE_PLAY_ACTION, null, values) == -1) {
+                    throw new SQLiteException("Episode play action insert failed");
                 }
             }
 
-            return true;
+            db.setTransactionSuccessful();
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
+            return false;
+        } finally {
+            if ((db != null) && db.isOpen()) {
+                db.endTransaction();
+            }
         }
+
+        return true;
     }
 
     private static final String QUERY_ALL_EPISODE_ACTIONS = String.format("select "
@@ -130,78 +124,69 @@ public class EpisodeActionDAOImpl implements EpisodeActionDAO {
 
     @Override
     public List<RemoteEpisodeAction> getAllEpisodeActions() {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            List<RemoteEpisodeAction> episodeActions = new LinkedList<RemoteEpisodeAction>();
+        List<RemoteEpisodeAction> episodeActions = new LinkedList<RemoteEpisodeAction>();
 
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor c = db.rawQuery(QUERY_ALL_EPISODE_ACTIONS, null);
-            DeviceId devId =
-                Singletons.i().getGpodderSettings().getDeviceId();
-            if (devId == null) {
-                return episodeActions;
-            }
-
-            if (c.moveToFirst()) {
-                do {
-                    RemoteEpisodeAction a = new RemoteEpisodeAction(
-                        c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ACTION_ID)),
-                        c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_URL)),
-                        c.getString(c.getColumnIndex(
-                                        DatabaseHelper.COLUMN_EPISODE_ACTION_EPISODE_ID)),
-                        c.getString(c.getColumnIndex(
-                                        DatabaseHelper.COLUMN_EPISODE_ACTION_ACTION)),
-                        devId.toString(),
-                        c.getString(c.getColumnIndex(
-                                        DatabaseHelper.COLUMN_EPISODE_ACTION_TIMESTAMP)),
-                        null, null, null);
-
-                    if (a.action.equals(Episode.ActionState.PLAY.toString().toLowerCase())) {
-                        a.started = c.getInt(c.getColumnIndex(
-                                                 DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_STARTED));
-                        a.position = c.getInt(c.getColumnIndex(
-                                                  DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_POSITION));
-                        a.total = c.getInt(c.getColumnIndex(
-                                               DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_TOTAL));
-                    }
-
-                    episodeActions.add(a);
-                } while (c.moveToNext());
-            }
-
-            c.close();
-            db.close();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor c = db.rawQuery(QUERY_ALL_EPISODE_ACTIONS, null);
+        DeviceId devId =
+            Singletons.i().getGpodderSettings().getDeviceId();
+        if (devId == null) {
             return episodeActions;
         }
+
+        if (c.moveToFirst()) {
+            do {
+                RemoteEpisodeAction a = new RemoteEpisodeAction(
+                    c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_EPISODE_ACTION_ID)),
+                    c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_URL)),
+                    c.getString(c.getColumnIndex(
+                                    DatabaseHelper.COLUMN_EPISODE_ACTION_EPISODE_ID)),
+                    c.getString(c.getColumnIndex(
+                                    DatabaseHelper.COLUMN_EPISODE_ACTION_ACTION)),
+                    devId.toString(),
+                    c.getString(c.getColumnIndex(
+                                    DatabaseHelper.COLUMN_EPISODE_ACTION_TIMESTAMP)),
+                    null, null, null);
+
+                if (a.action.equals(Episode.ActionState.PLAY.toString().toLowerCase())) {
+                    a.started = c.getInt(c.getColumnIndex(
+                                             DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_STARTED));
+                    a.position = c.getInt(c.getColumnIndex(
+                                              DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_POSITION));
+                    a.total = c.getInt(c.getColumnIndex(
+                                           DatabaseHelper.COLUMN_EPISODE_PLAY_ACTION_TOTAL));
+                }
+
+                episodeActions.add(a);
+            } while (c.moveToNext());
+        }
+
+        c.close();
+        return episodeActions;
     }
 
     @Override
     public boolean flushEpisodeActions(List<RemoteEpisodeAction> episodeActions) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = null;
+        SQLiteDatabase db = null;
 
-            try {
-                db = dbHelper.getWritableDatabase();
-                String selection = DatabaseHelper.COLUMN_EPISODE_ACTION_ID + " = ?";
+        try {
+            db = dbHelper.getWritableDatabase();
+            String selection = DatabaseHelper.COLUMN_EPISODE_ACTION_ID + " = ?";
 
-                for (RemoteEpisodeAction a : episodeActions) {
-                    String[] selectionArgs = {
-                        String.valueOf(a.getId())
-                    };
+            for (RemoteEpisodeAction a : episodeActions) {
+                String[] selectionArgs = {
+                    String.valueOf(a.getId())
+                };
 
-                    db.delete(DatabaseHelper.TABLE_EPISODE_ACTION, selection, selectionArgs);
-                }
-
-            } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
-                return false;
-            } finally {
-                if (db != null && db.isOpen()) {
-                    db.close();
-                }
+                db.delete(DatabaseHelper.TABLE_EPISODE_ACTION, selection, selectionArgs);
             }
 
-            return true;
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
+            return false;
         }
+
+        return true;
     }
 
 }

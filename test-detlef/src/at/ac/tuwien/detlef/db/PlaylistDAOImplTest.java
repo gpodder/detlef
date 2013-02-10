@@ -107,7 +107,7 @@ public class PlaylistDAOImplTest extends AndroidTestCase {
     }
 
     private void clearDatabase() {
-        DatabaseHelper dbHelper = new DatabaseHelper(this.mContext);
+        DatabaseHelper dbHelper = Singletons.i().getDatabaseHelper();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete(DatabaseHelper.TABLE_PLAYLIST, null, null);
         db.close();

@@ -44,14 +44,11 @@ public class SimplePodcastDAO implements PodcastDAO {
         new HashSet<PodcastDAO.OnPodcastChangeListener>();
 
     public SimplePodcastDAO(Context context) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            dbHelper = new DatabaseHelper(context);
+        dbHelper = Singletons.i().getDatabaseHelper();
 
-            /* Take care of any pending database upgrades. */
+        /* Take care of any pending database upgrades. */
 
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.close();
-        }
+        dbHelper.getWritableDatabase();
     }
 
     /**
@@ -60,50 +57,47 @@ public class SimplePodcastDAO implements PodcastDAO {
      */
     @Override
     public Podcast insertPodcast(Podcast podcast) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = null;
-            try {
-                db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = null;
+        try {
+            db = dbHelper.getWritableDatabase();
 
-                ContentValues values = toContentValues(podcast);
+            ContentValues values = toContentValues(podcast);
 
-                db.beginTransaction();
+            db.beginTransaction();
 
-                long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
-                if (id == -1) {
-                    throw new SQLiteException("Failed to insert podcast");
+            long id = db.insert(DatabaseHelper.TABLE_PODCAST, null, values);
+            if (id == -1) {
+                throw new SQLiteException("Failed to insert podcast");
+            }
+
+            if (podcast.isLocalAdd()) {
+                values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_PODCAST_ADD_ID, id);
+                if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_ADD, null, values) == -1) {
+                    throw new SQLiteException("Failed to insert podcast into local add table");
                 }
+            }
 
-                if (podcast.isLocalAdd()) {
-                    values = new ContentValues();
-                    values.put(DatabaseHelper.COLUMN_PODCAST_ADD_ID, id);
-                    if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_ADD, null, values) == -1) {
-                        throw new SQLiteException("Failed to insert podcast into local add table");
-                    }
+            if (podcast.isLocalDel()) {
+                values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_PODCAST_DEL_ID, id);
+                if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, null, values) == -1) {
+                    throw new SQLiteException("Failed to insert podcast into local del table");
                 }
+            }
 
-                if (podcast.isLocalDel()) {
-                    values = new ContentValues();
-                    values.put(DatabaseHelper.COLUMN_PODCAST_DEL_ID, id);
-                    if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, null, values) == -1) {
-                        throw new SQLiteException("Failed to insert podcast into local del table");
-                    }
-                }
+            podcast.setId(id);
+            notifyListenersAdded(podcast);
 
-                podcast.setId(id);
-                notifyListenersAdded(podcast);
+            db.setTransactionSuccessful();
 
-                db.setTransactionSuccessful();
-
-                return podcast;
-            } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
-                return null;
-            } finally {
-                if (db != null && db.isOpen()) {
-                    db.endTransaction();
-                    db.close();
-                }
+            return podcast;
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
+            return null;
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.endTransaction();
             }
         }
     }
@@ -149,32 +143,25 @@ public class SimplePodcastDAO implements PodcastDAO {
      */
     @Override
     public int deletePodcast(Podcast podcast) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            PodcastPersistence.delete(podcast);
+        PodcastPersistence.delete(podcast);
 
-            SQLiteDatabase db = null;
-            try {
-                deleteEpisodesForPodcast(podcast);
+        SQLiteDatabase db = null;
+        try {
+            deleteEpisodesForPodcast(podcast);
 
-                db = dbHelper.getWritableDatabase();
-                String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-                String[] selectionArgs = {
-                    String.valueOf(podcast.getId())
-                };
+            db = dbHelper.getWritableDatabase();
+            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+            String[] selectionArgs = {
+                String.valueOf(podcast.getId())
+            };
 
-                int ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
-                db.close();
+            int ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
 
-                notifyListenersDeleted(podcast);
-                return ret;
-            } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
-                return -1;
-            } finally {
-                if (db != null && db.isOpen()) {
-                    db.close();
-                }
-            }
+            notifyListenersDeleted(podcast);
+            return ret;
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
+            return -1;
         }
     }
 
@@ -233,23 +220,20 @@ public class SimplePodcastDAO implements PodcastDAO {
 
     @Override
     public int update(Podcast podcast) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            ContentValues values = toContentValues(podcast);
+        ContentValues values = toContentValues(podcast);
 
-            String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
-            String[] selectionArgs = {
-                String.valueOf(podcast.getId())
-            };
+        String selection = DatabaseHelper.COLUMN_PODCAST_ID + " = ?";
+        String[] selectionArgs = {
+            String.valueOf(podcast.getId())
+        };
 
-            int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
-            db.close();
+        int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
 
-            notifyListenersChanged(podcast);
+        notifyListenersChanged(podcast);
 
-            return ret;
-        }
+        return ret;
     }
 
     private static final String QUERY_PODCAST_BY_ID = String.format("%s where %s = ?;",
@@ -262,25 +246,22 @@ public class SimplePodcastDAO implements PodcastDAO {
      */
     @Override
     public Podcast getPodcastById(long podcastId) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-            String[] selectionArgs = {
-                String.valueOf(podcastId)
-            };
+        String[] selectionArgs = {
+            String.valueOf(podcastId)
+        };
 
-            Cursor c = db.rawQuery(QUERY_PODCAST_BY_ID, selectionArgs);
+        Cursor c = db.rawQuery(QUERY_PODCAST_BY_ID, selectionArgs);
 
-            Podcast p = null;
-            if (c.moveToFirst()) {
-                do {
-                    p = getPodcast(c);
-                } while (c.moveToNext());
-            }
-            c.close();
-            db.close();
-            return p;
+        Podcast p = null;
+        if (c.moveToFirst()) {
+            do {
+                p = getPodcast(c);
+            } while (c.moveToNext());
         }
+        c.close();
+        return p;
     }
 
     @Override
@@ -317,25 +298,22 @@ public class SimplePodcastDAO implements PodcastDAO {
 
     @Override
     public Podcast getPodcastByUrl(String url) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-            String[] selectionArgs = {
-                String.valueOf(url)
-            };
+        String[] selectionArgs = {
+            String.valueOf(url)
+        };
 
-            Cursor c = db.rawQuery(QUERY_PODCAST_BY_URL, selectionArgs);
+        Cursor c = db.rawQuery(QUERY_PODCAST_BY_URL, selectionArgs);
 
-            Podcast p = null;
-            if (c.moveToFirst()) {
-                do {
-                    p = getPodcast(c);
-                } while (c.moveToNext());
-            }
-            c.close();
-            db.close();
-            return p;
+        Podcast p = null;
+        if (c.moveToFirst()) {
+            do {
+                p = getPodcast(c);
+            } while (c.moveToNext());
         }
+        c.close();
+        return p;
     }
 
     @Override
@@ -343,46 +321,38 @@ public class SimplePodcastDAO implements PodcastDAO {
 
         int numOfDeletedPocasts = 0;
 
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            for (Podcast podcast : getAllPodcasts()) {
-                deletePodcast(podcast);
-                numOfDeletedPocasts++;
-            }
+        for (Podcast podcast : getAllPodcasts()) {
+            deletePodcast(podcast);
+            numOfDeletedPocasts++;
         }
         return numOfDeletedPocasts;
     }
 
     @Override
     public boolean localDeletePodcast(Podcast podcast) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            if (podcast.isLocalAdd()) {
-                return deletePodcast(podcast) > 0;
+        if (podcast.isLocalAdd()) {
+            return deletePodcast(podcast) > 0;
+        }
+
+        SQLiteDatabase db = null;
+        try {
+            deleteEpisodesForPodcast(podcast);
+
+            db = dbHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_PODCAST_DEL_ID, podcast.getId());
+
+            if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, null, values) == -1) {
+                throw new SQLiteException("Failed to insert podcast into local del table");
             }
 
-            SQLiteDatabase db = null;
-            try {
-                deleteEpisodesForPodcast(podcast);
+            podcast.setLocalDel(true);
+            notifyListenersDeleted(podcast);
 
-                db = dbHelper.getWritableDatabase();
-
-                ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_PODCAST_DEL_ID, podcast.getId());
-
-                if (db.insert(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, null, values) == -1) {
-                    throw new SQLiteException("Failed to insert podcast into local del table");
-                }
-
-                podcast.setLocalDel(true);
-                notifyListenersDeleted(podcast);
-
-                return true;
-            } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
-            } finally {
-                if (db != null && db.isOpen()) {
-                    db.close();
-                }
-            }
+            return true;
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
         }
 
         return false;
@@ -390,63 +360,57 @@ public class SimplePodcastDAO implements PodcastDAO {
 
     @Override
     public boolean setRemotePodcast(Podcast podcast) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            SQLiteDatabase db = null;
-            try {
+        SQLiteDatabase db = null;
+        try {
 
-                db = dbHelper.getWritableDatabase();
-                db.beginTransaction();
+            db = dbHelper.getWritableDatabase();
+            db.beginTransaction();
 
-                String selection = DatabaseHelper.COLUMN_PODCAST_ADD_ID + " = ?";
-                String[] selectionArgs = {
-                    String.valueOf(podcast.getId())
-                };
+            String selection = DatabaseHelper.COLUMN_PODCAST_ADD_ID + " = ?";
+            String[] selectionArgs = {
+                String.valueOf(podcast.getId())
+            };
 
-                db.delete(DatabaseHelper.TABLE_PODCAST_LOCAL_ADD, selection, selectionArgs);
+            db.delete(DatabaseHelper.TABLE_PODCAST_LOCAL_ADD, selection, selectionArgs);
 
-                selection = DatabaseHelper.COLUMN_PODCAST_DEL_ID + " = ?";
-                selectionArgs[0] = String.valueOf(podcast.getId());
+            selection = DatabaseHelper.COLUMN_PODCAST_DEL_ID + " = ?";
+            selectionArgs[0] = String.valueOf(podcast.getId());
 
-                db.delete(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, selection, selectionArgs);
+            db.delete(DatabaseHelper.TABLE_PODCAST_LOCAL_DEL, selection, selectionArgs);
 
-                podcast.setLocalAdd(false);
-                podcast.setLocalDel(false);
+            podcast.setLocalAdd(false);
+            podcast.setLocalDel(false);
 
-                notifyListenersChanged(podcast);
+            notifyListenersChanged(podcast);
 
-                db.setTransactionSuccessful();
+            db.setTransactionSuccessful();
 
-                return true;
-            } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
-            } finally {
-                if (db != null && db.isOpen()) {
-                    db.endTransaction();
-                    db.close();
-                }
+            return true;
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.endTransaction();
             }
-
-            return false;
         }
+
+        return false;
     }
 
     private List<Podcast> getPodcastsForQuery(String query) {
-        synchronized (DatabaseHelper.BIG_FRIGGIN_LOCK) {
-            List<Podcast> podcasts = new ArrayList<Podcast>();
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
+        List<Podcast> podcasts = new ArrayList<Podcast>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-            Cursor c = db.rawQuery(query, null);
+        Cursor c = db.rawQuery(query, null);
 
-            if (c.moveToFirst()) {
-                do {
-                    Podcast p = getPodcast(c);
-                    podcasts.add(p);
-                } while (c.moveToNext());
-            }
-            c.close();
-            db.close();
-            return podcasts;
+        if (c.moveToFirst()) {
+            do {
+                Podcast p = getPodcast(c);
+                podcasts.add(p);
+            } while (c.moveToNext());
         }
+        c.close();
+        return podcasts;
     }
 
     private static final String QUERY_NON_DELETED_PODCASTS = String.format(

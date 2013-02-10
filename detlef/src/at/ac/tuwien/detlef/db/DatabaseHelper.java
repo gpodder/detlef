@@ -28,11 +28,9 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
 /**
  * DatabaseHelper class which creates the database.
  */
-class DatabaseHelper extends SQLiteOpenHelper {
+public class DatabaseHelper extends SQLiteOpenHelper {
 
     static final int VERSION = 15;
-
-    static final Object BIG_FRIGGIN_LOCK = new Object();
 
     public static final String DB_NAME = "detlefDB";
 
@@ -205,7 +203,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
                       + "( %s DESC );",
                       EPISODE_RELEASED_INDEX, TABLE_EPISODE, COLUMN_EPISODE_RELEASED);
 
-    DatabaseHelper(Context context) {
+    public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
     }
 
