@@ -154,7 +154,7 @@ public class PodcastDAOImplTest extends AndroidTestCase {
         p1.setLocalAdd(true);
         pdao.insertPodcast(p1);
         assertTrue(pdao.getNonDeletedPodcasts().contains(p1));
-        assertTrue(pdao.getLocallyAddedPodcasts().contains(p1));
+        assertTrue(pdao.getLocallyAddedPodcasts().get(0).getId() == p1.getId());
         p1.setLocalAdd(false);
     }
 

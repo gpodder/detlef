@@ -129,6 +129,8 @@ public interface PodcastDAO {
 
     /**
      * Returns all podcasts are marked as locally added.
+     * This method is NOT guaranteed to return the same object
+     * for the same podcast when called repeatedly.
      *
      * @return A list of podcast objects.
      */
@@ -136,6 +138,8 @@ public interface PodcastDAO {
 
     /**
      * Returns all podcasts are marked as locally deleted.
+     * This method is NOT guaranteed to return the same object
+     * for the same podcast when called repeatedly.
      *
      * @return A list of podcast objects.
      */
