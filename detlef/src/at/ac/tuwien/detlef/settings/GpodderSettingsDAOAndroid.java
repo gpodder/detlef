@@ -21,7 +21,6 @@ package at.ac.tuwien.detlef.settings;
 import java.util.HashMap;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
 
@@ -31,8 +30,6 @@ import at.ac.tuwien.detlef.domain.EpisodeSortChoice;
  * @author moe
  */
 public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
-
-    private static final String TAG = GpodderSettingsDAOAndroid.class.getCanonicalName();
 
     private HashMap<String, Object> dependencies = new HashMap<String, Object>();
 
@@ -103,13 +100,11 @@ public class GpodderSettingsDAOAndroid implements GpodderSettingsDAO {
      */
     @Override
     public GpodderSettingsDAO setDependencies(HashMap<String, Object> pDependencies) {
-        Log.d(TAG, this + "setDependencies: " + pDependencies);
         dependencies = pDependencies;
         return this;
     }
 
     private SharedPreferences getSharedPreferences() {
-        Log.d(TAG, this + "getSharedPreferences: " + dependencies);
         return (SharedPreferences) dependencies.get("sharedPreferences");
     }
 
