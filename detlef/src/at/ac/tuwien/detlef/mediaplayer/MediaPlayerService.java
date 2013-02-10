@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
@@ -68,6 +70,8 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     private Episode manualEpisode;
     private TelephonyManager telManager;
     private int bufferState;
+
+    private BroadcastReceiver mediaBroadcastReceiver;
 
     /**
      * Binder that allows local classes to communicate with the service.
@@ -125,14 +129,31 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     @Override
     public void onCreate() {
         super.onCreate();
+
+        /* The HEADSET_PLUG broadcast intent is sent with the
+         * Intent.FLAG_RECEIVER_REGISTERED_ONLY flag, which means
+         * we need to register the broadcast receiver here instead of
+         * letting the manifest handle it for us. Additionally,
+         * since we need a reference to the Service, it's most convenient to
+         * handle the receiver construction here. */
+
+        mediaBroadcastReceiver = new MediaBroadcastReceiver(this);
+        IntentFilter receiverFilter = new IntentFilter();
+        receiverFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        receiverFilter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        registerReceiver(mediaBroadcastReceiver, receiverFilter);
+
         playlistDAO = Singletons.i().getPlaylistDAO();
         playlistItems = playlistDAO.getNonCachedEpisodes();
         playlistDAO.addPlaylistChangedListener(this);
+
         episodeDAO = Singletons.i().getEpisodeDAO();
         episodeDAO.addEpisodeChangedListener(this);
+
         if ((nextEpisode == null) && !playlistItems.isEmpty()) {
             nextEpisode = playlistItems.get(0);
         }
+
         telManager = (TelephonyManager) Detlef.getAppContext().getSystemService(
                          Context.TELEPHONY_SERVICE);
         telManager.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -200,10 +221,14 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
     @Override
     public void onDestroy() {
         running = false;
+
         mediaPlayerPrepared = false;
         mediaPlayer.reset();
         mediaPlayer.release();
         mediaPlayer = null;
+
+        unregisterReceiver(mediaBroadcastReceiver);
+
         super.onDestroy();
     }
 
