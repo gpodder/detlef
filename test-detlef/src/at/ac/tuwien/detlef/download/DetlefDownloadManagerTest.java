@@ -22,18 +22,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
+import android.app.DownloadManager;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Environment;
 import android.test.AndroidTestCase;
 import at.ac.tuwien.detlef.Singletons;
-import at.ac.tuwien.detlef.domain.Episode;
-import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.download.DetlefDownloadManager.DownloadCallback;
 
 public class DetlefDownloadManagerTest extends AndroidTestCase {
 
     private static final String url = "http://ondrahosek.dyndns.org/detlef.txt";
     private static final String podcastTitle = "TestPodcast";
-    private static final String episodeTitle = "Detlef Episode 3";
     private static final String path = String.format("%s/%s", podcastTitle, new File(url).getName());
 
     private DetlefDownloadManager mgr;
@@ -43,7 +43,6 @@ public class DetlefDownloadManagerTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Singletons.setDependencyAssistant(new MockDependencyAssistant());
         mgr = Singletons.i().getDownloadManager(mContext);
 
         getFile().delete();
@@ -59,14 +58,7 @@ public class DetlefDownloadManagerTest extends AndroidTestCase {
     }
 
     public void testEnqueue() throws IOException, InterruptedException {
-        Podcast p = new Podcast();
-        p.setTitle(podcastTitle);
-
-        Episode e = new Episode(p);
-        e.setTitle(episodeTitle);
-        e.setUrl(url);
-
-        mgr.enqueue(e);
+        mgr.enqueue(new MockDownloadCallback());
         semaphore.acquire();
 
         File file = getFile();
@@ -74,29 +66,61 @@ public class DetlefDownloadManagerTest extends AndroidTestCase {
         assertTrue(file.isFile());
     }
 
-    private class MockDependencyAssistant extends Singletons {
-
-        DetlefDownloadManager ddm = null;
+    private class MockDownloadCallback implements DownloadCallback {
 
         @Override
-        public DetlefDownloadManager getDownloadManager(Context context) {
-            if (ddm == null) {
-                ddm = new MockDetlefDownloadManager(context);
-            }
-            return ddm;
-        }
-    }
-
-    private class MockDetlefDownloadManager extends DetlefDownloadManager {
-
-        public MockDetlefDownloadManager(Context context) {
-            super(context);
+        public void onStart(String path) {
+            /* Nothing. */
         }
 
         @Override
-        public void downloadComplete(long id) {
-            super.downloadComplete(id);
+        public void onCancel() {
+            /* Nothing. */
+        }
+
+        @Override
+        public void onError() {
+            /* Nothing. */
+        }
+
+        @Override
+        public void onFinish(Uri uri) {
             semaphore.release();
+        }
+
+        @Override
+        public Uri getSource() {
+            return Uri.parse(url);
+        }
+
+        @Override
+        public String getDestinationDirType() {
+            return Environment.DIRECTORY_MUSIC;
+        }
+
+        @Override
+        public String getDestinationSubPath() {
+            return String.format("%s/%s", podcastTitle, new File(url).getName());
+        }
+
+        @Override
+        public String getTitle() {
+            return podcastTitle;
+        }
+
+        @Override
+        public String getDescription() {
+            return String.format("Downloading episode from podcast %s", podcastTitle);
+        }
+
+        @Override
+        public int getNotificationVisibility() {
+            return DownloadManager.Request.VISIBILITY_VISIBLE;
+        }
+
+        @Override
+        public Object getObject() {
+            return null;
         }
     }
 }
