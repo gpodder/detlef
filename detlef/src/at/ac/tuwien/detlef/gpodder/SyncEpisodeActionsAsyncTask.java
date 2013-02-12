@@ -62,8 +62,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
         Context context = Detlef.getAppContext();
 
         /* Retrieve settings.*/
-        GpodderSettings gps = Singletons.i()
-                              .getGpodderSettings(Detlef.getAppContext());
+        GpodderSettings gps = Singletons.i().getGpodderSettings();
 
         DeviceId devId = gps.getDeviceId();
         if (devId == null) {
@@ -97,9 +96,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
              * episode actions. So we use the timestamp returned by the upload. */
             gps.setLastEpisodeActionUpdate(since);
 
-            Singletons.i()
-            .getGpodderSettingsDAO(Detlef.getAppContext())
-            .writeSettings(gps);
+            Singletons.i().getGpodderSettingsDAO().writeSettings(gps);
 
         } catch (AuthenticationException e) {
             sendError(e.getLocalizedMessage());

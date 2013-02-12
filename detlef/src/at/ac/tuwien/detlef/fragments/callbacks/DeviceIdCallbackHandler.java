@@ -48,13 +48,9 @@ public class DeviceIdCallbackHandler
     public void handleSuccess(DeviceId deviceId) {
 
 
-        GpodderSettings settings = Singletons
-                                   .i()
-                                   .getGpodderSettings(getRcv().getActivity());
+        GpodderSettings settings = Singletons.i().getGpodderSettings();
         settings.setDeviceId(deviceId);
-        Singletons.i()
-        .getGpodderSettingsDAO(getRcv().getActivity())
-        .writeSettings(settings);
+        Singletons.i().getGpodderSettingsDAO().writeSettings(settings);
 
         getRcv().getActivity().runOnUiThread(
         new Runnable() {

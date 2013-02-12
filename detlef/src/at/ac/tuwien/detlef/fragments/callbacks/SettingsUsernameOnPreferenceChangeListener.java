@@ -73,14 +73,8 @@ public class SettingsUsernameOnPreferenceChangeListener
     }
 
     private void updateSettings(String newUsername) {
-        Singletons.i()
-        .getGpodderSettingsDAO(getSender().getActivity())
-        .writeSettings(
-            getSettings()
-            .setUsername(newUsername)
-            .setAccountVerified(false)
-            .setDeviceId(null)
-        );
+        Singletons.i().getGpodderSettingsDAO().writeSettings(
+            getSettings().setUsername(newUsername).setAccountVerified(false).setDeviceId(null));
     }
 
     private GpodderSettings getSettings() {

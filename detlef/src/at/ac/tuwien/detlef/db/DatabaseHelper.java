@@ -21,7 +21,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -241,13 +240,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_EPISODE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCAST);
 
-            GpodderSettings settings = Singletons.i()
-                                       .getGpodderSettings(
-                                           Detlef.getAppContext());
+            GpodderSettings settings = Singletons.i().getGpodderSettings();
             settings.setLastUpdate(0);
-            Singletons.i()
-            .getGpodderSettingsDAO(Detlef.getAppContext())
-            .writeSettings(settings);
+            Singletons.i().getGpodderSettingsDAO().writeSettings(settings);
             onCreate(db);
         }
     }

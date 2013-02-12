@@ -33,9 +33,9 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.widget.Toast;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
 import at.ac.tuwien.detlef.domain.DeviceId;
@@ -202,11 +202,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 preference.setSummary(maskPassword((String) newValue));
-                Singletons.i()
-                .getGpodderSettingsDAO(getActivity())
-                .writeSettings(
-                    getSettings().setPassword((String) newValue)
-                );
+                Singletons.i().getGpodderSettingsDAO() .writeSettings(
+                    getSettings().setPassword((String) newValue));
                 setUpTestConnectionButton();
                 return true;
             }
@@ -244,7 +241,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
     }
 
     private GpodderSettings getSettings() {
-        return Singletons.i().getGpodderSettings(getActivity());
+        return Singletons.i().getGpodderSettings();
     }
 
     public void setUpTestConnectionButton() {

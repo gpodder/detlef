@@ -180,10 +180,7 @@ public class MainActivity extends FragmentActivity
 
     private void startSettingsActivityIfNoDeviceIdSet() {
 
-        if (Singletons
-                .i()
-                .getGpodderSettings(this)
-                .getDeviceId() != null) {
+        if (Singletons.i().getGpodderSettings().getDeviceId() != null) {
             return;
         }
 
@@ -553,8 +550,7 @@ public class MainActivity extends FragmentActivity
      */
     private void onRefreshPressed(Bundle pBundle) {
 
-        GpodderSettings settings = Singletons.i()
-                                   .getGpodderSettings(this);
+        GpodderSettings settings = Singletons.i().getGpodderSettings();
 
         if (settings.getDeviceId() == null) {
             Toast.makeText(this, R.string.set_up_account_first, Toast.LENGTH_SHORT);

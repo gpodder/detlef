@@ -42,9 +42,7 @@ public class ConnectionTestCallback
         final GpodderSettings settings = Singletons.i()
                                          .getGpodderSettings();
 
-        Singletons.i()
-        .getGpodderSettingsDAO(getRcv().getActivity())
-        .writeSettings(settings.setAccountVerified(true));
+        Singletons.i().getGpodderSettingsDAO().writeSettings(settings.setAccountVerified(true));
 
         getRcv().enableNextStepButton();
 

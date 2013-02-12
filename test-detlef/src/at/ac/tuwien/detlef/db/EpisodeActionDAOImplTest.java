@@ -63,7 +63,7 @@ public class EpisodeActionDAOImplTest extends AndroidTestCase {
         GpodderSettings settings = Singletons.i().getGpodderSettings();
         DeviceId devId = new DeviceId("mydevice");
         settings.setDeviceId(devId);
-        Singletons.i().getGpodderSettingsDAO(mContext).writeSettings(settings);
+        Singletons.i().getGpodderSettingsDAO().writeSettings(settings);
 
         dao = Singletons.i().getEpisodeActionDAO();
 

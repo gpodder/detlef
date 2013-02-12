@@ -68,8 +68,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         boolean success = false;
 
         /* Retrieve settings. */
-        GpodderSettings gps = Singletons.i()
-                              .getGpodderSettings(Detlef.getAppContext());
+        GpodderSettings gps = Singletons.i().getGpodderSettings();
 
         DeviceId id = gps.getDeviceId();
         if (id == null) {
@@ -135,9 +134,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             /* Update last changed timestamp. */
             gps.setLastUpdate(remoteChanges.getTimestamp());
 
-            Singletons.i()
-            .getGpodderSettingsDAO(Detlef.getAppContext())
-            .writeSettings(gps);
+            Singletons.i().getGpodderSettingsDAO().writeSettings(gps);
 
             success = true;
         } catch (HttpResponseException e) {

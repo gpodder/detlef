@@ -21,7 +21,6 @@ package at.ac.tuwien.detlef;
 
 import java.util.HashMap;
 
-import android.app.Activity;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import at.ac.tuwien.detlef.db.CachingEpisodeDAO;
@@ -96,30 +95,13 @@ public class Singletons {
     }
 
     /**
-     * @param context The {@link Context}. This is needed in order to be able to
-     *            access Android's system settings. Usually this will be the
-     *            current {@link Activity}.
-     * @return Gets the {@link GpodderSettings gpodder.net settings instance}
-     *         that provides the user name, password and device name settings.
-     */
-    public GpodderSettings getGpodderSettings(Context context) {
-        return getGpodderSettingsDAO(context).getSettings();
-    }
-
-    /**
      * The DAO class that is used to store and retrieve {@link GpodderSettings}.
-     * @param context The current {@link Context}.
      * @return an implementation of {@link GpodderSettingsDAO}.
-     * @throws IllegalArgumentException In case context is null.
      */
-    public GpodderSettingsDAO getGpodderSettingsDAO(Context context) {
-        if (context == null) {
-            throw new IllegalArgumentException("context must not be null");
-        }
-
+    public GpodderSettingsDAO getGpodderSettingsDAO() {
         HashMap<String, Object> dependencies = new HashMap<String, Object>();
         dependencies.put("sharedPreferences",
-                         PreferenceManager.getDefaultSharedPreferences(context));
+                         PreferenceManager.getDefaultSharedPreferences(Detlef.getAppContext()));
 
         GpodderSettingsDAO gpodderSettingsDAO = new GpodderSettingsDAOAndroid();
         gpodderSettingsDAO.setDependencies(dependencies);
@@ -169,7 +151,7 @@ public class Singletons {
      * @return {@value Singletons#getGpodderSettings(Context)}
      */
     public GpodderSettings getGpodderSettings() {
-        return getGpodderSettings(Detlef.getAppContext());
+        return getGpodderSettingsDAO().getSettings();
     }
 
     public DeviceIdGenerator getDeviceIdGenerator() {

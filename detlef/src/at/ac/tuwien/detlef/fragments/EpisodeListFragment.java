@@ -229,7 +229,7 @@ public class EpisodeListFragment extends ListFragment
     }
 
     private void restoreSortOrder() {
-        settings = Singletons.i().getGpodderSettings(getActivity());
+        settings = Singletons.i().getGpodderSettings();
         this.sortEpisodeList(settings.getSortChoice(), settings.isAscending());
     }
 

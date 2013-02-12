@@ -69,8 +69,7 @@ public class PullFeedAsyncTask implements Runnable {
         long since = podcast.getLastUpdate();
 
         /* Retrieve settings.*/
-        GpodderSettings gps = Singletons.i()
-                              .getGpodderSettings(Detlef.getAppContext());
+        GpodderSettings gps = Singletons.i().getGpodderSettings();
 
         String username = gps.getUsername();
         String password = gps.getPassword();

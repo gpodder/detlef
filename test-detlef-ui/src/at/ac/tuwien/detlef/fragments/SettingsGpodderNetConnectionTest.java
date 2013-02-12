@@ -161,7 +161,7 @@ public class SettingsGpodderNetConnectionTest extends
 
         String expected = String.format(
                               getActivity().getText(R.string.connectiontest_successful).toString(),
-                              dependencyAssistant.getGpodderSettings(getActivity()).getUsername()
+                              dependencyAssistant.getGpodderSettings().getUsername()
                           );
 
         assertTrue(
@@ -271,8 +271,7 @@ public class SettingsGpodderNetConnectionTest extends
         }
 
         @Override
-        public GpodderSettings getGpodderSettings(Context context) {
-
+        public GpodderSettings getGpodderSettings() {
             return new MockGpodderSettings();
         }
 
