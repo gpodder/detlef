@@ -379,37 +379,32 @@ public class EpisodeListFragment extends ListFragment
      * @param ascending Whether to sort ascending/descending
      */
     public void sortEpisodeList(EpisodeSortChoice choice, final boolean ascending) {
+        Comparator<Episode> comparator = null;
+
         switch (choice) {
         case Podcast:
-            adapter.sort(new Comparator<Episode>() {
+            comparator = new Comparator<Episode>() {
                 @Override
-                public int compare(Episode e1, Episode e2) {
-                    if (ascending) {
-                        return Long.valueOf(e1.getPodcast().getId()).compareTo(
-                                   Long.valueOf(e2.getPodcast().getId()));
-                    }
-                    return Long.valueOf(e2.getPodcast().getId()).compareTo(
-                               Long.valueOf(e1.getPodcast().getId()));
+                public int compare(Episode lhs, Episode rhs) {
+                    int diff = (int)(rhs.getPodcast().getId() - lhs.getPodcast().getId());
+                    return (ascending ? -1 * diff : diff);
                 }
-            });
+            };
             break;
         case ReleaseDate:
-            adapter.sort(new Comparator<Episode>() {
+            comparator = new Comparator<Episode>() {
                 @Override
-                public int compare(Episode e1, Episode e2) {
-                    if (ascending) {
-                        return Long.valueOf(e1.getReleased()).compareTo(
-                                   Long.valueOf(e2.getReleased()));
-                    }
-                    return Long.valueOf(e2.getReleased()).compareTo(
-                               Long.valueOf(e1.getReleased()));
+                public int compare(Episode lhs, Episode rhs) {
+                    int diff = (int)(rhs.getReleased() - lhs.getReleased());
+                    return (ascending ? -1 * diff : diff);
                 }
-            });
+            };
             break;
         default:
             throw new IllegalArgumentException("Illegal sort choice");
         }
 
+        adapter.sort(comparator);
         updateEpisodeList();
     }
 
