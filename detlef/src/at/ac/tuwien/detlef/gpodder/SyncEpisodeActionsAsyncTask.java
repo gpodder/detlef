@@ -154,7 +154,6 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
                 }
                 ep.setActionState(newActionState);
                 int ret = dao.update(ep);
-                Log.i(TAG, "asdf: " + ret);
             }
         }
 
