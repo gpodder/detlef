@@ -107,7 +107,7 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
          */
 
         if (logoIcon == null) {
-            Log.w(TAG, "Removing reference to invalid logo path");
+            Log.w(TAG, String.format("Removing reference to invalid logo path %s", logoFilePath));
             logoFilePath = null;
             return defaultLogo;
         }
