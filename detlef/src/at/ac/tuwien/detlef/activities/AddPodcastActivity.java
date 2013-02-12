@@ -532,10 +532,4 @@ public class AddPodcastActivity extends Activity {
             return v;
         }
     }
-
-    // @Override
-    // public boolean onCreateOptionsMenu(Menu pMenu) {
-    // getMenuInflater().inflate(R.menu.activity_add_podcast, pMenu);
-    // return true;
-    // }
 }
