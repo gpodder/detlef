@@ -1,7 +1,6 @@
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -97,14 +96,11 @@ public class CachingEpisodeDAO implements EpisodeDAO {
 
     @Override
     public Episode getEpisodeByUrlOrGuid(String url, String guid) {
-        Collection<Episode> es;
         synchronized (cache) {
-            es = cache.values();
-        }
-
-        for (Episode e : es) {
-            if (e.getUrl().equals(url) || e.getGuid().equals(guid)) {
-                return e;
+            for (Episode e : cache.values()) {
+                if (e.getUrl().equals(url) || e.getGuid().equals(guid)) {
+                    return e;
+                }
             }
         }
 

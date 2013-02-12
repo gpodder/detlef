@@ -1,7 +1,6 @@
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,14 +32,11 @@ public class CachingPodcastDAO implements PodcastDAO {
 
     @Override
     public Podcast getPodcastByUrl(String url) {
-        Collection<Podcast> ps;
         synchronized (cache) {
-            ps = cache.values();
-        }
-
-        for (Podcast p : ps) {
-            if (p.getUrl().equals(url)) {
-                return p;
+            for (Podcast p : cache.values()) {
+                if (p.getUrl().equals(url)) {
+                    return p;
+                }
             }
         }
 
