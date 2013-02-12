@@ -17,7 +17,9 @@
 
 package at.ac.tuwien.detlef.adapters;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -26,6 +28,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Html.ImageGetter;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,8 +48,8 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
     private static final String TAG = EpisodeListAdapter.class.getName();
 
     private final List<Episode> episodes;
-
     private final PlaylistDAO playlistDAO;
+    private final FromHtmlCache fromHtmlCache = new FromHtmlCache();
 
     public EpisodeListAdapter(Context context, int textViewResourceId,
                               List<Episode> episodes) {
@@ -78,7 +81,7 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
         toggleEpisodeReadAppearance(episode, title, episodeListMarkRead);
 
         TextView description = (TextView) v.findViewById(R.id.episodeListDescription);
-        description.setText(Html.fromHtml(episode.getDescription(), new DummyImageGetter(), null));
+        description.setText(fromHtmlCache.get(episode.getDescription()));
 
         TextView size = (TextView) v.findViewById(R.id.episodeListDlSize);
         size.setText(byteToHumanSize(episode.getFileSize()));
@@ -162,17 +165,34 @@ public class EpisodeListAdapter extends ArrayAdapter<Episode> {
     }
 
     /**
-     * This image getter returns an invisible image, effectively stripping
-     * the html of images.
+     * Html.fromHtml() calls seem to generate lots of objects and cause loads of
+     * slowdown and garbage collection. Cache results to avoid this situation.
      */
-    private static class DummyImageGetter implements ImageGetter {
+    private static class FromHtmlCache {
 
+        private final Map<String, Spanned> cache = new HashMap<String, Spanned>();
+        private final ImageGetter dummyImageGetter;
         private static final Drawable NOTHING = new ColorDrawable(android.R.color.transparent);
 
-        @Override
-        public Drawable getDrawable(String source) {
-            return NOTHING;
+        public FromHtmlCache() {
+            dummyImageGetter = new ImageGetter() {
+
+                @Override
+                public Drawable getDrawable(String source) {
+                    return NOTHING;
+                }
+            };
         }
 
+        public Spanned get(String in) {
+            Spanned out = cache.get(in);
+
+            if (out == null) {
+                out = Html.fromHtml(in, dummyImageGetter, null);
+                cache.put(in, out);
+            }
+
+            return out;
+        }
     }
 }
