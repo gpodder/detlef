@@ -429,12 +429,15 @@ public class EpisodeListFragment extends ListFragment
     public void refresh() {
         adapter.clear();
 
+        List<Episode> filteredEpisodes = new ArrayList<Episode>();
         for (Episode e : model.getAll()) {
             if (filter.filter(e)) {
                 continue;
             }
-            adapter.add(e);
+            filteredEpisodes.add(e);
         }
+        adapter.addAll(filteredEpisodes);
+
         restoreSortOrder();
         updateEpisodeList();
 
