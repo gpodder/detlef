@@ -407,7 +407,9 @@ public class EpisodeListFragment extends ListFragment
             });
             break;
         default:
+            throw new IllegalArgumentException("Illegal sort choice");
         }
+
         updateEpisodeList();
     }
 
