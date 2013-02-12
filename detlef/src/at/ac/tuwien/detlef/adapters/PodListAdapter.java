@@ -49,34 +49,29 @@ public class PodListAdapter extends ArrayAdapter<Podcast> {
         Podcast podcast = podcasts.get(position);
 
         if (v == null) {
-            LayoutInflater vi = (LayoutInflater) this.getContext()
+            LayoutInflater vi = (LayoutInflater)this.getContext()
                                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.pod_list_layout, null);
         }
 
         v.setTag(podcast);
 
-        TextView lastUpdate = (TextView) v.findViewById(R.id.podListLastUpdate);
-        if (lastUpdate != null) {
-            long timestampInMs = podcast.getLastUpdate() * MS_PER_SEC;
+        TextView lastUpdate = (TextView)v.findViewById(R.id.podListLastUpdate);
+        long timestampInMs = podcast.getLastUpdate() * MS_PER_SEC;
 
-            if (timestampInMs == 0) {
-                lastUpdate.setText(""); /* No known last update. */
-            } else {
-                Date date = new Date(timestampInMs);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                lastUpdate.setText(sdf.format(date));
-            }
-
-            lastUpdate.setCompoundDrawablesWithIntrinsicBounds(null,
-                    podcast.getLogoIcon(), null, null);
+        if (timestampInMs == 0) {
+            lastUpdate.setText(""); /* No known last update. */
+        } else {
+            Date date = new Date(timestampInMs);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            lastUpdate.setText(sdf.format(date));
         }
 
-        TextView podcastName = (TextView) v
-                               .findViewById(R.id.podListPodcastName);
-        if (podcast != null) {
-            podcastName.setText(podcast.getTitle());
-        }
+        lastUpdate.setCompoundDrawablesWithIntrinsicBounds(null,
+                podcast.getLogoIcon(), null, null);
+
+        TextView podcastName = (TextView)v.findViewById(R.id.podListPodcastName);
+        podcastName.setText(podcast.getTitle());
 
         return v;
 
