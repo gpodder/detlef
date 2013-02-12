@@ -17,6 +17,7 @@
 
 package at.ac.tuwien.detlef.fragments;
 
+import java.util.Comparator;
 import java.util.List;
 
 import android.app.Activity;
@@ -32,8 +33,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
-import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.R;
+import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
@@ -85,6 +86,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
         /* And set up the adapter. */
 
         adapter = new PodListAdapter(getActivity(), R.layout.pod_list_layout, podlist);
+        sortByTitle();
         setListAdapter(adapter);
 
         /* Then create the 'All Podcasts' header. */
@@ -195,6 +197,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
             @Override
             public void run() {
                 model.addPodcast(podcast);
+                sortByTitle();
             }
         });
 
@@ -216,6 +219,15 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
             }
         });
         updatePodcastList();
+    }
+
+    private void sortByTitle() {
+        adapter.sort(new Comparator<Podcast>() {
+            @Override
+            public int compare(Podcast p1, Podcast p2) {
+                return p1.getTitle().compareToIgnoreCase(p2.getTitle());
+            }
+        });
     }
 
     /**
