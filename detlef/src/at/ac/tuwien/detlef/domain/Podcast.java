@@ -24,6 +24,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
 
@@ -40,19 +41,24 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
      */
     private static final long serialVersionUID = 1L;
 
-    private static int ICON_WIDTH = 80;
-    private static int ICON_HEIGHT = 80;
+    private static final Drawable defaultLogo =
+        Detlef.getAppContext().getResources().getDrawable(R.drawable.ic_feed_icon);
+
+    private static final String TAG = Podcast.class.getName();
+
+    private static final int ICON_WIDTH = 80;
+    private static final int ICON_HEIGHT = 80;
 
     private long id;
     private String title;
     private String description;
     private String logoUrl;
     private String logoFilePath;
+    private transient Drawable logoIcon;
     private String url;
     private long lastUpdate;
     private boolean localAdd;
     private boolean localDel;
-    private transient Drawable logoIcon;
 
     public Podcast() {
         /* Deliberately empty. */
@@ -71,15 +77,15 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
      * @return
      */
     private Drawable createLogoIcon() {
-        if (getLogoFilePath() != null) {
-            Drawable image = Drawable.createFromPath(getLogoFilePath());
-            if (image != null) {
-                Bitmap d = ((BitmapDrawable) image).getBitmap();
-                Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, ICON_WIDTH, ICON_HEIGHT, false);
-                return new BitmapDrawable(Detlef.getAppContext().getResources(), bitmapOrig);
-            }
+        Drawable image = Drawable.createFromPath(getLogoFilePath());
+        if (image == null) {
+            return null;
         }
-        return Detlef.getAppContext().getResources().getDrawable(R.drawable.ic_feed_icon);
+
+        Bitmap d = ((BitmapDrawable)image).getBitmap();
+        Bitmap bitmapOrig = Bitmap.createScaledBitmap(d, ICON_WIDTH, ICON_HEIGHT, false);
+
+        return new BitmapDrawable(Detlef.getAppContext().getResources(), bitmapOrig);
     }
 
     /**
@@ -88,9 +94,24 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
      * @return
      */
     public Drawable getLogoIcon() {
+        if (logoFilePath == null) {
+            return defaultLogo;
+        }
+
         if (logoIcon == null) {
             logoIcon = createLogoIcon();
         }
+
+        /* If logoIcon is still null, we are storing an invalid logo path.
+         * TODO: This does not update the DB.
+         */
+
+        if (logoIcon == null) {
+            Log.w(TAG, "Removing reference to invalid logo path");
+            logoFilePath = null;
+            return defaultLogo;
+        }
+
         return logoIcon;
     }
 
