@@ -445,11 +445,10 @@ public class AddPodcastActivity extends Activity {
                         return;
                     }
 
-                    getRcv().resultAdapter.removeWithUrl(result);
-                    getRcv().suggestionsAdapter.removeWithUrl(result);
-                    getRcv().toplistAdapter.removeWithUrl(result);
-                    Toast.makeText(getRcv(), "Add podcast from URL succeeded", Toast.LENGTH_SHORT)
-                    .show();
+                    getRcv().resultAdapter.removePodcast(result);
+                    getRcv().suggestionsAdapter.removePodcast(result);
+                    getRcv().toplistAdapter.removePodcast(result);
+                    Toast.makeText(getRcv(), "Add podcast from URL succeeded", Toast.LENGTH_SHORT).show();
                     podcastsAdded++;
                     getRcv().setBusy(false);
                 }
@@ -491,19 +490,14 @@ public class AddPodcastActivity extends Activity {
             return podcasts;
         }
 
-        public void removeWithUrl(Podcast p) {
+        public void removePodcast(Podcast p) {
             Iterator<Podcast> it = podcasts.iterator();
             while (it.hasNext()) {
-                Podcast p2 = it.next();
-                if (p2.getUrl().equals(p.getUrl())) {
+                Podcast q = it.next();
+                if (q.getUrl().equals(p.getUrl())) {
                     it.remove();
                 }
             }
-            notifyDataSetChanged();
-        }
-
-        public void removePodcast(Podcast p) {
-            podcasts.remove(p);
             notifyDataSetChanged();
         }
 
