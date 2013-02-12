@@ -44,28 +44,19 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
     private static int ICON_HEIGHT = 80;
 
     private long id;
-
-    private String title = "This is a podcast title";
-
-    private String description = "This is a podcast description.";
-
-    private String logoUrl = "www.dummyurl.com";
-
+    private String title;
+    private String description;
+    private String logoUrl;
     private String logoFilePath;
-
-    private String url = "www.dummyurl.com";
-
+    private String url;
     private long lastUpdate;
-
     private boolean localAdd;
-
     private boolean localDel;
-
     private transient Drawable logoIcon;
-
     private int logoDownloaded = 0;
 
     public Podcast() {
+        /* Deliberately empty. */
     }
 
     public Podcast(IPodcast p) {
