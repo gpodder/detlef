@@ -53,7 +53,6 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
     private boolean localAdd;
     private boolean localDel;
     private transient Drawable logoIcon;
-    private int logoDownloaded = 0;
 
     public Podcast() {
         /* Deliberately empty. */
@@ -197,17 +196,6 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
                                    localAdd, localDel
                                });
     }
-
-    public int getLogoDownloaded() {
-        return logoDownloaded;
-    }
-
-    public Podcast setLogoDownloaded(int logoDownloadedIn) {
-        this.logoDownloaded = logoDownloadedIn;
-        logoIcon = createLogoIcon();
-        return this;
-    }
-
     public static final Parcelable.Creator<Podcast> CREATOR = new Creator<Podcast>() {
         @Override
         public Podcast[] newArray(int size) {

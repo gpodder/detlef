@@ -42,6 +42,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PODCAST_LOGO_URL = "logoUrl";
     public static final String COLUMN_PODCAST_LAST_UPDATE = "lastUpdate";
     public static final String COLUMN_PODCAST_LOGO_FILE_PATH = "logoFilePath";
+
+    @Deprecated
     public static final String COLUMN_PODCAST_LOGO_FILE_DOWNLOADED = "logoFileDownloaded";
 
     /* Episode table. */

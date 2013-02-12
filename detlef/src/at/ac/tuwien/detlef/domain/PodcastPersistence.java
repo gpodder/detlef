@@ -125,7 +125,6 @@ public final class PodcastPersistence {
 
         @Override
         public void onFinish(Uri uri) {
-            podcast.setLogoDownloaded(1);
             podcast.setLogoFilePath(uri.getPath());
             Singletons.i().getPodcastDAO().update(podcast);
         }

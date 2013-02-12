@@ -109,8 +109,6 @@ public class SimplePodcastDAO implements PodcastDAO {
         values.put(DatabaseHelper.COLUMN_PODCAST_URL, podcast.getUrl());
         values.put(DatabaseHelper.COLUMN_PODCAST_TITLE, podcast.getTitle());
         values.put(DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE, podcast.getLastUpdate());
-        values.put(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
-                   podcast.getLogoDownloaded());
 
         if (podcast.getLogoUrl() == null) {
             values.putNull(DatabaseHelper.COLUMN_PODCAST_LOGO_URL);
@@ -175,7 +173,6 @@ public class SimplePodcastDAO implements PodcastDAO {
             + "p.%s,"
             + "p.%s,"
             + "p.%s,"
-            + "p.%s,"
             + "a.%s,d.%s "
             + "from %s p "
             + "left outer join (select %s as addID,'add' as %s from %s) a on %s = addID "
@@ -183,7 +180,6 @@ public class SimplePodcastDAO implements PodcastDAO {
             DatabaseHelper.COLUMN_PODCAST_ID, DatabaseHelper.COLUMN_PODCAST_URL,
             DatabaseHelper.COLUMN_PODCAST_TITLE, DatabaseHelper.COLUMN_PODCAST_DESCRIPTION,
             DatabaseHelper.COLUMN_PODCAST_LOGO_URL,
-            DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED,
             DatabaseHelper.COLUMN_PODCAST_LAST_UPDATE,
             DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH,
             QUERY_COLUMN_PODCAST_LOCAL_ADD, QUERY_COLUMN_PODCAST_LOCAL_DEL,
@@ -203,6 +199,7 @@ public class SimplePodcastDAO implements PodcastDAO {
 
     private Podcast getPodcast(Cursor c) {
         Podcast p = new Podcast();
+
         p.setId(c.getLong(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_ID)));
         p.setUrl(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_URL)));
         p.setTitle(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_TITLE)));
@@ -212,8 +209,6 @@ public class SimplePodcastDAO implements PodcastDAO {
         p.setLogoFilePath(c.getString(c.getColumnIndex(DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_PATH)));
         p.setLocalAdd(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_ADD)));
         p.setLocalDel(!c.isNull(c.getColumnIndex(QUERY_COLUMN_PODCAST_LOCAL_DEL)));
-        p.setLogoDownloaded(c.getInt(c.getColumnIndex(
-                                         DatabaseHelper.COLUMN_PODCAST_LOGO_FILE_DOWNLOADED)));
 
         return p;
     }
