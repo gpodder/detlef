@@ -290,9 +290,9 @@ public class EpisodeListFragment extends ListFragment
             @Override
             public void run() {
                 model.removeEpisode(episode);
+                adapter.notifyDataSetChanged();
             }
         });
-        filterByPodcastOnUiThread();
     }
 
     /**
