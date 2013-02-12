@@ -98,7 +98,13 @@ public class CachingEpisodeDAO implements EpisodeDAO {
     public Episode getEpisodeByUrlOrGuid(String url, String guid) {
         synchronized (cache) {
             for (Episode e : cache.values()) {
-                if (e.getUrl().equals(url) || e.getGuid().equals(guid)) {
+                String otherUrl = e.getUrl();
+                if (otherUrl != null && otherUrl.equals(url)) {
+                    return e;
+                }
+
+                String otherGuid = e.getGuid();
+                if (otherGuid != null && otherGuid.equals(guid)) {
                     return e;
                 }
             }
