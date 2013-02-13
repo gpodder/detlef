@@ -25,7 +25,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
+import android.os.ResultReceiver;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -47,6 +49,7 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
+import at.ac.tuwien.detlef.gpodder.PodderIntentService;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 
 import com.commonsware.cwac.merge.MergeAdapter;
@@ -153,8 +156,27 @@ public class AddPodcastActivity extends Activity {
             GPodderSync gps = Singletons.i().getGPodderSync();
             gps.addGetToplistJob(trh);
             gps.addGetSuggestionsJob(urh);
+
+            startService(new Intent(this, PodderIntentService.class).putExtra(
+                             PodderIntentService.EXTRA_REQUEST,
+                             PodderIntentService.REQUEST_TOPLIST).putExtra(
+                             PodderIntentService.EXTRA_RESULT_RECEIVER,
+                             new TestResultReceiver(new Handler())));
         }
         podcastsAdded = 0;
+    }
+
+    private static class TestResultReceiver extends ResultReceiver {
+
+        public TestResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onReceiveResult(int resultCode, Bundle resultData) {
+            Log.d(TAG, "Got result back!");
+        }
+
     }
 
     @Override

@@ -80,6 +80,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="at.ac.tuwien.detlef.activities.MainActivity" />
         </activity>
+        <service android:name=".gpodder.PodderIntentService"></service>
     </application>
 
 </manifest>
