@@ -154,27 +154,38 @@ public class AddPodcastActivity extends Activity {
 
         if (savedInstanceState == null) {
             GPodderSync gps = Singletons.i().getGPodderSync();
-            gps.addGetToplistJob(trh);
             gps.addGetSuggestionsJob(urh);
 
             startService(new Intent(this, PodderIntentService.class).putExtra(
                              PodderIntentService.EXTRA_REQUEST,
                              PodderIntentService.REQUEST_TOPLIST).putExtra(
                              PodderIntentService.EXTRA_RESULT_RECEIVER,
-                             new TestResultReceiver(new Handler())));
+                             new ToplistResultReceiver(new Handler(), this)));
         }
         podcastsAdded = 0;
     }
 
-    private static class TestResultReceiver extends ResultReceiver {
+    private static class ToplistResultReceiver extends ResultReceiver {
 
-        public TestResultReceiver(Handler handler) {
+        final AddPodcastActivity activity;
+
+        public ToplistResultReceiver(Handler handler, AddPodcastActivity activity) {
             super(handler);
+            this.activity = activity;
         }
 
         @Override
         public void onReceiveResult(int resultCode, Bundle resultData) {
-            Log.d(TAG, "Got result back!");
+            if (resultCode == PodderIntentService.RESULT_FAILURE) {
+                Toast.makeText(activity, "Toplist retrieval failed", Toast.LENGTH_SHORT);
+                return;
+            }
+
+            List<Podcast> podcasts = resultData.getParcelableArrayList(PodderIntentService.EXTRA_RESULT_PODCAST_LIST);
+            Log.d(TAG, String.format("Got results back: %s", podcasts));
+
+            activity.toplistAdapter.clear();
+            activity.toplistAdapter.addAll(filterSubscribedPodcasts(podcasts));
         }
 
     }
