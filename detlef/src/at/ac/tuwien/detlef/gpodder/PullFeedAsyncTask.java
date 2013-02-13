@@ -38,6 +38,7 @@ import com.dragontek.mygpoclient.feeds.FeedServiceClient;
 import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
 import com.dragontek.mygpoclient.feeds.IFeed;
 import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
+import com.google.gson.JsonParseException;
 
 /**
  * A Runnable to fetch feed changes. It should be started in its own Thread
@@ -99,6 +100,8 @@ public class PullFeedAsyncTask implements Runnable {
 
             PodcastDAO pdao = Singletons.i().getPodcastDAO();
             pdao.update(podcast);
+        } catch (JsonParseException e) {
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
         } catch (ClientProtocolException e) {
             sendError(GENERIC_ERROR, e.getLocalizedMessage());
             return;
