@@ -553,7 +553,7 @@ public class MainActivity extends FragmentActivity
         GpodderSettings settings = Singletons.i().getGpodderSettings();
 
         if (settings.getDeviceId() == null) {
-            Toast.makeText(this, R.string.set_up_account_first, Toast.LENGTH_SHORT);
+            Toast.makeText(this, R.string.set_up_account_first, Toast.LENGTH_SHORT).show();
             Log.w(TAG, "Could not refresh due to missing account information");
             return;
         }
