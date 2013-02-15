@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
 import android.app.DownloadManager;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
 import android.test.AndroidTestCase;
