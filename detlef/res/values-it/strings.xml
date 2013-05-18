@@ -48,10 +48,10 @@
     <string name="test_connection">Verifica impostazioni account</string>
     <string name="tap_here_to_test_connection">Tocca qui per verificare le impostazioni del tuo account gpodder.net</string>
     <string name="checking_your_account_settings_title">Verifica impostazioni account in corso...</string>
-    <string name="checking_your_account_settings_summary">Trattieni il respiro e incrocia le dita - le impostazioni dell'account vengono controllate su gpodder.net</string>
+    <string name="checking_your_account_settings_summary">Trattieni il respiro e incrocia le dita - le impostazioni dell\'account vengono controllate su gpodder.net</string>
     <string name="connectiontest_successful">Ciao %1$s! Le impostazioni del tuo account sono valide.</string>
     <string name="connectiontest_unsuccessful">Il tuo nome utente e/o la tua password non possono essere verificati.</string>
-    <string name="connectiontest_error">Accidenti - Impossibile connettersi a gpodder.net. Controlla le impostazioni internet, rilassarti un po' e riprova.</string>
+    <string name="connectiontest_error">Accidenti - Impossibile connettersi a gpodder.net. Controlla le impostazioni internet, rilassarti un po\' e riprova.</string>
     <string name="operation_failed">Operazione non riuscita</string>
     <string name="refresh_successful">Aggiornamento completato</string>
     <string name="refreshing_feed_list">Aggiornamento della lista dei feed in corso...</string>
@@ -83,7 +83,7 @@
     <string name="you_can_setup_your_account_later">Non preoccuparti, puoi configurare il tuo account in qualsiasi momento nelle impostazioni.</string>
     <string name="you_can_refresh_your_podcasts_later">Non preoccuparti, puoi aggiornare i tuoi podcast in qualsiasi momento in seguito.</string>
     <string name="setup_finished">Urrà! La configurazione è terminata. Ora puoi usare Detlef.</string>
-    <string name="cannot_download_episode">Non è possibile scaricare l'episodio! Assicurati di avere una connessione a internet e una scheda SD inserita!</string>
+    <string name="cannot_download_episode">Non è possibile scaricare l\'episodio! Assicurati di avere una connessione a internet e una scheda SD inserita!</string>
     <string name="suggestions">Suggerimenti</string>
     <string name="storage_location">Percorso di archiviazione</string>
     <string name="storage_settings">Impostazioni archiviazione</string>
@@ -96,10 +96,10 @@
     <string name="register_device_summary">Registrazione del tuo dispositivo su gpodder.net in corso</string>
     <string name="warning">Attenzione</string>
     <string name="you_are_changing_verified_username">Stai cambiando le impostazioni di un account che è già stato verificato. Se cambi le tue impostazioni dovrai verificare nuovamente e sincronizzare le tue nuove impostazioni in seguito.</string>
-    <string name="account_is_verified">L'account è verificato.</string>
+    <string name="account_is_verified">L\'account è verificato.</string>
     <string name="enter_username_password_first">Prima inserisci nome utente e password!</string>
     <string name="device_registered_with_id">Dispositivo registrato con id %1$s.</string>
-    <string name="verify_settings_first">Prima verifica le impostazioni dell'account.</string>
+    <string name="verify_settings_first">Prima verifica le impostazioni dell\'account.</string>
     <string name="set_up_account_first">Prima imposta il tuo account!</string>
     <string name="no_podcasts">Nessun podcast, premi \'Aggiungi nuovo podcast\' per iniziare!</string>
     <string name="logo">logo</string>
@@ -133,6 +133,6 @@
     <string name="episode_removed_from_playlist">%s rimosso dalla scaletta</string>
     <string name="episode_marked_as_read">Episodio segnato come letto: %s</string>
     <string name="episode_marked_as_new">Episodio segnato come nuovo: %s</string>
-    <string name="episode_marked_failure">Non è possibile cambiare lo stato per l'episodio %s</string>
+    <string name="episode_marked_failure">Non è possibile cambiare lo stato per l\'episodio %s</string>
     <string name="error_occured">Si è verificato un errore.</string>
 </resources>
