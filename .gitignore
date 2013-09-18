@@ -1,7 +1,6 @@
+.checkstyle
 .metadata/
 bin/
-gen/
 build/
+gen/
 local.properties
-detlef/hs_err_*.log
-.checkstyle
