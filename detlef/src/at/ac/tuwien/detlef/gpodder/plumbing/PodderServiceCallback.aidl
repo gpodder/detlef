@@ -9,11 +9,6 @@ import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
  */
 oneway interface PodderServiceCallback
 {
-    /**
-     * The service is still alive.
-     * @param reqId The request ID you passed.
-     */
-    void heartbeatSucceeded(int reqId);
 
     /**
      * The authentication check succeeded.

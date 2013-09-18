@@ -78,11 +78,6 @@ public class SynchronousSyncResponder extends SyncResponder {
     }
 
     @Override
-    public void heartbeatSucceeded(int reqId) throws RemoteException {
-        // FIXME: currently no external callback
-    }
-
-    @Override
     public void downloadPodcastListSucceeded(int reqId, List<String> podcasts)
     throws RemoteException {
         final StringListResultHandler<?> slrh =

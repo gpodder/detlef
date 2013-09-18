@@ -116,22 +116,6 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void heartbeatSucceeded(final int reqId) throws RemoteException {
-        queuedMessages.add(new CachedCallback() {
-            @Override
-            public boolean resend(PodderServiceCallback cb) {
-                try {
-                    cb.heartbeatSucceeded(reqId);
-                } catch (RemoteException rex) {
-                    return false;
-                }
-                return true;
-            }
-        });
-        resendUnlessPassive();
-    }
-
-    @Override
     public void authCheckSucceeded(final int reqId) throws RemoteException {
         queuedMessages.add(new CachedCallback() {
             @Override

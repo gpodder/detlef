@@ -201,12 +201,6 @@ public class PodderService extends Service {
         }
 
         @Override
-        public void deliverOutstandingToMe(PodderServiceCallback cb) throws RemoteException {
-            theMagicalProxy.setTarget(cb);
-            theMagicalProxy.resend();
-        }
-
-        @Override
         public void authCheck(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
         throws RemoteException {
             Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
@@ -253,13 +247,6 @@ public class PodderService extends Service {
                 theMagicalProxy.downloadPodcastListFailed(reqId, ErrorCode.UNKNOWN_ERROR,
                         "something went wrong");
             }
-        }
-
-        @Override
-        public void heartbeat(PodderServiceCallback cb, int reqId) throws RemoteException {
-            Log.d(TAG, "heartbeat() on " + Thread.currentThread().getId());
-            theMagicalProxy.setTarget(cb);
-            theMagicalProxy.heartbeatSucceeded(reqId);
         }
 
         @Override
