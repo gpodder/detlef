@@ -83,22 +83,6 @@ oneway interface PodderServiceCallback
     void searchPodcastsFailed(int reqId, int errCode, in String errStr);
 
     /**
-     * The toplist retrieval has completed successfully.
-     * @param reqId The request ID you passed.
-     * @param results The matching podcasts.
-     */
-    void getToplistSucceeded(int reqId, in List<Podcast> results);
-
-    /**
-     * The toplist retrieval has failed.
-     * @param reqId The request ID you passed.
-     * @param errCode Error code (see {@link PodderService.ErrorCode}) describing the type of
-     * error that occurred.
-     * @param errStr Error message describing the error that occurred.
-     */
-    void getToplistFailed(int reqId, int errCode, in String errStr);
-
-    /**
      * The suggestion retrieval has completed successfully.
      * @param reqId The request ID you passed.
      * @param results The matching podcasts.

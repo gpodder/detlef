@@ -268,40 +268,6 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void getToplistSucceeded(final int reqId, final List<Podcast> results)
-    throws RemoteException {
-        queuedMessages.add(new CachedCallback() {
-            @Override
-            public boolean resend(PodderServiceCallback cb) {
-                try {
-                    cb.getToplistSucceeded(reqId, results);
-                } catch (RemoteException rex) {
-                    return false;
-                }
-                return true;
-            }
-        });
-        resendUnlessPassive();
-    }
-
-    @Override
-    public void getToplistFailed(final int reqId, final int errCode, final String errStr)
-    throws RemoteException {
-        queuedMessages.add(new CachedCallback() {
-            @Override
-            public boolean resend(PodderServiceCallback cb) {
-                try {
-                    cb.getToplistFailed(reqId, errCode, errStr);
-                } catch (RemoteException rex) {
-                    return false;
-                }
-                return true;
-            }
-        });
-        resendUnlessPassive();
-    }
-
-    @Override
     public void getSuggestionsSucceeded(final int reqId, final List<Podcast> results)
     throws RemoteException {
         queuedMessages.add(new CachedCallback() {

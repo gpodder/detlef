@@ -322,31 +322,6 @@ public class PodderService extends Service {
         }
 
         @Override
-        public void getToplist(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
-        throws RemoteException {
-            Log.d(TAG, "getToplist() on " + Thread.currentThread().getId());
-            theMagicalProxy.setTarget(cb);
-
-            PublicClient pc = new PublicClient(cinfo.getHostname());
-
-            try {
-                List<IPodcast> ipodcasts = pc.getToplist();
-
-                /* Convert the list into podcasts. */
-
-                List<Podcast> podcasts = new ArrayList<Podcast>(ipodcasts.size());
-                for (IPodcast ip : ipodcasts) {
-                    podcasts.add(new Podcast(ip));
-                }
-
-                theMagicalProxy.getToplistSucceeded(reqId, podcasts);
-            } catch (IOException e) {
-                Log.w(TAG, "getToplist IOException: " + e.getMessage());
-                theMagicalProxy.getToplistFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
-            }
-        }
-
-        @Override
         public void getSuggestions(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
         throws RemoteException {
             Log.d(TAG, "getSuggestions() on " + Thread.currentThread().getId());

@@ -247,27 +247,6 @@ public class GPodderSync {
         });
     }
 
-    public void addGetToplistJob(final PodcastListResultHandler<?> handler) {
-        Log.d(TAG, "addGetToplistJob");
-
-        requestDispatcher.execute(new Runnable() {
-            @Override
-            public void run() {
-                assureBind();
-
-                int reqCode = nextReqCode();
-                try {
-                    iface.getToplist(syncResponder, reqCode, clientInfo);
-                    appendReq(reqCode, handler);
-                } catch (RemoteException rex) {
-                    handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                                          rex.toString());
-                    iface = null;
-                }
-            }
-        });
-    }
-
     public void addGetSuggestionsJob(final PodcastListResultHandler<?> handler) {
         Log.d(TAG, "addGetSuggestionsJob");
 

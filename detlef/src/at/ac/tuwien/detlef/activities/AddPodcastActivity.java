@@ -70,7 +70,6 @@ public class AddPodcastActivity extends Activity {
     private PodcastListAdapter toplistAdapter;
 
     private static final SearchResultHandler srh = new SearchResultHandler();
-    private static final ToplistResultHandler trh = new ToplistResultHandler();
     private static final SuggestionResultHandler urh = new SuggestionResultHandler();
     private static final AddPodcastResultHandler prh = new AddPodcastResultHandler();
 
@@ -193,7 +192,6 @@ public class AddPodcastActivity extends Activity {
     @Override
     protected void onPause() {
         srh.unregisterReceiver();
-        trh.unregisterReceiver();
         urh.unregisterReceiver();
         prh.unregisterReceiver();
 
@@ -205,7 +203,6 @@ public class AddPodcastActivity extends Activity {
         super.onResume();
 
         srh.registerReceiver(this);
-        trh.registerReceiver(this);
         urh.registerReceiver(this);
         prh.registerReceiver(this);
     }
@@ -375,32 +372,6 @@ public class AddPodcastActivity extends Activity {
                 }
             });
         }
-    }
-
-    private static class ToplistResultHandler extends ReliableResultHandler<AddPodcastActivity>
-        implements PodcastListResultHandler<AddPodcastActivity> {
-
-        @Override
-        public void handleFailure(int errCode, String errStr) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getRcv(), "Toplist retrieval failed", Toast.LENGTH_SHORT);
-                }
-            });
-        }
-
-        @Override
-        public void handleSuccess(final List<Podcast> result) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getRcv().toplistAdapter.clear();
-                    getRcv().toplistAdapter.addAll(filterSubscribedPodcasts(result));
-                }
-            });
-        }
-
     }
 
     private static class SuggestionResultHandler extends ReliableResultHandler<AddPodcastActivity>
