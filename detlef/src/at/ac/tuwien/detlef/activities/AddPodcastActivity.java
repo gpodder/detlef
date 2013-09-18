@@ -179,22 +179,13 @@ public class AddPodcastActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (podcastsAdded > 0) {
-            Intent data = new Intent().putExtra(MainActivity.PODCAST_ADD_REFRESH_FEED_LIST, true);
-            if (getParent() == null) {
-                setResult(Activity.RESULT_OK, data);
-            } else {
-                getParent().setResult(Activity.RESULT_OK, data);
-            }
-            podcastsAdded = 0;
-        } else {
-            Intent data = new Intent().putExtra(MainActivity.PODCAST_ADD_REFRESH_FEED_LIST, true);
-            if (getParent() == null) {
-                setResult(Activity.RESULT_CANCELED, data);
-            } else {
-                getParent().setResult(Activity.RESULT_CANCELED, data);
-            }
-        }
+        final Intent data = new Intent().putExtra(MainActivity.PODCAST_ADD_REFRESH_FEED_LIST, true);
+        final int result = (podcastsAdded > 0) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+        final Activity target = (getParent() == null) ? this : getParent();
+
+        target.setResult(result, data);
+        podcastsAdded = 0;
+
         super.onBackPressed();
     };
 
