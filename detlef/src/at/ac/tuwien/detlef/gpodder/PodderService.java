@@ -191,8 +191,6 @@ public class PodderService extends Service {
     protected static class IpcHandler extends PodderServiceInterface.Stub {
         private static final String TAG = "PodderService.IpcHandler";
 
-        private static final int DEFAULT_SUGGESTIONS_COUNT = 15;
-
         /** Caches calls. */
         private final CachingCallbackProxy theMagicalProxy;
 
@@ -279,64 +277,6 @@ public class PodderService extends Service {
                 Log.w(TAG, "downloadChangesSince IOException: " + e.getMessage());
                 theMagicalProxy.downloadChangesFailed(reqId, ErrorCode.IO_PROBLEM,
                                                       e.getMessage());
-                return;
-            }
-        }
-
-        @Override
-        public void searchPodcasts(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo,
-                                   String query) throws RemoteException {
-            Log.d(TAG, "searchPodcasts() on " + Thread.currentThread().getId());
-            theMagicalProxy.setTarget(cb);
-
-            PublicClient pc = new PublicClient(cinfo.getHostname());
-
-            try {
-                List<IPodcast> ipodcasts = pc.searchPodcast(query);
-
-                /* Convert the list into podcasts. */
-
-                List<Podcast> podcasts = new ArrayList<Podcast>(ipodcasts.size());
-                for (IPodcast ip : ipodcasts) {
-                    podcasts.add(new Podcast(ip));
-                }
-
-                theMagicalProxy.searchPodcastsSucceeded(reqId, podcasts);
-            } catch (IOException e) {
-                Log.w(TAG, "searchPodcasts IOException: " + e.getMessage());
-                theMagicalProxy.searchPodcastsFailed(reqId, ErrorCode.IO_PROBLEM, e.getMessage());
-            }
-        }
-
-        @Override
-        public void getSuggestions(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
-        throws RemoteException {
-            Log.d(TAG, "getSuggestions() on " + Thread.currentThread().getId());
-            theMagicalProxy.setTarget(cb);
-
-            MygPodderClient mpc = new MygPodderClient(
-                cinfo.getUsername(),
-                cinfo.getPassword(),
-                cinfo.getHostname());
-
-            try {
-                List <? extends IPodcast > ipodcasts = mpc.getSuggestions(DEFAULT_SUGGESTIONS_COUNT);
-
-                /* Convert the list into podcasts. */
-
-                List<Podcast> podcasts = new ArrayList<Podcast>(ipodcasts.size());
-                for (IPodcast ip : ipodcasts) {
-                    podcasts.add(new Podcast(ip));
-                }
-
-                theMagicalProxy.getSuggestionsSucceeded(reqId, podcasts);
-            } catch (IOException e) {
-                Log.w(TAG, "getSuggestions IOException: " + e.getMessage());
-                theMagicalProxy.getSuggestionsFailed(reqId, ErrorCode.IO_PROBLEM,
-                                                     e.getMessage());
-            } catch (AuthenticationException e) {
-                theMagicalProxy.getSuggestionsFailed(reqId, ErrorCode.AUTHENTICATION_FAILED,
-                                                     e.getMessage());
                 return;
             }
         }

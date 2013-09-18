@@ -27,7 +27,6 @@ import android.os.RemoteException;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
-import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderService;
 import at.ac.tuwien.detlef.gpodder.PushSubscriptionChangesResultHandler;
@@ -110,24 +109,6 @@ public class SynchronousSyncResponder extends SyncResponder {
             (SubscriptionChangesResultHandler<?>) getGps().getReq(reqId);
         scrh.sendEvent(new SubscriptionChangesResultHandler.SubscriptionChangesSuccessEvent(scrh,
                        chgs));
-        getGps().removeReq(reqId);
-        stoplight.release();
-    }
-
-    @Override
-    public void searchPodcastsSucceeded(int reqId, List<Podcast> results) throws RemoteException {
-        final PodcastListResultHandler<?> plrh =
-            (PodcastListResultHandler<?>) getGps().getReq(reqId);
-        plrh.sendEvent(new PodcastListResultHandler.PodcastListSuccessEvent(plrh, results));
-        getGps().removeReq(reqId);
-        stoplight.release();
-    }
-
-    @Override
-    public void getSuggestionsSucceeded(int reqId, List<Podcast> results) throws RemoteException {
-        final PodcastListResultHandler<?> plrh =
-            (PodcastListResultHandler<?>) getGps().getReq(reqId);
-        plrh.sendEvent(new PodcastListResultHandler.PodcastListSuccessEvent(plrh, results));
         getGps().removeReq(reqId);
         stoplight.release();
     }

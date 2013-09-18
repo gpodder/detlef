@@ -220,55 +220,6 @@ public class GPodderSync {
     }
 
     /**
-     * Requests that the service performs a podcast search job.
-     *
-     * @param handler A handler for callbacks.
-     * @param query The search query.
-     */
-    public void addSearchPodcastsJob(final PodcastListResultHandler<?> handler,
-                                     final String query) {
-        Log.d(TAG, "addSearchPodcastsJob");
-
-        requestDispatcher.execute(new Runnable() {
-            @Override
-            public void run() {
-                assureBind();
-
-                int reqCode = nextReqCode();
-                try {
-                    iface.searchPodcasts(syncResponder, reqCode, clientInfo, query);
-                    appendReq(reqCode, handler);
-                } catch (RemoteException rex) {
-                    handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                                          rex.toString());
-                    iface = null;
-                }
-            }
-        });
-    }
-
-    public void addGetSuggestionsJob(final PodcastListResultHandler<?> handler) {
-        Log.d(TAG, "addGetSuggestionsJob");
-
-        requestDispatcher.execute(new Runnable() {
-            @Override
-            public void run() {
-                assureBind();
-
-                int reqCode = nextReqCode();
-                try {
-                    iface.getSuggestions(syncResponder, reqCode, clientInfo);
-                    appendReq(reqCode, handler);
-                } catch (RemoteException rex) {
-                    handler.handleFailure(PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                                          rex.toString());
-                    iface = null;
-                }
-            }
-        });
-    }
-
-    /**
      * Adds a "get podcast info" job for a specific URL.
      *
      * @param url The url to get the podcast info from.
@@ -348,5 +299,9 @@ public class GPodderSync {
             // hmm, this is not good
             gps.get().iface = null;
         }
+    }
+
+    public GpoNetClientInfo getClientInfo() {
+        return clientInfo;
     }
 }

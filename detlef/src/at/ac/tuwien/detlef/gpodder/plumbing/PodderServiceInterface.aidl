@@ -39,24 +39,6 @@ oneway interface PodderServiceInterface
     void downloadChangesSince(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo, long ts);
 
     /**
-     * Search a gpodder.net-compatible service by keyword.
-     * @param cb Callback object to send responses to.
-     * @param reqId The ID of the request; will be passed to the callback unchanged.
-     * @param cinfo The information about the client. Must contain deviceName.
-     * @param query The query to pass on to the gpodder.net service. An example query is
-     * "electronic+music".
-     */
-    void searchPodcasts(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo, String query);
-    
-    /**
-     * Retrieve a list of podcast suggestions.
-     * @param cb Callback object to send responses to.
-     * @param reqId The ID of the request; will be passed to the callback unchanged.
-     * @param cinfo The information about the client. Must contain username, password, hostname, and deviceName.
-     */
-    void getSuggestions(in PodderServiceCallback cb, int reqId, in GpoNetClientInfo cinfo);
-
-    /**
      * Update a user's subscriptions on a gpodder.net-compatible service.
      * @param cb Callback object to send responses to.
      * @param reqId The ID of the request; will be passed to the callback unchanged.

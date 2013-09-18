@@ -45,10 +45,11 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
-import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderIntentService;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
+import at.ac.tuwien.detlef.gpodder.events.SearchResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.SuggestionsResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ToplistResultEvent;
 
 import com.commonsware.cwac.merge.MergeAdapter;
@@ -70,8 +71,6 @@ public class AddPodcastActivity extends Activity {
     private PodcastListAdapter suggestionsAdapter;
     private PodcastListAdapter toplistAdapter;
 
-    private static final SearchResultHandler srh = new SearchResultHandler();
-    private static final SuggestionResultHandler urh = new SuggestionResultHandler();
     private static final AddPodcastResultHandler prh = new AddPodcastResultHandler();
 
     @Override
@@ -154,19 +153,23 @@ public class AddPodcastActivity extends Activity {
 
         if (savedInstanceState == null) {
             GPodderSync gps = Singletons.i().getGPodderSync();
-            gps.addGetSuggestionsJob(urh);
 
             startService(new Intent(this, PodderIntentService.class).putExtra(
                              PodderIntentService.EXTRA_REQUEST,
-                             PodderIntentService.REQUEST_TOPLIST));
+                             PodderIntentService.REQUEST_TOPLIST).putExtra(
+                                     PodderIntentService.EXTRA_CLIENT_INFO,
+                                     gps.getClientInfo()));
+            startService(new Intent(this, PodderIntentService.class).putExtra(
+                    PodderIntentService.EXTRA_REQUEST,
+                    PodderIntentService.REQUEST_SUGGESTIONS).putExtra(
+                            PodderIntentService.EXTRA_CLIENT_INFO,
+                            gps.getClientInfo()));
         }
         podcastsAdded = 0;
     }
 
     @Override
     protected void onPause() {
-        srh.unregisterReceiver();
-        urh.unregisterReceiver();
         prh.unregisterReceiver();
 
         super.onPause();
@@ -176,11 +179,12 @@ public class AddPodcastActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        srh.registerReceiver(this);
-        urh.registerReceiver(this);
         prh.registerReceiver(this);
 
-        EventBus.getDefault().register(this, ToplistResultEvent.class);
+        EventBus.getDefault().register(this,
+                SearchResultEvent.class,
+                SuggestionsResultEvent.class,
+                ToplistResultEvent.class);
     }
 
     public void onEventMainThread(ToplistResultEvent event) {
@@ -193,6 +197,37 @@ public class AddPodcastActivity extends Activity {
 
         toplistAdapter.clear();
         toplistAdapter.addAll(filterSubscribedPodcasts(event.podcasts));
+    }
+
+    public void onEventMainThread(SuggestionsResultEvent event) {
+        if (event.code == PodderIntentService.RESULT_FAILURE) {
+            Toast.makeText(this, "Suggestion retrieval failed", Toast.LENGTH_SHORT);
+            return;
+        }
+
+        Log.d(TAG, String.format("Got results back: %s", event.podcasts));
+
+        suggestionsAdapter.clear();
+        suggestionsAdapter.addAll(filterSubscribedPodcasts(event.podcasts));
+    }
+
+    public void onEventMainThread(SearchResultEvent event) {
+        setBusy(false);
+
+        if (event.code == PodderIntentService.RESULT_FAILURE) {
+            Toast.makeText(this, "Podcast search failed", Toast.LENGTH_SHORT);
+            return;
+        }
+
+        Log.d(TAG, String.format("Got results back: %s", event.podcasts));
+
+        final List<Podcast> filteredResult = filterSubscribedPodcasts(event.podcasts);
+
+        resultAdapter.clear();
+        resultAdapter.addAll(filteredResult);
+
+        Toast.makeText(this, String.format("%d results found", filteredResult.size()),
+                       Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -268,6 +303,7 @@ public class AddPodcastActivity extends Activity {
 
         String text = tv.getText().toString();
         setBusy(true);
+        GPodderSync gps = Singletons.i().getGPodderSync();
         if (text.startsWith("http://") || text.startsWith("https://")) {
             PodcastDAO dao = Singletons.i().getPodcastDAO();
             for (Podcast p : dao.getAllPodcasts()) {
@@ -280,13 +316,17 @@ public class AddPodcastActivity extends Activity {
                 }
             }
 
-            GPodderSync gps = Singletons.i().getGPodderSync();
             ArrayList<String> urls = new ArrayList<String>();
             urls.add(tv.getText().toString());
             gps.addGetPodcastInfoJob(prh, urls);
         } else {
-            GPodderSync gps = Singletons.i().getGPodderSync();
-            gps.addSearchPodcastsJob(srh, tv.getText().toString());
+            startService(new Intent(this, PodderIntentService.class).putExtra(
+                             PodderIntentService.EXTRA_REQUEST,
+                             PodderIntentService.REQUEST_SEARCH).putExtra(
+                                     PodderIntentService.EXTRA_CLIENT_INFO,
+                                     gps.getClientInfo()).putExtra(
+                                     PodderIntentService.EXTRA_QUERY,
+                                     tv.getText().toString()));
         }
     }
 
@@ -321,71 +361,6 @@ public class AddPodcastActivity extends Activity {
 
         Toast.makeText(this, "Subscription update succeeded", Toast.LENGTH_SHORT).show();
         podcastsAdded++;
-    }
-
-    /**
-     * Handles search results. On failure, notifies the user; on success,
-     * displays the results.
-     */
-    private static class SearchResultHandler extends ReliableResultHandler<AddPodcastActivity>
-        implements PodcastListResultHandler<AddPodcastActivity> {
-
-        @Override
-        public void handleFailure(int errCode, String errStr) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getRcv().setBusy(false);
-
-                    Toast.makeText(getRcv(), "Podcast search failed", Toast.LENGTH_SHORT);
-                }
-            });
-        }
-
-        @Override
-        public void handleSuccess(final List<Podcast> result) {
-            final List<Podcast> filteredResult = filterSubscribedPodcasts(result);
-            getRcv().runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    getRcv().setBusy(false);
-
-                    getRcv().resultAdapter.clear();
-                    getRcv().resultAdapter.addAll(filteredResult);
-
-                    Toast.makeText(getRcv(),
-                                   String.format("%d results found", filteredResult.size()),
-                                   Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
-
-    private static class SuggestionResultHandler extends ReliableResultHandler<AddPodcastActivity>
-        implements PodcastListResultHandler<AddPodcastActivity> {
-
-        @Override
-        public void handleFailure(int errCode, String errStr) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getRcv(), "Suggestion retrieval failed", Toast.LENGTH_SHORT);
-                }
-            });
-        }
-
-        @Override
-        public void handleSuccess(final List<Podcast> result) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getRcv().suggestionsAdapter.clear();
-                    getRcv().suggestionsAdapter.addAll(filterSubscribedPodcasts(result));
-                }
-            });
-        }
-
     }
 
     private static class AddPodcastResultHandler extends ReliableResultHandler<AddPodcastActivity>
