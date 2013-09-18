@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.apache.http.client.ClientProtocolException;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
@@ -32,6 +33,7 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.FeedUpdate;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.gpodder.events.PullFeedResultEvent;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.dragontek.mygpoclient.feeds.FeedServiceClient;
@@ -39,6 +41,8 @@ import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
 import com.dragontek.mygpoclient.feeds.IFeed;
 import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
 import com.google.gson.JsonParseException;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * A Runnable to fetch feed changes. It should be started in its own Thread
@@ -51,11 +55,11 @@ public class PullFeedAsyncTask implements Runnable {
 
     private static final String TAG = PullFeedAsyncTask.class.getName();
 
-    private final NoDataResultHandler<?> callback;
+    private final Bundle bundle;
     private final Podcast podcast;
 
-    public PullFeedAsyncTask(NoDataResultHandler<?> callback, Podcast podcast) {
-        this.callback = callback;
+    public PullFeedAsyncTask(Bundle bundle, Podcast podcast) {
+        this.bundle = bundle;
         this.podcast = podcast;
     }
 
@@ -111,7 +115,7 @@ public class PullFeedAsyncTask implements Runnable {
         }
 
         /* Tell receiver we're done.. */
-        callback.sendEvent(new NoDataResultHandler.NoDataSuccessEvent(callback));
+        EventBus.getDefault().post(new PullFeedResultEvent(PodderIntentService.RESULT_SUCCESS, bundle));
     }
 
     /**
@@ -122,7 +126,7 @@ public class PullFeedAsyncTask implements Runnable {
      * @param errString The error string.
      */
     private void sendError(int errCode, String errString) {
-        callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, errCode, errString));
+        EventBus.getDefault().post(new PullFeedResultEvent(PodderIntentService.RESULT_FAILURE, bundle));
     }
 
     private void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed) {

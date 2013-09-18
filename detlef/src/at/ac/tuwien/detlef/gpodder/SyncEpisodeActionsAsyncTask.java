@@ -26,6 +26,7 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
@@ -36,11 +37,14 @@ import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.RemoteEpisodeAction;
+import at.ac.tuwien.detlef.gpodder.events.EpisodeActionResultEvent;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.dragontek.mygpoclient.api.EpisodeAction;
 import com.dragontek.mygpoclient.api.EpisodeActionChanges;
 import com.dragontek.mygpoclient.api.MygPodderClient;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * A Runnable to sync episode actions. It should be started in its own Thread
@@ -51,10 +55,10 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
 
     private static final String TAG = SyncEpisodeActionsAsyncTask.class.getName();
 
-    private final NoDataResultHandler<?> callback;
+    private final Bundle bundle;
 
-    public SyncEpisodeActionsAsyncTask(NoDataResultHandler<?> callback) {
-        this.callback = callback;
+    public SyncEpisodeActionsAsyncTask(Bundle bundle) {
+        this.bundle = bundle;
     }
 
     @Override
@@ -111,7 +115,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
         }
 
         /* Tell receiver we're done.. */
-        callback.sendEvent(new NoDataResultHandler.NoDataSuccessEvent(callback));
+        EventBus.getDefault().post(new EpisodeActionResultEvent(PodderIntentService.RESULT_SUCCESS, bundle));
     }
 
     /**
@@ -121,7 +125,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
      * @param errString A String describing the error.
      */
     private void sendError(String errString) {
-        callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, 0, errString));
+        EventBus.getDefault().post(new EpisodeActionResultEvent(PodderIntentService.RESULT_FAILURE, bundle));
     }
 
     private void applyActionChanges(Context context, EpisodeActionChanges changes) {

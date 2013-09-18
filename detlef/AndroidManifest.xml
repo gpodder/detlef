@@ -48,10 +48,6 @@
         <uses-library android:name="android.test.runner" />
 
         <service
-            android:name="at.ac.tuwien.detlef.gpodder.PodderService"
-            android:process=":podderservice" >
-        </service>
-        <service
             android:name="at.ac.tuwien.detlef.mediaplayer.MediaPlayerService"
             android:icon="@android:drawable/ic_media_play" >
         </service>

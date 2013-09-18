@@ -45,9 +45,8 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
-import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderIntentService;
-import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
+import at.ac.tuwien.detlef.gpodder.events.PodcastInfoResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SearchResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SuggestionsResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ToplistResultEvent;
@@ -70,8 +69,6 @@ public class AddPodcastActivity extends Activity {
     private PodcastListAdapter resultAdapter;
     private PodcastListAdapter suggestionsAdapter;
     private PodcastListAdapter toplistAdapter;
-
-    private static final AddPodcastResultHandler prh = new AddPodcastResultHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,25 +150,16 @@ public class AddPodcastActivity extends Activity {
 
         if (savedInstanceState == null) {
             GPodderSync gps = Singletons.i().getGPodderSync();
-
-            startService(new Intent(this, PodderIntentService.class).putExtra(
-                             PodderIntentService.EXTRA_REQUEST,
-                             PodderIntentService.REQUEST_TOPLIST).putExtra(
-                                     PodderIntentService.EXTRA_CLIENT_INFO,
-                                     gps.getClientInfo()));
-            startService(new Intent(this, PodderIntentService.class).putExtra(
-                    PodderIntentService.EXTRA_REQUEST,
-                    PodderIntentService.REQUEST_SUGGESTIONS).putExtra(
-                            PodderIntentService.EXTRA_CLIENT_INFO,
-                            gps.getClientInfo()));
+            PodderIntentService.startToplistJob(this, gps.getClientInfo());
+            PodderIntentService.startSuggestionsJob(this, gps.getClientInfo());
         }
+
         podcastsAdded = 0;
     }
 
     @Override
     protected void onPause() {
-        prh.unregisterReceiver();
-
+        EventBus.getDefault().unregister(this);
         super.onPause();
     }
 
@@ -179,9 +167,8 @@ public class AddPodcastActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        prh.registerReceiver(this);
-
         EventBus.getDefault().register(this,
+                PodcastInfoResultEvent.class,
                 SearchResultEvent.class,
                 SuggestionsResultEvent.class,
                 ToplistResultEvent.class);
@@ -228,6 +215,42 @@ public class AddPodcastActivity extends Activity {
 
         Toast.makeText(this, String.format("%d results found", filteredResult.size()),
                        Toast.LENGTH_SHORT).show();
+    }
+
+    public void onEventMainThread(PodcastInfoResultEvent event) {
+        setBusy(false);
+
+        if (event.code == PodderIntentService.RESULT_FAILURE) {
+            Toast.makeText(this,
+                "This podcast is not known to GPodder! "
+                + "Please add it via web gpodder.net. It will be available on your device in a few days.",
+                Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Podcast result = event.podcast;
+        PodcastDAO dao = Singletons.i().getPodcastDAO();
+        for (Podcast p : dao.getAllPodcasts()) {
+            if (p.getUrl().equals(result.getUrl())) {
+                Toast.makeText(this,
+                               "This podcast is already in your podcast list!",
+                               Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+        result.setLocalAdd(true);
+        if (dao.insertPodcast(result) == null) {
+            Toast.makeText(this, "Add podcast from URL failed", Toast.LENGTH_SHORT);
+            setBusy(false);
+            return;
+        }
+
+        resultAdapter.removePodcast(result);
+        suggestionsAdapter.removePodcast(result);
+        toplistAdapter.removePodcast(result);
+
+        Toast.makeText(this, "Add podcast from URL succeeded", Toast.LENGTH_SHORT).show();
+        podcastsAdded++;
     }
 
     @Override
@@ -318,15 +341,9 @@ public class AddPodcastActivity extends Activity {
 
             ArrayList<String> urls = new ArrayList<String>();
             urls.add(tv.getText().toString());
-            gps.addGetPodcastInfoJob(prh, urls);
+            PodderIntentService.startInfoJob(this, gps.getClientInfo(), urls);
         } else {
-            startService(new Intent(this, PodderIntentService.class).putExtra(
-                             PodderIntentService.EXTRA_REQUEST,
-                             PodderIntentService.REQUEST_SEARCH).putExtra(
-                                     PodderIntentService.EXTRA_CLIENT_INFO,
-                                     gps.getClientInfo()).putExtra(
-                                     PodderIntentService.EXTRA_QUERY,
-                                     tv.getText().toString()));
+            PodderIntentService.startSearchJob(this, gps.getClientInfo(), tv.getText().toString());
         }
     }
 
@@ -361,57 +378,6 @@ public class AddPodcastActivity extends Activity {
 
         Toast.makeText(this, "Subscription update succeeded", Toast.LENGTH_SHORT).show();
         podcastsAdded++;
-    }
-
-    private static class AddPodcastResultHandler extends ReliableResultHandler<AddPodcastActivity>
-        implements PodcastResultHandler<AddPodcastActivity> {
-
-        @Override
-        public void handleFailure(int errCode, final String url) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(
-                        getRcv(),
-                        "This podcast is not known to GPodder! "
-                        + "Please add it via web gpodder.net. It will be available on your device in a few days.",
-                        Toast.LENGTH_LONG).show();
-                    getRcv().setBusy(false);
-                }
-            });
-        }
-
-        @Override
-        public void handleSuccess(final Podcast result) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    PodcastDAO dao = Singletons.i().getPodcastDAO();
-                    for (Podcast p : dao.getAllPodcasts()) {
-                        if (p.getUrl().equals(result.getUrl())) {
-                            Toast.makeText(getRcv(),
-                                           "This podcast is already in your podcast list!",
-                                           Toast.LENGTH_LONG).show();
-                            getRcv().setBusy(false);
-                            return;
-                        }
-                    }
-                    result.setLocalAdd(true);
-                    if (dao.insertPodcast(result) == null) {
-                        Toast.makeText(getRcv(), "Add podcast from URL failed", Toast.LENGTH_SHORT);
-                        getRcv().setBusy(false);
-                        return;
-                    }
-
-                    getRcv().resultAdapter.removePodcast(result);
-                    getRcv().suggestionsAdapter.removePodcast(result);
-                    getRcv().toplistAdapter.removePodcast(result);
-                    Toast.makeText(getRcv(), "Add podcast from URL succeeded", Toast.LENGTH_SHORT).show();
-                    podcastsAdded++;
-                    getRcv().setBusy(false);
-                }
-            });
-        }
     }
 
     /**

@@ -35,7 +35,6 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
-import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
 import at.ac.tuwien.detlef.settings.DeviceIdGenerator;
 import at.ac.tuwien.detlef.settings.DeviceIdGeneratorRandom;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
@@ -74,8 +73,7 @@ public class Singletons {
      */
     public GPodderSync getGPodderSync() {
         if (gPodderSync == null) {
-            gPodderSync = new GPodderSync(new SynchronousSyncResponder(
-                                              Detlef.getAppContext()));
+            gPodderSync = new GPodderSync();
         }
         return gPodderSync;
     }

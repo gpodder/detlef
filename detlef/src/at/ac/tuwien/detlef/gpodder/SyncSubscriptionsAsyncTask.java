@@ -27,6 +27,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
@@ -36,6 +37,7 @@ import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.domain.PodcastPersistence;
+import at.ac.tuwien.detlef.gpodder.events.PullSubscriptionResultEvent;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
 import com.dragontek.mygpoclient.api.MygPodderClient;
@@ -43,6 +45,8 @@ import com.dragontek.mygpoclient.api.SubscriptionChanges;
 import com.dragontek.mygpoclient.api.UpdateResult;
 import com.dragontek.mygpoclient.pub.PublicClient;
 import com.dragontek.mygpoclient.simple.IPodcast;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * A Runnable to fetch subscription changes. It should be started in its own
@@ -57,10 +61,10 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
     private static final int HTTP_STATUS_NOT_FOUND = 404;
     private static final int GENERIC_ERROR = -1;
 
-    private final NoDataResultHandler<?> callback;
+    private final Bundle bundle;
 
-    public SyncSubscriptionsAsyncTask(NoDataResultHandler<?> callback) {
-        this.callback = callback;
+    public SyncSubscriptionsAsyncTask(Bundle bundle) {
+        this.bundle = bundle;
     }
 
     @Override
@@ -166,7 +170,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         }
 
         /* Send the result. */
-        callback.sendEvent(new NoDataResultHandler.NoDataSuccessEvent(callback));
+        EventBus.getDefault().post(new PullSubscriptionResultEvent(PodderIntentService.RESULT_SUCCESS, bundle));
     }
 
     /**
@@ -177,7 +181,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
      * @param errString The error string.
      */
     private void sendError(int errCode, String errString) {
-        callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, errCode, errString));
+        EventBus.getDefault().post(new PullSubscriptionResultEvent(PodderIntentService.RESULT_FAILURE, bundle));
     }
 
     private void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {

@@ -1,3 +1,4 @@
+
 package at.ac.tuwien.detlef.gpodder;
 
 import java.io.IOException;
@@ -6,6 +7,7 @@ import java.util.List;
 
 import org.apache.http.auth.AuthenticationException;
 
+import android.app.Activity;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +19,7 @@ import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.events.AuthCheckResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ConnectionErrorEvent;
+import at.ac.tuwien.detlef.gpodder.events.PodcastInfoResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.RegisterDeviceResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SearchResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SuggestionsResultEvent;
@@ -40,6 +43,7 @@ public class PodderIntentService extends IntentService {
     public static final String EXTRA_QUERY       = "EXTRA_QUERY";
     public static final String EXTRA_DEVICE_ID   = "EXTRA_DEVICE_ID";
     public static final String EXTRA_DEVICE_NAME = "EXTRA_DEVICE_NAME";
+    public static final String EXTRA_URIS        = "EXTRA_URIS";
 
     /** Retrieve the podcast toplist from gpodder.net. */
     public static final int REQUEST_TOPLIST     = 0;
@@ -47,9 +51,10 @@ public class PodderIntentService extends IntentService {
     public static final int REQUEST_SEARCH      = 2;
     public static final int REQUEST_AUTH_CHECK  = 3;
     public static final int REQUEST_REGISTER    = 4;
+    public static final int REQUEST_INFO        = 5;
 
-    public static final int RESULT_SUCCESS               = 0;
-    public static final int RESULT_FAILURE               = 1;
+    public static final int RESULT_SUCCESS = 0;
+    public static final int RESULT_FAILURE = 1;
 
     private static final int DEFAULT_SUGGESTIONS_COUNT = 15;
     
@@ -100,7 +105,6 @@ public class PodderIntentService extends IntentService {
     
     private final EventBus eventBus = EventBus.getDefault();
 
-
     public PodderIntentService() {
         super(TAG);
     }
@@ -113,24 +117,73 @@ public class PodderIntentService extends IntentService {
         Log.d(TAG, String.format("Received request %d", request));
 
         switch (request) {
-        case REQUEST_TOPLIST:
-            getToplist(extras);
-            break;
-        case REQUEST_SUGGESTIONS:
-            getSuggestions(extras);
-            break;
-        case REQUEST_SEARCH:
-            searchPodcasts(extras);
-            break;
-        case REQUEST_AUTH_CHECK:
-            authCheck(extras);
-            break;
-        case REQUEST_REGISTER:
-            registerDevice(extras);
-            break;
-        default:
-            Log.w(TAG, String.format("Unknown request %d received", request));
+            case REQUEST_TOPLIST:
+                getToplist(extras);
+                break;
+            case REQUEST_SUGGESTIONS:
+                getSuggestions(extras);
+                break;
+            case REQUEST_SEARCH:
+                searchPodcasts(extras);
+                break;
+            case REQUEST_AUTH_CHECK:
+                authCheck(extras);
+                break;
+            case REQUEST_REGISTER:
+                registerDevice(extras);
+                break;
+            case REQUEST_INFO:
+                podcastInfo(extras);
+                break;
+            default:
+                Log.w(TAG, String.format("Unknown request %d received", request));
         }
+    }
+
+    public static void startToplistJob(Activity activity, GpoNetClientInfo clientInfo) {
+        activity.startService(new Intent(activity, PodderIntentService.class)
+                .putExtra(
+                        PodderIntentService.EXTRA_REQUEST,
+                        PodderIntentService.REQUEST_TOPLIST)
+                .putExtra(
+                        PodderIntentService.EXTRA_CLIENT_INFO,
+                        clientInfo));
+    }
+
+    public static void startSuggestionsJob(Activity activity, GpoNetClientInfo clientInfo) {
+        activity.startService(new Intent(activity, PodderIntentService.class)
+                .putExtra(
+                        PodderIntentService.EXTRA_REQUEST,
+                        PodderIntentService.REQUEST_SUGGESTIONS)
+                .putExtra(
+                        PodderIntentService.EXTRA_CLIENT_INFO,
+                        clientInfo));
+    }
+
+    public static void startSearchJob(Activity activity, GpoNetClientInfo clientInfo, String query) {
+        activity.startService(new Intent(activity, PodderIntentService.class)
+                .putExtra(
+                        PodderIntentService.EXTRA_REQUEST,
+                        PodderIntentService.REQUEST_SEARCH)
+                .putExtra(
+                        PodderIntentService.EXTRA_CLIENT_INFO,
+                        clientInfo)
+                .putExtra(
+                        PodderIntentService.EXTRA_QUERY,
+                        query));
+    }
+
+    public static void startInfoJob(Activity activity, GpoNetClientInfo clientInfo, ArrayList<String> uris) {
+        activity.startService(new Intent(activity, PodderIntentService.class)
+        .putExtra(
+                PodderIntentService.EXTRA_REQUEST,
+                PodderIntentService.REQUEST_INFO)
+        .putExtra(
+                PodderIntentService.EXTRA_CLIENT_INFO,
+                clientInfo)
+        .putExtra(
+                PodderIntentService.EXTRA_URIS,
+                uris));
     }
 
     private void getToplist(Bundle extras) {
@@ -163,12 +216,13 @@ public class PodderIntentService extends IntentService {
         GpoNetClientInfo cinfo = extras.getParcelable(EXTRA_CLIENT_INFO);
 
         MygPodderClient mpc = new MygPodderClient(
-            cinfo.getUsername(),
-            cinfo.getPassword(),
-            cinfo.getHostname());
+                cinfo.getUsername(),
+                cinfo.getPassword(),
+                cinfo.getHostname());
 
         try {
-            final List <? extends IPodcast > ipodcasts = mpc.getSuggestions(DEFAULT_SUGGESTIONS_COUNT);
+            final List<? extends IPodcast> ipodcasts = mpc
+                    .getSuggestions(DEFAULT_SUGGESTIONS_COUNT);
 
             /* Convert the list into podcasts. */
 
@@ -211,7 +265,7 @@ public class PodderIntentService extends IntentService {
         }
     }
 
-    public void authCheck(Bundle extras) {
+    private void authCheck(Bundle extras) {
         Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
 
         GpoNetClientInfo cinfo = extras.getParcelable(EXTRA_CLIENT_INFO);
@@ -232,7 +286,7 @@ public class PodderIntentService extends IntentService {
         }
 
         SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
-                                           cinfo.getHostname());
+                cinfo.getHostname());
 
         boolean ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
 
@@ -246,12 +300,12 @@ public class PodderIntentService extends IntentService {
 
     private static boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) Detlef.getAppContext()
-                                 .getSystemService(Context.CONNECTIVITY_SERVICE);
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return (netInfo != null && netInfo.isConnectedOrConnecting());
     }
 
-    public void registerDevice(Bundle extras) {
+    private void registerDevice(Bundle extras) {
         Log.d(TAG, "registerDevice() on " + Thread.currentThread().getId());
 
         GpoNetClientInfo cinfo = extras.getParcelable(EXTRA_CLIENT_INFO);
@@ -259,10 +313,10 @@ public class PodderIntentService extends IntentService {
         String deviceName = extras.getString(EXTRA_DEVICE_NAME);
 
         MygPodderClient gpc = new MygPodderClient(
-            cinfo.getUsername(),
-            cinfo.getPassword(),
-            cinfo.getHostname()
-        );
+                cinfo.getUsername(),
+                cinfo.getPassword(),
+                cinfo.getHostname()
+                );
 
         try {
             gpc.updateDeviceSettings(deviceId, deviceName, "mobile");
@@ -272,6 +326,24 @@ public class PodderIntentService extends IntentService {
         } catch (IOException e) {
             eventBus.post(new RegisterDeviceResultEvent(RESULT_FAILURE, null));
         }
+    }
+
+    private void podcastInfo(Bundle extras) {
+        Log.d(TAG, "getPodcastInfo() on " + Thread.currentThread().getId());
+
+        GpoNetClientInfo cinfo = extras.getParcelable(EXTRA_CLIENT_INFO);
+        ArrayList<String> uris = extras.getParcelable(EXTRA_URIS);
+
+        PublicClient pc = new PublicClient(cinfo.getHostname());
+        String url = uris.get(0);
+        try {
+            com.dragontek.mygpoclient.simple.Podcast podcast = pc.getPodcastData(url);
+            eventBus.post(new PodcastInfoResultEvent(RESULT_SUCCESS, new Podcast(podcast)));
+        } catch (IOException e) {
+            Log.w(TAG, "getPodcastInfo IOException: " + e.getMessage());
+            eventBus.post(new PodcastInfoResultEvent(RESULT_FAILURE, null));
+        }
+
     }
 
 }
