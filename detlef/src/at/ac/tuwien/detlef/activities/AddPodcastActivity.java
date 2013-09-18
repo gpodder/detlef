@@ -25,9 +25,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
-import android.os.ResultReceiver;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -51,8 +49,11 @@ import at.ac.tuwien.detlef.gpodder.PodcastListResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodcastResultHandler;
 import at.ac.tuwien.detlef.gpodder.PodderIntentService;
 import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
+import at.ac.tuwien.detlef.gpodder.events.ToplistResultEvent;
 
 import com.commonsware.cwac.merge.MergeAdapter;
+
+import de.greenrobot.event.EventBus;
 
 public class AddPodcastActivity extends Activity {
 
@@ -157,36 +158,9 @@ public class AddPodcastActivity extends Activity {
 
             startService(new Intent(this, PodderIntentService.class).putExtra(
                              PodderIntentService.EXTRA_REQUEST,
-                             PodderIntentService.REQUEST_TOPLIST).putExtra(
-                             PodderIntentService.EXTRA_RESULT_RECEIVER,
-                             new ToplistResultReceiver(new Handler(), this)));
+                             PodderIntentService.REQUEST_TOPLIST));
         }
         podcastsAdded = 0;
-    }
-
-    private static class ToplistResultReceiver extends ResultReceiver {
-
-        final AddPodcastActivity activity;
-
-        public ToplistResultReceiver(Handler handler, AddPodcastActivity activity) {
-            super(handler);
-            this.activity = activity;
-        }
-
-        @Override
-        public void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultCode == PodderIntentService.RESULT_FAILURE) {
-                Toast.makeText(activity, "Toplist retrieval failed", Toast.LENGTH_SHORT);
-                return;
-            }
-
-            List<Podcast> podcasts = resultData.getParcelableArrayList(PodderIntentService.EXTRA_RESULT_PODCAST_LIST);
-            Log.d(TAG, String.format("Got results back: %s", podcasts));
-
-            activity.toplistAdapter.clear();
-            activity.toplistAdapter.addAll(filterSubscribedPodcasts(podcasts));
-        }
-
     }
 
     @Override
@@ -205,6 +179,20 @@ public class AddPodcastActivity extends Activity {
         srh.registerReceiver(this);
         urh.registerReceiver(this);
         prh.registerReceiver(this);
+
+        EventBus.getDefault().register(this, ToplistResultEvent.class);
+    }
+
+    public void onEventMainThread(ToplistResultEvent event) {
+        if (event.code == PodderIntentService.RESULT_FAILURE) {
+            Toast.makeText(this, "Toplist retrieval failed", Toast.LENGTH_SHORT);
+            return;
+        }
+
+        Log.d(TAG, String.format("Got results back: %s", event.podcasts));
+
+        toplistAdapter.clear();
+        toplistAdapter.addAll(filterSubscribedPodcasts(event.podcasts));
     }
 
     @Override
