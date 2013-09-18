@@ -199,20 +199,6 @@ public class PodderService extends Service {
         }
 
         @Override
-        public void authCheck(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
-        throws RemoteException {
-            Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
-            theMagicalProxy.setTarget(cb);
-
-            // try authenticating
-            SimpleClient sc = performGpoLogin(theMagicalProxy, reqId, cinfo);
-
-            if (sc != null) {
-                theMagicalProxy.authCheckSucceeded(reqId);
-            }
-        }
-
-        @Override
         public void downloadPodcastList(PodderServiceCallback cb, int reqId, GpoNetClientInfo cinfo)
         throws RemoteException {
             Log.d(TAG, "downloadPodcastList() on " + Thread.currentThread().getId());

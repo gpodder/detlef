@@ -7,10 +7,16 @@ import java.util.List;
 import org.apache.http.auth.AuthenticationException;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.gpodder.events.AuthCheckResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.ConnectionErrorEvent;
 import at.ac.tuwien.detlef.gpodder.events.SearchResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SuggestionsResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ToplistResultEvent;
@@ -19,6 +25,7 @@ import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import com.dragontek.mygpoclient.api.MygPodderClient;
 import com.dragontek.mygpoclient.pub.PublicClient;
 import com.dragontek.mygpoclient.simple.IPodcast;
+import com.dragontek.mygpoclient.simple.SimpleClient;
 
 import de.greenrobot.event.EventBus;
 
@@ -32,14 +39,60 @@ public class PodderIntentService extends IntentService {
     public static final String EXTRA_QUERY       = "EXTRA_QUERY";
 
     /** Retrieve the podcast toplist from gpodder.net. */
-    public static final int REQUEST_TOPLIST = 0;
+    public static final int REQUEST_TOPLIST     = 0;
     public static final int REQUEST_SUGGESTIONS = 1;
-    public static final int REQUEST_SEARCH = 3;
+    public static final int REQUEST_SEARCH      = 2;
+    public static final int REQUEST_AUTH_CHECK  = 3;
 
-    public static final int RESULT_SUCCESS = 0;
-    public static final int RESULT_FAILURE = 1;
+    public static final int RESULT_SUCCESS               = 0;
+    public static final int RESULT_FAILURE               = 1;
 
     private static final int DEFAULT_SUGGESTIONS_COUNT = 15;
+    
+    /**
+     * Contains the error codes for failures reported by the
+     * {@link PodderService}.
+     */
+    public static class ErrorCode {
+        /** Error code raised if authentication fails. */
+        public static final int AUTHENTICATION_FAILED = 6;
+
+        /** Error code raised if a file was not found. */
+        public static final int FILE_NOT_FOUND = 7;
+
+        /** Error code raised if the URL scheme is not allowed. */
+        public static final int INVALID_URL_SCHEME = 1;
+
+        /** Error code raised if there has been a problem with input/output. */
+        public static final int IO_PROBLEM = 3;
+
+        /** Error code raised if the URL is formatted incorrectly. */
+        public static final int MALFORMED_URL = 2;
+
+        /**
+         * Error code raised if sending the request failed. This code is not
+         * sent by the service, but may be sent by the plumbing layer (e.g.
+         * {@link GPodderSync}) if the message to the service cannot be sent.
+         */
+        public static final int SENDING_REQUEST_FAILED = 5;
+
+        /** Error code raised if sending the result failed. */
+        public static final int SENDING_RESULT_FAILED = 4;
+
+        /**
+         * Error code raised if an HTTP response with an unexpected code has
+         * been received.
+         */
+        public static final int UNEXPECTED_HTTP_RESPONSE = 9;
+
+        /**
+         * Error code raised if the device is currently offline.
+         */
+        public static final int OFFLINE = 10;
+
+        /** Error code raised if the error is unknown. */
+        public static final int UNKNOWN_ERROR = 8;
+    }
     
     private final EventBus eventBus = EventBus.getDefault();
 
@@ -64,6 +117,9 @@ public class PodderIntentService extends IntentService {
             break;
         case REQUEST_SEARCH:
             searchPodcasts(extras);
+            break;
+        case REQUEST_AUTH_CHECK:
+            authCheck(extras);
             break;
         default:
             Log.w(TAG, String.format("Unknown request %d received", request));
@@ -148,5 +204,44 @@ public class PodderIntentService extends IntentService {
         }
     }
 
+    public void authCheck(Bundle extras) {
+        Log.d(TAG, "authCheck() on " + Thread.currentThread().getId());
+
+        GpoNetClientInfo cinfo = extras.getParcelable(EXTRA_CLIENT_INFO);
+
+        // try authenticating
+        SimpleClient sc = performGpoLogin(cinfo);
+
+        if (sc != null) {
+            eventBus.post(new AuthCheckResultEvent(RESULT_SUCCESS));
+        }
+    }
+
+    private SimpleClient performGpoLogin(GpoNetClientInfo cinfo) {
+        if (!isOnline()) {
+            Log.w(TAG, "device is offline");
+            eventBus.post(new ConnectionErrorEvent(ErrorCode.OFFLINE));
+            return null;
+        }
+
+        SimpleClient sc = new SimpleClient(cinfo.getUsername(), cinfo.getPassword(),
+                                           cinfo.getHostname());
+
+        boolean ok = sc.authenticate(cinfo.getUsername(), cinfo.getPassword());
+
+        if (!ok) {
+            eventBus.post(new ConnectionErrorEvent(ErrorCode.AUTHENTICATION_FAILED));
+            return null;
+        }
+
+        return sc;
+    }
+
+    private static boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) Detlef.getAppContext()
+                                 .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return (netInfo != null && netInfo.isConnectedOrConnecting());
+    }
 
 }

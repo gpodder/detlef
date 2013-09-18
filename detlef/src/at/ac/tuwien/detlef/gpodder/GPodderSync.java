@@ -178,48 +178,6 @@ public class GPodderSync {
     }
 
     /**
-     * Requests that the service perform an authentication check job. The
-     * service will attempt to log into the given gpodder.net-compatible web
-     * service using the specified username and password and calls back whether
-     * this was successful or not. Since this is not a day-to-day operation, the
-     * stored credentials are neither used nor modified by this method; the
-     * hostname, however, is.
-     *
-     * @param authUsername User name to use for authentication check.
-     * @param authPassword Password to use for authentication check.
-     * @param handler A handler for callbacks.
-     */
-    public void addAuthCheckJob(String authUsername, String authPassword,
-                                final NoDataResultHandler<?> handler) {
-        Log.d(TAG, "addAuthCheckJob");
-
-        final GpoNetClientInfo tempClientInfo = new GpoNetClientInfo();
-        tempClientInfo.setHostname(clientInfo.getHostname());
-        tempClientInfo.setUsername(authUsername);
-        tempClientInfo.setPassword(authPassword);
-
-        requestDispatcher.execute(new Runnable() {
-            @Override
-            public void run() {
-                assureBind();
-
-                int reqCode = nextReqCode();
-                try {
-                    iface.authCheck(syncResponder, reqCode, tempClientInfo);
-                } catch (RemoteException rex) {
-                    handler.handleFailure(
-                        PodderService.ErrorCode.SENDING_REQUEST_FAILED,
-                        rex.toString()
-                    );
-                    iface = null;
-                    return;
-                }
-                appendReq(reqCode, handler);
-            }
-        });
-    }
-
-    /**
      * Adds a "get podcast info" job for a specific URL.
      *
      * @param url The url to get the podcast info from.

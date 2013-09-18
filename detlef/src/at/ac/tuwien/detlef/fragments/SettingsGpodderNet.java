@@ -39,14 +39,19 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
 import at.ac.tuwien.detlef.domain.DeviceId;
-import at.ac.tuwien.detlef.fragments.callbacks.ConnectionTestCallback;
 import at.ac.tuwien.detlef.fragments.callbacks.DeviceIdCallbackHandler;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsRegisterOnPreferenceClickListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceChangeListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceClickListener;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
+import at.ac.tuwien.detlef.gpodder.PodderIntentService;
 import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdAsyncTask;
+import at.ac.tuwien.detlef.gpodder.events.AuthCheckResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.ConnectionErrorEvent;
+import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
+import at.ac.tuwien.detlef.util.GUIUtils;
+import de.greenrobot.event.EventBus;
 
 /**
  * This fragment contains the UI logic for the gpodder.net account preferences
@@ -107,7 +112,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
     private boolean setupMode = false;
 
-    private static ConnectionTestCallback barCb = null;
     private static DeviceIdCallbackHandler devIdCb = null;
 
     @Override
@@ -139,7 +143,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
         setUpRegisterOnGpodderNetButton();
         loadSummaries();
         setUpRegisterDeviceIdCallback();
-        setUpConnectionTestCallback();
     }
 
     private void setUpRegisterOnGpodderNetButton() {
@@ -162,12 +165,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
         }
     }
 
-    private void setUpConnectionTestCallback() {
-        if (barCb == null) {
-            barCb = new ConnectionTestCallback();
-        }
-    }
-
     private void restoreState(Bundle savedInstanceState) {
 
         if (savedInstanceState == null) {
@@ -175,7 +172,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
         }
 
         /* Don't restore the dialog if we lost the callback for some reason; */
-        if (savedInstanceState.getBoolean(STATEVAR_PROGRESSDIALOG) && barCb != null) {
+        if (savedInstanceState.getBoolean(STATEVAR_PROGRESSDIALOG)) {
             showProgressDialog();
         }
 
@@ -293,6 +290,59 @@ public class SettingsGpodderNet extends PreferenceFragment {
     }
 
     /**
+     * Called if the provided settings are valid, i.e. the username/password
+     * combination is recognized as valid account.
+     * @param settings
+     */
+    private void connectionIsValid() {
+        final GpodderSettings settings = Singletons.i().getGpodderSettings();
+
+        Singletons.i().getGpodderSettingsDAO().writeSettings(settings.setAccountVerified(true));
+
+        enableNextStepButton();
+
+        GUIUtils.showToast(
+                String.format(getText(R.string.connectiontest_successful).toString(),
+                        settings.getUsername()), getActivity(), TAG);
+
+        dismissDialog();
+        setUpTestConnectionButton();
+        setUpRegisterDeviceButton();
+
+    }
+
+    /**
+     * Called if the provided settings are not valid.
+     */
+    private void connectionIsNotValid() {
+        GUIUtils.showToast(getText(R.string.connectiontest_unsuccessful), getActivity(), TAG);
+        dismissDialog();
+    }
+
+    /**
+     * Called if an error occurs while connecting.
+     */
+    private void connectionFailed() {
+        GUIUtils.showToast(getText(R.string.connectiontest_error), getActivity(), TAG);
+        dismissDialog();
+    }
+
+    public void onEventMainThread(AuthCheckResultEvent event) {
+        connectionIsValid();
+    }
+
+    public void onEventMainThread(ConnectionErrorEvent event) {
+        switch (event.code) {
+            case PodderIntentService.ErrorCode.AUTHENTICATION_FAILED:
+                connectionFailed();
+                break;
+            default:
+                connectionIsNotValid();
+                break;
+        }
+    }
+
+    /**
      * Defines behavior of the "Test Connection" button. Basically it opens a
      * {@link ProgressDialog}, calls a connection test method in a separate
      * thread and prints a {@link Toast} message with the result of the
@@ -308,11 +358,22 @@ public class SettingsGpodderNet extends PreferenceFragment {
             toast.cancel();
 
             GPodderSync gps = Singletons.i().getGPodderSync();
-            GpodderSettings settings = Singletons.i()
-                                       .getGpodderSettings();
+            GpodderSettings settings = Singletons.i().getGpodderSettings();
 
-            Singletons.i().getConnectionTester()
-            .testConnection(gps, settings, barCb);
+            gps.setHostname(settings.getApiHostname());
+
+            final GpoNetClientInfo clientInfo = gps.getClientInfo();
+            final GpoNetClientInfo tempClientInfo = new GpoNetClientInfo();
+
+            tempClientInfo.setHostname(clientInfo.getHostname());
+            tempClientInfo.setUsername(settings.getUsername());
+            tempClientInfo.setPassword(settings.getPassword());
+
+            getActivity().startService(new Intent(getActivity(), PodderIntentService.class).putExtra(
+                             PodderIntentService.EXTRA_REQUEST,
+                             PodderIntentService.REQUEST_AUTH_CHECK).putExtra(
+                                     PodderIntentService.EXTRA_CLIENT_INFO,
+                                     tempClientInfo));
 
             return true;
         }
@@ -397,14 +458,9 @@ public class SettingsGpodderNet extends PreferenceFragment {
         new OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                Log.d(
-                    TAG,
-                    String.format("%s.onCancel(%s)", checkUserCredentialsProgress,
-                                  dialog)
-                );
+                Log.d(TAG, String.format("%s.onCancel(%s)", checkUserCredentialsProgress, dialog));
 
-                barCb.unregisterReceiver();
-                barCb = new ConnectionTestCallback();
+                /* TODO: Handle disconnection from backend service. */
             }
         }
                                        );
@@ -455,13 +511,17 @@ public class SettingsGpodderNet extends PreferenceFragment {
     public void onResume() {
         super.onResume();
 
-        barCb.registerReceiver(this);
+        EventBus.getDefault().register(this,
+                AuthCheckResultEvent.class,
+                ConnectionErrorEvent.class);
+
         devIdCb.registerReceiver(this);
     }
 
     @Override
     public void onPause() {
-        barCb.unregisterReceiver();
+        EventBus.getDefault().unregister(this);
+
         devIdCb.unregisterReceiver();
 
         super.onPause();

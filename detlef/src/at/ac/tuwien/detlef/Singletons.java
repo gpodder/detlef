@@ -36,8 +36,6 @@ import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
-import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
 import at.ac.tuwien.detlef.settings.DeviceIdGenerator;
 import at.ac.tuwien.detlef.settings.DeviceIdGeneratorRandom;
 import at.ac.tuwien.detlef.settings.DeviceRegistrator;
@@ -114,14 +112,6 @@ public class Singletons {
      */
     public DeviceRegistrator getDeviceRegistrator() {
         return new DeviceRegistratorGpodderNet();
-    }
-
-    /**
-     * @return The {@link ConnectionTester} that verifies a set of of
-     *         {@link GpodderSettings}.
-     */
-    public ConnectionTester getConnectionTester() {
-        return new ConnectionTesterGpodderNet();
     }
 
     /**

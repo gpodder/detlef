@@ -9,13 +9,6 @@ import at.ac.tuwien.detlef.gpodder.plumbing.ParcelableByteArray;
  */
 oneway interface PodderServiceCallback
 {
-
-    /**
-     * The authentication check succeeded.
-     * @param reqId The request ID you passed.
-     */
-    void authCheckSucceeded(int reqId);
-
     /**
      * Authentication with a gpodder.net-compatible service failed.
      *

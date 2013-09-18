@@ -94,11 +94,6 @@ public abstract class SyncResponder extends PodderServiceCallback.Stub {
     }
 
     @Override
-    public void authCheckSucceeded(int reqId) throws RemoteException {
-        handleNoDataSuccess(reqId);
-    }
-
-    @Override
     public void gponetLoginFailed(int reqId, int errCode, String errStr) throws RemoteException {
         handleGenericFailure(reqId, errCode, errStr);
     }

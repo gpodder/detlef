@@ -116,22 +116,6 @@ public class CachingCallbackProxy implements PodderServiceCallback {
     }
 
     @Override
-    public void authCheckSucceeded(final int reqId) throws RemoteException {
-        queuedMessages.add(new CachedCallback() {
-            @Override
-            public boolean resend(PodderServiceCallback cb) {
-                try {
-                    cb.authCheckSucceeded(reqId);
-                } catch (RemoteException rex) {
-                    return false;
-                }
-                return true;
-            }
-        });
-        resendUnlessPassive();
-    }
-
-    @Override
     public void gponetLoginFailed(final int reqId, final int errCode, final String errStr)
     throws RemoteException {
         queuedMessages.add(new CachedCallback() {
