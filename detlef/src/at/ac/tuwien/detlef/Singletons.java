@@ -38,8 +38,6 @@ import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
 import at.ac.tuwien.detlef.settings.DeviceIdGenerator;
 import at.ac.tuwien.detlef.settings.DeviceIdGeneratorRandom;
-import at.ac.tuwien.detlef.settings.DeviceRegistrator;
-import at.ac.tuwien.detlef.settings.DeviceRegistratorGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
@@ -105,13 +103,6 @@ public class Singletons {
         gpodderSettingsDAO.setDependencies(dependencies);
 
         return gpodderSettingsDAO;
-    }
-
-    /**
-     * @return The {@link DeviceRegistrator} that is able to register a device.
-     */
-    public DeviceRegistrator getDeviceRegistrator() {
-        return new DeviceRegistratorGpodderNet();
     }
 
     /**

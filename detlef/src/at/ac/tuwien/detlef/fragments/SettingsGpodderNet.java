@@ -22,9 +22,11 @@ package at.ac.tuwien.detlef.fragments;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -39,15 +41,14 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.activities.MainActivity;
 import at.ac.tuwien.detlef.activities.SettingsActivity;
 import at.ac.tuwien.detlef.domain.DeviceId;
-import at.ac.tuwien.detlef.fragments.callbacks.DeviceIdCallbackHandler;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsRegisterOnPreferenceClickListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceChangeListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceClickListener;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodderIntentService;
-import at.ac.tuwien.detlef.gpodder.RegisterDeviceIdAsyncTask;
 import at.ac.tuwien.detlef.gpodder.events.AuthCheckResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ConnectionErrorEvent;
+import at.ac.tuwien.detlef.gpodder.events.RegisterDeviceResultEvent;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.util.GUIUtils;
@@ -112,8 +113,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
     private boolean setupMode = false;
 
-    private static DeviceIdCallbackHandler devIdCb = null;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -142,7 +141,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
         setUpRegisterDeviceButton();
         setUpRegisterOnGpodderNetButton();
         loadSummaries();
-        setUpRegisterDeviceIdCallback();
     }
 
     private void setUpRegisterOnGpodderNetButton() {
@@ -159,12 +157,6 @@ public class SettingsGpodderNet extends PreferenceFragment {
         super.onDestroy();
     }
 
-    private void setUpRegisterDeviceIdCallback() {
-        if (devIdCb == null) {
-            devIdCb = new DeviceIdCallbackHandler();
-        }
-    }
-
     private void restoreState(Bundle savedInstanceState) {
 
         if (savedInstanceState == null) {
@@ -176,7 +168,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
             showProgressDialog();
         }
 
-        if (savedInstanceState.getBoolean(STATEVAR_REGISTER_PROGRESSDIALOG) && devIdCb != null) {
+        if (savedInstanceState.getBoolean(STATEVAR_REGISTER_PROGRESSDIALOG)) {
             showRegisterDeviceProgressDialog();
         }
     }
@@ -331,6 +323,73 @@ public class SettingsGpodderNet extends PreferenceFragment {
         connectionIsValid();
     }
 
+    public void onEventMainThread(RegisterDeviceResultEvent event) {
+        if (event.code == PodderIntentService.RESULT_FAILURE) {
+            dismissRegisterDeviceDialog();
+            GUIUtils.showToast(getText(R.string.operation_failed), getActivity(), TAG);
+            return;
+        }
+
+        GpodderSettings settings = getSettings();
+        settings.setDeviceId(new DeviceId(event.id));
+        Singletons.i().getGpodderSettingsDAO().writeSettings(settings);
+
+        dismissRegisterDeviceDialog();
+        setUpTestConnectionButton();
+        setUpRegisterDeviceButton();
+
+        if (isSetupMode()) {
+            setupModeAction();
+        } else {
+            normalModeAction();
+        }
+    }
+
+    /**
+     * The actions that should be executed if {@link SettingsGpodderNet} is in "normal" mode,
+     * i.e. not in {@link SettingsGpodderNet#isSetupMode() setup mode}.
+     */
+    private void normalModeAction() {
+        GUIUtils.showToast(
+            getText(R.string.device_id_registration_success),
+            getActivity(),
+            TAG
+        );
+    }
+
+    /**
+     * The actions that should be executed if {@link SettingsGpodderNet} is in
+     * {@link SettingsGpodderNet#isSetupMode() setup mode}.
+     */
+    private void setupModeAction() {
+        GUIUtils.showSimpleOkDialog(
+            R.string.almost_done,
+            R.string.detlef_will_now_synchronize,
+            new SetupModeNextStepClickListener(),
+            getActivity()
+        );
+    }
+
+    private class SetupModeNextStepClickListener implements OnClickListener {
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+
+            Intent data = new Intent().putExtra(
+                MainActivity.EXTRA_REFRESH_FEED_LIST,
+                true
+            );
+            if (getActivity().getParent() == null) {
+                getActivity().setResult(Activity.RESULT_OK, data);
+            } else {
+                getActivity().getParent().setResult(Activity.RESULT_OK, data);
+            }
+
+            getActivity().finish();
+
+        }
+    }
+
     public void onEventMainThread(ConnectionErrorEvent event) {
         switch (event.code) {
             case PodderIntentService.ErrorCode.AUTHENTICATION_FAILED:
@@ -398,13 +457,26 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
             showRegisterDeviceProgressDialog();
 
-            executorService.execute(
-                new RegisterDeviceIdAsyncTask(
-                    devIdCb,
-                    Singletons.i()
-                    .getDeviceIdGenerator().generate()
-                )
-            );
+            GpodderSettings settings = Singletons.i().getGpodderSettings();
+
+            GpoNetClientInfo clientInfo = new GpoNetClientInfo();
+            clientInfo.setHostname(settings.getApiHostname());
+            clientInfo.setUsername(settings.getUsername());
+            clientInfo.setPassword(settings.getPassword());
+
+            getActivity().startService(new Intent(getActivity(), PodderIntentService.class)
+                    .putExtra(
+                            PodderIntentService.EXTRA_REQUEST,
+                            PodderIntentService.REQUEST_REGISTER)
+                    .putExtra(
+                            PodderIntentService.EXTRA_CLIENT_INFO,
+                            clientInfo)
+                    .putExtra(
+                            PodderIntentService.EXTRA_DEVICE_ID,
+                            Singletons.i().getDeviceIdGenerator().generate().toString())
+                    .putExtra(
+                            PodderIntentService.EXTRA_DEVICE_NAME,
+                            getSettings().getDevicename()));
 
             return true;
         }
@@ -513,16 +585,13 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
         EventBus.getDefault().register(this,
                 AuthCheckResultEvent.class,
-                ConnectionErrorEvent.class);
-
-        devIdCb.registerReceiver(this);
+                ConnectionErrorEvent.class,
+                RegisterDeviceResultEvent.class);
     }
 
     @Override
     public void onPause() {
         EventBus.getDefault().unregister(this);
-
-        devIdCb.unregisterReceiver();
 
         super.onPause();
     }

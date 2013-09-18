@@ -17,6 +17,7 @@ import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.events.AuthCheckResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ConnectionErrorEvent;
+import at.ac.tuwien.detlef.gpodder.events.RegisterDeviceResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SearchResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SuggestionsResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ToplistResultEvent;
@@ -37,12 +38,15 @@ public class PodderIntentService extends IntentService {
     public static final String EXTRA_REQUEST     = "EXTRA_REQUEST";
     public static final String EXTRA_CLIENT_INFO = "EXTRA_CLIENT_INFO";
     public static final String EXTRA_QUERY       = "EXTRA_QUERY";
+    public static final String EXTRA_DEVICE_ID   = "EXTRA_DEVICE_ID";
+    public static final String EXTRA_DEVICE_NAME = "EXTRA_DEVICE_NAME";
 
     /** Retrieve the podcast toplist from gpodder.net. */
     public static final int REQUEST_TOPLIST     = 0;
     public static final int REQUEST_SUGGESTIONS = 1;
     public static final int REQUEST_SEARCH      = 2;
     public static final int REQUEST_AUTH_CHECK  = 3;
+    public static final int REQUEST_REGISTER    = 4;
 
     public static final int RESULT_SUCCESS               = 0;
     public static final int RESULT_FAILURE               = 1;
@@ -120,6 +124,9 @@ public class PodderIntentService extends IntentService {
             break;
         case REQUEST_AUTH_CHECK:
             authCheck(extras);
+            break;
+        case REQUEST_REGISTER:
+            registerDevice(extras);
             break;
         default:
             Log.w(TAG, String.format("Unknown request %d received", request));
@@ -242,6 +249,29 @@ public class PodderIntentService extends IntentService {
                                  .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return (netInfo != null && netInfo.isConnectedOrConnecting());
+    }
+
+    public void registerDevice(Bundle extras) {
+        Log.d(TAG, "registerDevice() on " + Thread.currentThread().getId());
+
+        GpoNetClientInfo cinfo = extras.getParcelable(EXTRA_CLIENT_INFO);
+        String deviceId = extras.getString(EXTRA_DEVICE_ID);
+        String deviceName = extras.getString(EXTRA_DEVICE_NAME);
+
+        MygPodderClient gpc = new MygPodderClient(
+            cinfo.getUsername(),
+            cinfo.getPassword(),
+            cinfo.getHostname()
+        );
+
+        try {
+            gpc.updateDeviceSettings(deviceId, deviceName, "mobile");
+            eventBus.post(new RegisterDeviceResultEvent(RESULT_SUCCESS, deviceId));
+        } catch (AuthenticationException e) {
+            eventBus.post(new RegisterDeviceResultEvent(RESULT_FAILURE, null));
+        } catch (IOException e) {
+            eventBus.post(new RegisterDeviceResultEvent(RESULT_FAILURE, null));
+        }
     }
 
 }
