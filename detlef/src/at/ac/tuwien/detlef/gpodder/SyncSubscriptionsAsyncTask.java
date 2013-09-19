@@ -48,6 +48,8 @@ import com.dragontek.mygpoclient.simple.IPodcast;
 
 import de.greenrobot.event.EventBus;
 
+/* TODO: Port to PodderIntentService. */
+
 /**
  * A Runnable to fetch subscription changes. It should be started in its own
  * Thread and sends a reply via the specified callback. The user of the Task

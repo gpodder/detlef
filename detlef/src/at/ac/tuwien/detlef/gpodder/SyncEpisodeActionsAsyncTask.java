@@ -46,6 +46,8 @@ import com.dragontek.mygpoclient.api.MygPodderClient;
 
 import de.greenrobot.event.EventBus;
 
+/* TODO: Port to PodderIntentService. */
+
 /**
  * A Runnable to sync episode actions. It should be started in its own Thread
  * and sends a reply via the specified callback. The user of the Task needs to
