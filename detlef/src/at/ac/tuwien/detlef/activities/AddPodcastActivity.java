@@ -45,12 +45,12 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.ErrorCode;
-import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodderIntentService;
 import at.ac.tuwien.detlef.gpodder.events.PodcastInfoResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SearchResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SuggestionsResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ToplistResultEvent;
+import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 
 import com.commonsware.cwac.merge.MergeAdapter;
 
@@ -150,9 +150,9 @@ public class AddPodcastActivity extends Activity {
          */
 
         if (savedInstanceState == null) {
-            GPodderSync gps = Singletons.i().getGPodderSync();
-            PodderIntentService.startToplistJob(this, gps.getClientInfo());
-            PodderIntentService.startSuggestionsJob(this, gps.getClientInfo());
+            GpoNetClientInfo ci = Singletons.i().getClientInfo();
+            PodderIntentService.startToplistJob(this, ci);
+            PodderIntentService.startSuggestionsJob(this, ci);
         }
 
         podcastsAdded = 0;
@@ -327,7 +327,7 @@ public class AddPodcastActivity extends Activity {
 
         String text = tv.getText().toString();
         setBusy(true);
-        GPodderSync gps = Singletons.i().getGPodderSync();
+        GpoNetClientInfo ci = Singletons.i().getClientInfo();
         if (text.startsWith("http://") || text.startsWith("https://")) {
             PodcastDAO dao = Singletons.i().getPodcastDAO();
             for (Podcast p : dao.getAllPodcasts()) {
@@ -342,9 +342,9 @@ public class AddPodcastActivity extends Activity {
 
             ArrayList<String> urls = new ArrayList<String>();
             urls.add(tv.getText().toString());
-            PodderIntentService.startInfoJob(this, gps.getClientInfo(), urls);
+            PodderIntentService.startInfoJob(this, ci, urls);
         } else {
-            PodderIntentService.startSearchJob(this, gps.getClientInfo(), tv.getText().toString());
+            PodderIntentService.startSearchJob(this, ci, tv.getText().toString());
         }
     }
 

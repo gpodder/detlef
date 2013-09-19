@@ -45,7 +45,6 @@ import at.ac.tuwien.detlef.fragments.callbacks.SettingsRegisterOnPreferenceClick
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceChangeListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceClickListener;
 import at.ac.tuwien.detlef.gpodder.ErrorCode;
-import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodderIntentService;
 import at.ac.tuwien.detlef.gpodder.events.AuthCheckResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ConnectionErrorEvent;
@@ -417,15 +416,14 @@ public class SettingsGpodderNet extends PreferenceFragment {
             showProgressDialog();
             toast.cancel();
 
-            GPodderSync gps = Singletons.i().getGPodderSync();
+            GpoNetClientInfo ci = Singletons.i().getClientInfo();
             GpodderSettings settings = Singletons.i().getGpodderSettings();
 
-            gps.setHostname(settings.getApiHostname());
+            ci.setHostname(settings.getApiHostname());
 
-            final GpoNetClientInfo clientInfo = gps.getClientInfo();
             final GpoNetClientInfo tempClientInfo = new GpoNetClientInfo();
 
-            tempClientInfo.setHostname(clientInfo.getHostname());
+            tempClientInfo.setHostname(ci.getHostname());
             tempClientInfo.setUsername(settings.getUsername());
             tempClientInfo.setPassword(settings.getPassword());
 
