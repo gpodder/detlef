@@ -429,11 +429,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
             tempClientInfo.setUsername(settings.getUsername());
             tempClientInfo.setPassword(settings.getPassword());
 
-            getActivity().startService(new Intent(getActivity(), PodderIntentService.class).putExtra(
-                             PodderIntentService.EXTRA_REQUEST,
-                             PodderIntentService.REQUEST_AUTH_CHECK).putExtra(
-                                     PodderIntentService.EXTRA_CLIENT_INFO,
-                                     tempClientInfo));
+            PodderIntentService.startAuthCheckJob(getActivity(), tempClientInfo);
 
             return true;
         }
@@ -465,19 +461,8 @@ public class SettingsGpodderNet extends PreferenceFragment {
             clientInfo.setUsername(settings.getUsername());
             clientInfo.setPassword(settings.getPassword());
 
-            getActivity().startService(new Intent(getActivity(), PodderIntentService.class)
-                    .putExtra(
-                            PodderIntentService.EXTRA_REQUEST,
-                            PodderIntentService.REQUEST_REGISTER)
-                    .putExtra(
-                            PodderIntentService.EXTRA_CLIENT_INFO,
-                            clientInfo)
-                    .putExtra(
-                            PodderIntentService.EXTRA_DEVICE_ID,
-                            Singletons.i().getDeviceIdGenerator().generate().toString())
-                    .putExtra(
-                            PodderIntentService.EXTRA_DEVICE_NAME,
-                            getSettings().getDevicename()));
+            PodderIntentService.startRegisterJob(getActivity(), clientInfo,
+                    Singletons.i().getDeviceIdGenerator().generate(), settings.getDevicename());
 
             return true;
         }

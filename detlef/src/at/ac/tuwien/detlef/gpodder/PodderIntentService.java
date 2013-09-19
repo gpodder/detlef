@@ -16,6 +16,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
+import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.events.AuthCheckResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ConnectionErrorEvent;
@@ -123,6 +124,32 @@ public class PodderIntentService extends IntentService {
                 .putExtra(
                         PodderIntentService.EXTRA_QUERY,
                         query));
+    }
+
+    public static void startAuthCheckJob(Activity activity, GpoNetClientInfo clientInfo) {
+        activity.startService(new Intent(activity, PodderIntentService.class)
+                .putExtra(
+                        PodderIntentService.EXTRA_REQUEST,
+                        PodderIntentService.REQUEST_AUTH_CHECK).putExtra(
+                        PodderIntentService.EXTRA_CLIENT_INFO,
+                        clientInfo));
+    }
+
+    public static void startRegisterJob(Activity activity, GpoNetClientInfo clientInfo,
+            DeviceId id, String deviceName) {
+        activity.startService(new Intent(activity, PodderIntentService.class)
+                .putExtra(
+                        PodderIntentService.EXTRA_REQUEST,
+                        PodderIntentService.REQUEST_REGISTER)
+                .putExtra(
+                        PodderIntentService.EXTRA_CLIENT_INFO,
+                        clientInfo)
+                .putExtra(
+                        PodderIntentService.EXTRA_DEVICE_ID,
+                        id.toString())
+                .putExtra(
+                        PodderIntentService.EXTRA_DEVICE_NAME,
+                        deviceName));
     }
 
     public static void startInfoJob(Activity activity, GpoNetClientInfo clientInfo, ArrayList<String> uris) {
