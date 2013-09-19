@@ -63,7 +63,7 @@ import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
-import at.ac.tuwien.detlef.gpodder.PodderIntentService;
+import at.ac.tuwien.detlef.gpodder.ErrorCode;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.SyncEpisodeActionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.SyncSubscriptionsAsyncTask;
@@ -376,7 +376,7 @@ public class MainActivity extends FragmentActivity
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
     public void onEventMainThread(PullSubscriptionResultEvent event) {
-        if (event.code == PodderIntentService.RESULT_FAILURE) {
+        if (ErrorCode.failed(event.code)) {
             onRefreshDone(getString(R.string.operation_failed));
             return;
         }
@@ -404,7 +404,7 @@ public class MainActivity extends FragmentActivity
     }
 
     public void onEventMainThread(EpisodeActionResultEvent event) {
-        if (event.code == PodderIntentService.RESULT_FAILURE) {
+        if (ErrorCode.failed(event.code)) {
             onRefreshDone(getString(R.string.operation_failed));
             return;
         }
@@ -420,7 +420,7 @@ public class MainActivity extends FragmentActivity
      * The Handler for receiving PullFeedAsyncTask's results.
      */
     public void onEventMainThread(PullFeedResultEvent event) {
-        if (event.code == PodderIntentService.RESULT_FAILURE) {
+        if (ErrorCode.failed(event.code)) {
             Toast.makeText(this, "Pulling feeds failed", REFRESH_MSG_DURATION_MS).show();
         }
 

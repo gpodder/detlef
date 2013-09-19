@@ -44,6 +44,7 @@ import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsRegisterOnPreferenceClickListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceChangeListener;
 import at.ac.tuwien.detlef.fragments.callbacks.SettingsUsernameOnPreferenceClickListener;
+import at.ac.tuwien.detlef.gpodder.ErrorCode;
 import at.ac.tuwien.detlef.gpodder.GPodderSync;
 import at.ac.tuwien.detlef.gpodder.PodderIntentService;
 import at.ac.tuwien.detlef.gpodder.events.AuthCheckResultEvent;
@@ -324,7 +325,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
     }
 
     public void onEventMainThread(RegisterDeviceResultEvent event) {
-        if (event.code == PodderIntentService.RESULT_FAILURE) {
+        if (ErrorCode.failed(event.code)) {
             dismissRegisterDeviceDialog();
             GUIUtils.showToast(getText(R.string.operation_failed), getActivity(), TAG);
             return;
@@ -392,7 +393,7 @@ public class SettingsGpodderNet extends PreferenceFragment {
 
     public void onEventMainThread(ConnectionErrorEvent event) {
         switch (event.code) {
-            case PodderIntentService.ErrorCode.AUTHENTICATION_FAILED:
+            case ErrorCode.AUTHENTICATION_FAILED:
                 connectionFailed();
                 break;
             default:

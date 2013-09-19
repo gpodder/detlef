@@ -115,7 +115,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
         }
 
         /* Tell receiver we're done.. */
-        EventBus.getDefault().post(new EpisodeActionResultEvent(PodderIntentService.RESULT_SUCCESS, bundle));
+        EventBus.getDefault().post(new EpisodeActionResultEvent(ErrorCode.SUCCESS, bundle));
     }
 
     /**
@@ -125,7 +125,7 @@ public class SyncEpisodeActionsAsyncTask implements Runnable {
      * @param errString A String describing the error.
      */
     private void sendError(String errString) {
-        EventBus.getDefault().post(new EpisodeActionResultEvent(PodderIntentService.RESULT_FAILURE, bundle));
+        EventBus.getDefault().post(new EpisodeActionResultEvent(ErrorCode.GENERIC_FAILURE, bundle));
     }
 
     private void applyActionChanges(Context context, EpisodeActionChanges changes) {

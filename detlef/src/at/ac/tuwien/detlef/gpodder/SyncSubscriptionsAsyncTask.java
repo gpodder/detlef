@@ -170,7 +170,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         }
 
         /* Send the result. */
-        EventBus.getDefault().post(new PullSubscriptionResultEvent(PodderIntentService.RESULT_SUCCESS, bundle));
+        EventBus.getDefault().post(new PullSubscriptionResultEvent(ErrorCode.SUCCESS, bundle));
     }
 
     /**
@@ -181,7 +181,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
      * @param errString The error string.
      */
     private void sendError(int errCode, String errString) {
-        EventBus.getDefault().post(new PullSubscriptionResultEvent(PodderIntentService.RESULT_FAILURE, bundle));
+        EventBus.getDefault().post(new PullSubscriptionResultEvent(ErrorCode.GENERIC_FAILURE, bundle));
     }
 
     private void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {

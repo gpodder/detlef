@@ -115,7 +115,7 @@ public class PullFeedAsyncTask implements Runnable {
         }
 
         /* Tell receiver we're done.. */
-        EventBus.getDefault().post(new PullFeedResultEvent(PodderIntentService.RESULT_SUCCESS, bundle));
+        EventBus.getDefault().post(new PullFeedResultEvent(ErrorCode.SUCCESS, bundle));
     }
 
     /**
@@ -126,7 +126,7 @@ public class PullFeedAsyncTask implements Runnable {
      * @param errString The error string.
      */
     private void sendError(int errCode, String errString) {
-        EventBus.getDefault().post(new PullFeedResultEvent(PodderIntentService.RESULT_FAILURE, bundle));
+        EventBus.getDefault().post(new PullFeedResultEvent(ErrorCode.GENERIC_FAILURE, bundle));
     }
 
     private void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed) {
