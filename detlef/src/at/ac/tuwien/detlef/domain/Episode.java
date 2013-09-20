@@ -18,6 +18,9 @@
 
 package at.ac.tuwien.detlef.domain;
 
+import net.x4a42.volksempfaenger.feedparser.Enclosure;
+import net.x4a42.volksempfaenger.feedparser.FeedItem;
+
 import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
 
 /**
@@ -67,17 +70,20 @@ public class Episode implements IEpisode {
         this.playPosition = 0;
     }
 
-    public Episode(IEpisode e, Podcast podcast) {
+    public Episode(Enclosure enclosure, Podcast podcast) {
         this(podcast);
-        setAuthor(e.getAuthor());
-        setDescription(e.getDescription());
-        setFileSize(e.getEnclosure().getFilesize());
-        setGuid(e.getGuid());
-        setLink(e.getLink());
-        setMimetype(e.getEnclosure().getMimetype());
-        setReleased(e.getReleased());
-        setTitle(e.getTitle());
-        setUrl(e.getEnclosure().getUrl());
+
+        FeedItem item = enclosure.feedItem;
+
+        setAuthor("Deprecated");
+        setDescription(item.description);
+        setFileSize(enclosure.size);
+        setGuid(item.itemId);
+        setLink(item.url);
+        setMimetype(enclosure.mime);
+        setReleased(item.date.getTime());
+        setTitle(item.title);
+        setUrl(enclosure.url);
     }
 
     @Override

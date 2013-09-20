@@ -18,7 +18,15 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.List;
+
+import net.x4a42.volksempfaenger.feedparser.Feed;
+import net.x4a42.volksempfaenger.feedparser.FeedParser;
+import net.x4a42.volksempfaenger.feedparser.FeedParserException;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -34,12 +42,7 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.FeedUpdate;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.gpodder.events.PullFeedResultEvent;
-import at.ac.tuwien.detlef.settings.GpodderSettings;
 
-import com.dragontek.mygpoclient.feeds.FeedServiceClient;
-import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
-import com.dragontek.mygpoclient.feeds.IFeed;
-import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
 import com.google.gson.JsonParseException;
 
 import de.greenrobot.event.EventBus;
@@ -73,33 +76,14 @@ public class PullFeedAsyncTask implements Runnable {
             sendError(GENERIC_ERROR, err);
         }
 
-        long since = podcast.getLastUpdate();
-
-        /* Retrieve settings.*/
-        GpodderSettings gps = Singletons.i().getGpodderSettings();
-
-        String username = gps.getUsername();
-        String password = gps.getPassword();
-
-        FeedServiceClient fsc = new FeedServiceClient(
-            "http://" + gps.getFeedHostname(),
-            username,
-            password
-        );
-
         FeedUpdate feed = null;
         try {
             /* Get the feed */
-            FeedServiceResponse fsr = fsc.parseFeeds(new String[] {podcast.getUrl()}, since);
-            if (fsr == null || fsr.size() == 0) {
-                String e = Detlef.getAppContext().getString(R.string.failed_to_download_feed);
-                sendError(GENERIC_ERROR, String.format("%s: %s", podcast.getTitle(), e));
-                return;
-            }
+            Feed f = parseFeed(podcast.getUrl());
 
-            feed = new FeedUpdate(fsr.get(0), podcast);
+            feed = new FeedUpdate(f, podcast);
 
-            upsertAndDeleteEpisodes(Detlef.getAppContext(), podcast, feed);
+            insertEpisodes(Detlef.getAppContext(), podcast, feed.getEpisodeList());
 
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
@@ -114,10 +98,24 @@ public class PullFeedAsyncTask implements Runnable {
         } catch (IOException e) {
             sendError(GENERIC_ERROR, e.getLocalizedMessage());
             return;
+        } catch (FeedParserException e) {
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
+            return;
         }
 
         /* Tell receiver we're done.. */
         EventBus.getDefault().post(new PullFeedResultEvent(ErrorCode.SUCCESS, bundle));
+    }
+
+    private static Feed parseFeed(String url) throws FeedParserException, IOException {
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
+            return FeedParser.parse(in);
+        } finally {
+            if (in != null) { try { in.close(); } catch (IOException e) { } }
+        }
+
     }
 
     /**
@@ -131,20 +129,11 @@ public class PullFeedAsyncTask implements Runnable {
         EventBus.getDefault().post(new PullFeedResultEvent(ErrorCode.GENERIC_FAILURE, bundle));
     }
 
-    private void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed) {
+    private void insertEpisodes(Context context, Podcast p, List<Episode> episodes) {
         try {
             EpisodeDAO dao = Singletons.i().getEpisodeDAO();
-            for (IEpisode ep : feed.getEpisodes()) {
-                try {
-                    if (ep.getEnclosure() != null) {
-                        Episode newEp = new Episode(ep, p);
-
-                        dao.insertEpisode(newEp);
-                    }
-                } catch (Exception ex) {
-                    Log.i(TAG, ("enclosure missing, " + ex.getMessage()) != null ? ex.getMessage()
-                          : ex.toString());
-                }
+            for (Episode ep : episodes) {
+                dao.insertEpisode(ep);
             }
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
