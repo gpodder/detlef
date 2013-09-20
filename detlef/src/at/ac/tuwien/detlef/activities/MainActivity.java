@@ -856,34 +856,29 @@ public class MainActivity extends FragmentActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
-
         Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
 
         if (data == null) {
             return;
         }
 
-        if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)
-                || data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
+        final boolean refresh = data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false);
+        final boolean addRefresh = data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false);
 
-            if (resultCode == Activity.RESULT_OK) {
-                Bundle bundle = new Bundle();
-                if (data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
-                    bundle.putBoolean(PODCAST_ADD_REFRESH_FEED_LIST, true);
-                } else {
-                    bundle.putBoolean(EXTRA_REFRESH_FEED_LIST, true);
-                }
-                onRefreshPressed(bundle);
-            } else {
-                if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
-                    Toast.makeText(
-                        this, getString(R.string.you_can_refresh_your_podcasts_later),
-                        Toast.LENGTH_LONG
-                    ).show();
-                }
-            }
+        if (!refresh && !addRefresh) {
+            return;
         }
 
+        if (resultCode == Activity.RESULT_OK) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(addRefresh ? PODCAST_ADD_REFRESH_FEED_LIST : EXTRA_REFRESH_FEED_LIST, true);
+            onRefreshPressed(bundle);
+        } else if (refresh) {
+            Toast.makeText(
+                this, getString(R.string.you_can_refresh_your_podcasts_later),
+                Toast.LENGTH_LONG
+            ).show();
+        }
     }
 
     @Override
