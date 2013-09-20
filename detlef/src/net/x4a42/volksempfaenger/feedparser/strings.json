@@ -1,0 +1,95 @@
+{
+	"class": "StringLookup",
+	"pre": "package net.x4a42.volksempfaenger.feedparser;\n\nimport net.x4a42.volksempfaenger.feedparser.Enums.AtomRel;\nimport net.x4a42.volksempfaenger.feedparser.Enums.Mime;\nimport net.x4a42.volksempfaenger.feedparser.Enums.Namespace;\nimport net.x4a42.volksempfaenger.feedparser.Enums.Tag;\nimport net.x4a42.volksempfaenger.feedparser.Enums.GpodderKey;\n\n",
+	"groups": [
+		{
+			"name": "Namespace",
+			"return_type": "Namespace",
+			"default": "Namespace.UNKNOWN",
+			"pairs": {
+				"http://www.w3.org/2005/Atom": "Namespace.ATOM",
+				"http://backend.userland.com/RSS2": "Namespace.RSS",
+				"http://purl.org/rss/1.0/modules/content/": "Namespace.RSS_CONTENT",
+				"http://www.w3.org/1999/xhtml": "Namespace.XHTML",
+				"http://www.itunes.com/dtds/podcast-1.0.dtd": "Namespace.ITUNES",
+				"": "Namespace.NONE"
+			}
+		},
+		{
+			"name": "AtomTag",
+			"return_type": "Tag",
+			"default": "Tag.UNKNOWN",
+			"pairs": {
+				"feed":      "Tag.ATOM_FEED",
+				"title":     "Tag.ATOM_TITLE",
+				"entry":     "Tag.ATOM_ENTRY",
+				"link":      "Tag.ATOM_LINK",
+				"content":   "Tag.ATOM_CONTENT",
+				"published": "Tag.ATOM_PUBLISHED",
+				"updated":   "Tag.ATOM_UPDATED",
+				"subtitle":  "Tag.ATOM_SUBTITLE",
+				"id":        "Tag.ATOM_ID",
+				"icon":      "Tag.ATOM_ICON"
+			}
+		},
+		{
+			"name": "RssTag",
+			"return_type": "Tag",
+			"default": "Tag.UNKNOWN",
+			"pairs": {
+				"rss":         "Tag.RSS_TOPLEVEL",
+				"channel":     "Tag.RSS_CHANNEL",
+				"item":        "Tag.RSS_ITEM",
+				"title":       "Tag.RSS_TITLE",
+				"link":        "Tag.RSS_LINK",
+				"description": "Tag.RSS_DESCRIPTION",
+				"enclosure":   "Tag.RSS_ENCLOSURE",
+				"pubDate":     "Tag.RSS_PUB_DATE",
+				"guid":        "Tag.RSS_GUID",
+				"image":       "Tag.RSS_IMAGE",
+				"url":         "Tag.RSS_URL"
+			}
+		},
+		{
+			"name": "ITunesTag",
+			"return_type": "Tag",
+			"default": "Tag.UNKNOWN",
+			"pairs": {
+				"image": "Tag.ITUNES_IMAGE",
+				"summary": "Tag.ITUNES_SUMMARY"
+			}
+		},
+		{
+			"name": "AtomRel",
+			"return_type": "AtomRel",
+			"default": "AtomRel.UNKNOWN",
+			"pairs": {
+				"enclosure": "AtomRel.ENCLOSURE",
+				"alternate": "AtomRel.ALTERNATE",
+				"self": "AtomRel.SELF",
+				"payment": "AtomRel.PAYMENT"
+			}
+		},
+		{
+			"name": "Mime",
+			"return_type": "Mime",
+			"default": "Mime.UNKNOWN",
+			"pairs": {
+				"text/html": "Mime.HTML",
+				"text/xhtml": "Mime.XHTML"
+			}
+		},
+		{
+			"name": "GpodderKey",
+			"return_type": "GpodderKey",
+			"default": "GpodderKey.UNKNOWN",
+			"pairs": {
+				"title": "GpodderKey.TITLE",
+				"url": "GpodderKey.URL",
+				"description": "GpodderKey.DESCRIPTION",
+				"website": "GpodderKey.WEBSITE",
+				"scaled_logo_url": "GpodderKey.SCALED_LOGO_URL"
+			}
+		}
+	]
+}
