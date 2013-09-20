@@ -19,6 +19,7 @@ package at.ac.tuwien.detlef.domain;
 
 import java.io.Serializable;
 
+import net.x4a42.volksempfaenger.feedparser.Feed;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -69,6 +70,13 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         setTitle(p.getTitle());
         setDescription(p.getDescription());
         setLogoUrl(p.getLogoUrl());
+    }
+
+    public Podcast(Feed feed) {
+        setUrl(feed.url);
+        setTitle(feed.title);
+        setDescription(feed.description);
+        setLogoUrl(feed.image);
     }
 
     /**

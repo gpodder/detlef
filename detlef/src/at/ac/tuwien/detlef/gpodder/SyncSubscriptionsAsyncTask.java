@@ -17,10 +17,17 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import net.x4a42.volksempfaenger.feedparser.Feed;
+import net.x4a42.volksempfaenger.feedparser.FeedParser;
+import net.x4a42.volksempfaenger.feedparser.FeedParserException;
 
 import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
@@ -43,8 +50,6 @@ import at.ac.tuwien.detlef.settings.GpodderSettings;
 import com.dragontek.mygpoclient.api.MygPodderClient;
 import com.dragontek.mygpoclient.api.SubscriptionChanges;
 import com.dragontek.mygpoclient.api.UpdateResult;
-import com.dragontek.mygpoclient.pub.PublicClient;
-import com.dragontek.mygpoclient.simple.IPodcast;
 
 import de.greenrobot.event.EventBus;
 
@@ -232,45 +237,35 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         }
     }
 
-    /**
-     * Wrapper class to turn mygpoclient-java SubscriptionChanges into our
-     * EnhancedSubscriptionChanges.
-     */
     private static class PodcastDetailsRetriever {
-        private final PublicClient pub;
-
-        public PodcastDetailsRetriever() {
-            pub = new PublicClient();
-        }
-
-        /**
-         * Convert changes into EnhancedSubscriptionChanges. This accesses the
-         * Network is may be sloooooooowwwww.
-         *
-         * @param changes
-         * @return The converted SubscriptionChagnes.
-         */
         public EnhancedSubscriptionChanges getPodcastDetails(SubscriptionChanges changes) {
             return new EnhancedSubscriptionChanges(getPodcastSetDetails(changes.add),
                                                    getPodcastSetDetails(changes.remove), changes.timestamp);
         }
 
-        public IPodcast getPodcastDetails(String url) {
+        public Podcast getPodcastDetails(String url) {
+            BufferedReader in = null;
             try {
-                return pub.getPodcastData(url);
+                in = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
+                Feed feed = FeedParser.parse(in);
+                return new Podcast(feed);
             } catch (ClientProtocolException e) {
-                /* do nothing */
+                Log.d(TAG, String.format("Exception while syncing subscriptions: %s", e));
             } catch (IOException e) {
-                /* do nothing */
+                Log.d(TAG, String.format("Exception while syncing subscriptions: %s", e));
+            } catch (FeedParserException e) {
+                Log.d(TAG, String.format("Exception while syncing subscriptions: %s", e));
+            } finally {
+                if (in != null) { try { in.close(); } catch (IOException e) { } }
             }
 
             return null;
         }
 
-        private List<IPodcast> getPodcastSetDetails(Set<String> urls) {
-            List<IPodcast> podcasts = new ArrayList<IPodcast>(urls.size());
+        private List<Podcast> getPodcastSetDetails(Set<String> urls) {
+            List<Podcast> podcasts = new ArrayList<Podcast>(urls.size());
             for (String url : urls) {
-                IPodcast podcast = getPodcastDetails(url);
+                Podcast podcast = getPodcastDetails(url);
                 if (podcast != null) {
                     podcasts.add(getPodcastDetails(url));
                 }
