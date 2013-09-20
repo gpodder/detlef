@@ -42,6 +42,8 @@ import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
+import at.ac.tuwien.detlef.gpodder.events.PlaylistChangedEvent;
+import de.greenrobot.event.EventBus;
 
 /**
  * A service that provides methods for playing episodes.
@@ -280,6 +282,7 @@ public class MediaPlayerService extends Service implements IMediaPlayerService,
             }
         } else {
             playlistDAO.removeEpisode(currentPlaylistPosition);
+            EventBus.getDefault().post(new PlaylistChangedEvent());
             if (!playlistItems.isEmpty()) {
                 if (currentPlaylistPosition >= playlistItems.size()) {
                     currentPlaylistPosition = playlistItems.size() - 1;

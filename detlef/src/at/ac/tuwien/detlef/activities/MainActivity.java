@@ -68,8 +68,10 @@ import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
 import at.ac.tuwien.detlef.gpodder.SyncEpisodeActionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.SyncSubscriptionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.events.EpisodeActionResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.PlaylistChangedEvent;
 import at.ac.tuwien.detlef.gpodder.events.PullFeedResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.PullSubscriptionResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.SubscriptionsChangedEvent;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import de.greenrobot.event.EventBus;
@@ -376,6 +378,8 @@ public class MainActivity extends FragmentActivity
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
     public void onEventMainThread(PullSubscriptionResultEvent event) {
+        EventBus.getDefault().post(new SubscriptionsChangedEvent());
+
         if (ErrorCode.failed(event.code)) {
             onRefreshDone(getString(R.string.operation_failed));
             return;
@@ -436,6 +440,8 @@ public class MainActivity extends FragmentActivity
                 Log.d(TAG, "r bundle: " + bundle);
                 Log.d(TAG, "r bundle extra: " + showDialog);
                 Log.d(TAG, "r handler: " + this);
+
+                EventBus.getDefault().post(new SubscriptionsChangedEvent());
 
                 refreshBg.execute(new SyncEpisodeActionsAsyncTask(bundle));
             }
@@ -786,6 +792,8 @@ public class MainActivity extends FragmentActivity
                     text = R.string.could_not_add_to_playlist;
                 }
             }
+
+            EventBus.getDefault().post(new PlaylistChangedEvent());
         } else {
             text = R.string.could_not_add_to_playlist;
         }

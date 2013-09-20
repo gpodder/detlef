@@ -44,4 +44,9 @@ public class PodListModel<T extends IPodcast> {
     public void removePodcast(IPodcast podcast) {
         podlist.remove(podcast);
     }
+
+    public void update(List<T> podlist) {
+        this.podlist.clear();
+        this.podlist.addAll(podlist);
+    }
 }

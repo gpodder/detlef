@@ -20,9 +20,7 @@
 package at.ac.tuwien.detlef.db;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -40,8 +38,6 @@ public class SimplePodcastDAO implements PodcastDAO {
     private static final String TAG = SimplePodcastDAO.class.getName();
 
     private final DatabaseHelper dbHelper;
-    private final Set<PodcastDAO.OnPodcastChangeListener> listeners =
-        new HashSet<PodcastDAO.OnPodcastChangeListener>();
 
     public SimplePodcastDAO(Context context) {
         dbHelper = Singletons.i().getDatabaseHelper();
@@ -87,7 +83,6 @@ public class SimplePodcastDAO implements PodcastDAO {
             }
 
             podcast.setId(id);
-            notifyListenersAdded(podcast);
 
             db.setTransactionSuccessful();
 
@@ -155,7 +150,6 @@ public class SimplePodcastDAO implements PodcastDAO {
 
             int ret = db.delete(DatabaseHelper.TABLE_PODCAST, selection, selectionArgs);
 
-            notifyListenersDeleted(podcast);
             return ret;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : ex.toString());
@@ -226,8 +220,6 @@ public class SimplePodcastDAO implements PodcastDAO {
 
         int ret = db.update(DatabaseHelper.TABLE_PODCAST, values, selection, selectionArgs);
 
-        notifyListenersChanged(podcast);
-
         return ret;
     }
 
@@ -257,34 +249,6 @@ public class SimplePodcastDAO implements PodcastDAO {
         }
         c.close();
         return p;
-    }
-
-    @Override
-    public void addPodcastChangedListener(PodcastDAO.OnPodcastChangeListener listener) {
-        listeners.add(listener);
-    }
-
-    @Override
-    public void removePodListChangeListener(PodcastDAO.OnPodcastChangeListener listener) {
-        listeners.remove(listener);
-    }
-
-    private void notifyListenersChanged(Podcast podcast) {
-        for (PodcastDAO.OnPodcastChangeListener listener : listeners) {
-            listener.onPodcastChanged(podcast);
-        }
-    }
-
-    private void notifyListenersAdded(Podcast podcast) {
-        for (PodcastDAO.OnPodcastChangeListener listener : listeners) {
-            listener.onPodcastAdded(podcast);
-        }
-    }
-
-    private void notifyListenersDeleted(Podcast podcast) {
-        for (PodcastDAO.OnPodcastChangeListener listener : listeners) {
-            listener.onPodcastDeleted(podcast);
-        }
     }
 
     private static final String QUERY_PODCAST_BY_URL = String.format("%s where %s = ?;",
@@ -343,7 +307,6 @@ public class SimplePodcastDAO implements PodcastDAO {
             }
 
             podcast.setLocalDel(true);
-            notifyListenersDeleted(podcast);
 
             return true;
         } catch (Exception ex) {
@@ -375,8 +338,6 @@ public class SimplePodcastDAO implements PodcastDAO {
 
             podcast.setLocalAdd(false);
             podcast.setLocalDel(false);
-
-            notifyListenersChanged(podcast);
 
             db.setTransactionSuccessful();
 

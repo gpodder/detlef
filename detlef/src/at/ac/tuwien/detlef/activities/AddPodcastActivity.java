@@ -48,6 +48,7 @@ import at.ac.tuwien.detlef.gpodder.ErrorCode;
 import at.ac.tuwien.detlef.gpodder.PodderIntentService;
 import at.ac.tuwien.detlef.gpodder.events.PodcastInfoResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SearchResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.SubscriptionsChangedEvent;
 import at.ac.tuwien.detlef.gpodder.events.SuggestionsResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.ToplistResultEvent;
 import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
@@ -246,6 +247,8 @@ public class AddPodcastActivity extends Activity {
             return;
         }
 
+        EventBus.getDefault().post(new SubscriptionsChangedEvent());
+
         resultAdapter.removePodcast(result);
         suggestionsAdapter.removePodcast(result);
         toplistAdapter.removePodcast(result);
@@ -376,6 +379,8 @@ public class AddPodcastActivity extends Activity {
             Toast.makeText(this, "Subscription update failed", Toast.LENGTH_SHORT);
             return;
         }
+
+        EventBus.getDefault().post(new SubscriptionsChangedEvent());
 
         Toast.makeText(this, "Subscription update succeeded", Toast.LENGTH_SHORT).show();
         podcastsAdded++;

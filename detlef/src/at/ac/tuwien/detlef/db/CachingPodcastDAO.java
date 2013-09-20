@@ -123,11 +123,15 @@ public class CachingPodcastDAO implements PodcastDAO {
 
     @Override
     public boolean localDeletePodcast(Podcast podcast) {
+        if (!dao.localDeletePodcast(podcast)) {
+            return false;
+        }
+
         synchronized (cache) {
             cache.remove(podcast.getId());
         }
 
-        return dao.localDeletePodcast(podcast);
+        return true;
     }
 
     @Override
@@ -148,16 +152,6 @@ public class CachingPodcastDAO implements PodcastDAO {
     @Override
     public List<Podcast> getLocallyDeletedPodcasts() {
         return dao.getLocallyDeletedPodcasts();
-    }
-
-    @Override
-    public void addPodcastChangedListener(OnPodcastChangeListener listener) {
-        dao.addPodcastChangedListener(listener);
-    }
-
-    @Override
-    public void removePodListChangeListener(OnPodcastChangeListener listener) {
-        dao.removePodListChangeListener(listener);
     }
 
 }

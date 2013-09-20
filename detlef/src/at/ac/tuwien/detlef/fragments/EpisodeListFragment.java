@@ -37,7 +37,6 @@ import at.ac.tuwien.detlef.R;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.adapters.EpisodeListAdapter;
 import at.ac.tuwien.detlef.db.EpisodeDAO;
-import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.ActionState;
@@ -49,15 +48,17 @@ import at.ac.tuwien.detlef.filter.FilterChain;
 import at.ac.tuwien.detlef.filter.KeywordFilter;
 import at.ac.tuwien.detlef.filter.NewFilter;
 import at.ac.tuwien.detlef.filter.PodcastFilter;
+import at.ac.tuwien.detlef.gpodder.events.PlaylistChangedEvent;
 import at.ac.tuwien.detlef.models.EpisodeListModel;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.util.GUIUtils;
+import de.greenrobot.event.EventBus;
 
 /**
  * The {@link Fragment} that displays a list of {@link Episode Episodes}.
  */
 public class EpisodeListFragment extends ListFragment
-    implements EpisodeDAO.OnEpisodeChangeListener, PlaylistDAO.OnPlaylistChangeListener {
+    implements EpisodeDAO.OnEpisodeChangeListener {
 
     private static final String TAG = EpisodeListFragment.class.getName();
     private static final String BUNDLE_SELECTED_PODCAST = "BUNDLE_SELECTED_PODCAST";
@@ -70,7 +71,6 @@ public class EpisodeListFragment extends ListFragment
     private FilterChain filter = new FilterChain();
     private Podcast filteredByPodcast = null;
     private OnEpisodeSelectedListener listener;
-    private PlaylistDAO playlistDAO;
 
     private GpodderSettings settings;
 
@@ -103,8 +103,7 @@ public class EpisodeListFragment extends ListFragment
 
         EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         dao.addEpisodeChangedListener(this);
-        playlistDAO = Singletons.i().getPlaylistDAO();
-        playlistDAO.addPlaylistChangedListener(this);
+        EventBus.getDefault().register(this, PlaylistChangedEvent.class);
 
         List<Episode> eplist = dao.getAllEpisodes();
         model = new EpisodeListModel(eplist);
@@ -185,7 +184,7 @@ public class EpisodeListFragment extends ListFragment
     public void onDestroy() {
         EpisodeDAO dao = Singletons.i().getEpisodeDAO();
         dao.removeEpisodeChangedListener(this);
-        playlistDAO.removePlaylistChangeListener(this);
+        EventBus.getDefault().unregister(this);
 
         super.onDestroy();
     }
@@ -471,18 +470,7 @@ public class EpisodeListFragment extends ListFragment
         refresh();
     }
 
-    @Override
-    public void onPlaylistEpisodeAdded(int position, Episode episode) {
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition) {
-        // not of interest here
-    }
-
-    @Override
-    public void onPlaylistEpisodeRemoved(int position) {
+    public void onEventMainThread(PlaylistChangedEvent event) {
         adapter.notifyDataSetChanged();
     }
 }
