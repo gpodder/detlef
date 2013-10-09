@@ -49,6 +49,7 @@ import at.ac.tuwien.detlef.db.PlaylistDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
+import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 
 public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistChangeListener,
@@ -347,6 +348,7 @@ public class PlayerFragment extends Fragment implements PlaylistDAO.OnPlaylistCh
         try {
             if (service.isCurrentlyPlaying()) {
                 stopPlaying();
+                MediaPlayerNotification.cancel((MediaPlayerService)service);
             } else {
                 startPlaying();
             }
