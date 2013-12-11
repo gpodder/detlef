@@ -35,8 +35,8 @@ import at.ac.tuwien.detlef.domain.Podcast;
  */
 public class EpisodeDAOImplTest extends AndroidTestCase {
 
-    Episode e1, e2;
-    Podcast p1;
+    Episode e1, e2, e21;
+    Podcast p1, p2;
 
     EpisodeDAO edao;
     PodcastDAO pdao;
@@ -76,7 +76,28 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         e2.setUrl("url");
         e2.setStorageState(StorageState.NOT_ON_DEVICE);
         e2.setFilePath("path");
+        
+        p2 = new Podcast();
+        p2.setDescription("description 2");
+        p2.setLastUpdate(222);
+        p2.setLogoFilePath("logo file path 2");
+        p2.setLogoUrl("logo url 2");
+        p2.setTitle("title 2");
+        p2.setUrl("die url halt 2");
 
+        e21 = new Episode(p2);
+        e21.setAuthor("author 2");
+        e21.setDescription("description 2");
+        e21.setFileSize(0);
+        e21.setGuid("guid 2");
+        e21.setLink("link 2");
+        e21.setMimetype("mimetype 2");
+        e21.setReleased(System.currentTimeMillis());
+        e21.setTitle("title 2");
+        e21.setUrl("url 2");
+        e21.setStorageState(StorageState.NOT_ON_DEVICE);
+        e21.setFilePath("path 2");
+        
         edao = Singletons.i().getEpisodeDAO();
         pdao = Singletons.i().getPodcastDAO();
 
@@ -136,6 +157,23 @@ public class EpisodeDAOImplTest extends AndroidTestCase {
         assertEquals(ep.getId(), e1.getId());
     }
 
+    /**
+     * tests the getEpisodes functionality for more than 1 podcast
+     */
+    public void testGetEpisodesMultiplePodcasts() {
+        p1 = pdao.insertPodcast(p1);
+        p2 = pdao.insertPodcast(p2);
+        e1 = edao.insertEpisode(e1);
+        e21 = edao.insertEpisode(e21);
+        ArrayList<Episode> episodes = (ArrayList<Episode>)edao.getEpisodes(p1);
+        assertEquals(1, episodes.size());
+        Episode ep = episodes.get(0);
+        assertEquals(e1.getFilePath(), ep.getFilePath());
+        assertEquals(e1.getMimetype(), ep.getMimetype());
+        assertEquals(ep.getId(), e1.getId());
+    }
+    
+    
     /**
      * tests the updateState functionality
      */
