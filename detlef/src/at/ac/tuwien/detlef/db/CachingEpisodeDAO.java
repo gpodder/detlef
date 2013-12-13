@@ -1,6 +1,5 @@
 package at.ac.tuwien.detlef.db;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,6 +44,12 @@ public class CachingEpisodeDAO implements EpisodeDAO {
         return cacheResults(dao.getAllEpisodes());
     }
 
+    /**
+     * Stores given episodes in cache
+     *
+     * @param es episodes to store
+     * @return es again
+     */
     private List<Episode> cacheResults(List<Episode> es) {
         if (es == null) {
             return null;
@@ -57,7 +62,17 @@ public class CachingEpisodeDAO implements EpisodeDAO {
                 }
             }
 
-            return new ArrayList<Episode>(cache.values());
+            // Originally this method returned all cached episodes:
+            //   return new ArrayList<Episode>(cache.values());
+
+            // I think this is wrong, because that would cause
+            // CachingEpisodeDAO.getEpisodes to return all episodes instead of
+            // only episodes of the given podcast. (See #50)
+
+            // Of course, it could also be that CachingEpisodeDAO.getEpisodes is buggy.
+            // But I think this is less likely.
+
+            return es;
         }
     }
 
