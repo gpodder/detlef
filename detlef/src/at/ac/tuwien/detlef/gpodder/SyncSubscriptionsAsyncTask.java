@@ -248,6 +248,14 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             try {
                 in = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
                 Feed feed = FeedParser.parse(in);
+
+                // Some broken feeds don't point to their own URL. In that case
+                // we just use the url where we downloaded them from.
+                // See #54 and #46.
+                if (feed.url == null) {
+                    feed.url = url;
+                }
+
                 return new Podcast(feed);
             } catch (ClientProtocolException e) {
                 Log.d(TAG, String.format("Exception while syncing subscriptions: %s", e));
