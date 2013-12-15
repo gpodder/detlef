@@ -248,6 +248,11 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             try {
                 in = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
                 Feed feed = FeedParser.parse(in);
+
+                // the line below is a workaround for #54.
+                // This might be a bug in the FeedParser, but I am not sure.
+                feed.url = url;
+
                 return new Podcast(feed);
             } catch (ClientProtocolException e) {
                 Log.d(TAG, String.format("Exception while syncing subscriptions: %s", e));
