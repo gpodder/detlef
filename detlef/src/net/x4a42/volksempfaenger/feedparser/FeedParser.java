@@ -265,9 +265,13 @@ public class FeedParser {
 					}
 					break;
 				case SELF:
-					if (safePeek(Tag.ATOM_FEED)) {
+				    // A second attempt to fix #54.
+				    // Now that I commented out the check below, it works.
+				    // But I don't know what this is all about.
+
+					//if (safePeek(Tag.ATOM_FEED)) {
 						feed.url = atts.getValue(ATOM_ATTR_HREF);
-					}
+					//}
 					break;
 				case PAYMENT:
 					if (safePeek(Tag.ATOM_ENTRY) || safePeek(Tag.RSS_ITEM)) {
@@ -515,16 +519,16 @@ public class FeedParser {
 			 * more proper way. But this is a really small addition to a
 			 * codebase (You don't need a jar, just throw this function in some
 			 * static Utility class if you have one).
-			 * 
+			 *
 			 * Feel free to use this in your code, but I'd appreciate it if you
 			 * keep this note in the code if you distribute it. Thanks!
-			 * 
+			 *
 			 * For people who might be googling: The date format parsed by this
 			 * goes by: atomDateConstruct, xsd:dateTime, RFC3339 and is
 			 * compatable with: ISO.8601.1988, W3C.NOTE-datetime-19980827 and
 			 * W3C.REC-xmlschema-2-20041028 (that I know of)
-			 * 
-			 * 
+			 *
+			 *
 			 * Copyright 2007, Chad Okere (ceothrow1 at gmail dotcom) OMG NO
 			 * WARRENTY EXPRESSED OR IMPLIED!!!1
 			 */
