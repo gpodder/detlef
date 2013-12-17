@@ -10,6 +10,7 @@ To build detlef, you will need ant and a working installation
 of the Android 16 SDK.
 
     $ git clone git://github.com/gpodder/detlef.git
+    $ git checkout working # optionally, for the most recent code
     $ cd detlef
     $ git submodule init
     $ git submodule update
