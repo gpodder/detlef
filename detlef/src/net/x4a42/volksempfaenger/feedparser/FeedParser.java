@@ -265,7 +265,11 @@ public class FeedParser {
 					}
 					break;
 				case SELF:
-					if (safePeek(Tag.ATOM_FEED)) {
+				    // I changed the tag below from Tag.ATOM_FEED to 
+				    // Tag.RSS_CHANNEL.
+				    // I think this fixes an upstream bug:
+				    // http://volksempfaenger.0x4a42.net/dev/ticket/216
+					if (safePeek(Tag.RSS_CHANNEL)) {
 						feed.url = atts.getValue(ATOM_ATTR_HREF);
 					}
 					break;
