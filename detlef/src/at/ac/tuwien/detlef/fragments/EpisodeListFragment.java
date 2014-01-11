@@ -394,8 +394,15 @@ public class EpisodeListFragment extends ListFragment
             comparator = new Comparator<Episode>() {
                 @Override
                 public int compare(Episode lhs, Episode rhs) {
-                    int diff = (int)(rhs.getReleased() - lhs.getReleased());
-                    return (ascending ? -1 * diff : diff);
+                    if (lhs.getReleased() == rhs.getReleased()) {
+                        return 0;
+                    }
+                    if (lhs.getReleased() < rhs.getReleased()) {
+                        return ascending ? -1 : 1;
+                    }
+                    else {
+                        return ascending ? 1 : -1;
+                    }
                 }
             };
             break;
