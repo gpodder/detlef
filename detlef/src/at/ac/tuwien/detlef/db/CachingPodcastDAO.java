@@ -54,11 +54,17 @@ public class CachingPodcastDAO implements PodcastDAO {
 
     @Override
     public int deletePodcast(Podcast podcast) {
+        int result = dao.deletePodcast(podcast);
+
+        // Remove podcast from cache after deleting it from the database.
+        // (otherwise the podcast is added again to the cache when the
+        // podcast episodes are deleted; see #58.)
+
         synchronized (cache) {
             cache.remove(podcast.getId());
         }
 
-        return dao.deletePodcast(podcast);
+        return result;
     }
 
     @Override
