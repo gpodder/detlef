@@ -275,7 +275,7 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
             for (String url : urls) {
                 Podcast podcast = getPodcastDetails(url);
                 if (podcast != null) {
-                    podcasts.add(getPodcastDetails(url));
+                    podcasts.add(podcast);
                 }
             }
 
