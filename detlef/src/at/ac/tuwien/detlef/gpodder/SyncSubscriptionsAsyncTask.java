@@ -1,5 +1,5 @@
 /* *************************************************************************
- *  Copyright 2012 The detlef developers                                   *
+ *  Copyright 2012-2014 The detlef developers                              *
  *                                                                         *
  *  This program is free software: you can redistribute it and/or modify   *
  *  it under the terms of the GNU General Public License as published by   *
@@ -17,17 +17,10 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import net.x4a42.volksempfaenger.feedparser.Feed;
-import net.x4a42.volksempfaenger.feedparser.FeedParser;
-import net.x4a42.volksempfaenger.feedparser.FeedParserException;
 
 import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.ClientProtocolException;
@@ -43,7 +36,6 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.DeviceId;
 import at.ac.tuwien.detlef.domain.EnhancedSubscriptionChanges;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.domain.PodcastPersistence;
 import at.ac.tuwien.detlef.gpodder.events.PullSubscriptionResultEvent;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 
@@ -105,24 +97,43 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
                 pdao.getLocallyAddedPodcasts(), pdao.getLocallyDeletedPodcasts(),
                 lastUpdate);
 
+            /* This pushes the local changes. */
             UpdateResult result = gpc.updateSubscriptions(
                                       devId,
                                       localChanges.getAddUrls(),
                                       localChanges.getRemoveUrls());
 
-            /* Login and get subscription changes */
+            /*
+             * Login and get subscription changes.
+             *
+             * BE CAREFUL:
+             *
+             * In most of the cases, this will also contain the local changes, because we
+             * just pushed them to the remote server.
+             *
+             * But, if you e.g. locally delete a podcast which was already deleted remotely,
+             * this local change won't be contained in the remote changes.
+             *
+             * TODO: make unit test :-)
+             */
             SubscriptionChanges changes = gpc.pullSubscriptions(devId,
                                           lastUpdate);
 
-            /* Get the Details for the individual URLs. */
-
-            PodcastDetailsRetriever pdr = new PodcastDetailsRetriever();
-            EnhancedSubscriptionChanges remoteChanges = pdr.getPodcastDetails(changes);
+            /* Convert the URLs in changes to 'Detlef Enhanced Subscription Changes' */
+            EnhancedSubscriptionChanges remoteChanges = getEnhancedSubscriptionChanges(changes);
 
             /* Update the db here */
 
-            applySubscriptionChanges(Detlef.getAppContext(), localChanges);
+            /* Handle remote changes, which probably include most of the local changes */
             applySubscriptionChanges(Detlef.getAppContext(), remoteChanges);
+
+            /*
+             * Handle local changes, for the cases we missed.
+             * This will repeat some of the remote changes, but I guess the performance loss
+             * is negligible.
+             * */
+            applySubscriptionChanges(Detlef.getAppContext(), localChanges);
+
 
             /* apply the changed URLs */
             if (result.updateUrls != null && result.updateUrls.size() > 0) {
@@ -191,42 +202,22 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         EventBus.getDefault().post(new PullSubscriptionResultEvent(ErrorCode.GENERIC_FAILURE, bundle));
     }
 
+    /**
+     * This method is only called to save changes which are in sync.
+     *
+     * Either we save remote changes we pulled from the server.
+     * Or we save local changes after we pushed them to the server.
+     *
+     * @param context
+     * @param changes
+     */
     private void applySubscriptionChanges(Context context, EnhancedSubscriptionChanges changes) {
         Log.d(TAG, "Applying changes");
 
         PodcastDAO dao = Singletons.i().getPodcastDAO();
         for (Podcast p : changes.getAdd()) {
-            /* The podcast may already be in the local add/delete table. */
-            Podcast pod = dao.getPodcastByUrl(p.getUrl());
-            if (pod != null) {
-                if (pod.isLocalAdd() || pod.isLocalDel()) {
-                    dao.setRemotePodcast(pod);
-                    if (pod.getLogoUrl() != null && !pod.getLogoUrl().equals("")) {
-                        try {
-                            PodcastPersistence.download(pod);
-                        } catch (IOException e) {
-                            Log.e(TAG, "error downloading podcast img: " + e.getMessage());
-                        }
-                    }
-                }
-
-                /* Never insert a podcast twice. */
-                continue;
-            }
-
-            if ((p.getTitle() != null) && (p.getUrl() != null)) {
-
-                if (p.getLogoUrl() != null && !p.getLogoUrl().equals("")) {
-                    try {
-                        PodcastPersistence.download(p);
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error downloading podcast img: " + e.getMessage());
-                    }
-                }
-                dao.insertPodcast(p);
-            } else {
-                Log.w(TAG, "Cannot insert podcast without title/url");
-            }
+            /* save podcast as remote podcast */
+            PodcastSaver.savePodcast(p, true);
         }
 
         for (Podcast p : changes.getRemove()) {
@@ -237,49 +228,49 @@ public class SyncSubscriptionsAsyncTask implements Runnable {
         }
     }
 
-    private static class PodcastDetailsRetriever {
-        public EnhancedSubscriptionChanges getPodcastDetails(SubscriptionChanges changes) {
-            return new EnhancedSubscriptionChanges(getPodcastSetDetails(changes.add),
-                                                   getPodcastSetDetails(changes.remove), changes.timestamp);
-        }
+    /**
+     * Converts mygpoclient changes to detlef changes.
+     *
+     * @param changes subscription changes as delivered by mygpoclient
+     * @return subscription changes as used by Detlef
+     */
+    private EnhancedSubscriptionChanges getEnhancedSubscriptionChanges(SubscriptionChanges changes) {
+        return new EnhancedSubscriptionChanges(
+                getPodcastStubSet(changes.add),
+                getPodcastStubSet(changes.remove),
+                changes.timestamp);
+    }
 
-        public Podcast getPodcastDetails(String url) {
-            BufferedReader in = null;
-            try {
-                in = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
-                Feed feed = FeedParser.parse(in);
-
-                // Some broken feeds don't point to their own URL. In that case
-                // we just use the url where we downloaded them from.
-                // See #54 and #46.
-                if (feed.url == null) {
-                    feed.url = url;
-                }
-
-                return new Podcast(feed);
-            } catch (ClientProtocolException e) {
-                Log.d(TAG, String.format("Exception while syncing subscriptions: %s", e));
-            } catch (IOException e) {
-                Log.d(TAG, String.format("Exception while syncing subscriptions: %s", e));
-            } catch (FeedParserException e) {
-                Log.d(TAG, String.format("Exception while syncing subscriptions: %s", e));
-            } finally {
-                if (in != null) { try { in.close(); } catch (IOException e) { } }
+    /**
+     * Returns a list of podcast stubs.
+     *
+     * A podcast stub only contains an url. It will get all of its details
+     * the first time its feed items are pulled.
+     *
+     * @param urls Source-urls for the podcast stubs.
+     * @return A list of podcast stubs.
+     */
+    private List<Podcast> getPodcastStubSet(Set<String> urls) {
+        List<Podcast> stubs = new ArrayList<Podcast>(urls.size());
+        for (String url : urls) {
+            Podcast podcast = getStub(url);
+            if (podcast != null) {
+                stubs.add(podcast);
             }
-
-            return null;
         }
 
-        private List<Podcast> getPodcastSetDetails(Set<String> urls) {
-            List<Podcast> podcasts = new ArrayList<Podcast>(urls.size());
-            for (String url : urls) {
-                Podcast podcast = getPodcastDetails(url);
-                if (podcast != null) {
-                    podcasts.add(podcast);
-                }
-            }
+        return stubs;
+    }
 
-            return podcasts;
-        }
+    /**
+     * Returns a podcast stub, containing only an url and no details.
+     *
+     * @param url Url to save in the podcast object
+     * @return A podcast object containing only an url.
+     */
+    public static Podcast getStub(String url) {
+        Podcast result = new Podcast();
+        result.setUrl(url);
+        return result;
     }
 }

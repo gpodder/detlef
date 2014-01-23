@@ -1,5 +1,5 @@
 /* *************************************************************************
- *  Copyright 2012 The detlef developers                                   *
+ *  Copyright 2012-2014 The detlef developers                              *
  *                                                                         *
  *  This program is free software: you can redistribute it and/or modify   *
  *  it under the terms of the GNU General Public License as published by   *
@@ -41,6 +41,7 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.FeedUpdate;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.domain.PodcastPersistence;
 import at.ac.tuwien.detlef.gpodder.events.PullFeedResultEvent;
 
 import com.google.gson.JsonParseException;
@@ -80,6 +81,14 @@ public class PullFeedAsyncTask implements Runnable {
         try {
             /* Get the feed */
             Feed f = parseFeed(podcast.getUrl());
+
+            /* If the podcast is a stub, use the feed to get the details. */
+            if (podcast.isStub()) {
+                getPodcastDetails(podcast, f);
+                downloadPodcastImage(podcast);
+                PodcastSaver.savePodcast(podcast, false);
+                /* the false parameter makes sure that local podcasts stay local */
+            }
 
             feed = new FeedUpdate(f, podcast);
 
@@ -137,6 +146,42 @@ public class PullFeedAsyncTask implements Runnable {
             }
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
+        }
+    }
+
+    /**
+     * Converts a podcast stub to a full blown podcast object, using the given feed.
+     *
+     * If the feed doesn't contain an url, the existing url is left untouched.
+     *
+     * @param stub podcast stub
+     * @param feed feed to get the podcast details from
+     */
+    private void getPodcastDetails(Podcast stub, Feed feed) {
+        if (feed.url != null && !feed.url.isEmpty()) {
+            /*
+             * some feeds don't contain an url. In that case, we
+             * don't touch the url of the podcast.
+             */
+            stub.setUrl(feed.url);
+        }
+        stub.setTitle(feed.title);
+        stub.setDescription(feed.description);
+        stub.setLogoUrl(feed.image);
+    }
+
+    /**
+     * Dowloads the image for the given podcast.
+     *
+     * @param p podcast to download the image for
+     */
+    public static void downloadPodcastImage(Podcast p) {
+        if (p.getLogoUrl() != null && !p.getLogoUrl().equals("")) {
+            try {
+                PodcastPersistence.download(p);
+            } catch (IOException e) {
+                Log.e(TAG, "Error downloading podcast img: " + e.getMessage());
+            }
         }
     }
 }

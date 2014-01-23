@@ -1,5 +1,5 @@
 /* *************************************************************************
- *  Copyright 2012 The detlef developers                                   *
+ *  Copyright 2012-2014 The detlef developers                              *
  *                                                                         *
  *  This program is free software: you can redistribute it and/or modify   *
  *  it under the terms of the GNU General Public License as published by   *
@@ -37,10 +37,10 @@ public class EnhancedSubscriptionChanges implements Serializable, Parcelable {
 
     private static final long serialVersionUID = 1L;
 
-    /** Added podcasts. */
+    /** Stubs for added podcasts. */
     private final List<Podcast> add;
 
-    /** Removed podcasts. */
+    /** Stubs for removed podcasts. */
     private final List<Podcast> remove;
 
     /** Timestamp of the changes. */
@@ -52,8 +52,8 @@ public class EnhancedSubscriptionChanges implements Serializable, Parcelable {
      * The Lists passed to the constuctor are copied into Lists of Podcast. The timestamp an all
      * Podcasts is set to the given timestamp.
      *
-     * @param add List of IPodcasts to add.
-     * @param remove List of IPodcasts to remove.
+     * @param add List of IPodcasts (stubs are OK) to add.
+     * @param remove List of IPodcasts (stubs are OK) to remove.
      * @param timestamp The timestamp of the changes.
      */
     public EnhancedSubscriptionChanges(List <? extends IPodcast > add,
