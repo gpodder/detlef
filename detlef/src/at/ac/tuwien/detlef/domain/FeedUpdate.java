@@ -18,24 +18,25 @@
 
 package at.ac.tuwien.detlef.domain;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import android.util.Log;
+import net.x4a42.volksempfaenger.feedparser.Feed;
+import net.x4a42.volksempfaenger.feedparser.FeedItem;
 
 import com.dragontek.mygpoclient.feeds.IFeed;
 
 public class FeedUpdate implements IFeed {
 
-    private static final String TAG = FeedUpdate.class.getName();
-
     private final String title;
     private final String link;
     private final String description;
     private final String url;
-    private final List<Episode> episodes;
+    private final List<Episode> episodes = new LinkedList<Episode>();
     private final long lastRelease;
+
+    private static final long MS_PER_SEC = 1000;
 
     @Override
     public String getDescription() {
@@ -76,37 +77,34 @@ public class FeedUpdate implements IFeed {
     /**
      * Constructs a FeedUpdate containing all Episodes which were added to the podcast after its
      * last update time.
-     * @param iFeed The original feed
+     * @param f The original feed
      * @param podcast The podcast it belongs to.
      */
-    public FeedUpdate(IFeed iFeed, Podcast podcast) {
-        IEpisode[] iepisodes = iFeed.getEpisodes();
-        episodes = new ArrayList<Episode>(iepisodes.length);
+    public FeedUpdate(Feed f, Podcast podcast) {
+        List<FeedItem> items = f.items;
+
         long lastRelease = podcast.getLastUpdate();
-        for (IEpisode ie : iepisodes) {
+        for (FeedItem fi : items) {
             // TODO: skip Episodes without enclosure, find a way to correctly handle this case.
-            try {
-                if (ie.getEnclosure() == null) {
-                    continue;
-                }
-            } catch (Exception ex) {
-                Log.i(TAG, "missing enclosure " + ex.getMessage());
+            if (fi.enclosures.isEmpty()) {
                 continue;
             }
-            if (ie.getReleased() <= podcast.getLastUpdate()) {
+
+            final long released = fi.date.getTime() / MS_PER_SEC;
+            if (released <= podcast.getLastUpdate()) {
                 continue;
             }
-            if (ie.getReleased() > lastRelease) {
-                lastRelease = ie.getReleased();
-            }
-            episodes.add(new Episode(ie, podcast));
+
+            lastRelease = Math.max(lastRelease, released);
+
+            episodes.add(new Episode(fi.enclosures.get(0), podcast));
         }
 
         this.lastRelease = lastRelease;
-        title = iFeed.getTitle();
-        description = iFeed.getDescription();
-        url = iFeed.getUrl();
-        link = iFeed.getLink();
+        title = f.title;
+        description = f.description;
+        url = f.url;
+        link = f.website;
     }
 
     public long getLastReleaseTime() {

@@ -1,5 +1,5 @@
 /* *************************************************************************
- *  Copyright 2012 The detlef developers                                   *
+ *  Copyright 2012-2014 The detlef developers                              *
  *                                                                         *
  *  This program is free software: you can redistribute it and/or modify   *
  *  it under the terms of the GNU General Public License as published by   *
@@ -18,11 +18,20 @@
 
 package at.ac.tuwien.detlef.gpodder;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.List;
+
+import net.x4a42.volksempfaenger.feedparser.Feed;
+import net.x4a42.volksempfaenger.feedparser.FeedParser;
+import net.x4a42.volksempfaenger.feedparser.FeedParserException;
 
 import org.apache.http.client.ClientProtocolException;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.R;
@@ -32,13 +41,14 @@ import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.FeedUpdate;
 import at.ac.tuwien.detlef.domain.Podcast;
-import at.ac.tuwien.detlef.settings.GpodderSettings;
+import at.ac.tuwien.detlef.domain.PodcastPersistence;
+import at.ac.tuwien.detlef.gpodder.events.PullFeedResultEvent;
 
-import com.dragontek.mygpoclient.feeds.FeedServiceClient;
-import com.dragontek.mygpoclient.feeds.FeedServiceResponse;
-import com.dragontek.mygpoclient.feeds.IFeed;
-import com.dragontek.mygpoclient.feeds.IFeed.IEpisode;
 import com.google.gson.JsonParseException;
+
+import de.greenrobot.event.EventBus;
+
+/* TODO: Port to PodderIntentService. */
 
 /**
  * A Runnable to fetch feed changes. It should be started in its own Thread
@@ -51,11 +61,11 @@ public class PullFeedAsyncTask implements Runnable {
 
     private static final String TAG = PullFeedAsyncTask.class.getName();
 
-    private final NoDataResultHandler<?> callback;
+    private final Bundle bundle;
     private final Podcast podcast;
 
-    public PullFeedAsyncTask(NoDataResultHandler<?> callback, Podcast podcast) {
-        this.callback = callback;
+    public PullFeedAsyncTask(Bundle bundle, Podcast podcast) {
+        this.bundle = bundle;
         this.podcast = podcast;
     }
 
@@ -67,33 +77,22 @@ public class PullFeedAsyncTask implements Runnable {
             sendError(GENERIC_ERROR, err);
         }
 
-        long since = podcast.getLastUpdate();
-
-        /* Retrieve settings.*/
-        GpodderSettings gps = Singletons.i().getGpodderSettings();
-
-        String username = gps.getUsername();
-        String password = gps.getPassword();
-
-        FeedServiceClient fsc = new FeedServiceClient(
-            "http://" + gps.getFeedHostname(),
-            username,
-            password
-        );
-
         FeedUpdate feed = null;
         try {
             /* Get the feed */
-            FeedServiceResponse fsr = fsc.parseFeeds(new String[] {podcast.getUrl()}, since);
-            if (fsr == null || fsr.size() == 0) {
-                String e = Detlef.getAppContext().getString(R.string.failed_to_download_feed);
-                sendError(GENERIC_ERROR, String.format("%s: %s", podcast.getTitle(), e));
-                return;
+            Feed f = parseFeed(podcast.getUrl());
+
+            /* If the podcast is a stub, use the feed to get the details. */
+            if (podcast.isStub()) {
+                getPodcastDetails(podcast, f);
+                downloadPodcastImage(podcast);
+                PodcastSaver.savePodcast(podcast, false);
+                /* the false parameter makes sure that local podcasts stay local */
             }
 
-            feed = new FeedUpdate(fsr.get(0), podcast);
+            feed = new FeedUpdate(f, podcast);
 
-            upsertAndDeleteEpisodes(Detlef.getAppContext(), podcast, feed);
+            insertEpisodes(Detlef.getAppContext(), podcast, feed.getEpisodeList());
 
             /* Update last changed timestamp.*/
             podcast.setLastUpdate(feed.getLastReleaseTime());
@@ -108,10 +107,24 @@ public class PullFeedAsyncTask implements Runnable {
         } catch (IOException e) {
             sendError(GENERIC_ERROR, e.getLocalizedMessage());
             return;
+        } catch (FeedParserException e) {
+            sendError(GENERIC_ERROR, e.getLocalizedMessage());
+            return;
         }
 
         /* Tell receiver we're done.. */
-        callback.sendEvent(new NoDataResultHandler.NoDataSuccessEvent(callback));
+        EventBus.getDefault().post(new PullFeedResultEvent(ErrorCode.SUCCESS, bundle));
+    }
+
+    private static Feed parseFeed(String url) throws FeedParserException, IOException {
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
+            return FeedParser.parse(in);
+        } finally {
+            if (in != null) { try { in.close(); } catch (IOException e) { } }
+        }
+
     }
 
     /**
@@ -122,26 +135,53 @@ public class PullFeedAsyncTask implements Runnable {
      * @param errString The error string.
      */
     private void sendError(int errCode, String errString) {
-        callback.sendEvent(new ResultHandler.GenericFailureEvent(callback, errCode, errString));
+        EventBus.getDefault().post(new PullFeedResultEvent(ErrorCode.GENERIC_FAILURE, bundle));
     }
 
-    private void upsertAndDeleteEpisodes(Context context, Podcast p, IFeed feed) {
+    private void insertEpisodes(Context context, Podcast p, List<Episode> episodes) {
         try {
             EpisodeDAO dao = Singletons.i().getEpisodeDAO();
-            for (IEpisode ep : feed.getEpisodes()) {
-                try {
-                    if (ep.getEnclosure() != null) {
-                        Episode newEp = new Episode(ep, p);
-
-                        dao.insertEpisode(newEp);
-                    }
-                } catch (Exception ex) {
-                    Log.i(TAG, ("enclosure missing, " + ex.getMessage()) != null ? ex.getMessage()
-                          : ex.toString());
-                }
+            for (Episode ep : episodes) {
+                dao.insertEpisode(ep);
             }
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
+        }
+    }
+
+    /**
+     * Converts a podcast stub to a full blown podcast object, using the given feed.
+     *
+     * If the feed doesn't contain an url, the existing url is left untouched.
+     *
+     * @param stub podcast stub
+     * @param feed feed to get the podcast details from
+     */
+    private void getPodcastDetails(Podcast stub, Feed feed) {
+        if (feed.url != null && !feed.url.isEmpty()) {
+            /*
+             * some feeds don't contain an url. In that case, we
+             * don't touch the url of the podcast.
+             */
+            stub.setUrl(feed.url);
+        }
+        stub.setTitle(feed.title);
+        stub.setDescription(feed.description);
+        stub.setLogoUrl(feed.image);
+    }
+
+    /**
+     * Dowloads the image for the given podcast.
+     *
+     * @param p podcast to download the image for
+     */
+    public static void downloadPodcastImage(Podcast p) {
+        if (p.getLogoUrl() != null && !p.getLogoUrl().equals("")) {
+            try {
+                PodcastPersistence.download(p);
+            } catch (IOException e) {
+                Log.e(TAG, "Error downloading podcast img: " + e.getMessage());
+            }
         }
     }
 }

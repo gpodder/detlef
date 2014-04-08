@@ -1,8 +1,10 @@
 * Local add/delete refactoring: the current solution seems somewhat unwieldy, come up with a better
-concept & implement it.
+  concept & implement it.
 * Remove all file deletions from DB methods
-* Unify all communications with the backend. At this point, I'm not even sure what the recommended
-way is; SynchronousSyncResponder??
-* Simplify the backend: get rid of the AIDL version and convert all of it into a basic IntentService (or similar).
 * Replace the player controls with MediaController
 * Refactor the media player backend
+* Rethink how database changes are communicated to the frontend. Firing one event per change
+  is simply too expensive.
+* Add bulk insertion / deletion of episodes / podcasts. Again, one-by-one handling is too expensive.
+* Instead of relying on gpodder.net to parse feeds, do this locally. I'd expect this to be
+  an easy but substantial speedup.

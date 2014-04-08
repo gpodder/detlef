@@ -21,14 +21,6 @@ of the Android 16 SDK.
     $ ant debug
     $ ant installd
 
-How To Test
-===========
-
-    $ cd test-detlef
-    $ ant clean debug install test
-    $ cd test-detlef-ui
-    $ ant clean debug install test
-
 License
 =======
 

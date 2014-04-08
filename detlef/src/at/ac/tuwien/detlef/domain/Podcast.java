@@ -1,5 +1,5 @@
 /* *************************************************************************
- *  Copyright 2012 The detlef developers                                   *
+ *  Copyright 2012-2014 The detlef developers                              *
  *                                                                         *
  *  This program is free software: you can redistribute it and/or modify   *
  *  it under the terms of the GNU General Public License as published by   *
@@ -19,6 +19,7 @@ package at.ac.tuwien.detlef.domain;
 
 import java.io.Serializable;
 
+import net.x4a42.volksempfaenger.feedparser.Feed;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -31,8 +32,9 @@ import at.ac.tuwien.detlef.R;
 import com.dragontek.mygpoclient.simple.IPodcast;
 
 /**
- * Dummy class to display initial test podcast content until the actual podcast
- * classes are available.
+ * A podcast object can hold all details of a podcast, or it can just contain
+ * it's url. In the latter case, I call it a stub. The isStub() method can be
+ * used to determine wheter the object is a stub or not.
  */
 public class Podcast implements IPodcast, Serializable, Parcelable {
 
@@ -69,6 +71,13 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
         setTitle(p.getTitle());
         setDescription(p.getDescription());
         setLogoUrl(p.getLogoUrl());
+    }
+
+    public Podcast(Feed feed) {
+        setUrl(feed.url);
+        setTitle(feed.title);
+        setDescription(feed.description);
+        setLogoUrl(feed.image);
     }
 
     /**
@@ -202,6 +211,22 @@ public class Podcast implements IPodcast, Serializable, Parcelable {
 
     public void setLocalDel(boolean localDel) {
         this.localDel = localDel;
+    }
+
+    /**
+     * Indicates whether the podcast details still have to be fetched.
+     *
+     * @return true if the podcast details still have to be fetched.
+     */
+    public boolean isStub() {
+        /*
+         * At the moment, I check whether the podcast has a logoFilePath to
+         * decide whether all details are available or not. This is probably
+         * not the best way to do this. On the other hand, when some cover
+         * art is missing for one or another reason, this will make detlef
+         * redownload it with the next refresh.
+         */
+        return (this.logoFilePath == null || this.logoFilePath.isEmpty());
     }
 
     @Override

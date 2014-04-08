@@ -31,6 +31,8 @@ import at.ac.tuwien.detlef.Detlef;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager.DownloadCallback;
+import at.ac.tuwien.detlef.gpodder.events.SubscriptionsChangedEvent;
+import de.greenrobot.event.EventBus;
 
 /**
  * PodcastPersistence contains static helper methods for handling
@@ -115,18 +117,21 @@ public final class PodcastPersistence {
         public void onCancel() {
             podcast.setLogoFilePath(null);
             Singletons.i().getPodcastDAO().update(podcast);
+            EventBus.getDefault().post(new SubscriptionsChangedEvent());
         }
 
         @Override
         public void onError() {
             podcast.setLogoFilePath(null);
             Singletons.i().getPodcastDAO().update(podcast);
+            EventBus.getDefault().post(new SubscriptionsChangedEvent());
         }
 
         @Override
         public void onFinish(Uri uri) {
             podcast.setLogoFilePath(uri.getPath());
             Singletons.i().getPodcastDAO().update(podcast);
+            EventBus.getDefault().post(new SubscriptionsChangedEvent());
         }
 
         @Override

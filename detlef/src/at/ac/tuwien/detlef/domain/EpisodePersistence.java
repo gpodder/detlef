@@ -80,7 +80,6 @@ public final class EpisodePersistence {
      * @param episode The episode to delete.
      */
     public static void delete(Episode episode) {
-        episode.setFilePath(null);
         episode.setStorageState(StorageState.NOT_ON_DEVICE);
 
         cancelDownload(episode);
@@ -88,6 +87,7 @@ public final class EpisodePersistence {
         if (episode.getFilePath() != null) {
             File file = new File(episode.getFilePath());
             file.delete();
+            episode.setFilePath(null);
         }
     }
 

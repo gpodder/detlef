@@ -21,7 +21,9 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
+import at.ac.tuwien.detlef.gpodder.events.SubscriptionsChangedEvent;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
+import de.greenrobot.event.EventBus;
 /**
  * Quite a lot is going on if the username preference is changed:
  *
@@ -70,6 +72,7 @@ public class SettingsUsernameOnPreferenceChangeListener
         Singletons.i()
         .getPodcastDAO()
         .deleteAllPodcasts();
+        EventBus.getDefault().post(new SubscriptionsChangedEvent());
     }
 
     private void updateSettings(String newUsername) {

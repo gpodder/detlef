@@ -63,13 +63,18 @@ import at.ac.tuwien.detlef.fragments.EpisodeListSortDialogFragment;
 import at.ac.tuwien.detlef.fragments.PlayerFragment;
 import at.ac.tuwien.detlef.fragments.PodListFragment;
 import at.ac.tuwien.detlef.fragments.SettingsGpodderNet;
-import at.ac.tuwien.detlef.gpodder.NoDataResultHandler;
+import at.ac.tuwien.detlef.gpodder.ErrorCode;
 import at.ac.tuwien.detlef.gpodder.PullFeedAsyncTask;
-import at.ac.tuwien.detlef.gpodder.ReliableResultHandler;
 import at.ac.tuwien.detlef.gpodder.SyncEpisodeActionsAsyncTask;
 import at.ac.tuwien.detlef.gpodder.SyncSubscriptionsAsyncTask;
+import at.ac.tuwien.detlef.gpodder.events.EpisodeActionResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.PlaylistChangedEvent;
+import at.ac.tuwien.detlef.gpodder.events.PullFeedResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.PullSubscriptionResultEvent;
+import at.ac.tuwien.detlef.gpodder.events.SubscriptionsChangedEvent;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends FragmentActivity
     implements ActionBar.TabListener, PodListFragment.OnPodcastSelectedListener,
@@ -121,10 +126,6 @@ public class MainActivity extends FragmentActivity
             curPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_CUR_POD_SYNC, 0));
             numPodSync = new AtomicInteger(savedInstanceState.getInt(KEY_NUM_POD_SYNC, -1));
             showProgressDialog = savedInstanceState.getBoolean(KEY_SHOW_PROGRESS_DIALOG, false);
-        } else {
-            podcastHandler = new PodcastHandler();
-            feedHandler = new FeedHandler();
-            episodeActionHandler = new EpisodeActionHandler();
         }
 
         if (refreshBg == null) {
@@ -233,37 +234,15 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onResume() {
         super.onResume();
-
-        /* Register the Podcast- & FeedHandler. */
-        podcastHandler.registerReceiver(this);
-        feedHandler.registerReceiver(this);
-        episodeActionHandler.registerReceiver(this);
-    }
-
-    @Override
-    public void onBackPressed() {
-        switch (mViewPager.getCurrentItem()) {
-        case SectionsPagerAdapter.POSITION_PODCASTS:
-            super.onBackPressed();
-            break;
-        case SectionsPagerAdapter.POSITION_EPISODES:
-            actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_PODCASTS));
-            break;
-        case SectionsPagerAdapter.POSITION_PLAYER:
-            actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_EPISODES));
-            break;
-        default:
-            super.onBackPressed();
-        }
+        EventBus.getDefault().register(this,
+                EpisodeActionResultEvent.class,
+                PullFeedResultEvent.class,
+                PullSubscriptionResultEvent.class);
     }
 
     @Override
     public void onPause() {
-        /* Unregister the Podcast- & FeedHandler. */
-        podcastHandler.unregisterReceiver();
-        feedHandler.unregisterReceiver();
-        episodeActionHandler.unregisterReceiver();
-
+        EventBus.getDefault().unregister(this);
         super.onPause();
     }
 
@@ -309,6 +288,23 @@ public class MainActivity extends FragmentActivity
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        switch (mViewPager.getCurrentItem()) {
+        case SectionsPagerAdapter.POSITION_PODCASTS:
+            super.onBackPressed();
+            break;
+        case SectionsPagerAdapter.POSITION_EPISODES:
+            actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_PODCASTS));
+            break;
+        case SectionsPagerAdapter.POSITION_PLAYER:
+            actionBar.selectTab(actionBar.getTabAt(SectionsPagerAdapter.POSITION_EPISODES));
+            break;
+        default:
+            super.onBackPressed();
+        }
+    }
+
     private void showRefreshProgressBar() {
         setRefreshBtnView(R.layout.refresh_button_active);
     }
@@ -332,10 +328,6 @@ public class MainActivity extends FragmentActivity
             progressDialog.setMessage(getString(R.string.refreshing_feed_list));
         }
     }
-
-    private static PodcastHandler podcastHandler = null;
-    private static FeedHandler feedHandler = null;
-    private static EpisodeActionHandler episodeActionHandler = null;
 
     /**
      * The Tasks for the refresh are run on a single thread.
@@ -385,158 +377,79 @@ public class MainActivity extends FragmentActivity
     /**
      * The Handler for receiving PullSubscriptionsAsyncTask's results.
      */
-    private static final class PodcastHandler
-        extends ReliableResultHandler<MainActivity>
-        implements NoDataResultHandler<MainActivity> {
+    public void onEventMainThread(PullSubscriptionResultEvent event) {
+        EventBus.getDefault().post(new SubscriptionsChangedEvent());
 
-        /**
-         * Once the Podcast list is synchronized, update all feeds.
-         */
-        @Override
-        public void handleSuccess() {
-            PodcastDAO pDao = Singletons.i().getPodcastDAO();
+        if (ErrorCode.failed(event.code)) {
+            onRefreshDone(getString(R.string.operation_failed));
+            return;
+        }
 
-            final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false);
+        PodcastDAO pDao = Singletons.i().getPodcastDAO();
 
-            synchronized (getRcv().numPodSync) {
+        final boolean showDialog = event.bundle.getBoolean(EXTRA_REFRESH_FEED_LIST, false);
 
-                for (Podcast p : pDao.getNonDeletedPodcasts()) {
-
-                    feedHandler.setBundle(getBundle());
-                    refreshBg.execute(new PullFeedAsyncTask(feedHandler, p));
-                    getRcv().numPodSync.incrementAndGet();
-                }
-
-                if (getRcv().numPodSync.get() == 0) {
-                    getRcv().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (showDialog) {
-                                getRcv().onRefreshDone(getRcv().getString(R.string.setup_finished),
-                                                       RefreshDoneNotification.DIALOG);
-                            } else {
-                                getRcv().onRefreshDone(getRcv().getString(
-                                                           R.string.refresh_successful));
-                            }
-                        }
-                    });
-                }
-
-                getRcv().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getRcv().prepareProgressDialog();
-                    }
-                });
+        synchronized (numPodSync) {
+            for (Podcast p : pDao.getNonDeletedPodcasts()) {
+                refreshBg.execute(new PullFeedAsyncTask(event.bundle, p));
+                numPodSync.incrementAndGet();
             }
+
+            if (numPodSync.get() == 0) {
+                if (showDialog) {
+                    onRefreshDone(getString(R.string.setup_finished), RefreshDoneNotification.DIALOG);
+                } else {
+                    onRefreshDone(getString(R.string.refresh_successful));
+                }
+            }
+
+            prepareProgressDialog();
+        }
+    }
+
+    public void onEventMainThread(EpisodeActionResultEvent event) {
+        if (ErrorCode.failed(event.code)) {
+            onRefreshDone(getString(R.string.operation_failed));
+            return;
         }
 
-        @Override
-        public void handleFailure(int errCode, final String errString) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
-                                           + errString);
-                }
-            });
-        }
-    };
-
-    private static class EpisodeActionHandler
-        extends ReliableResultHandler<MainActivity>
-        implements NoDataResultHandler<MainActivity> {
-
-        @Override
-        public void handleFailure(int errCode, final String errStr) {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getRcv().onRefreshDone(getRcv().getString(R.string.operation_failed) + ": "
-                                           + errStr);
-                }
-            });
-        }
-
-        @Override
-        public void handleSuccess() {
-            getRcv().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST, false)) {
-                        getRcv().onRefreshDone(
-                            getRcv().getString(R.string.setup_finished),
-                            RefreshDoneNotification.DIALOG
-                        );
-                    } else {
-                        getRcv().onRefreshDone(getRcv().getString(R.string.refresh_successful));
-                    }
-                }
-            });
+        if (event.bundle.getBoolean(EXTRA_REFRESH_FEED_LIST, false)) {
+            onRefreshDone(getString(R.string.setup_finished), RefreshDoneNotification.DIALOG);
+        } else {
+            onRefreshDone(getString(R.string.refresh_successful));
         }
     }
 
     /**
      * The Handler for receiving PullFeedAsyncTask's results.
      */
-    private static final class FeedHandler
-        extends ReliableResultHandler<MainActivity>
-        implements NoDataResultHandler<MainActivity> {
-
-        @Override
-        public void handleSuccess() {
-            getRcv().runOnUiThread(
-            new Runnable() {
-                @Override
-                public void run() {
-                    checkDone();
-                }
-            });
+    public void onEventMainThread(PullFeedResultEvent event) {
+        if (ErrorCode.failed(event.code)) {
+            Toast.makeText(this, "Pulling feeds failed", REFRESH_MSG_DURATION_MS).show();
         }
 
-        @Override
-        public void handleFailure(int errCode, final String errString) {
-            getRcv().runOnUiThread(
-            new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getRcv(), errString, REFRESH_MSG_DURATION_MS).show();
+        final Bundle bundle = event.bundle;
 
-                    checkDone();
-                }
-            });
-        }
+        synchronized (numPodSync) {
+            curPodSync.incrementAndGet();
 
-        /**
-         * Check whether we have refreshed all feeds and if yes call
-         * onRefreshDone.
-         */
-        private void checkDone() {
-            synchronized (getRcv().numPodSync) {
-                getRcv().curPodSync.incrementAndGet();
+            if (curPodSync.get() == numPodSync.get()) {
+                final boolean showDialog = bundle.getBoolean(EXTRA_REFRESH_FEED_LIST,
+                                           false);
 
-                if (getRcv().curPodSync.get() == getRcv().numPodSync.get()) {
+                Log.d(TAG, "r bundle: " + bundle);
+                Log.d(TAG, "r bundle extra: " + showDialog);
+                Log.d(TAG, "r handler: " + this);
 
-                    final boolean showDialog = getBundle().getBoolean(EXTRA_REFRESH_FEED_LIST,
-                                               false);
+                EventBus.getDefault().post(new SubscriptionsChangedEvent());
 
-                    Log.d(TAG, "r bundle: " + getBundle());
-                    Log.d(TAG, "r bundle extra: " + showDialog);
-                    Log.d(TAG, "r handler: " + this);
-
-                    episodeActionHandler.setBundle(getBundle());
-                    refreshBg.execute(new SyncEpisodeActionsAsyncTask(episodeActionHandler));
-                }
-
-                getRcv().prepareProgressDialog();
+                refreshBg.execute(new SyncEpisodeActionsAsyncTask(bundle));
             }
+
+            prepareProgressDialog();
         }
+    }
 
-    };
-
-    /**
-     * Calls {@link #onRefreshPressed(Bundle)} with an empty Bundle.
-     */
     private void onRefreshPressed() {
         onRefreshPressed(new Bundle());
     }
@@ -568,12 +481,9 @@ public class MainActivity extends FragmentActivity
             curPodSync.set(0);
         }
 
-        podcastHandler.setBundle(pBundle);
-
         Log.d(TAG, "bundle: " + pBundle);
-        Log.d(TAG, "handler: " + podcastHandler);
 
-        refreshBg.execute(new SyncSubscriptionsAsyncTask(podcastHandler));
+        refreshBg.execute(new SyncSubscriptionsAsyncTask(pBundle));
         startService(new Intent().setClass(this, SyncSubscriptionsAsyncTask.class));
 
         prepareProgressDialog();
@@ -882,6 +792,8 @@ public class MainActivity extends FragmentActivity
                     text = R.string.could_not_add_to_playlist;
                 }
             }
+
+            EventBus.getDefault().post(new PlaylistChangedEvent());
         } else {
             text = R.string.could_not_add_to_playlist;
         }
@@ -952,34 +864,29 @@ public class MainActivity extends FragmentActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
-
         Log.d(TAG, String.format("onActivityResult(%d, %d, %s)", requestCode, resultCode, data));
 
         if (data == null) {
             return;
         }
 
-        if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)
-                || data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
+        final boolean refresh = data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false);
+        final boolean addRefresh = data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false);
 
-            if (resultCode == Activity.RESULT_OK) {
-                Bundle bundle = new Bundle();
-                if (data.getBooleanExtra(PODCAST_ADD_REFRESH_FEED_LIST, false)) {
-                    bundle.putBoolean(PODCAST_ADD_REFRESH_FEED_LIST, true);
-                } else {
-                    bundle.putBoolean(EXTRA_REFRESH_FEED_LIST, true);
-                }
-                onRefreshPressed(bundle);
-            } else {
-                if (data.getBooleanExtra(EXTRA_REFRESH_FEED_LIST, false)) {
-                    Toast.makeText(
-                        this, getString(R.string.you_can_refresh_your_podcasts_later),
-                        Toast.LENGTH_LONG
-                    ).show();
-                }
-            }
+        if (!refresh && !addRefresh) {
+            return;
         }
 
+        if (resultCode == Activity.RESULT_OK) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(addRefresh ? PODCAST_ADD_REFRESH_FEED_LIST : EXTRA_REFRESH_FEED_LIST, true);
+            onRefreshPressed(bundle);
+        } else if (refresh) {
+            Toast.makeText(
+                this, getString(R.string.you_can_refresh_your_podcasts_later),
+                Toast.LENGTH_LONG
+            ).show();
+        }
     }
 
     @Override

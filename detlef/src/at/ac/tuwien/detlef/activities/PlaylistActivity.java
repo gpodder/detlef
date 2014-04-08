@@ -44,14 +44,16 @@ import at.ac.tuwien.detlef.domain.Episode;
 import at.ac.tuwien.detlef.domain.Episode.StorageState;
 import at.ac.tuwien.detlef.domain.EpisodePersistence;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
+import at.ac.tuwien.detlef.gpodder.events.PlaylistChangedEvent;
 import at.ac.tuwien.detlef.mediaplayer.IMediaPlayerService;
 import at.ac.tuwien.detlef.mediaplayer.MediaPlayerService;
 import at.ac.tuwien.detlef.util.GUIUtils;
 
 import com.mobeta.android.dslv.DragSortListView;
 
-public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlaylistChangeListener,
-    EpisodeDAO.OnEpisodeChangeListener {
+import de.greenrobot.event.EventBus;
+
+public class PlaylistActivity extends ListActivity implements EpisodeDAO.OnEpisodeChangeListener {
 
     private ArrayList<Episode> playlistItems;
     private PlaylistListAdapter adapter;
@@ -86,7 +88,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         setContentView(R.layout.playlist_activity_layout);
 
         playlistDAO = Singletons.i().getPlaylistDAO();
-        playlistDAO.addPlaylistChangedListener(this);
+        EventBus.getDefault().register(this, PlaylistChangedEvent.class);
         playlistItems = playlistDAO.getNonCachedEpisodes();
         Singletons.i().getEpisodeDAO().addEpisodeChangedListener(this);
 
@@ -96,6 +98,13 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         initListView();
         registerForContextMenu(getListView());
         connectToMediaService();
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+
+        super.onDestroy();
     }
 
     private void initListView() {
@@ -130,6 +139,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         @Override
         public void drop(int from, int to) {
             playlistDAO.moveEpisode(from, to);
+            EventBus.getDefault().post(new PlaylistChangedEvent());
         }
     };
 
@@ -137,6 +147,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         @Override
         public void remove(int which) {
             playlistDAO.removeEpisode(which);
+            EventBus.getDefault().post(new PlaylistChangedEvent());
         }
     };
 
@@ -155,28 +166,16 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
         inflater.inflate(R.menu.playlist_context, menu);
     }
 
-    @Override
-    public void onPlaylistEpisodeAdded(int position, Episode episode) {
-        playlistItems.add(position, episode);
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPlaylistEpisodePositionChanged(int firstPosition, int secondPosition) {
-        Episode ep = playlistItems.remove(firstPosition);
-        playlistItems.add(secondPosition, ep);
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPlaylistEpisodeRemoved(int position) {
-        playlistItems.remove(position);
+    public void onEventMainThread(PlaylistChangedEvent event) {
+        playlistItems.clear();
+        playlistItems.addAll(playlistDAO.getNonCachedEpisodes());
         adapter.notifyDataSetChanged();
     }
 
     public void removeFromPlaylist(View v) {
         int position = (Integer) v.getTag();
         playlistDAO.removeEpisode(position);
+        EventBus.getDefault().post(new PlaylistChangedEvent());
     }
 
     @Override
@@ -249,6 +248,7 @@ public class PlaylistActivity extends ListActivity implements PlaylistDAO.OnPlay
     private void playlistClear() {
         Log.d(getClass().getName(), "Clearing playlist");
         playlistDAO.clearPlaylist();
+        EventBus.getDefault().post(new PlaylistChangedEvent());
     }
 
     @Override

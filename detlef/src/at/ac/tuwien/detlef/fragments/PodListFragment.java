@@ -38,9 +38,11 @@ import at.ac.tuwien.detlef.Singletons;
 import at.ac.tuwien.detlef.adapters.PodListAdapter;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
+import at.ac.tuwien.detlef.gpodder.events.SubscriptionsChangedEvent;
 import at.ac.tuwien.detlef.models.PodListModel;
+import de.greenrobot.event.EventBus;
 
-public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcastChangeListener {
+public class PodListFragment extends ListFragment {
 
     private static final String TAG = PodListFragment.class.getName();
 
@@ -77,7 +79,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
         /* Initialize our podcast model. */
 
         PodcastDAO dao = Singletons.i().getPodcastDAO();
-        dao.addPodcastChangedListener(this);
+        EventBus.getDefault().register(this, SubscriptionsChangedEvent.class);
 
         List<Podcast> podlist = dao.getNonDeletedPodcasts();
 
@@ -120,8 +122,7 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
 
     @Override
     public void onDestroy() {
-        PodcastDAO dao = Singletons.i().getPodcastDAO();
-        dao.removePodListChangeListener(this);
+        EventBus.getDefault().unregister(this);
 
         super.onDestroy();
     }
@@ -177,47 +178,11 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
         Podcast podcast = model.get(pos);
         PodcastDAO dao = Singletons.i().getPodcastDAO();
         dao.localDeletePodcast(podcast);
-    }
-
-    @Override
-    public void onPodcastChanged(Podcast podcast) {
-        Log.v(TAG, String.format("onPodcastChanged: %s", podcast.getTitle()));
         updatePodcastList();
+        //EventBus.getDefault().post(new SubscriptionsChangedEvent());
     }
 
-    @Override
-    public void onPodcastAdded(final Podcast podcast) {
-        Log.v(TAG, String.format("onPodcastAdded: %s", podcast.getTitle()));
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                model.addPodcast(podcast);
-                sortByTitle();
-            }
-        });
-
-        updatePodcastList();
-    }
-
-    @Override
-    public void onPodcastDeleted(final Podcast podcast) {
-        Log.v(TAG, String.format("onPodcastDeleted: %s", podcast.getTitle()));
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                model.removePodcast(podcast);
-            }
-        });
+    public void onEventMainThread(SubscriptionsChangedEvent event) {
         updatePodcastList();
     }
 
@@ -235,16 +200,13 @@ public class PodListFragment extends ListFragment implements PodcastDAO.OnPodcas
      * that UI methods are called on the UI thread.
      */
     private void updatePodcastList() {
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
+        Log.v("PodListFragment", "updatePodcastList");
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyDataSetChanged();
-            }
-        });
+        PodcastDAO dao = Singletons.i().getPodcastDAO();
+
+        List<Podcast> podlist = dao.getNonDeletedPodcasts();
+
+        model.update(podlist);
+        adapter.notifyDataSetChanged();
     }
 }

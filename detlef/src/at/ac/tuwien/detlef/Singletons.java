@@ -34,14 +34,9 @@ import at.ac.tuwien.detlef.db.PlaylistDAOImpl;
 import at.ac.tuwien.detlef.db.PodcastDAO;
 import at.ac.tuwien.detlef.domain.Podcast;
 import at.ac.tuwien.detlef.download.DetlefDownloadManager;
-import at.ac.tuwien.detlef.gpodder.GPodderSync;
-import at.ac.tuwien.detlef.gpodder.responders.SynchronousSyncResponder;
-import at.ac.tuwien.detlef.settings.ConnectionTester;
-import at.ac.tuwien.detlef.settings.ConnectionTesterGpodderNet;
+import at.ac.tuwien.detlef.gpodder.plumbing.GpoNetClientInfo;
 import at.ac.tuwien.detlef.settings.DeviceIdGenerator;
 import at.ac.tuwien.detlef.settings.DeviceIdGeneratorRandom;
-import at.ac.tuwien.detlef.settings.DeviceRegistrator;
-import at.ac.tuwien.detlef.settings.DeviceRegistratorGpodderNet;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAO;
 import at.ac.tuwien.detlef.settings.GpodderSettingsDAOAndroid;
@@ -58,7 +53,7 @@ public class Singletons {
 
     private DatabaseHelper databaseHelper = null;
     private DetlefDownloadManager downloadManager = null;
-    private GPodderSync gPodderSync = null;
+    private GpoNetClientInfo clientInfo = null;
     private PodcastDAO podcastDAO = null;
     private EpisodeDAO episodeDAO = null;
     private EpisodeActionDAO episodeActionDAO = null;
@@ -70,18 +65,13 @@ public class Singletons {
         }
         return databaseHelper;
     }
-    /**
-     * Lazy initialization to both improve performance and avoid issues getting the
-     * application context in unit tests.
-     *
-     * @return Gets the quasi-singleton GPodderSync instance for this program.
-     */
-    public GPodderSync getGPodderSync() {
-        if (gPodderSync == null) {
-            gPodderSync = new GPodderSync(new SynchronousSyncResponder(
-                                              Detlef.getAppContext()));
+
+    public GpoNetClientInfo getClientInfo() {
+        if (clientInfo == null) {
+            clientInfo = new GpoNetClientInfo();
+            clientInfo.setHostname(getGpodderSettings().getApiHostname());
         }
-        return gPodderSync;
+        return clientInfo;
     }
 
     /**
@@ -107,21 +97,6 @@ public class Singletons {
         gpodderSettingsDAO.setDependencies(dependencies);
 
         return gpodderSettingsDAO;
-    }
-
-    /**
-     * @return The {@link DeviceRegistrator} that is able to register a device.
-     */
-    public DeviceRegistrator getDeviceRegistrator() {
-        return new DeviceRegistratorGpodderNet();
-    }
-
-    /**
-     * @return The {@link ConnectionTester} that verifies a set of of
-     *         {@link GpodderSettings}.
-     */
-    public ConnectionTester getConnectionTester() {
-        return new ConnectionTesterGpodderNet();
     }
 
     /**
