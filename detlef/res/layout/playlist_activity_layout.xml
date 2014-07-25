@@ -18,7 +18,6 @@
         dslv:float_alpha="0.6"
         dslv:max_drag_scroll_speed="0.5"
         dslv:remove_enabled="true"
-        dslv:remove_mode="flingLeft"
         dslv:slide_shuffle_speed="0.3"
         dslv:sort_enabled="true"
         dslv:track_drag_sort="false"
