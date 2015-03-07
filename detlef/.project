@@ -3,6 +3,7 @@
 	<name>at.ac.tuwien.detlef.MainActivity</name>
 	<comment></comment>
 	<projects>
+		<project>library</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
