@@ -72,7 +72,6 @@ import at.ac.tuwien.detlef.gpodder.events.PlaylistChangedEvent;
 import at.ac.tuwien.detlef.gpodder.events.PullFeedResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.PullSubscriptionResultEvent;
 import at.ac.tuwien.detlef.gpodder.events.SubscriptionsChangedEvent;
-import at.ac.tuwien.detlef.mediaplayer.MediaPlayerNotification;
 import at.ac.tuwien.detlef.settings.GpodderSettings;
 import de.greenrobot.event.EventBus;
 
@@ -131,8 +130,6 @@ public class MainActivity extends FragmentActivity
         if (refreshBg == null) {
             refreshBg = Executors.newSingleThreadExecutor();
         }
-
-        MediaPlayerNotification.create(this, false, null);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
